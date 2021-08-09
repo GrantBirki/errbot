@@ -2,15 +2,17 @@
 
 Quickly deploy a chatbot with Errbot, Dockerized! 🐳
 
-## About
+## About 💡
 
 This project uses [errbot](https://github.com/errbotio/errbot) and [Docker](https://www.docker.com/) to quickly launch your own chatbot in a container.
 
-## Usage
+The goal of this project is to make it as easy as possible to launch a minimal, working chatbot.
 
-The goal of this project is to make it as easy as possible to launch a minimal, working chatbot. To get started you will need a few prerequisites.
+---
 
-### Prerequisites
+## Setup 🛠️
+
+### Prerequisites ✔️
 
 If you got all the items below downloaded and are familiar with setting up a bot account for chat service, you can skip right to the setup section.
 
@@ -24,17 +26,15 @@ Depending on which "backend" or "chat-service" you plan on using, you will need 
 - [Slack](https://my.slack.com/services/new/bot) - Extra errbot [documentation](https://errbot.readthedocs.io/en/latest/user_guide/configuration/slack.html?highlight=slack)
 - [Discord](https://discord.com/developers/docs/intro) - Extra errbot [documentation](https://github.com/gbin/err-backend-discord)
 
-#### Extra Prerequisites
-
 Lastly, you will need to be familiar with how to add your bot to your chat service.
 
 Adding your bot to a chat service examples:
 
-##### Slack
+#### Slack
 
 In the case of Slack, this can be done by mentioning your bot in any channel and you will be prompted to invite the bot right there.
 
-##### Discord
+#### Discord
 
 With Discord, things are a little different. You will need to first enable `SERVER MEMBERS INTENT` for your bot application. After that, you need to go into the Oauth2 page for your bot and select the `bot` scope. This will expand more options. You may go as crazy or as restrictive as you want with the chat permissions. That part is totally up to you.
 
@@ -44,8 +44,6 @@ It could look something like this: `https://discord.com/api/oauth2/authorize?cli
 
 Enter that link into your web browser and it should give you a list of servers to invtire your bot to. Add it to your favorite server!
 
-### Setup
-
 To setup your bot, you will need to modify your `config.env` file. To make things easier, there is a `config.example.env` file in the root of this repo.
 
 1. Rename `config.example.env` to `config.env` *required
@@ -53,7 +51,11 @@ To setup your bot, you will need to modify your `config.env` file. To make thing
 1. Set `CHAT_SERVICE_TOKEN='<token>'` *required
 1. Change `BOT_PREFIX='!'` if you want *optional
 
-That's it! Now lets start the bot:
+---
+
+## Usage ⌨️
+
+Completed the simple setup? Awesome! Let's start the bot:
 
 ```text
 make run
@@ -77,7 +79,7 @@ Creating chatbot ... done
 [#] Container is now running!
 ```
 
-### Testing
+### Testing 🧪
 
 If you followed the steps above and everything succeeded, you should get a DM from the bot stating that it is "Now Online". You should note that you will only get this message if `BOT_ADMINS='@username'` is set to your username in the `config.env` file.
 
@@ -108,6 +110,6 @@ Building chatbot
 
 Read more about the errbot local dev environment [here](https://errbot.readthedocs.io/en/latest/user_guide/plugin_development/development_environment.html#local-test-mode)
 
-### Making your own plugin / function
+### Making your own plugin / function 🔌
 
 Check out the `plugins/example` folder. It really is that easy! Just copy a new folder, and add the files from the `example` plugin folder. Write your code, test, and deploy!
