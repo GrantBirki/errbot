@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  chatbot:
+    container_name: chatbot
+    restart: always
+    build: ./app
+    env_file: config.env

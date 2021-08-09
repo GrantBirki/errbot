@@ -1,0 +1,4 @@
+.vscode
+.terraform
+creds*
+config.env

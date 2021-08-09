@@ -1,2 +1,113 @@
-# errbot-launchpad
+# errbot-launchpad 🤖
+
 Quickly deploy a chatbot with Errbot, Dockerized! 🐳
+
+## About
+
+This project uses [errbot](https://github.com/errbotio/errbot) and [Docker](https://www.docker.com/) to quickly launch your own chatbot in a container.
+
+## Usage
+
+The goal of this project is to make it as easy as possible to launch a minimal, working chatbot. To get started you will need a few prerequisites.
+
+### Prerequisites
+
+If you got all the items below downloaded and are familiar with setting up a bot account for chat service, you can skip right to the setup section.
+
+- [Docker](https://www.docker.com/)
+- [Docker-compose](https://docs.docker.com/compose/)
+- [Make](https://www.gnu.org/software/make/)
+- [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10) if you are using Windows
+
+Depending on which "backend" or "chat-service" you plan on using, you will need an authentication token to start your bot.
+
+- [Slack](https://my.slack.com/services/new/bot) - Extra errbot [documentation](https://errbot.readthedocs.io/en/latest/user_guide/configuration/slack.html?highlight=slack)
+- [Discord](https://discord.com/developers/docs/intro) - Extra errbot [documentation](https://github.com/gbin/err-backend-discord)
+
+#### Extra Prerequisites
+
+Lastly, you will need to be familiar with how to add your bot to your chat service.
+
+Adding your bot to a chat service examples:
+
+##### Slack
+
+In the case of Slack, this can be done by mentioning your bot in any channel and you will be prompted to invite the bot right there.
+
+##### Discord
+
+With Discord, things are a little different. You will need to first enable `SERVER MEMBERS INTENT` for your bot application. After that, you need to go into the Oauth2 page for your bot and select the `bot` scope. This will expand more options. You may go as crazy or as restrictive as you want with the chat permissions. That part is totally up to you.
+
+Once your permissiosn are scoped out, you will need to copy the oauth2 link that is generated.
+
+It could look something like this: `https://discord.com/api/oauth2/authorize?client_id=<number>&permissions=<number>&scope=bot`
+
+Enter that link into your web browser and it should give you a list of servers to invtire your bot to. Add it to your favorite server!
+
+### Setup
+
+To setup your bot, you will need to modify your `config.env` file. To make things easier, there is a `config.example.env` file in the root of this repo.
+
+1. Rename `config.example.env` to `config.env` *required
+1. Set `BACKEND=<backend>` *required
+1. Set `CHAT_SERVICE_TOKEN='<token>'` *required
+1. Change `BOT_PREFIX='!'` if you want *optional
+
+That's it! Now lets start the bot:
+
+```text
+make run
+```
+
+Output:
+
+```console
+$ make run
+[#] Killing old docker processes
+docker-compose rm -fs
+No stopped containers
+[#] Building docker containers
+docker-compose up --build -d
+Building chatbot
+[+] Building 1.3s (23/23) FINISHED
+...
+..
+.
+Creating chatbot ... done
+[#] Container is now running!
+```
+
+### Testing
+
+If you followed the steps above and everything succeeded, you should get a DM from the bot stating that it is "Now Online". You should note that you will only get this message if `BOT_ADMINS='@username'` is set to your username in the `config.env` file.
+
+For further plugin testing, you may run the following command to launch a local instance of your bot and interact with it over the command line:
+
+```console
+$ make local
+[#] Starting local bot test environment
+[#] Killing old docker processes
+docker-compose rm -fs
+Stopping chatbot ... done
+Going to remove chatbot
+Removing chatbot ... done
+[#] Building docker containers
+docker-compose build
+Building chatbot
+[+] Building 1.3s (22/22) FINISHED
+...
+..
+.
+[#] TEST Container is now running!
+[#] Interact with me over the CLI prompt below
+...
+..
+.
+[@local_admin ➡ @errbot] >>>
+```
+
+Read more about the errbot local dev environment [here](https://errbot.readthedocs.io/en/latest/user_guide/plugin_development/development_environment.html#local-test-mode)
+
+### Making your own plugin / function
+
+Check out the `plugins/example` folder. It really is that easy! Just copy a new folder, and add the files from the `example` plugin folder. Write your code, test, and deploy!

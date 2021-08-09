@@ -1,0 +1,39 @@
+# errbot
+errbot==6.1.8
+
+# errbot[slack]
+webtest==2.0.35
+pygments-markdown-lexer>=0.1.0.dev39
+ansi==0.2.0
+dulwich>=0.19.16
+pyOpenSSL==20.0.1
+colorlog==5.0.1
+daemonize==2.5.0
+deepmerge>=0.1.0
+setuptools==57.4.0
+flask==2.0.1
+markdown>=3.3
+requests==2.26.0
+Pygments>=2.0.2
+jinja2==3.0.1
+slackclient<2.0,>=1.0.5
+urllib3>=1.24.1
+certifi==2021.5.30
+six<2.0a0,>=1.10
+websocket-client<0.55.0,>=0.35
+charset-normalizer~=2.0.0
+idna<4,>=2.5
+click>=7.1.2
+Werkzeug>=2.0
+itsdangerous>=2.0
+MarkupSafe>=2.0
+cryptography>=3.2
+cffi>=1.12
+pycparser==2.20
+waitress>=0.8.5
+beautifulsoup4==4.9.3
+WebOb>=1.2
+soupsieve>1.2
+
+# errbot discord
+PyNaCl==1.4.0
