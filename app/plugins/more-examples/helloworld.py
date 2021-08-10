@@ -5,6 +5,11 @@ class HelloWorld(BotPlugin):
     """Example 'Hello, world!' plugin for Errbot"""
 
     @botcmd
+    def cli_test(self, msg, args):
+        # How the heck do I parse args?? -> https://errbot.readthedocs.io/en/latest/user_guide/plugin_development/botcommands.html
+        return f'{type(args)}   args: {args}'
+
+    @botcmd
     def hello(self, msg, args):
         """Say hello to the world"""
 

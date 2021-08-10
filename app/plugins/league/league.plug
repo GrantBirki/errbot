@@ -1,0 +1,9 @@
+[Core]
+Name = League
+Module = league
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = League plugin
