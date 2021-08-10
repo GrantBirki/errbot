@@ -8,6 +8,16 @@ This project uses [errbot](https://github.com/errbotio/errbot) and [Docker](http
 
 The goal of this project is to make it as easy as possible to launch a minimal, working chatbot.
 
+## Quickstart ⭐
+
+Want to get going quick? Run the following commands to bring up a CLI to interact with `errbot` locally:
+
+1. `git clone git@github.com:GrantBirki/errbot-launchpad.git`
+2. `cd errbot-launchpad`
+3. `make local`
+
+Didn't work quite right? See the setup section below..
+
 ---
 
 ## Setup 🛠️
@@ -108,7 +118,7 @@ Building chatbot
 [@local_admin ➡ @errbot] >>>
 ```
 
-Read more about the errbot local dev environment [here](https://errbot.readthedocs.io/en/latest/user_guide/plugin_development/development_environment.html#local-test-mode)
+> Read more about the errbot local dev environment [here](https://errbot.readthedocs.io/en/latest/user_guide/plugin_development/development_environment.html#local-test-mode)
 
 ### Making your own plugin / function 🔌
 
