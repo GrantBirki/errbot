@@ -1,6 +1,7 @@
 # errbot 🤖
 
 > Note: This repo is a fork of [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad)
+> See the *fork notice* at the bottom of this readme
 
 Quickly deploy a chatbot with Errbot, Dockerized! 🐳
 
@@ -125,3 +126,42 @@ Building chatbot
 ### Making your own plugin / function 🔌
 
 Check out the `plugins/example` folder. It really is that easy! Just copy a new folder, and add the files from the `example` plugin folder. Write your code, test, and deploy!
+
+## Fork Notice 🍴
+
+This repo is a fork of [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad) and should be treated as such.
+
+If significant improvements are made in this repo they should be contributed back to the source. If cool features are added to the source, they may be merged into this project as well.
+
+### Important Fork Commands
+
+#### Setting up this repo
+
+```bash
+git remote add upstream git@github.com:GrantBirki/errbot-launchpad.git
+```
+
+> We have to do this to tell git where our upstream repo is (aka the source)
+
+#### Pulling changes from the upstream repo (source)
+
+```bash
+git pull --allow-unrelated-histories upstream main
+```
+
+> We need to use `--allow-unrelated-histories` to allow this type of pull command
+
+If the command doesn't work as expected, try this one:
+
+```bash
+git fetch upstream
+git merge upstream/main
+```
+
+#### Pushing changes to our branch (here)
+
+```bash
+git push origin <branch>
+```
+
+> This is standard
