@@ -1,0 +1,9 @@
+[Core]
+Name = Boot
+Module = boot
+
+[Documentation]
+Description = boot file for starting the chatbot
+
+[Python]
+Version=2+

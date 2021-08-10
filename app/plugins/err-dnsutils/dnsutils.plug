@@ -1,0 +1,9 @@
+[Core]
+Name = DnsUtils
+Module = dnsutils
+
+[Documentation]
+Description = Dns utilities: host, dig, nslookup
+
+[Python]
+Version=2+

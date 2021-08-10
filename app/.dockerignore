@@ -1,0 +1,10 @@
+.gitignore
+config.env
+config.example.env
+*creds*
+docker-compose.yml
+Dockerfile
+.dockerignore
+CHANGELOG.md
+README.md
+.vscode
