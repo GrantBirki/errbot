@@ -18,3 +18,6 @@ local:
 	@echo "\e[32m[#] Interact with me over the CLI prompt below\e[0m"
 	docker run -it --rm --env-file config.env -e LOCAL_TESTING=True errbot-launchpad_chatbot
 	@echo "\e[32m[#] Exiting and cleaning up :)\e[0m"
+
+discord:
+	script/discord.sh
