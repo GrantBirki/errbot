@@ -1,6 +1,9 @@
 # errbot
 errbot==6.1.8
 
+# league
+riotwatcher==3.1.3
+
 # errbot[slack]
 webtest==2.0.35
 pygments-markdown-lexer>=0.1.0.dev39
