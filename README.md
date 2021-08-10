@@ -1,4 +1,6 @@
-# errbot-launchpad 🤖
+# errbot 🤖
+
+> Note: This repo is a fork of [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad)
 
 Quickly deploy a chatbot with Errbot, Dockerized! 🐳
 
