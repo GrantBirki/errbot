@@ -2,3 +2,5 @@
 .terraform
 creds*
 config.env
+app/plugins/test
+test_files

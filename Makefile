@@ -16,7 +16,7 @@ local:
 	docker-compose build
 	@echo "\e[32m[#] TEST Container is now running!\e[0m"
 	@echo "\e[32m[#] Interact with me over the CLI prompt below\e[0m"
-	docker run -it --rm --env-file config.env -e LOCAL_TESTING=True errbot-launchpad_chatbot
+	docker run -it --rm --env-file config.env -e LOCAL_TESTING=True errbot_chatbot:latest
 	@echo "\e[32m[#] Exiting and cleaning up :)\e[0m"
 
 discord:
