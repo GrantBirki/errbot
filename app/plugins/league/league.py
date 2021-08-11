@@ -1,18 +1,38 @@
 from errbot import BotPlugin, botcmd, arg_botcmd
 from riotwatcher import LolWatcher, ApiError
+import os
 
-LOL_WATCHER = LolWatcher('api-key-here')
-REGION = 'na1'
+LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
+REGION = os.environ['RIOT_REGION']
 
 class League(BotPlugin):
     """League plugin for Errbot"""
+
+    def last_match_cron(self):
+        summoner_list = os.environ['SUMMONER_LIST'].split(' ')
+        return self.last_match_main(summoner_list)
+
+    def activate(self):
+        super().activate()
+        self.start_poller(5, self.last_match_cron)
 
     @arg_botcmd('summoner_name', type=str)
     def last_match(self, msg, summoner_name=None):
         """Get the last match for a user (LoL)"""
 
-        player_game_stats = self.get_last_match_data(summoner_name)
-        message = self.message(player_game_stats)
+        if type(summoner_name) is str:
+            summoner_list = summoner_name.split(',')
+
+        return self.last_match_main(summoner_list)
+
+    def last_match_main(self, summoner_list):
+
+        messages = []
+        for summoner in summoner_list:
+            player_game_stats = self.get_last_match_data(summoner)
+            messages.append(self.message(player_game_stats))
+
+        message = '\n'.join(messages)
 
         return message
 
