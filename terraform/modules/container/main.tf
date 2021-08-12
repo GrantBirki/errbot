@@ -41,7 +41,7 @@ resource "azurerm_virtual_network" "vnet" {
   name                = "${var.project_name}_${var.project_env}_containers"
   location            = var.azure_location
   resource_group_name = var.azure_resource_group
-  address_space       = ["10.1.0.0/24", "10.2.0.0/24"]
+  address_space       = ["10.2.0.0/16"]
   tags = {
     managed_by = "terraform"
   }
@@ -64,13 +64,6 @@ resource "azurerm_subnet" "subnet" {
   }
 }
 
-resource "azurerm_subnet" "external" {
-  name                 = "${var.project_name}_${var.project_env}_external_subnet"
-  address_prefixes     = ["10.1.0.0/24"]
-  resource_group_name  = var.azure_resource_group
-  virtual_network_name = azurerm_virtual_network.vnet.name
-}
-
 resource "azurerm_network_profile" "net_profile" {
   name                = "${var.project_name}_${var.project_env}_container_net_profile"
   location            = var.azure_location
@@ -90,9 +83,10 @@ resource "azurerm_network_profile" "net_profile" {
 }
 
 resource "azurerm_container_group" "container_group" {
-  ip_address_type = "Public"
+  ip_address_type = "Private"
   dns_name_label  = "${var.project_name}-${var.project_env}-public"
   # network_profile_id  = azurerm_network_profile.net_profile.id
+  network_profile_id  = azurerm_network_profile.net_profile.id
   location            = var.azure_location
   name                = "${var.project_name}_${var.project_env}"
   os_type             = "Linux"
@@ -124,7 +118,7 @@ resource "azurerm_container_group" "container_group" {
     }
 
     ports {
-      port     = 80
+      port     = 5000
       protocol = "TCP"
     }
 
