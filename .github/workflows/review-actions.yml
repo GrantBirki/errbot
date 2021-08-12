@@ -1,7 +1,6 @@
 name: review-actions
 on: 
   pull_request:
-    branches: [ master ]
 jobs:
   misspell:
     name: runner / misspell
