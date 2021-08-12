@@ -48,6 +48,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
+        working-directory: app
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           echo "cache miss - installing dependencies"
@@ -55,17 +56,19 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Test with pylint
+        working-directory: app
         run: |
           sudo apt install pylint -y
-          pylint -E Feyre.py -d E0401 || { echo "Failure! - Python Error Checks Failed - $?" ; exit 1; }
+          pylint -E app.py -d E0401 || { echo "Failure! - Python Error Checks Failed - $?" ; exit 1; }
           echo "Success! - Python Error Checks Passed"
 
       - name: python vuln check
+        working-directory: app
         run: |
           pip install safety
           safety check
 
-  push-feyre:
+  build:
 
     needs: [changes, test]
     if: ${{ needs.changes.outputs.app == 'true' }}
@@ -80,20 +83,21 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 'Build and push image'
+      - name: 'Build and Push image'
+        working-directory: app
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - run: |
-          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/feyre:prod-${{ github.sha }}
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/feyre:prod-${{ github.sha }}
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
 
-  terraform-feyre:
+  terraform:
 
-    needs: [changes, push-feyre]
-    if: ${{ needs.changes.outputs.feyre-terraform == 'true' }} || ${{ needs.changes.outputs.feyre-terraform-modules == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
+    needs: [changes, build]
+    if: ${{ needs.changes.outputs.terraform == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
 
     runs-on: ubuntu-latest
 
@@ -107,30 +111,30 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 0.14.10
+          terraform_version: 1.0.4
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform version
         run: terraform --version
 
       - name: Terraform fmt
-        working-directory: terraform/prod
+        working-directory: terraform
         id: fmt
         run: terraform fmt -check
         continue-on-error: true
 
       - name: Terraform Init
-        working-directory: terraform/prod
+        working-directory: terraform
         id: init
         run: terraform init
 
       - name: Terraform Validate
-        working-directory: terraform/prod
+        working-directory: terraform
         id: validate
         run: terraform validate -no-color
 
       - name: Terraform Plan
-        working-directory: terraform/prod
+        working-directory: terraform
         id: plan
         env:
           TF_VAR_FEYRE_TOKEN: ${{ secrets.FEYRE_TOKEN_PROD }}
@@ -175,7 +179,7 @@ jobs:
 
       - name: Terraform apply
         if: github.event_name == 'push'
-        working-directory: terraform/prod
+        working-directory: terraform
         env:
           TF_VAR_FEYRE_TOKEN: ${{ secrets.FEYRE_TOKEN_PROD }}
           TF_VAR_image_tag: ${{ github.sha }}
