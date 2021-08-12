@@ -14,7 +14,7 @@ class League(BotPlugin):
 
     def activate(self):
         super().activate()
-        self.start_poller(5, self.last_match_cron)
+        self.start_poller(500, self.last_match_cron)
 
     @arg_botcmd('summoner_name', type=str)
     def last_match(self, msg, summoner_name=None):

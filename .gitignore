@@ -4,3 +4,5 @@ creds*
 config.env
 app/plugins/test
 test_files
+terraform.tfvars.json
+.terraform.lock.hcl

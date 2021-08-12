@@ -21,3 +21,17 @@ local:
 
 discord:
 	script/discord.sh
+
+push-azure: # Builds and pushes image to azure - testing only
+	@az acr login -n errbot
+	@cd app && docker build -t errbot.azurecr.io/errbot:test .
+	@docker push errbot.azurecr.io/errbot:test
+
+plan:
+	@cd terraform && terraform plan -var-file="terraform.tfvars.json"
+
+apply:
+	@cd terraform && terraform apply -var-file="terraform.tfvars.json"
+
+init:
+	@cd terraform && terraform init

@@ -60,7 +60,7 @@ try:
     bot_admins_raw = os.environ.get('BOT_ADMINS', None)
 
     if bot_admins_raw:
-        BOT_ADMINS = tuple(bot_admins_raw.replace(' ', '').split(','))
+        BOT_ADMINS = tuple(bot_admins_raw.replace("'", '').replace('"', '').split(','))
     else:
         BOT_ADMINS = ()
 except:
@@ -200,7 +200,7 @@ BOT_IDENTITY = {
 # If the prefix is changed from the default, the help strings will be
 # automatically adjusted for you.
 #
-BOT_PREFIX = os.environ.get('BOT_PREFIX', '!').strip().replace("'", '').replace('"', '')
+BOT_PREFIX = os.environ.get('BOT_PREFIX', '!').strip()
 #
 # Uncomment the following and set it to True if you want the prefix to be
 # optional for normal chat.
