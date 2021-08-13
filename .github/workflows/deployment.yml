@@ -1,0 +1,214 @@
+name: deployment 🚀
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+      terraform: ${{ steps.filter.outputs.terraform }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          app:
+            - 'app/**'    
+          terraform:
+            - 'terraform/**'
+
+  test:
+
+      needs: [changes]
+      if: ${{ needs.changes.outputs.terraform == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
+
+      runs-on: ubuntu-latest
+
+      steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        working-directory: app
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          echo "cache miss - installing dependencies"
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # - name: Test with pylint
+      #   working-directory: app
+      #   run: |
+      #     sudo apt install pylint -y
+      #     pylint -E app.py -d E0401 || { echo "Failure! - Python Error Checks Failed - $?" ; exit 1; }
+      #     echo "Success! - Python Error Checks Passed"
+
+      - name: python vuln check
+        working-directory: app
+        run: |
+          pip install safety
+          safety check
+
+  build:
+
+    needs: [changes, test]
+    if: ${{ needs.changes.outputs.terraform == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v2
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: 'ACR Login'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: 'Build and Push image - ci-test'
+        if: github.event_name == 'pull_request'
+        working-directory: app
+        # run: |
+        #   docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
+        #   docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
+        run: |
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
+      - name: 'Build and Push image - latest'
+        if: github.event_name == 'push'
+        working-directory: app
+        run: |
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
+
+  terraform:
+
+    needs: [changes, build]
+    if: ${{ needs.changes.outputs.terraform == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.4
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform version
+        run: terraform --version
+
+      - name: Terraform fmt
+        working-directory: terraform
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        working-directory: terraform
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: terraform
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        working-directory: terraform
+        id: plan
+        env:
+          # Config
+          TF_VAR_image_tag: ${{ github.sha }}
+          TF_VAR_BOT_ADMINS: ${{ secrets.TF_VAR_BOT_ADMINS }}
+          TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
+          TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
+          TF_VAR_BOT_EXTRA_BACKEND_DIR: ${{ secrets.TF_VAR_BOT_EXTRA_BACKEND_DIR }}
+          # Creds
+          TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
+          TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
+          TF_VAR_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}
+          TF_VAR_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
+          TF_VAR_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
+          TF_VAR_RIOT_TOKEN: ${{ secrets.TF_VAR_RIOT_TOKEN }}
+          TF_VAR_RIOT_REGION: ${{ secrets.TF_VAR_RIOT_REGION }}
+        run: terraform plan -no-color
+        continue-on-error: true
+
+      - uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `## Terraform Plan 🪐
+            - Terraform Format and Style 🖌: \`${{ steps.fmt.outcome }}\`
+            - Terraform Initialization ⚙️: \`${{ steps.init.outcome }}\`
+            - Terraform Validation 🤖: ${{ steps.validate.outputs.stdout }}
+            - Terraform Plan 📖: \`${{ steps.plan.outcome }}\`
+            
+            <details><summary><b>Show Plan</b></summary>
+            
+            \`\`\`${process.env.PLAN}\`\`\`
+            
+            </details>
+            
+            > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform\`, Workflow: \`${{ github.workflow }}\``;
+              
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform apply
+        if: github.event_name == 'push'
+        working-directory: terraform
+        env:
+          # Config
+          TF_VAR_image_tag: latest
+          TF_VAR_BOT_ADMINS: ${{ secrets.TF_VAR_BOT_ADMINS }}
+          TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
+          TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
+          TF_VAR_BOT_EXTRA_BACKEND_DIR: ${{ secrets.TF_VAR_BOT_EXTRA_BACKEND_DIR }}
+          # Creds
+          TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
+          TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
+          TF_VAR_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}
+          TF_VAR_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
+          TF_VAR_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
+          TF_VAR_RIOT_TOKEN: ${{ secrets.TF_VAR_RIOT_TOKEN }}
+          TF_VAR_RIOT_REGION: ${{ secrets.TF_VAR_RIOT_REGION }}
+        run: terraform apply -auto-approve
