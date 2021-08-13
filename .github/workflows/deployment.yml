@@ -88,12 +88,15 @@ jobs:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-      - name: 'Build and Push image - sha'
+      - name: 'Build and Push image - ci-test'
         if: github.event_name == 'pull_request'
         working-directory: app
+        # run: |
+        #   docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
+        #   docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
         run: |
-          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
       - name: 'Build and Push image - latest'
         if: github.event_name == 'push'
         working-directory: app
