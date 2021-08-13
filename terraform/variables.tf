@@ -54,7 +54,3 @@ variable "RIOT_TOKEN" {
 variable "RIOT_REGION" {
   type = string
 }
-
-variable "SUMMONER_LIST" {
-  type = string
-}
