@@ -158,6 +158,7 @@ jobs:
           TF_VAR_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
           TF_VAR_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
           TF_VAR_RIOT_TOKEN: ${{ secrets.TF_VAR_RIOT_TOKEN }}
+          TF_VAR_RIOT_REGION: ${{ secrets.TF_VAR_RIOT_REGION }}
         run: terraform plan -no-color
         continue-on-error: true
 
@@ -205,4 +206,5 @@ jobs:
           TF_VAR_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
           TF_VAR_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
           TF_VAR_RIOT_TOKEN: ${{ secrets.TF_VAR_RIOT_TOKEN }}
+          TF_VAR_RIOT_REGION: ${{ secrets.TF_VAR_RIOT_REGION }}
         run: terraform apply -auto-approve
