@@ -84,8 +84,6 @@ resource "azurerm_network_profile" "net_profile" {
 
 resource "azurerm_container_group" "container_group" {
   ip_address_type = "Private"
-  dns_name_label  = "${var.project_name}-${var.project_env}-public"
-  # network_profile_id  = azurerm_network_profile.net_profile.id
   network_profile_id  = azurerm_network_profile.net_profile.id
   location            = var.azure_location
   name                = "${var.project_name}_${var.project_env}"
@@ -121,7 +119,6 @@ resource "azurerm_container_group" "container_group" {
       port     = 5000
       protocol = "TCP"
     }
-
 
   }
 

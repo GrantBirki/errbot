@@ -14,26 +14,19 @@ provider "azurerm" {
   # Ignore Auth Warnings
   skip_provider_registration = true
 
-  client_secret   = var.client_secret
-  client_id       = var.client_id
-  tenant_id       = var.tenant_id
-  subscription_id = var.subscription_id
+  client_secret   = var.CLIENT_SECRET
+  client_id       = var.CLIENT_ID
+  tenant_id       = var.TENANT_ID
+  subscription_id = var.SUBSCRIPTION_ID
 }
 
 module "errbot_container" {
   source = "./modules/container"
 
-  # Azure Creds
-  client_secret   = var.client_secret
-  client_id       = var.client_id
-  tenant_id       = var.tenant_id
-  subscription_id = var.subscription_id
-
   # Bot Creds
   CHAT_SERVICE_TOKEN = var.CHAT_SERVICE_TOKEN
 
   # Bot Config
-
   BACKEND               = var.BACKEND
   BOT_PREFIX            = var.BOT_PREFIX
   BOT_ADMINS            = var.BOT_ADMINS
