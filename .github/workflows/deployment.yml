@@ -96,7 +96,8 @@ jobs:
 
   terraform:
 
-    needs: [changes, build]
+    # needs: [changes, build]
+    needs: [changes]
     if: ${{ needs.changes.outputs.terraform == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
 
     runs-on: ubuntu-latest
