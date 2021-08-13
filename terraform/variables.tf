@@ -1,26 +1,26 @@
 # Azure Creds
 
-variable "client_secret" {
+variable "CLIENT_SECRET" {
   type = string
 }
 
-variable "client_id" {
+variable "CLIENT_ID" {
   type = string
 }
 
-variable "tenant_id" {
+variable "TENANT_ID" {
   type = string
 }
 
-variable "subscription_id" {
+variable "SUBSCRIPTION_ID" {
   type = string
 }
 
 # End Azure Creds
 
-variable "image_tag" {
+variable "IMAGE_TAG" {
   type    = string
-  default = "fakesha"
+  default = "test"
 }
 
 # Bot Creds
