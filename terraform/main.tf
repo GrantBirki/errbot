@@ -33,7 +33,6 @@ module "errbot_container" {
   BOT_EXTRA_BACKEND_DIR = var.BOT_EXTRA_BACKEND_DIR
   RIOT_TOKEN            = var.RIOT_TOKEN
   RIOT_REGION           = var.RIOT_REGION
-  SUMMONER_LIST         = var.SUMMONER_LIST
 
   # Project Variables
   azure_resource_group = "errbot"
