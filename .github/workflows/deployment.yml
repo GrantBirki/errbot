@@ -56,12 +56,12 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Test with pylint
-        working-directory: app
-        run: |
-          sudo apt install pylint -y
-          pylint -E app.py -d E0401 || { echo "Failure! - Python Error Checks Failed - $?" ; exit 1; }
-          echo "Success! - Python Error Checks Passed"
+      # - name: Test with pylint
+      #   working-directory: app
+      #   run: |
+      #     sudo apt install pylint -y
+      #     pylint -E app.py -d E0401 || { echo "Failure! - Python Error Checks Failed - $?" ; exit 1; }
+      #     echo "Success! - Python Error Checks Passed"
 
       - name: python vuln check
         working-directory: app
