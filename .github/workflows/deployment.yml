@@ -181,7 +181,7 @@ jobs:
         working-directory: terraform
         env:
           # Config
-          TF_VAR_image_tag: ${{ github.sha }}
+          TF_VAR_image_tag: latest
           TF_VAR_BOT_ADMINS: ${{ secrets.TF_VAR_BOT_ADMINS }}
           # Creds
           TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
