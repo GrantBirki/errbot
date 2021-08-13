@@ -1,4 +1,4 @@
-name: review-actions
+name: review 👀
 on: 
   pull_request:
 jobs:

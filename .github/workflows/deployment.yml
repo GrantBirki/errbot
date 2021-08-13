@@ -28,7 +28,7 @@ jobs:
   test:
 
       needs: [changes]
-      if: ${{ needs.changes.outputs.app == 'true' }}
+      if: ${{ needs.changes.outputs.terraform == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
 
       runs-on: ubuntu-latest
 
@@ -88,16 +88,22 @@ jobs:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-      - name: 'Build and Push image'
+      - name: 'Build and Push image - sha'
+        if: github.event_name == 'pull_request'
         working-directory: app
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
+      - name: 'Build and Push image - latest'
+        if: github.event_name == 'push'
+        working-directory: app
+        run: |
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
 
   terraform:
 
-    # needs: [changes, build]
-    needs: [changes]
+    needs: [changes, build]
     if: ${{ needs.changes.outputs.terraform == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
 
     runs-on: ubuntu-latest
@@ -135,18 +141,23 @@ jobs:
         run: terraform validate -no-color
 
       - name: Terraform Plan
+        if: github.event_name == 'pull_request'
         working-directory: terraform
         id: plan
         env:
           # Config
           TF_VAR_image_tag: ${{ github.sha }}
           TF_VAR_BOT_ADMINS: ${{ secrets.TF_VAR_BOT_ADMINS }}
+          TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
+          TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
+          TF_VAR_BOT_EXTRA_BACKEND_DIR: ${{ secrets.TF_VAR_BOT_EXTRA_BACKEND_DIR }}
           # Creds
           TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
           TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
           TF_VAR_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}
           TF_VAR_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
           TF_VAR_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
+          TF_VAR_RIOT_TOKEN: ${{ secrets.TF_VAR_RIOT_TOKEN }}
         run: terraform plan -no-color
         continue-on-error: true
 
@@ -184,10 +195,14 @@ jobs:
           # Config
           TF_VAR_image_tag: latest
           TF_VAR_BOT_ADMINS: ${{ secrets.TF_VAR_BOT_ADMINS }}
+          TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
+          TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
+          TF_VAR_BOT_EXTRA_BACKEND_DIR: ${{ secrets.TF_VAR_BOT_EXTRA_BACKEND_DIR }}
           # Creds
           TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
           TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
           TF_VAR_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}
           TF_VAR_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
           TF_VAR_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
+          TF_VAR_RIOT_TOKEN: ${{ secrets.TF_VAR_RIOT_TOKEN }}
         run: terraform apply -auto-approve
