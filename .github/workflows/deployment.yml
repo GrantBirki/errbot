@@ -97,12 +97,15 @@ jobs:
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
+          docker run --rm --env-file ../config.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
+
       - name: 'Build and Push image - latest'
         if: github.event_name == 'push'
         working-directory: app
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
+          docker run --rm --env-file ../config.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
 
   terraform:
 
