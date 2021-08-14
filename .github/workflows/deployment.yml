@@ -149,7 +149,7 @@ jobs:
         id: plan
         env:
           # Config
-          TF_VAR_image_tag: ${{ github.sha }}
+          TF_VAR_image_tag: ci-test
           TF_VAR_BOT_ADMINS: ${{ secrets.TF_VAR_BOT_ADMINS }}
           TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
           TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
