@@ -53,5 +53,5 @@ module "errbot_container" {
   cpu         = 1
   memory      = 1
   project_env = "prod"
-  image_tag   = "test"
+  image_tag   = var.IMAGE_TAG
 }

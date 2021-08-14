@@ -20,7 +20,7 @@ variable "subscription_id" {
 
 variable "image_tag" {
   type    = string
-  default = "fakesha"
+  default = "latest"
 }
 
 # Bot Creds
