@@ -8,13 +8,14 @@ REGION = os.environ['RIOT_REGION']
 class League(BotPlugin):
     """League plugin for Errbot"""
 
-    def last_match_cron(self):
-        summoner_list = os.environ['SUMMONER_LIST'].split(' ')
-        return self.last_match_main(summoner_list)
+    # Temp disabled
+    # def last_match_cron(self):
+    #     summoner_list = os.environ['SUMMONER_LIST'].split(' ')
+    #     return self.last_match_main(summoner_list)
 
-    def activate(self):
-        super().activate()
-        self.start_poller(500, self.last_match_cron)
+    # def activate(self):
+    #     super().activate()
+    #     self.start_poller(500, self.last_match_cron)
 
     @arg_botcmd('summoner_name', type=str)
     def last_match(self, msg, summoner_name=None):
