@@ -30,8 +30,6 @@ import os
 # Debug backends to test your plugins manually:
 # 'Text'     - on the text console
 
-x = 0 / 0 # testing failure
-
 # Commercial backends:
 # 'Campfire' - see https://campfirenow.com/ (follow instructions from https://github.com/errbotio/err-backend-campfire)
 # 'Hipchat'  - see https://www.hipchat.com/
