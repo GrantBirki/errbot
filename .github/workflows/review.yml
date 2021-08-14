@@ -1,4 +1,4 @@
-name: review 👀
+name: review
 on: 
   pull_request:
 jobs:
