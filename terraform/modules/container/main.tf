@@ -128,13 +128,3 @@ resource "azurerm_container_group" "container_group" {
   }
 
 }
-
-# TESTING
-resource "azure_storage_container" "bad_example" {
-	name                  = "terraform-container-storage"
-	container_access_type = "blob"
-	
-	properties = {
-		"publicAccess" = "blob"
-	}
-}
