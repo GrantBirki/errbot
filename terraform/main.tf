@@ -37,7 +37,7 @@ module "errbot_container" {
   # Project Variables
   azure_resource_group = "errbot"
   project_name         = "errbot"
-  azure_location       = "centralus"
+  azure_location       = "West US 2"
 
   commands = []
 
