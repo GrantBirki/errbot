@@ -1,6 +1,6 @@
 # errbot 🤖
 
-[![deployment](https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml) [![basic-checks](https://github.com/GrantBirki/errbot/actions/workflows/review.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/review.yml)
+[![deployment](https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml) [![basic-checks](https://github.com/GrantBirki/errbot/actions/workflows/review.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/review.yml) [![tfsec](https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml)
 
 > Note: This repo is a fork of [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad)
 > See the *fork notice* at the bottom of this readme
