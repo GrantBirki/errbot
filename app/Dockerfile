@@ -2,11 +2,17 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-COPY requirements.txt /app
+# install dependencies
+RUN apt-get update -y && apt-get install dnsutils -y
+
+# setup errbot base
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 RUN errbot --init
 
-RUN apt-get update -y && apt-get install dnsutils -y
+# for discord / other backends
+COPY backend /app/backend
+RUN pip install -r /app/backend/err-backend-discord/requirements.txt
 
 # cleanup unused default errbot plugins
 RUN rm -rf plugins/err-example
@@ -16,10 +22,6 @@ RUN rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/webserver.*
 RUN rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/backup.*
 RUN rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/plugins.*
 RUN rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/textcmds.*
-
-# For DISCORD
-COPY backend /app/backend
-RUN pip install -r /app/backend/err-backend-discord/requirements.txt
 
 # copy local files
 COPY config.py /app/config.py
