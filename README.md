@@ -94,11 +94,13 @@ Creating chatbot ... done
 [#] Container is now running!
 ```
 
-### Testing 🧪
-
 If you followed the steps above and everything succeeded, you should get a DM from the bot stating that it is "Now Online". You should note that you will only get this message if `BOT_ADMINS='@username'` is set to your username in the `config.env` file.
 
-For further plugin testing, you may run the following command to launch a local instance of your bot and interact with it over the command line:
+### Testing and Building Locally 🧪
+
+**Important**: Make sure you followed the setup instructions above first
+
+For plugin testing, you may run the following command to launch a local instance of your bot and interact with it over the command line:
 
 ```console
 $ make local
@@ -123,7 +125,20 @@ Building chatbot
 [@local_admin ➡ @errbot] >>>
 ```
 
+**Note**: You may notice some errors in your output. This is expected if you do not have all the proper credentials setup in your `creds.env` file. For example, if you have an API token that is needed for a plugin, and that token is not present in the environment, that plugin will fail to load. All others should load fine and you can test normally.
+
 > Read more about the errbot local dev environment [here](https://errbot.readthedocs.io/en/latest/user_guide/plugin_development/development_environment.html#local-test-mode)
+
+#### Windows Tips for Local Testing
+
+If for some reason you are using Windows and not WSL like a pleb, you can build a local image using the following commands:
+
+```console
+docker-compose build
+docker run -it --rm --env-file config.env --env-file creds.env -e LOCAL_TESTING=True errbot_chatbot:latest
+```
+
+This will result in a CLI prompt to `errbot` locally so you can test. Simply press `CTRL+C` to exit when you are done
 
 ### Making your own plugin / function 🔌
 
