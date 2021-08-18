@@ -1,6 +1,8 @@
-from errbot import BotPlugin, botcmd, arg_botcmd
-from riotwatcher import LolWatcher, ApiError
 import os
+
+from errbot import BotPlugin, arg_botcmd, botcmd
+from lib.database.cosmos import read_item
+from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
 REGION = os.environ['RIOT_REGION']
@@ -16,6 +18,12 @@ class League(BotPlugin):
     # def activate(self):
     #     super().activate()
     #     self.start_poller(500, self.last_match_cron)
+
+    @botcmd
+    def add_me_to_league_watcher(self, msg, args):
+        """Adds a summoner to the league watcher"""
+
+        return f"Added {msg.frm.person} to the league watcher!"
 
     @arg_botcmd('summoner_name', type=str)
     def last_match(self, msg, summoner_name=None):
