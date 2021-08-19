@@ -2,11 +2,13 @@ import os
 
 from errbot import BotPlugin, arg_botcmd, botcmd
 from lib.database.database import Database
+from lib.discord.discord import Discord
 from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
 REGION = os.environ['RIOT_REGION']
 db = Database()
+discord = Discord()
 
 class League(BotPlugin):
     """League plugin for Errbot"""
@@ -24,23 +26,28 @@ class League(BotPlugin):
     def add_me_to_league_watcher(self, msg, summoner_name=None):
         """Adds a summoner to the league watcher"""
 
+        discord_handle = discord.handle(msg)
+
         result = db.create_items(
-            id = msg.frm.person,
+            id = discord_handle,
             data = {
-                'discord_handle': msg.frm.person,
-                'summoner_name': summoner_name
+                'discord_handle': discord_handle,
+                'summoner_name': summoner_name,
+                'discord_server_id': discord.guild_id(msg)
             }
         )
 
         if result:
-            return f"Added {msg.frm.person} to the league watcher!"
+            return f"Added @{discord_handle} to the league watcher!"
         else:
-            return f"{msg.frm.person} is already in the league watcher!"
+            return f"@{discord_handle} is already in the league watcher!"
 
     @botcmd
     def view_me(self, msg, args):
         """Views your data"""
-        response = db.read_item(msg.frm.person)
+
+        discord_handle = discord.handle(msg)
+        response = db.read_item(discord_handle, partition_key=discord.guild_id(msg))
 
         if response:
 
@@ -49,8 +56,8 @@ class League(BotPlugin):
 
             return message
         else:
-            message = f"{msg.frm.person} is not in the league watcher!\n"
-            message += "Use `.add me to league watcher` to add yourself"
+            message = f"@{discord_handle} is not in the league watcher!\n"
+            message += "Use `.add me to league watcher <summoner_name>` to add yourself"
             return message
 
     @arg_botcmd('summoner_name', type=str)
