@@ -1,13 +1,48 @@
 from errbot import BotPlugin, botcmd
 from time import sleep
 
-class HelloWorld(BotPlugin):
+class Example(BotPlugin):
     """Example 'Hello, world!' plugin for Errbot"""
 
     @botcmd
-    def cli_test(self, msg, args):
+    def example(self, msg, args):
+        """The most basic example of a chatbot command/function"""
+
+        # Add code here
+
+        # Return a message / output below
+        return 'Hello, World!'
+
+    @botcmd
+    def show_args(self, msg, args):
         # How the heck do I parse args?? -> https://errbot.readthedocs.io/en/latest/user_guide/plugin_development/botcommands.html
-        return f'{type(args)}   args: {args}'
+        return f'{type(args)} | args: {args}'
+
+    @botcmd
+    def show_msg(self, msg, args):
+        # Displays msg attributes
+
+        yield f"• `msg.frm`: {msg.frm}"
+        yield f"• `msg.frm.__dict__`: {msg.frm.__dict__}"
+        yield f'• Type of msg: {type(msg)} | `msg.__dict__`: {msg.__dict__}'
+
+        try:
+            yield f"__Checking Room / Channel info from `msg`__"
+            yield f"• `msg.frm.room`: {msg.frm.room}"
+            yield f"• `msg.frm.room.__dict__`: {msg.frm.room.__dict__}"
+            yield f"• `guild_id`: {msg.frm.room.__dict__['_guild_id']}"
+            #yield f"• `occupants`: {msg.frm.room.occupants}" # noisy
+            yield f"• `msg.frm.room.name`: {msg.frm.room.name}"
+            yield f"• `msg.frm.room.id`: {msg.frm.room.id}" # same as _channel_id
+            yield "Room checks passed"
+        except:
+            yield "Room checks failed. Are you in a room / channel?"
+
+        yield f"__Checking Person info from `msg`__"
+        yield f"• `msg.frm.person`: {msg.frm.person}"
+        yield "Person checks passed"   
+
+        yield f'Done! 🎉'
 
     @botcmd
     def hello(self, msg, args):
