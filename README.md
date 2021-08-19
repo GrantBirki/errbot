@@ -57,6 +57,8 @@ Once your permissiosn are scoped out, you will need to copy the oauth2 link that
 
 It could look something like this: `https://discord.com/api/oauth2/authorize?client_id=<number>&permissions=<number>&scope=bot`
 
+> Note: You can find an example invite link farther below
+
 Enter that link into your web browser and it should give you a list of servers to invtire your bot to. Add it to your favorite server!
 
 To setup your bot, you will need to modify your `config.env` file. To make things easier, there is a `config.example.env` file in the root of this repo.
