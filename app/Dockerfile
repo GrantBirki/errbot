@@ -8,6 +8,7 @@ RUN apt-get update -y && apt-get install dnsutils -y
 # setup errbot base
 COPY requirements.txt .
 RUN pip install -r requirements.txt
+RUN errbot --init
 
 # for discord / other backends
 COPY backend /app/backend
@@ -25,8 +26,5 @@ RUN rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/textcmds.*
 # copy local files
 COPY config.py /app/config.py
 COPY plugins /app/plugins
-
-# init errbot
-RUN errbot --init
 
 ENTRYPOINT ["errbot", "-c", "/app/config.py"]
