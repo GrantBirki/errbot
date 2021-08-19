@@ -64,8 +64,14 @@ class Database:
 
 
     def read_item(self, id, partition_key=None):
-        try:
+        """
+        Reads an item from the Azure Cosmos DB
+        :param: id - The "id" of the record to fetch (required)
+        :param: partition_key - The "partition_key" of the record to fetch
 
+        Note: in most cases, the partition_key is the Discord server guild id
+        """
+        try:
             id = self.fmt_id(id)
 
             if partition_key:
@@ -77,11 +83,15 @@ class Database:
         except exceptions.CosmosResourceNotFoundError:
             return False
 
-    def read_items(self):
+    def read_items(self, max_item_count=100):
+        """
+        Reads all items from an Azure Cosmos database container
+        :return: item_list - List of all Azure cosmos DB items
+        """
         # NOTE: Use MaxItemCount on Options to control how many items come back per trip to the server
         #       Important to handle throttles whenever you are doing operations such as this that might
         #       result in a 429 (throttled request)
-        item_list = list(self.container.read_all_items(max_item_count=100))
+        item_list = list(self.container.read_all_items(max_item_count=max_item_count))
         return item_list
 
         # print("Found {0} items".format(item_list.__len__()))
@@ -91,8 +101,7 @@ class Database:
 
 
     def query_items(self, container, partition_key):
-        print("\nQuerying for an  Item by Partition Key\n")
-
+        # TODO test this magic
         # Including the partition key value of account_number in the WHERE filter results in a more efficient query
         items = list(
             container.query_items(
@@ -104,18 +113,33 @@ class Database:
         print("Item queried by Partition Key {0}".format(items[0].get("id")))
 
 
-    def replace_item(self, container, doc_id, account_number):
-        print("\nReplace an Item\n")
+    def update_item(self, id, data=None, partition_key=None):
+        """
+        Update a record in the Azure Cosmos database container
+        :param: id - The "id" of the record to fetch (required)
+        :param: data - The data body of the record with new key:value pairs to update
+        :param: partition_key - The "partition_key" of the record to fetch
 
-        read_item = container.read_item(item=doc_id, partition_key=account_number)
-        read_item["subtotal"] = read_item["subtotal"] + 1
-        response = container.replace_item(item=read_item, body=read_item)
+        Note: in most cases, the partition_key is the Discord server guild id 
+        """
+        try:
+            id = self.fmt_id(id)
 
-        print(
-            "Replaced Item's Id is {0}, new subtotal={1}".format(
-                response["id"], response["subtotal"]
-            )
-        )
+            if partition_key:
+                response = self.container.read_item(item=id, partition_key=partition_key)
+            else:
+                response = self.container.read_item(item=id, partition_key='unknown')
+
+            # Update values in place
+            response['updated_at'] = datetime.now().replace(microsecond=0).isoformat()
+            response['data'] = data #TODO only changed key:values
+
+            # Set the new values
+            response = self.container.replace_item(item=response, body=response)
+            return True
+        except exceptions.CosmosResourceNotFoundError:
+            return False
+
 
 
     def upsert_item(self, container, doc_id, account_number):
@@ -138,41 +162,3 @@ class Database:
         response = container.delete_item(item=doc_id, partition_key=account_number)
 
         print("Deleted item's Id is {0}".format(doc_id))
-
-
-    def run_sample(self):
-        client = cosmos_client.CosmosClient(
-            HOST,
-            {"masterKey": ACCOUNT_KEY},
-            user_agent="CosmosDBPythonQuickstart",
-            user_agent_overwrite=True,
-        )
-        try:
-
-            db = client.get_database_client(DATABASE_ID)
-            container = db.get_container_client(CONTAINER_ID)
-
-
-            data = {
-                "discord_server_id": 123456789,
-                "discord_server_name": "Test Server",
-                "discord_user_name": "Test User"
-            }
-            
-            self.create_items(container, data=data)
-            # read_item(container, 'SalesOrder1', 'Account1')
-            self.read_items(container)
-            # query_items(container, 'Account1')
-            # replace_item(container, 'SalesOrder1', 'Account1')
-            # upsert_item(container, 'SalesOrder1', 'Account1')
-            # delete_item(container, 'SalesOrder1', 'Account1')
-
-        except exceptions.CosmosHttpResponseError as e:
-            print("\nrun_sample has caught an error. {0}".format(e.message))
-
-        finally:
-            print("\nrun_sample done")
-
-
-if __name__ == "__main__":
-    run_sample()
