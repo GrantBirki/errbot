@@ -200,7 +200,7 @@ BOT_IDENTITY = {
 # If the prefix is changed from the default, the help strings will be
 # automatically adjusted for you.
 #
-BOT_PREFIX = os.environ.get('BOT_PREFIX', '!').strip()
+BOT_PREFIX = os.environ.get('BOT_PREFIX', '.').strip()
 #
 # Uncomment the following and set it to True if you want the prefix to be
 # optional for normal chat.
@@ -390,3 +390,4 @@ if os.environ.get('LOCAL_TESTING', None):
     BACKEND = 'Text'
     BOT_ADMINS=('@local_admin',)
     BOT_IDENTITY = {"username": "@errbot"}
+    BOT_PREFIX = '.'
