@@ -29,6 +29,9 @@ class Database:
 
         return container
 
+    def fmt_id(self, id):
+        return id.replace("#", "_").replace("@", "_").strip()
+
     def create_items(self, data=None, id=None):
         """
         Creates an item in Azure Cosmos DB
@@ -39,6 +42,8 @@ class Database:
 
             if id is None:
                 id = str(uuid4())
+            else:
+                id = self.fmt_id(id)
 
             try:
                 data['discord_server_id']
@@ -58,12 +63,15 @@ class Database:
             return False
 
 
-    def read_item(self, item_id, partition_key=None):
+    def read_item(self, id, partition_key=None):
         try:
+
+            id = self.fmt_id(id)
+
             if partition_key:
-                response = self.container.read_item(item=item_id, partition_key=partition_key)
+                response = self.container.read_item(item=id, partition_key=partition_key)
             else:
-                response = self.container.read_item(item=item_id, partition_key='unknown')
+                response = self.container.read_item(item=id, partition_key='unknown')
 
             return response
         except exceptions.CosmosResourceNotFoundError:
