@@ -2,9 +2,11 @@ import azure.cosmos.documents as documents
 import azure.cosmos.cosmos_client as cosmos_client
 import azure.cosmos.exceptions as exceptions
 from azure.cosmos.partition_key import PartitionKey
-from datetime import datetime
+from common.common import Util
 from uuid import uuid4
 import os
+
+util = Util()
 
 class Database:
 
@@ -38,7 +40,7 @@ class Database:
         Where 'data' is a dict containing the data you wish to store 
         """
         try:
-            iso_timestamp = datetime.now().replace(microsecond=0).isoformat()
+            iso_timestamp = util.iso_timestamp()
 
             if id is None:
                 id = str(uuid4())
@@ -113,15 +115,16 @@ class Database:
         print("Item queried by Partition Key {0}".format(items[0].get("id")))
 
 
-    def update_item(self, id, data=None, partition_key=None):
+    def replace_item(self, id, data=None, partition_key=None):
         """
-        Update a record in the Azure Cosmos database container
+        Replace a record in the Azure Cosmos database container
         :param: id - The "id" of the record to fetch (required)
         :param: data - The data body of the record with new key:value pairs to update
         :param: partition_key - The "partition_key" of the record to fetch
 
         Note: in most cases, the partition_key is the Discord server guild id 
         """
+        #TODO determine if this is truly a replace - ie: read and write
         try:
             id = self.fmt_id(id)
 
@@ -131,7 +134,7 @@ class Database:
                 response = self.container.read_item(item=id, partition_key='unknown')
 
             # Update values in place
-            response['updated_at'] = datetime.now().replace(microsecond=0).isoformat()
+            response['updated_at'] = util.iso_timestamp()
             response['data'] = data #TODO only changed key:values
 
             # Set the new values
@@ -140,14 +143,12 @@ class Database:
         except exceptions.CosmosResourceNotFoundError:
             return False
 
-
-
-    def upsert_item(self, container, doc_id, account_number):
+    def update_item(self, id, data=None, partition_key=None):
         print("\nUpserting an item\n")
 
-        read_item = container.read_item(item=doc_id, partition_key=account_number)
-        read_item["subtotal"] = read_item["subtotal"] + 1
-        response = container.upsert_item(body=read_item)
+        response = self.container.read_item(item=id, partition_key=partition_key)
+        response["updated_at"] = util.iso_timestamp()
+        response = self.container.upsert_item(body=response)
 
         print(
             "Upserted Item's Id is {0}, new subtotal={1}".format(
@@ -155,10 +156,9 @@ class Database:
             )
         )
 
-
-    def delete_item(self, container, doc_id, account_number):
+    def delete_item(self, id, partition_key=None):
         print("\nDeleting Item by Id\n")
 
-        response = container.delete_item(item=doc_id, partition_key=account_number)
+        response = self.container.delete_item(item=id, partition_key=partition_key)
 
-        print("Deleted item's Id is {0}".format(doc_id))
+        print("Deleted item's Id is {0}".format(id))
