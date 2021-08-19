@@ -182,3 +182,7 @@ git push origin <branch>
 ```
 
 > This is standard
+
+## Bot Invite
+
+`https://discord.com/api/oauth2/authorize?client_id=742592739975233577&permissions=259912104770&scope=bot`
