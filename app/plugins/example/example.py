@@ -16,6 +16,7 @@ class Example(BotPlugin):
     @botcmd
     def show_args(self, msg, args):
         # How the heck do I parse args?? -> https://errbot.readthedocs.io/en/latest/user_guide/plugin_development/botcommands.html
+        # Shows the args which the command was invoked with
         return f'{type(args)} | args: {args}'
 
     @botcmd
