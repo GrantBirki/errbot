@@ -1,11 +1,12 @@
 import os
 
 from errbot import BotPlugin, arg_botcmd, botcmd
-from lib.database.cosmos import read_item
+from lib.database.database import Database
 from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
 REGION = os.environ['RIOT_REGION']
+db = Database()
 
 class League(BotPlugin):
     """League plugin for Errbot"""
@@ -19,11 +20,38 @@ class League(BotPlugin):
     #     super().activate()
     #     self.start_poller(500, self.last_match_cron)
 
-    @botcmd
-    def add_me_to_league_watcher(self, msg, args):
+    @arg_botcmd('summoner_name', type=str)
+    def add_me_to_league_watcher(self, msg, summoner_name=None):
         """Adds a summoner to the league watcher"""
 
-        return f"Added {msg.frm.person} to the league watcher!"
+        result = db.create_items(
+            id = msg.frm.person,
+            data = {
+                'discord_handle': msg.frm.person,
+                'summoner_name': summoner_name
+            }
+        )
+
+        if result:
+            return f"Added {msg.frm.person} to the league watcher!"
+        else:
+            return f"{msg.frm.person} is already in the league watcher!"
+
+    @botcmd
+    def view_me(self, msg, args):
+        """Views your data"""
+        response = db.read_item(msg.frm.person)
+
+        if response:
+
+            message = f"Discord Handle: {response['data']['discord_handle']}\n"
+            message += f"Summoner Name: {response['data']['summoner_name']}\n"
+
+            return message
+        else:
+            message = f"{msg.frm.person} is not in the league watcher!\n"
+            message += "Use `.add me to league watcher` to add yourself"
+            return message
 
     @arg_botcmd('summoner_name', type=str)
     def last_match(self, msg, summoner_name=None):
