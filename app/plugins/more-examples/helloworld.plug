@@ -1,9 +1,0 @@
-[Core]
-Name = Hello World
-Module = helloworld
-
-[Python]
-Version = 2+
-
-[Documentation]
-Description = Example "Hello, world!" plugin
