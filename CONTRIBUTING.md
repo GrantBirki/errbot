@@ -6,7 +6,7 @@ The first step to contributing to this bot is getting your environment setup. Th
 
 > Note: This guide focuses around writing new tests and using a local environment. You will not be connecting to a chat service like Discord in this guide.. However, when you merge your changes to `main` they will be deployed and usable in Discord!
 
-## Running the Bot Locally
+## Running the Bot Locally 🤖
 
 Let's create a local instance of `Errbot`:
 
@@ -55,3 +55,45 @@ So what *exactly* does `make local` do?
     1. Uses the `creds.env` file to load **sensitive** environment variables (`--env-file creds.env`)
     1. Specifies the `LOCAL_TESTING=True` environment variable (`-e LOCAL_TESTING=True`) - Used in `app/config.py`
     1. Pops open a CLI prompt when complete for you to interact and issues commands to test and develop `errbot`
+
+Okay, so we started up the bot, hooray! Now lets go over how to create a chatop command
+
+## Creating a new ChatOp Command 🛠️
+
+Before we create a new chatop command, let's go over it a bit.
+
+### About ChatOp Commands
+
+Click to expand each section and learn more about chatops
+
+<details>
+
+<summary>What is a chatop command?</summary>
+
+`.help`, `.uptime`, `.whoami`, `.example` are all examples of chatop commands
+
+The first three commands listed above (`.help`, `.uptime`, `.whoami`) are **builtin** commands. This means that they come with the [errbot](https://github.com/errbotio/errbot) framework.
+
+The last command listed above (`.example`) is a **plugin** command. This means that it is a chatop command which *we* created for our own use! This guide will focus on **plugins** which are chatops commands that we write and bake into our chatbot
+
+</details>
+
+<details>
+
+<summary>Where are chatop commands stored?</summary>
+
+They are stored in the `app/plugins` folder. Each chatop command is then stored in its own subfolder:
+
+`app/plugins/example`
+
+</details>
+
+<details>
+
+<summary>What is the <b>app/plugins/lib</b> folder?</summary>
+
+Good thing you asked! This is a special folder for storing shared/common libraries between chatop commands.
+
+For example, let's say you had two chatop functions `.send cat meme` and `.send dog meme`. People were spamming memes too fast so you needed to rate limit both commands. You could add a shared `rate_limit_memes()` function in `app/plugins/lib/common` and then import that function into both your **cat** and **dog** chatops. Check out the `app/plugins/lib` folder to see examples in action
+
+</details>
