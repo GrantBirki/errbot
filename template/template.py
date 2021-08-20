@@ -1,10 +1,10 @@
 from errbot import BotPlugin, botcmd
 
-class Template(BotPlugin):
+class Template(BotPlugin): # Change me!
     """Template plugin for Errbot"""
 
     @botcmd
-    def template(self, msg, args):
+    def template(self, msg, args): # Change me! (function name)
         """
         The most basic example of a chatbot command/function
         Tip: The name of the function above is literally how you invoke the chatop: .template
