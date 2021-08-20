@@ -7,6 +7,8 @@
 
 Quickly deploy a chatbot with Errbot, Dockerized! 🐳
 
+This project deploys a chatbot named `Errbot` and is a Discord application
+
 ## About 💡
 
 This project uses [errbot](https://github.com/errbotio/errbot) and [Docker](https://www.docker.com/) to quickly launch your own chatbot in a container.
@@ -49,7 +51,11 @@ Adding your bot to a chat service examples:
 
 In the case of Slack, this can be done by mentioning your bot in any channel and you will be prompted to invite the bot right there.
 
+> Note, this particular repo does not use Slack. It is a Discord app!
+
 #### Discord
+
+> This bot has already been provisioned to Discord. It is included as a reference should the bot ever need to be rebuilt
 
 With Discord, things are a little different. You will need to first enable `SERVER MEMBERS INTENT` for your bot application. After that, you need to go into the Oauth2 page for your bot and select the `bot` scope. This will expand more options. You may go as crazy or as restrictive as you want with the chat permissions. That part is totally up to you.
 
@@ -73,6 +79,8 @@ To setup your bot, you will need to modify your `config.env` file. To make thing
 ## Usage ⌨️
 
 Completed the simple setup? Awesome! Let's start the bot:
+
+> Note: `make run` will start the bot and attach it to Discord for usage. If you are looking to start a local instance of the bot, see the `Testing and Building Locally` section below
 
 ```text
 make run
