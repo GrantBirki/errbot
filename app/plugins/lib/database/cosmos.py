@@ -2,13 +2,13 @@ import azure.cosmos.documents as documents
 import azure.cosmos.cosmos_client as cosmos_client
 import azure.cosmos.exceptions as exceptions
 from azure.cosmos.partition_key import PartitionKey
-from common.common import Util
+from common.utilities import Util
 from uuid import uuid4
 import os
 
 util = Util()
 
-class Database:
+class Cosmos:
 
     def __init__(self):
         self.container = self.init_container(
