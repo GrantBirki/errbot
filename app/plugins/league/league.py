@@ -1,13 +1,13 @@
 import os
 
 from errbot import BotPlugin, arg_botcmd, botcmd
-from lib.database.database import Database
-from lib.discord.discord import Discord
+from lib.database.cosmos import Cosmos
+from lib.chat.discord import Discord
 from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
 REGION = os.environ['RIOT_REGION']
-db = Database()
+cosmos = Cosmos()
 discord = Discord()
 
 class League(BotPlugin):
@@ -28,7 +28,7 @@ class League(BotPlugin):
 
         discord_handle = discord.handle(msg)
 
-        result = db.create_items(
+        result = cosmos.create_items(
             id = discord_handle,
             data = {
                 'discord_handle': discord_handle,
@@ -47,7 +47,7 @@ class League(BotPlugin):
         """Views your data"""
 
         discord_handle = discord.handle(msg)
-        response = db.read_item(discord_handle, partition_key=discord.guild_id(msg))
+        response = cosmos.read_item(discord_handle, partition_key=discord.guild_id(msg))
 
         if response:
 
