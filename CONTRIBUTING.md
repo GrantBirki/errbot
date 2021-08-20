@@ -102,4 +102,14 @@ Okay cool beans, now that we know a bit more about chatops commands, let's creat
 
 ### Creating a command
 
-At the root of this repo you will notice a `template` folder #TODO
+At the root of this repo you will notice a `template` folder. This folder contains the bare minimum code to create a brand new chatop command. Since copying this file from the `template` folder to the `app/plugins/template` folder takes about 1 brain cell too much, there is a script to do it for you.
+
+Run the following command to copy the `template` folder into the plugin directory:
+
+```bash
+make command-template
+```
+
+Now enter the `app/plugins/template` folder and poke around the two files you see in there for a bit.
+
+In order to make a new chatop command you just need to change a few lines to the new name of you function / functions.
