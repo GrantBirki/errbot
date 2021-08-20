@@ -97,3 +97,9 @@ Good thing you asked! This is a special folder for storing shared/common librari
 For example, let's say you had two chatop functions `.send cat meme` and `.send dog meme`. People were spamming memes too fast so you needed to rate limit both commands. You could add a shared `rate_limit_memes()` function in `app/plugins/lib/common` and then import that function into both your **cat** and **dog** chatops. Check out the `app/plugins/lib` folder to see examples in action
 
 </details>
+
+Okay cool beans, now that we know a bit more about chatops commands, let's create a brand new one
+
+### Creating a command
+
+At the root of this repo you will notice a `template` folder #TODO

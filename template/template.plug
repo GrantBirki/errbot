@@ -1,0 +1,9 @@
+[Core]
+Name = Template
+Module = template
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Template plugin
