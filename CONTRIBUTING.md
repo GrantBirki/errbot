@@ -128,7 +128,7 @@ Let's say we want to make a new chatop command that displays a cat meme and it i
 
     `app/plugins/template/template.py` -> `app/plugins/template/catmeme.py`
 
-1. Inside of the `app/plugins/template/template.plug` file change all occurances of `Template` or `template` to `Catmeme` or `catmeme`:
+1. Inside of the `app/plugins/template/template.plug` file change all occurrences of `Template` or `template` to `Catmeme` or `catmeme`:
 
     Example: `Name = Template # Change me!` -> `Name = Catmeme`
 
