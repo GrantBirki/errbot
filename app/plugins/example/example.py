@@ -41,6 +41,7 @@ class Example(BotPlugin):
 
         yield f"__Checking Person info from `msg`__"
         yield f"• `msg.frm.person`: {msg.frm.person}"
+        yield f"• `msg.frm.__dict__`: {msg.frm.__dict__}"
         yield "Person checks passed"   
 
         yield f'Done! 🎉'
