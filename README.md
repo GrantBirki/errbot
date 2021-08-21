@@ -201,6 +201,30 @@ git push origin <branch>
 
 ---
 
+## Project Folder/File Information
+
+What is in each folder?
+
+- `.github/` - Mainly GitHub workflows for actions
+- `script/` - Maintenance and automation scripts for working with this project
+- `template/` - Template / boilerplate code for new chatops commands
+- `terraform/` - Terraform code for deploying `errbot` resources
+- `app/` - All the files, data, and configuration for `errbot`
+
+  - `app/backend/` - Folder containing extra backend modules (Discord)
+  - `app/plugins/` - Folder containing all the extra / custom plugins for our chatop commands
+
+What are these files?
+
+- `.gitignore` - Used for ignoring files from Git
+- `config.env` - Used for adding non-sensitive environment variables to your local instance of `errbot`
+- `creds.env` - Used for adding sensitive environment variables to your local instance of `errbot`
+- `docker-compose.yml` - Used for starting `errbot` locally with Docker-Compose
+- `Makefile` - Used to easily invoke scripts in this repo
+- `*.md` - Documentation!
+
+---
+
 ## Bot Invite
 
 `https://discord.com/api/oauth2/authorize?client_id=742592739975233577&permissions=259912104770&scope=bot`
