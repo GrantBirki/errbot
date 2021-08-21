@@ -24,16 +24,25 @@ class League(BotPlugin):
 
     @arg_botcmd('summoner_name', type=str)
     def add_me_to_league_watcher(self, msg, summoner_name=None):
-        """Adds a summoner to the league watcher"""
+        """
+        Adds a summoner to the league watcher
+        
+        Usage: .add me to league watcher <summoner_name>
+        Example: .add me to league watcher birki
+        """
 
         discord_handle = discord.handle(msg)
+        guild_id, guild_msg = discord.guild_id(msg)
+
+        if not guild_id:
+            return guild_msg
 
         result = cosmos.create_items(
             id = discord_handle,
             data = {
                 'discord_handle': discord_handle,
                 'summoner_name': summoner_name,
-                'discord_server_id': discord.guild_id(msg)
+                'discord_server_id': guild_id
             }
         )
 
@@ -43,11 +52,40 @@ class League(BotPlugin):
             return f"@{discord_handle} is already in the league watcher!"
 
     @botcmd
+    def remove_me_from_league_watcher(self, msg, args):
+        """
+        Removes a summoner from the league watcher
+
+        Usage: .remove me from league watcher
+        """
+
+        discord_handle = discord.handle(msg)
+        guild_id, guild_msg = discord.guild_id(msg)
+
+        if not guild_id:
+            return guild_msg
+
+        result = cosmos.delete_item(
+            id = discord_handle,
+            partition_key = guild_id
+        )
+
+        if result:
+            return f"Removed @{discord_handle} from the league watcher!"
+        else:
+            return f"@{discord_handle} is not in the league watcher!"
+
+    @botcmd
     def view_me(self, msg, args):
         """Views your data"""
 
         discord_handle = discord.handle(msg)
-        response = cosmos.read_item(discord_handle, partition_key=discord.guild_id(msg))
+        guild_id, guild_msg = discord.guild_id(msg)
+
+        if not guild_id:
+            return guild_msg
+
+        response = cosmos.read_item(discord_handle, partition_key=guild_id)
 
         if response:
 
