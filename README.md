@@ -236,6 +236,8 @@ Here is a high level overview of this project and the software/infrastruce that 
 - For any commands that require some form of "state" we use Azure Cosmos DB to store information since containers are ephemeral by design
 - We store any configuration or credentials as environment variables which get injected into the container in our CI/CD builds
 
+---
+
 ## Bot Invite 🔗
 
 Use the link below to invite the bot to a Discord server. This link includes pre-made permissions:
