@@ -227,4 +227,6 @@ What are these files?
 
 ## Bot Invite
 
+Use the link below to invite the bot to a Discord server. This link includes pre-made permissions:
+
 `https://discord.com/api/oauth2/authorize?client_id=742592739975233577&permissions=259912104770&scope=bot`
