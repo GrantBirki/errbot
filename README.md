@@ -76,36 +76,6 @@ To setup your bot, you will need to modify your `config.env` file. To make thing
 
 ---
 
-## Usage ⌨️
-
-Completed the simple setup? Awesome! Let's start the bot:
-
-> Note: `make run` will start the bot and attach it to Discord for usage. If you are looking to start a local instance of the bot, see the `Testing and Building Locally` section below
-
-```text
-make run
-```
-
-Output:
-
-```console
-$ make run
-[#] Killing old docker processes
-docker-compose rm -fs
-No stopped containers
-[#] Building docker containers
-docker-compose up --build -d
-Building chatbot
-[+] Building 1.3s (23/23) FINISHED
-...
-..
-.
-Creating chatbot ... done
-[#] Container is now running!
-```
-
-If you followed the steps above and everything succeeded, you should get a DM from the bot stating that it is "Now Online". You should note that you will only get this message if `BOT_ADMINS='@username'` is set to your username in the `config.env` file.
-
 ### Testing and Building Locally 🧪
 
 **Important**: Make sure you followed the setup instructions above first
@@ -150,11 +120,47 @@ docker run -it --rm --env-file config.env --env-file creds.env -e LOCAL_TESTING=
 
 This will result in a CLI prompt to `errbot` locally so you can test. Simply press `CTRL+C` to exit when you are done
 
-### Making your own plugin / function 🔌
+### Testing and Building Connected to Discord ⌨️
 
-Check out the `plugins/example` folder. It really is that easy! Just copy a new folder, and add the files from the `example` plugin folder. Write your code, test, and deploy!
+Completed the simple setup? Awesome! Let's start the bot:
+
+> Note: `make run` will start the bot and attach it to Discord for usage. If you are looking to start a local instance of the bot, see the `Testing and Building Locally` section below
+
+```text
+make run
+```
+
+Output:
+
+```console
+$ make run
+[#] Killing old docker processes
+docker-compose rm -fs
+No stopped containers
+[#] Building docker containers
+docker-compose up --build -d
+Building chatbot
+[+] Building 1.3s (23/23) FINISHED
+...
+..
+.
+Creating chatbot ... done
+[#] Container is now running!
+```
+
+If you followed the steps above and everything succeeded, you should get a DM from the bot stating that it is "Now Online". You should note that you will only get this message if `BOT_ADMINS='@username'` is set to your username in the `config.env` file.
+
+---
+
+## Making your own plugin / function 🔌
+
+Check out the [CONTRIBUTING.md](CONTRIBUTING.md) file in this repo for all the info you will need to develop, test, and deploy!
+
+---
 
 ## Fork Notice 🍴
+
+> Note: You probably won't need to worry about this ever. Mostly just notes for @grantbirki
 
 This repo is a fork of [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad) and should be treated as such.
 
@@ -192,6 +198,8 @@ git push origin <branch>
 ```
 
 > This is standard
+
+---
 
 ## Bot Invite
 
