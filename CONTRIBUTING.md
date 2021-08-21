@@ -102,7 +102,7 @@ Okay cool beans, now that we know a bit more about chatops commands, let's creat
 
 ### Creating a command
 
-At the root of this repo you will notice a `template` folder. This folder contains the bare minimum code to create a brand new chatop command. Since copying this file from the `template` folder to the `app/plugins/template` folder takes about 1 brain cell too much, there is a script to do it for you.
+At the root of this repo you will notice a `template` folder. This folder contains the bare minimum code to create a brand new chatop command. Since copying this file from the `template` folder to the `app/plugins/template` folder takes about 1 brain cell too many, there is a script to do it for you.
 
 Run the following command to copy the `template` folder into the plugin directory:
 
@@ -113,3 +113,51 @@ make command-template
 Now enter the `app/plugins/template` folder and poke around the two files you see in there for a bit.
 
 In order to make a new chatop command you just need to change a few lines to the new name of you function / functions.
+
+Let's say we want to make a new chatop command that displays a cat meme and it is invoked by typing `.cat meme`. To do so, make the following changes:
+
+1. Change the name of the `app/plugins/template` folder:
+
+    `app/plugins/template` -> `app/plugins/catmeme`
+
+1. Change the name of the `app/plugins/template/template.plug` file:
+
+    `app/plugins/template/template.plug` -> `app/plugins/template/catmeme.plug`
+
+1. Change the name of the `app/plugins/template/template.py` file:
+
+    `app/plugins/template/template.py` -> `app/plugins/template/catmeme.py`
+
+1. Inside of the `app/plugins/template/template.plug` file change all occurances of `Template` or `template` to `Catmeme` or `catmeme`:
+
+    Example: `Name = Template # Change me!` -> `Name = Catmeme`
+
+    Example: `Module = template # Change me!` -> `Module = catmeme`
+
+    > Note the cases of T/t and C/c above
+
+1. Inside of the `app/plugins/template/template.py` file change the class name:
+
+    `class Template(BotPlugin): # Change me!` -> `class Catmeme(BotPlugin):`
+
+1. Inside of the `app/plugins/template/template.py` file change the function name:
+
+    `def template(self, msg, args): # Change me! (function name)` -> `def cat_meme(self, msg, args):`
+
+    > Note: We use `_` (underscores) in function names to represent spaces in our command. `def cat_meme(...)` becomes `.cat meme` via the chatop
+
+1. To make the `.cat meme` command return something, edit the return message:
+
+    `return 'Hello world, I am a template!'` -> `return 'meow!'`
+
+That's it! 🎉
+
+To test, `cd` to the root of this repo and run `make local`.
+
+Your new plugin should be loaded and you can interact with it via the CLI:
+
+```console
+[@local_admin ➡ @errbot] >>> .cat meme
+
+meow!
+```
