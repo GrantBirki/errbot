@@ -157,8 +157,15 @@ class Cosmos:
         )
 
     def delete_item(self, id, partition_key=None):
-        print("\nDeleting Item by Id\n")
+        try:
+            id = self.fmt_id(id)
 
-        response = self.container.delete_item(item=id, partition_key=partition_key)
+            if partition_key:
+                self.container.read_item(item=id, partition_key=partition_key)
+            else:
+                self.container.read_item(item=id, partition_key='unknown')
 
-        print("Deleted item's Id is {0}".format(id))
+            self.container.delete_item(item=id, partition_key=partition_key)
+            return True
+        except exceptions.CosmosResourceNotFoundError:
+            return False
