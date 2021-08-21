@@ -2,9 +2,6 @@
 
 [![deployment](https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml) [![basic-checks](https://github.com/GrantBirki/errbot/actions/workflows/review.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/review.yml) [![tfsec](https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml)
 
-> Note: This repo is a fork of [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad)
-> See the *fork notice* at the bottom of this readme
-
 Quickly deploy a chatbot with Errbot, Dockerized! 🐳
 
 This project deploys a chatbot named `Errbot` and is a Discord application
@@ -14,6 +11,8 @@ This project deploys a chatbot named `Errbot` and is a Discord application
 This project uses [errbot](https://github.com/errbotio/errbot) and [Docker](https://www.docker.com/) to quickly launch your own chatbot in a container.
 
 The goal of this project is to make it as easy as possible to launch a minimal, working chatbot.
+
+> Note: This repo is a fork of my other project [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad)
 
 ## Quickstart ⭐
 
@@ -201,7 +200,7 @@ git push origin <branch>
 
 ---
 
-## Project Folder/File Information
+## Project Folder/File Information 📂
 
 What is in each folder?
 
@@ -225,7 +224,19 @@ What are these files?
 
 ---
 
-## Bot Invite
+## About the Infrastructure 🧱
+
+Here is a high level overview of this project and the software/infrastruce that run this bot:
+
+- This project uses [errbot](https://github.com/errbotio/errbot) which is a Python based chatop/chatbot framework
+- `errbot` and all of its components are built using Docker to create a deployable image
+- We use Terraform and GitHub actions to deploy the Docker image (from our CI/CD pipeline) to Azure
+- The Docker image runs in a container in Azure and connects to Discord
+- The bot then listens for commands and responds to them
+- For any commands that require some form of "state" we use Azure Cosmos DB to store information since containers are ephemeral by design
+- We store any configuration or credentials as environment variables which get injected into the container in our CI/CD builds
+
+## Bot Invite 🔗
 
 Use the link below to invite the bot to a Discord server. This link includes pre-made permissions:
 
