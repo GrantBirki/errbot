@@ -161,3 +161,21 @@ Your new plugin should be loaded and you can interact with it via the CLI:
 
 meow!
 ```
+
+## Deploying 🚀
+
+Deploying your changes to the prod instance of `errbot` is *really* easy.
+
+> We will use the `.cat meme` example from above
+
+All you need to do is the following:
+
+1. Create a new branch `cat-meme-feature`
+1. Commit your changes to the `cat-meme-feature` branch
+1. Push your changes
+1. Open up [github.com/GrantBirki/errbot/pulls](https://github.com/GrantBirki/errbot/pulls) and create a new pull request
+1. Wait for [CI](https://en.wikipedia.org/wiki/Continuous_integration) to finish and for all checks to pass
+1. View your Terraform output and ensure it looks like it is doing what you want it to (ie: not destroying resources)
+1. Request review on your pull request and obtain an approval (@grantbirki or any other member)
+1. Merge your pull request and your change will be automatically deployed! 🚀✨
+1. Run `.cat meme` in Discord to see your command in action 🐈
