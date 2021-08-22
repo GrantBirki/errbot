@@ -99,6 +99,14 @@ resource "azurerm_container_group" "container_group" {
     cpu      = var.cpu
     environment_variables = {
       "ENV" = var.project_env
+      "COMMIT_SHA"            = var.COMMIT_SHA
+      "RIOT_REGION"           = var.RIOT_REGION
+      "BOT_EXTRA_BACKEND_DIR" = var.BOT_EXTRA_BACKEND_DIR
+      "BOT_PREFIX"            = var.BOT_PREFIX
+      "BACKEND"               = var.BACKEND
+      "COSMOS_ACCOUNT_HOST"   = var.COSMOS_ACCOUNT_HOST
+      "COSMOS_DATABASE"        = var.COSMOS_DATABASE
+      "COSMOS_CONTAINER"      = var.COSMOS_CONTAINER
     }
     # image  = "${var.project_name}.azurecr.io/${var.project_name}:${var.project_env}-${var.image_tag}"
     image  = "${var.project_name}.azurecr.io/${var.project_name}:${var.image_tag}"
@@ -106,17 +114,9 @@ resource "azurerm_container_group" "container_group" {
     name   = "${var.project_name}-${var.project_env}"
     secure_environment_variables = {
       "CHAT_SERVICE_TOKEN"    = var.CHAT_SERVICE_TOKEN
-      "BACKEND"               = var.BACKEND
-      "BOT_PREFIX"            = var.BOT_PREFIX
       "BOT_ADMINS"            = var.BOT_ADMINS
-      "BOT_EXTRA_BACKEND_DIR" = var.BOT_EXTRA_BACKEND_DIR
       "RIOT_TOKEN"            = var.RIOT_TOKEN
-      "RIOT_REGION"           = var.RIOT_REGION
-      "COSMOS_ACCOUNT_HOST"   = var.COSMOS_ACCOUNT_HOST
-      "COSMOS_DATABSE"        = var.COSMOS_DATABASE
-      "COSMOS_CONTAINER"      = var.COSMOS_CONTAINER
       "COSMOS_ACCOUNT_KEY"    = var.COSMOS_ACCOUNT_KEY
-      "COMMIT_SHA"            = var.COMMIT_SHA
     }
 
     ports {
