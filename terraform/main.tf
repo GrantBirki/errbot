@@ -27,12 +27,16 @@ module "errbot_container" {
   CHAT_SERVICE_TOKEN = var.CHAT_SERVICE_TOKEN
 
   # Bot Config
+  COMMIT_SHA            = var.COMMIT_SHA
   BACKEND               = var.BACKEND
   BOT_PREFIX            = var.BOT_PREFIX
   BOT_ADMINS            = var.BOT_ADMINS
   BOT_EXTRA_BACKEND_DIR = var.BOT_EXTRA_BACKEND_DIR
   RIOT_TOKEN            = var.RIOT_TOKEN
   RIOT_REGION           = var.RIOT_REGION
+  COSMOS_ACCOUNT_HOST   = var.COSMOS_ACCOUNT_HOST
+  COSMOS_DATABASE       = var.COSMOS_DATABASE
+  COSMOS_CONTAINER      = var.COSMOS_CONTAINER
 
   # Project Variables
   azure_resource_group = "errbot"

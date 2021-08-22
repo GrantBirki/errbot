@@ -112,6 +112,10 @@ resource "azurerm_container_group" "container_group" {
       "BOT_EXTRA_BACKEND_DIR" = var.BOT_EXTRA_BACKEND_DIR
       "RIOT_TOKEN"            = var.RIOT_TOKEN
       "RIOT_REGION"           = var.RIOT_REGION
+      "COSMOS_ACCOUNT_HOST"   = var.COSMOS_ACCOUNT_HOST
+      "COSMOS_DATABSE"        = var.COSMOS_DATABASE
+      "COSMOS_CONTAINER"      = var.COSMOS_CONTAINER
+      "COMMIT_SHA"            = var.COMMIT_SHA
     }
 
     ports {

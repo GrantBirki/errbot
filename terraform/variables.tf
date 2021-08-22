@@ -1,3 +1,9 @@
+# Bot Config
+
+variable "COMMIT_SHA" {
+  type = string
+}
+
 # Azure Creds
 
 variable "CLIENT_SECRET" {
@@ -53,4 +59,20 @@ variable "RIOT_TOKEN" {
 
 variable "RIOT_REGION" {
   type = string
+}
+
+# Azure Cosmos DB
+variable "COSMOS_ACCOUNT_HOST" {
+  type = string
+  default = "https://errbot-nosql-db.documents.azure.com:443/"
+}
+
+variable "COSMOS_DATABASE" {
+  type = string
+  default = "errbot"
+}
+
+variable "COSMOS_CONTAINER" {
+  type = string
+  default = "discord"
 }
