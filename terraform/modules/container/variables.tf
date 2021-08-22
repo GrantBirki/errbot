@@ -1,3 +1,20 @@
+variable "COMMIT_SHA" {
+  type = string
+}
+
+# Azure Cosmos DB
+variable "COSMOS_ACCOUNT_HOST" {
+  type = string
+}
+
+variable "COSMOS_DATABASE" {
+  type = string
+}
+
+variable "COSMOS_CONTAINER" {
+  type = string
+}
+
 variable "azure_resource_group" {
   type = string
 }
