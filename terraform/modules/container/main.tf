@@ -105,7 +105,7 @@ resource "azurerm_container_group" "container_group" {
       "BOT_PREFIX"            = var.BOT_PREFIX
       "BACKEND"               = var.BACKEND
       "COSMOS_ACCOUNT_HOST"   = var.COSMOS_ACCOUNT_HOST
-      "COSMOS_DATABSE"        = var.COSMOS_DATABASE
+      "COSMOS_DATABASE"        = var.COSMOS_DATABASE
       "COSMOS_CONTAINER"      = var.COSMOS_CONTAINER
     }
     # image  = "${var.project_name}.azurecr.io/${var.project_name}:${var.project_env}-${var.image_tag}"
