@@ -115,6 +115,7 @@ resource "azurerm_container_group" "container_group" {
       "COSMOS_ACCOUNT_HOST"   = var.COSMOS_ACCOUNT_HOST
       "COSMOS_DATABSE"        = var.COSMOS_DATABASE
       "COSMOS_CONTAINER"      = var.COSMOS_CONTAINER
+      "COSMOS_ACCOUNT_KEY"    = var.COSMOS_ACCOUNT_KEY
       "COMMIT_SHA"            = var.COMMIT_SHA
     }
 

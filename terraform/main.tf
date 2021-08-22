@@ -37,6 +37,7 @@ module "errbot_container" {
   COSMOS_ACCOUNT_HOST   = var.COSMOS_ACCOUNT_HOST
   COSMOS_DATABASE       = var.COSMOS_DATABASE
   COSMOS_CONTAINER      = var.COSMOS_CONTAINER
+  COSMOS_ACCOUNT_KEY    = var.COSMOS_ACCOUNT_KEY
 
   # Project Variables
   azure_resource_group = "errbot"
