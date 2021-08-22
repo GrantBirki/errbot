@@ -1,6 +1,7 @@
 from lib.chat.discord import Discord
 from errbot import BotPlugin, botcmd
 from time import sleep
+import os
 
 discord = Discord()
 
@@ -125,3 +126,7 @@ class Example(BotPlugin):
             self.build_identifier(msg.frm.person),
             "Boo! Bet you weren't expecting me, were you?",
         )
+
+    @botcmd
+    def version(self, msg, args):
+        return os.environ['COMMIT_SHA']

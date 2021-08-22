@@ -12,8 +12,8 @@ class Cosmos:
 
     def __init__(self):
         self.container = self.init_container(
-            os.environ['ACCOUNT_HOST'],
-            os.environ['ACCOUNT_KEY'],
+            os.environ['COSMOS_ACCOUNT_HOST'],
+            os.environ['COSMOS_ACCOUNT_KEY'],
             os.environ['COSMOS_DATABASE'],
             os.environ["COSMOS_CONTAINER"]
         )

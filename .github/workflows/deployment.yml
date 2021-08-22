@@ -157,6 +157,7 @@ jobs:
           TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
           TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
           TF_VAR_BOT_EXTRA_BACKEND_DIR: ${{ secrets.TF_VAR_BOT_EXTRA_BACKEND_DIR }}
+          TF_VAR_COMMIT_SHA: ${{ github.sha }}
           # Creds
           TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
           TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
@@ -165,6 +166,7 @@ jobs:
           TF_VAR_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
           TF_VAR_RIOT_TOKEN: ${{ secrets.TF_VAR_RIOT_TOKEN }}
           TF_VAR_RIOT_REGION: ${{ secrets.TF_VAR_RIOT_REGION }}
+          TF_VAR_COSMOS_ACCOUNT_KEY: ${{ secrets.TF_VAR_COSMOS_ACCOUNT_KEY }}
         run: terraform plan -no-color
         continue-on-error: true
 
@@ -206,6 +208,7 @@ jobs:
           TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
           TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
           TF_VAR_BOT_EXTRA_BACKEND_DIR: ${{ secrets.TF_VAR_BOT_EXTRA_BACKEND_DIR }}
+          TF_VAR_COMMIT_SHA: ${{ github.sha }}
           # Creds
           TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
           TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
@@ -214,4 +217,5 @@ jobs:
           TF_VAR_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
           TF_VAR_RIOT_TOKEN: ${{ secrets.TF_VAR_RIOT_TOKEN }}
           TF_VAR_RIOT_REGION: ${{ secrets.TF_VAR_RIOT_REGION }}
+          TF_VAR_COSMOS_ACCOUNT_KEY: ${{ secrets.TF_VAR_COSMOS_ACCOUNT_KEY }}
         run: terraform apply -auto-approve
