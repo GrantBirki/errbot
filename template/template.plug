@@ -1,0 +1,9 @@
+[Core]
+Name = Template # Change me!
+Module = template # Change me!
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Template plugin # Change me!

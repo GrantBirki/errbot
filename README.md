@@ -2,16 +2,17 @@
 
 [![deployment](https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml) [![basic-checks](https://github.com/GrantBirki/errbot/actions/workflows/review.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/review.yml) [![tfsec](https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml)
 
-> Note: This repo is a fork of [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad)
-> See the *fork notice* at the bottom of this readme
-
 Quickly deploy a chatbot with Errbot, Dockerized! 🐳
+
+This project deploys a chatbot named `Errbot` and is a Discord application
 
 ## About 💡
 
 This project uses [errbot](https://github.com/errbotio/errbot) and [Docker](https://www.docker.com/) to quickly launch your own chatbot in a container.
 
 The goal of this project is to make it as easy as possible to launch a minimal, working chatbot.
+
+> Note: This repo is a fork of my other project [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad)
 
 ## Quickstart ⭐
 
@@ -49,13 +50,19 @@ Adding your bot to a chat service examples:
 
 In the case of Slack, this can be done by mentioning your bot in any channel and you will be prompted to invite the bot right there.
 
+> Note, this particular repo does not use Slack. It is a Discord app!
+
 #### Discord
+
+> This bot has already been provisioned to Discord. It is included as a reference should the bot ever need to be rebuilt
 
 With Discord, things are a little different. You will need to first enable `SERVER MEMBERS INTENT` for your bot application. After that, you need to go into the Oauth2 page for your bot and select the `bot` scope. This will expand more options. You may go as crazy or as restrictive as you want with the chat permissions. That part is totally up to you.
 
 Once your permissiosn are scoped out, you will need to copy the oauth2 link that is generated.
 
 It could look something like this: `https://discord.com/api/oauth2/authorize?client_id=<number>&permissions=<number>&scope=bot`
+
+> Note: You can find an example invite link farther below
 
 Enter that link into your web browser and it should give you a list of servers to invtire your bot to. Add it to your favorite server!
 
@@ -68,37 +75,11 @@ To setup your bot, you will need to modify your `config.env` file. To make thing
 
 ---
 
-## Usage ⌨️
+### Testing and Building Locally 🧪
 
-Completed the simple setup? Awesome! Let's start the bot:
+**Important**: Make sure you followed the setup instructions above first
 
-```text
-make run
-```
-
-Output:
-
-```console
-$ make run
-[#] Killing old docker processes
-docker-compose rm -fs
-No stopped containers
-[#] Building docker containers
-docker-compose up --build -d
-Building chatbot
-[+] Building 1.3s (23/23) FINISHED
-...
-..
-.
-Creating chatbot ... done
-[#] Container is now running!
-```
-
-### Testing 🧪
-
-If you followed the steps above and everything succeeded, you should get a DM from the bot stating that it is "Now Online". You should note that you will only get this message if `BOT_ADMINS='@username'` is set to your username in the `config.env` file.
-
-For further plugin testing, you may run the following command to launch a local instance of your bot and interact with it over the command line:
+For plugin testing, you may run the following command to launch a local instance of your bot and interact with it over the command line:
 
 ```console
 $ make local
@@ -123,13 +104,62 @@ Building chatbot
 [@local_admin ➡ @errbot] >>>
 ```
 
+**Note**: You may notice some errors in your output. This is expected if you do not have all the proper credentials setup in your `creds.env` file. For example, if you have an API token that is needed for a plugin, and that token is not present in the environment, that plugin will fail to load. All others should load fine and you can test normally.
+
 > Read more about the errbot local dev environment [here](https://errbot.readthedocs.io/en/latest/user_guide/plugin_development/development_environment.html#local-test-mode)
 
-### Making your own plugin / function 🔌
+#### Windows Tips for Local Testing
 
-Check out the `plugins/example` folder. It really is that easy! Just copy a new folder, and add the files from the `example` plugin folder. Write your code, test, and deploy!
+If for some reason you are using Windows and not WSL like a pleb, you can build a local image using the following commands:
+
+```console
+docker-compose build
+docker run -it --rm --env-file config.env --env-file creds.env -e LOCAL_TESTING=True errbot_chatbot:latest
+```
+
+This will result in a CLI prompt to `errbot` locally so you can test. Simply press `CTRL+C` to exit when you are done
+
+### Testing and Building Connected to Discord ⌨️
+
+Completed the simple setup? Awesome! Let's start the bot:
+
+> Note: `make run` will start the bot and attach it to Discord for usage. If you are looking to start a local instance of the bot, see the `Testing and Building Locally` section below
+
+```text
+make run
+```
+
+Output:
+
+```console
+$ make run
+[#] Killing old docker processes
+docker-compose rm -fs
+No stopped containers
+[#] Building docker containers
+docker-compose up --build -d
+Building chatbot
+[+] Building 1.3s (23/23) FINISHED
+...
+..
+.
+Creating chatbot ... done
+[#] Container is now running!
+```
+
+If you followed the steps above and everything succeeded, you should get a DM from the bot stating that it is "Now Online". You should note that you will only get this message if `BOT_ADMINS='@username'` is set to your username in the `config.env` file.
+
+---
+
+## Making your own plugin / function 🔌
+
+Check out the [CONTRIBUTING.md](CONTRIBUTING.md) file in this repo for all the info you will need to develop, test, and deploy!
+
+---
 
 ## Fork Notice 🍴
+
+> Note: You probably won't need to worry about this ever. Mostly just notes for @grantbirki
 
 This repo is a fork of [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad) and should be treated as such.
 
@@ -167,3 +197,49 @@ git push origin <branch>
 ```
 
 > This is standard
+
+---
+
+## Project Folder/File Information 📂
+
+What is in each folder?
+
+- `.github/` - Mainly GitHub workflows for actions
+- `script/` - Maintenance and automation scripts for working with this project
+- `template/` - Template / boilerplate code for new chatops commands
+- `terraform/` - Terraform code for deploying `errbot` resources
+- `app/` - All the files, data, and configuration for `errbot`
+
+  - `app/backend/` - Folder containing extra backend modules (Discord)
+  - `app/plugins/` - Folder containing all the extra / custom plugins for our chatop commands
+
+What are these files?
+
+- `.gitignore` - Used for ignoring files from Git
+- `config.env` - Used for adding non-sensitive environment variables to your local instance of `errbot`
+- `creds.env` - Used for adding sensitive environment variables to your local instance of `errbot`
+- `docker-compose.yml` - Used for starting `errbot` locally with Docker-Compose
+- `Makefile` - Used to easily invoke scripts in this repo
+- `*.md` - Documentation!
+
+---
+
+## About the Infrastructure 🧱
+
+Here is a high level overview of this project and the software/infrastruce that run this bot:
+
+- This project uses [errbot](https://github.com/errbotio/errbot) which is a Python based chatop/chatbot framework
+- `errbot` and all of its components are built using Docker to create a deployable image
+- We use Terraform and GitHub actions to deploy the Docker image (from our CI/CD pipeline) to Azure
+- The Docker image runs in a container in Azure and connects to Discord
+- The bot then listens for commands and responds to them
+- For any commands that require some form of "state" we use Azure Cosmos DB to store information since containers are ephemeral by design
+- We store any configuration or credentials as environment variables which get injected into the container in our CI/CD builds
+
+---
+
+## Bot Invite 🔗
+
+Use the link below to invite the bot to a Discord server. This link includes pre-made permissions:
+
+`https://discord.com/api/oauth2/authorize?client_id=742592739975233577&permissions=259912104770&scope=bot`

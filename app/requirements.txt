@@ -38,5 +38,8 @@ beautifulsoup4==4.9.3
 WebOb>=1.2
 soupsieve>1.2
 
-# errbot discord
+# errbot[discord]
 PyNaCl==1.4.0
+
+# Azure
+azure-cosmos==4.2.0
