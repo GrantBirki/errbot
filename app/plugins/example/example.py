@@ -65,47 +65,47 @@ class Example(BotPlugin):
 
         return "hello world!"
 
-    @botcmd
-    def longcompute(self, msg, args):
-        """Slowly return responses over time with Python Yield"""
+    # @botcmd
+    # def longcompute(self, msg, args):
+    #     """Slowly return responses over time with Python Yield"""
 
-        # Slack
-        # yield self.send_card(
-        #     title='Sleep',
-        #     color='red',
-        #     in_reply_to=msg
-        # )
+    #     # Slack
+    #     # yield self.send_card(
+    #     #     title='Sleep',
+    #     #     color='red',
+    #     #     in_reply_to=msg
+    #     # )
 
-        yield 'Sleep'
+    #     yield 'Sleep'
 
-        sleep(5)
+    #     sleep(5)
         
-        # Slack
-        # yield self.send_card(
-        #     title='Wake',
-        #     color='green',
-        #     in_reply_to=msg
-        # )
+    #     # Slack
+    #     # yield self.send_card(
+    #     #     title='Wake',
+    #     #     color='green',
+    #     #     in_reply_to=msg
+    #     # )
 
-        yield 'Wake'
+    #     yield 'Wake'
 
-    @botcmd
-    def yield_test(self, msg, args):
-        """Returns messages in a yield"""
+    # @botcmd
+    # def yield_test(self, msg, args):
+    #     """Returns messages in a yield"""
 
-        messages = ["hey1", "hey2", "hey3"]
+    #     messages = ["hey1", "hey2", "hey3"]
 
-        # Slack
-        # for hey in messages:
-        #     yield self.send_card(
-        #     title="Incoming Hey!",
-        #     color='blue',
-        #     in_reply_to=msg
-        # )
+    #     # Slack
+    #     # for hey in messages:
+    #     #     yield self.send_card(
+    #     #     title="Incoming Hey!",
+    #     #     color='blue',
+    #     #     in_reply_to=msg
+    #     # )
 
-        # Standard
-        for hey in messages:
-            yield hey
+    #     # Standard
+    #     for hey in messages:
+    #         yield hey
 
     @botcmd
     def usertest(self, msg, args):
