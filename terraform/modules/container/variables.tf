@@ -15,6 +15,10 @@ variable "COSMOS_CONTAINER" {
   type = string
 }
 
+variable "COSMOS_ACCOUNT_KEY" {
+  type = string
+}
+
 variable "azure_resource_group" {
   type = string
 }
