@@ -47,9 +47,9 @@ class League(BotPlugin):
         )
 
         if result:
-            return f"Added @{discord_handle} to the league watcher!"
+            return f"✅ Added {discord.mention_user(msg)} to the league watcher!"
         else:
-            return f"@{discord_handle} is already in the league watcher!"
+            return f"ℹ️ {discord.mention_user(msg)} is already in the league watcher!"
 
     @botcmd
     def remove_me_from_league_watcher(self, msg, args):
@@ -71,13 +71,13 @@ class League(BotPlugin):
         )
 
         if result:
-            return f"Removed @{discord_handle} from the league watcher!"
+            return f"✅ Removed {discord.mention_user(msg)} from the league watcher!"
         else:
-            return f"@{discord_handle} is not in the league watcher!"
+            return f"ℹ️ {discord.mention_user(msg)} is not in the league watcher!"
 
     @botcmd
-    def view_me(self, msg, args):
-        """Views your data"""
+    def view_league_watcher_data(self, msg, args):
+        """Views your data for the League Watcher"""
 
         discord_handle = discord.handle(msg)
         guild_id, guild_msg = discord.guild_id(msg)
@@ -89,12 +89,13 @@ class League(BotPlugin):
 
         if response:
 
-            message = f"Discord Handle: {response['data']['discord_handle']}\n"
-            message += f"Summoner Name: {response['data']['summoner_name']}\n"
+            message = f"**League Watcher Data**:\n"
+            message += f"• Discord Handle: `{response['data']['discord_handle']}`\n"
+            message += f"• Summoner Name: `{response['data']['summoner_name']}`\n"
 
             return message
         else:
-            message = f"@{discord_handle} is not in the league watcher!\n"
+            message = f"ℹ️ {discord.mention_user(msg)} is not in the league watcher!\n"
             message += "Use `.add me to league watcher <summoner_name>` to add yourself"
             return message
 
