@@ -22,3 +22,12 @@ class Discord:
         Returns the the 'mention_id' with proper formatting for a mention
         """
         return f"<@{msg.frm.__dict__['_user_id']}>"
+
+    def get_user_id(self, msg):
+        """
+        Gets the user's raw Discord ID and returns it
+        The user ID is an integer
+        Example: 12345678909876543
+        """
+
+        return msg.frm.__dict__['_user_id']
