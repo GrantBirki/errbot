@@ -1,5 +1,8 @@
+from lib.chat.discord import Discord
 from errbot import BotPlugin, botcmd
 from time import sleep
+
+discord = Discord()
 
 class Example(BotPlugin):
     """Example 'Hello, world!' plugin for Errbot"""
@@ -41,8 +44,8 @@ class Example(BotPlugin):
 
         yield f"__Checking Person info from `msg`__"
         yield f"• `msg.frm.person`: {msg.frm.person}"
-        yield f"• `msg.frm.__dict__`: {msg.frm.__dict__}"
-        yield "Person checks passed"   
+        yield f"• @ test: {discord.mention_user(msg)}"
+        yield "Person checks passed"
 
         yield f'Done! 🎉'
 
