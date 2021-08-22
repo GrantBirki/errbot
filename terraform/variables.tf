@@ -76,3 +76,7 @@ variable "COSMOS_CONTAINER" {
   type = string
   default = "discord"
 }
+
+variable "COSMOS_ACCOUNT_KEY" {
+  type = string
+}
