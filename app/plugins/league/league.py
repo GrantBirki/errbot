@@ -7,7 +7,7 @@ from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
 REGION = os.environ['RIOT_REGION']
-cosmos = Cosmos()
+cosmos = Cosmos(cosmos_container='league') # using the specific league container
 discord = Discord()
 
 class League(BotPlugin):
