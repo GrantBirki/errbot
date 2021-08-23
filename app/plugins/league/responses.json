@@ -1,0 +1,18 @@
+{
+    "excellent": [
+        "You did excellent"
+    ],
+    "good": [
+        "You were good"
+    ],
+    "average": [
+        "You were average"
+    ],
+    "poor": [
+        "You did poorly",
+        "You not good"
+    ],
+    "terrible": [
+        "You did terrible"
+    ]
+}
