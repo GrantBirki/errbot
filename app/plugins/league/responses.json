@@ -1,18 +1,70 @@
 {
     "excellent": [
-        "You did excellent"
+        "You did fantasic",
+        "You were absolutely on fire",
+        "You steam-rolled the enemy team",
+        "Super duper fantastic",
+        "Stellar!",
+        "You kicked ass",
+        "You should be a twitch streamer",
+        "LCS here we come",
+        "THICCC shoulders you have",
+        "GGEZ",
+        "ABSOLUTE CHAD",
+        "Lars Tier",
+        "This was clearly not a game played with other beans",
+        "Yeah.. you probably got reported for l33t h@x that game. Very nice",
+        "*chef kiss* **very nice**",
+        "Amazing! I am really proud of you for your hard work this game and great team coordination. You earned this :)"
     ],
     "good": [
-        "You were good"
+        "You did good son",
+        "Pretty good man",
+        "Better than average",
+        "Very nice",
+        "You were a real team player",
+        "A good contributor to the team",
+        "You didn't feed this game! Yay!",
+        "Whoa! You actually didn't feed this game",
+        "Nice K/D/A! Now only if you could play objectives",
+        "<insert words of encouragement>"
     ],
     "average": [
-        "You were average"
+        "You were average tbh",
+        "Not great, not terrible",
+        "Not bad, wish we had Lars tho",
+        "meh.",
+        "You have had better games but as long as you had fun that's what counts",
+        "uhh aight",
+        "You par'd the course",
+        "You played at the same relative game as Steven that game. Take that as you wish"
     ],
     "poor": [
         "You did poorly",
-        "You not good"
+        "You not good this game",
+        "Look like you might have hit your skill tier",
+        "I'm guessing this was a game with beans based on your lackluster performance?",
+        "You might try playing the next game with a keyboard",
+        "Time to go back to your main eh?",
+        "Did you bring the correct runes? That game did not bring joy",
+        "Not your best but not your worst",
+        "oof",
+        "Just a warm up game..",
+        "Not so good, you did not follow the scouts code",
+        "Gden would have landed those skill shots"
     ],
     "terrible": [
-        "You did terrible"
+        "You did terrible, straigh up",
+        "Garbage",
+        "Please uninstall this game",
+        "Your scores make me want to run `rm -rf /` on myself",
+        "Please ensure your monitor is attached. If your monitor is attached, please uninstall the game because that was dog shit",
+        "Continuing to play games like this will result in a 14 day suspension for intentionally feeding",
+        "BAD",
+        "Lars would have landed those skill shots",
+        "Please switch back to Ahri",
+        "Oh god I hope that wasn't ranked",
+        "ALT + F4 now pls",
+        "YIKES"
     ]
 }
