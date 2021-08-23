@@ -10,12 +10,12 @@ util = Util()
 
 class Cosmos:
 
-    def __init__(self):
+    def __init__(self, cosmos_container='discord'):
         self.container = self.init_container(
             os.environ['COSMOS_ACCOUNT_HOST'],
             os.environ['COSMOS_ACCOUNT_KEY'],
             os.environ['COSMOS_DATABASE'],
-            os.environ["COSMOS_CONTAINER"]
+            cosmos_container
         )
 
     def init_container(self, host, account_key, database_id, container_id):
@@ -32,7 +32,7 @@ class Cosmos:
         return container
 
     def fmt_id(self, id):
-        return id.replace("#", "_").replace("@", "_").strip()
+        return id.replace("#", "-").replace("@", "_").strip()
 
     def create_items(self, data=None, id=None):
         """
