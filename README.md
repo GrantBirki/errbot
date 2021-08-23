@@ -1,10 +1,17 @@
-# errbot 🤖
+<h2 align="center"><img src="docs/assets/errbot.png" alt="errbot" align="center" width="200px" /></h1>
 
-[![deployment](https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml) [![basic-checks](https://github.com/GrantBirki/errbot/actions/workflows/review.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/review.yml) [![tfsec](https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml/badge.svg?event=push)](https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml)
+<h2 align="center">errbot</h1>
+<p align="center">
+  A Dicord chatbot that is easy to deploy and build upon
+</p>
 
-Quickly deploy a chatbot with Errbot, Dockerized! 🐳
+<p align="center">
+  <a href="https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml/badge.svg?event=push" alt="deployment" height="18"></a>
+  <a href="https://github.com/GrantBirki/errbot/actions/workflows/review.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/review.yml/badge.svg?event=push" alt="review" /></a>
+  <a href="https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml/badge.svg?event=push" alt="tfsec"/></a>
+</p>
 
-This project deploys a chatbot named `Errbot` and is a Discord application
+<hr>
 
 ## About 💡
 
