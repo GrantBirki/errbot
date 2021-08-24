@@ -149,9 +149,9 @@ class League(BotPlugin):
         message = f'{discord.mention_user(msg)} - '
 
         if player_game_stats['win'] == True:
-            message += 'You **won** the game!\n'
+            message += '• Match Result: `win`\n'
         else:
-            message += 'You **lost** the game!\n'
+            message += '• Match Result: `loss`\n'
 
         deaths = player_game_stats['deaths']
         kills = player_game_stats['kills']
@@ -164,9 +164,9 @@ class League(BotPlugin):
 
         rand_response = random.randrange(0, len(responses[perf]))
 
-        message += f'Performance Evaluation: {responses[perf][rand_response]}\n'
+        message += f'• Performance Evaluation: *{responses[perf][rand_response]}*\n'
 
-        message += f'KDA: `{kills}/{deaths}/{assists}`'
+        message += f'• KDA: `{kills}/{deaths}/{assists}`'
         return message
 
     def performance(self, kills, deaths, assists):
