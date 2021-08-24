@@ -149,31 +149,31 @@ class League(BotPlugin):
         participant_identities = match_details['participantIdentities']
         participant_id = [p_id for p_id in participant_identities if p_id['player']['accountId'] == account_id][0]['participantId']
 
-        return [player for player in match_details['participants'] if player['participantId'] == participant_id][0]['stats']
+        return [player for player in match_details['participants'] if player['participantId'] == participant_id][0]
 
-    def message(self, msg, player_game_stats):
+    def message(self, summoner, match_data):
 
-        message = f'{discord.mention_user(msg)} - '
+        message = f'Last Match For: **{summoner}**\n'
 
-        if player_game_stats['win'] == True:
-            message += '• Match Result: `win`\n'
+        if match_data['stats']['win'] == True:
+            message += '• Match Result: `win` 🏆\n'
         else:
-            message += '• Match Result: `loss`\n'
+            message += '• Match Result: `loss` ❌\n'
 
-        deaths = player_game_stats['deaths']
-        kills = player_game_stats['kills']
-        assists = player_game_stats['assists']
+        message += f"• Lane: `{match_data['timeline']['lane'].lower()}`\n"
+        message += f"• Champion: `{self.get_champion(match_data['championId'])}`\n"
+
+        deaths = match_data['stats']['deaths']
+        kills = match_data['stats']['kills']
+        assists = match_data['stats']['assists']
 
         perf = self.performance(kills, deaths, assists)
 
-        with open('responses.json', 'r') as raw:
-            responses = json.loads(raw.read())
+        rand_response = random.randrange(0, len(RESPONSES[perf]))
 
-        rand_response = random.randrange(0, len(responses[perf]))
-
-        message += f'• Performance Evaluation: *{responses[perf][rand_response]}*\n'
-
-        message += f'• KDA: `{kills}/{deaths}/{assists}`'
+        message += f'• KDA: `{kills}/{deaths}/{assists}`\n'
+        message += f'• Performance Evaluation: `{perf}` {self.performance_emote(perf)}\n'
+        message += f"> *{RESPONSES[perf][rand_response]}*"
         return message
 
     def performance(self, kills, deaths, assists):
