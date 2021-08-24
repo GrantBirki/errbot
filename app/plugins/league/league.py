@@ -22,14 +22,21 @@ CHAMPION_DATA = json.loads(requests.get(f'https://ddragon.leagueoflegends.com/cd
 class League(BotPlugin):
     """League plugin for Errbot"""
 
-    # Temp disabled
-    # def last_match_cron(self):
-    #     summoner_list = os.environ['SUMMONER_LIST'].split(' ')
-    #     return self.last_match_main(summoner_list)
+    def last_match_cron(self):
 
-    # def activate(self):
-    #     super().activate()
-    #     self.start_poller(500, self.last_match_cron)
+        channel_name = '#general'
+        guild_id = '873463331917299722'
+
+        db_items = cosmos.read_items()
+        summoner_list = [item['data']['summoner_name'] for item in db_items]
+        self.send(
+            self.build_identifier(f'{channel_name}@{guild_id}'),
+            self.last_match_main(summoner_list)
+        )
+
+    def activate(self):
+        super().activate()
+        self.start_poller(10, self.last_match_cron)
 
     @arg_botcmd('summoner_name', type=str)
     def add_me_to_league_watcher(self, msg, summoner_name=None):
@@ -58,7 +65,37 @@ class League(BotPlugin):
         if result:
             return f"✅ Added {discord.mention_user(msg)} to the league watcher!"
         else:
-            return f"ℹ️ {discord.mention_user(msg)} is already in the league watcher!"
+            return f"ℹ️ {discord.mention_user(msg)} already has an entry in the league watcher!"
+
+    @botcmd(admin_only=True)
+    @arg_botcmd('--summoner_name', dest='summoner_name', type=str)
+    @arg_botcmd('--discord_handle', dest='discord_handle', type=str)
+    def add_to_league_watcher(self, msg, summoner_name=None, discord_handle=None):
+        """
+        Adds a summoner to the league watcher - Admin command
+        Run from the channel you wish to use the league watcher in
+        
+        Usage: .add to league watcher <summoner_name> <discord_handle>
+        Example: .add to league watcher --summoner_name birki --discord_handle birki#0001
+        """
+        guild_id, guild_msg = discord.guild_id(msg)
+
+        if not guild_id:
+            return guild_msg
+
+        result = cosmos.create_items(
+            id = discord_handle,
+            data = {
+                'discord_handle': discord_handle,
+                'summoner_name': summoner_name,
+                'discord_server_id': guild_id
+            }
+        )
+
+        if result:
+            return f"✅ Added `{discord_handle}` to the league watcher! | Summoner Name: `{summoner_name}`"
+        else:
+            return f"ℹ️ `{discord_handle}` already has an entry in the league watcher!"
 
     @botcmd
     def remove_me_from_league_watcher(self, msg, args):
@@ -85,7 +122,7 @@ class League(BotPlugin):
             return f"ℹ️ {discord.mention_user(msg)} is not in the league watcher!"
 
     @botcmd
-    def view_league_watcher_data(self, msg, args):
+    def view_my_league_watcher_data(self, msg, args):
         """Views your data for the League Watcher"""
 
         discord_handle = discord.handle(msg)
@@ -104,7 +141,7 @@ class League(BotPlugin):
 
             return message
         else:
-            message = f"ℹ️ {discord.mention_user(msg)} is not in the league watcher!\n"
+            message = f"ℹ️ {discord.mention_user(msg)} is not in the league watcher for this Discord server!\n"
             message += "Use `.add me to league watcher <summoner_name>` to add yourself"
             return message
 
@@ -124,7 +161,7 @@ class League(BotPlugin):
             last_match_data = self.get_last_match_data(summoner)
             messages.append(self.message(summoner, last_match_data))
 
-        message = '\n'.join(messages)
+        message = '\n\n==========================\n\n'.join(messages) + '\n\n=========================='
 
         return message
 
