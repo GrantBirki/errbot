@@ -13,6 +13,12 @@ REGION = os.environ['RIOT_REGION']
 cosmos = Cosmos(cosmos_container='league') # using the specific league container
 discord = Discord()
 
+with open('plugins/league/responses.json', 'r') as raw:
+    RESPONSES = json.loads(raw.read())
+
+LEAGUE_VERSION = json.loads(requests.get('https://ddragon.leagueoflegends.com/realms/na.json').text)['n']['champion']
+CHAMPION_DATA = json.loads(requests.get(f'https://ddragon.leagueoflegends.com/cdn/{LEAGUE_VERSION}/data/en_US/champion.json').text)['data']
+
 class League(BotPlugin):
     """League plugin for Errbot"""
 
