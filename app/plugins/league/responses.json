@@ -37,7 +37,7 @@
         "You have had better games but as long as you had fun that's what counts",
         "uhh aight",
         "You par'd the course",
-        "You played at the same relative game as Steven that game. Take that as you wish"
+        "You played at the same relative skill level as Steven that game. Take that as you wish"
     ],
     "poor": [
         "You did poorly",
@@ -54,7 +54,7 @@
         "Gden would have landed those skill shots"
     ],
     "terrible": [
-        "You did terrible, straigh up",
+        "You did terrible, straight up",
         "Garbage",
         "Please uninstall this game",
         "Your scores make me want to run `rm -rf /` on myself",
@@ -65,6 +65,7 @@
         "Please switch back to Ahri",
         "Oh god I hope that wasn't ranked",
         "ALT + F4 now pls",
-        "YIKES"
+        "YIKES",
+        "Fucking terrible"
     ]
 }
