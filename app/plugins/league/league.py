@@ -1,11 +1,12 @@
-import os
-
-from errbot import BotPlugin, arg_botcmd, botcmd
-from lib.database.cosmos import Cosmos
-from lib.chat.discord import Discord
-from riotwatcher import ApiError, LolWatcher
-import random
 import json
+import os
+import random
+
+import requests
+from errbot import BotPlugin, arg_botcmd, botcmd
+from lib.chat.discord import Discord
+from lib.database.cosmos import Cosmos
+from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
 REGION = os.environ['RIOT_REGION']
