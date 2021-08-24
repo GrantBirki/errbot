@@ -203,3 +203,9 @@ class League(BotPlugin):
             return '👎'
         elif performace == 'terrible':
             return '💀'
+    
+    def get_champion(self, champion_id):
+        for item in CHAMPION_DATA:
+            if int(CHAMPION_DATA[item]['key']) == int(champion_id):
+                return item.lower()
+        return None
