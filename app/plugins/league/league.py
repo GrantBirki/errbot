@@ -191,17 +191,17 @@ class League(BotPlugin):
         elif kda_calc <= -4:
             return 'terrible'
 
-    def performance_emote(self, performace):
+    def performance_emote(self, performance):
 
-        if performace == 'excellent':
+        if performance == 'excellent':
             return '🌟'
-        elif performace == 'good':
+        elif performance == 'good':
             return '👍'
-        elif performace == 'average':
+        elif performance == 'average':
             return '😐'
-        elif performace == 'poor':
+        elif performance == 'poor':
             return '👎'
-        elif performace == 'terrible':
+        elif performance == 'terrible':
             return '💀'
     
     def get_champion(self, champion_id):
