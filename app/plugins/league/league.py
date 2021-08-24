@@ -109,20 +109,20 @@ class League(BotPlugin):
             return message
 
     @arg_botcmd('summoner_name', type=str)
-    def last_match(self, msg, summoner_name=None):
+    def last_match_for(self, msg, summoner_name=None):
         """Get the last match for a user (LoL)"""
 
         if type(summoner_name) is str:
             summoner_list = summoner_name.split(',')
 
-        return self.last_match_main(msg, summoner_list)
+        return self.last_match_main(summoner_list)
 
-    def last_match_main(self, msg, summoner_list):
+    def last_match_main(self, summoner_list):
 
         messages = []
         for summoner in summoner_list:
-            player_game_stats = self.get_last_match_data(summoner)
-            messages.append(self.message(msg, player_game_stats))
+            last_match_data = self.get_last_match_data(summoner)
+            messages.append(self.message(summoner, last_match_data))
 
         message = '\n'.join(messages)
 
