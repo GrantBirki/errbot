@@ -693,12 +693,17 @@ class DiscordBackend(ErrBot):
 
         Valid forms of strreps:
         user#discriminator      -> Person
+        #channel@guild_id       -> Room
 
         :param string_representation:
         :return: Identifier
         """
         if not string_representation:
             raise ValueError("Empty strrep")
+        
+        if string_representation.startswith('#'):
+            strrep_split = string_representation.split('@')
+            return DiscordRoom(strrep_split[0][1:], int(strrep_split[1]))
 
         if "#" in str(string_representation):
             user, discriminator = str(string_representation).split("#")
