@@ -4,6 +4,8 @@ from errbot import BotPlugin, arg_botcmd, botcmd
 from lib.database.cosmos import Cosmos
 from lib.chat.discord import Discord
 from riotwatcher import ApiError, LolWatcher
+import random
+import json
 
 LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
 REGION = os.environ['RIOT_REGION']
@@ -106,14 +108,14 @@ class League(BotPlugin):
         if type(summoner_name) is str:
             summoner_list = summoner_name.split(',')
 
-        return self.last_match_main(summoner_list)
+        return self.last_match_main(msg, summoner_list)
 
-    def last_match_main(self, summoner_list):
+    def last_match_main(self, msg, summoner_list):
 
         messages = []
         for summoner in summoner_list:
             player_game_stats = self.get_last_match_data(summoner)
-            messages.append(self.message(player_game_stats))
+            messages.append(self.message(msg, player_game_stats))
 
         message = '\n'.join(messages)
 
@@ -142,19 +144,42 @@ class League(BotPlugin):
 
         return [player for player in match_details['participants'] if player['participantId'] == participant_id][0]['stats']
 
-    def message(self, player_game_stats):
+    def message(self, msg, player_game_stats):
+
+        message = f'{discord.mention_user(msg)} - '
 
         if player_game_stats['win'] == True:
-            message = 'You won the game'
+            message += '• Match Result: `win`\n'
         else:
-            message = 'You lost the game'
+            message += '• Match Result: `loss`\n'
 
         deaths = player_game_stats['deaths']
         kills = player_game_stats['kills']
         assists = player_game_stats['assists']
 
-        if deaths > kills:
-            message += ' and you fed your ass off!'
+        perf = self.performance(kills, deaths, assists)
 
-        message += f' | KDA: {kills}/{deaths}/{assists}'
+        with open('responses.json', 'r') as raw:
+            responses = json.loads(raw.read())
+
+        rand_response = random.randrange(0, len(responses[perf]))
+
+        message += f'• Performance Evaluation: *{responses[perf][rand_response]}*\n'
+
+        message += f'• KDA: `{kills}/{deaths}/{assists}`'
         return message
+
+    def performance(self, kills, deaths, assists):
+
+        kda_calc = kills - deaths + assists / 2
+
+        if kda_calc >= 8:
+            return 'excellent'
+        elif kda_calc >= 4 and kda_calc < 8:
+            return 'good'
+        elif kda_calc >= 0 and kda_calc < 4:
+            return 'average'
+        elif kda_calc <= 0 and kda_calc > -4:
+            return 'poor'
+        elif kda_calc <= -4:
+            return 'terrible'
