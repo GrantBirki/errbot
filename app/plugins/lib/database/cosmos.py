@@ -144,17 +144,35 @@ class Cosmos:
             return False
 
     def update_item(self, id, data=None, partition_key=None):
-        print("\nUpserting an item\n")
+        """
+        Updates an item from the Azure Cosmos DB
+        :param: id - The "id" of the record to fetch (required)
+        :param: data - The data body of the record with new key:value pairs to update
+        :param: partition_key - The "partition_key" of the record to fetch
 
-        response = self.container.read_item(item=id, partition_key=partition_key)
-        response["updated_at"] = util.iso_timestamp()
-        response = self.container.upsert_item(body=response)
+        Note: in most cases, the partition_key is the Discord server guild id
+        """
+        try:
+            id = self.fmt_id(id)
 
-        print(
-            "Upserted Item's Id is {0}, new subtotal={1}".format(
-                response["id"], response["subtotal"]
-            )
-        )
+            # Read the current record
+            if partition_key:
+                response = self.container.read_item(item=id, partition_key=partition_key)
+            else:
+                response = self.container.read_item(item=id, partition_key='unknown')
+
+            # Update the record "updated_at" value to now
+            response["updated_at"] = util.iso_timestamp()
+
+            # Update the record "data" with our new data
+            for i in data:
+                response['data'][i] = data[i]
+
+            # Write the record
+            response = self.container.upsert_item(body=response)
+            return True
+        except exceptions.CosmosResourceNotFoundError:
+            return False
 
     def delete_item(self, id, partition_key=None):
         try:

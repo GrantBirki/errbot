@@ -1,28 +1,65 @@
-import os
-
-from errbot import BotPlugin, arg_botcmd, botcmd
-from lib.database.cosmos import Cosmos
-from lib.chat.discord import Discord
-from riotwatcher import ApiError, LolWatcher
-import random
 import json
+import os
+import random
+
+import requests
+from errbot import BotPlugin, arg_botcmd, botcmd
+from lib.chat.discord import Discord
+from lib.database.cosmos import Cosmos
+from lib.common.utilities import Util
+from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
 REGION = os.environ['RIOT_REGION']
 cosmos = Cosmos(cosmos_container='league') # using the specific league container
 discord = Discord()
+util = Util()
+
+with open('plugins/league/responses.json', 'r') as raw:
+    RESPONSES = json.loads(raw.read())
+
+LEAGUE_VERSION = json.loads(requests.get('https://ddragon.leagueoflegends.com/realms/na.json').text)['n']['champion']
+CHAMPION_DATA = json.loads(requests.get(f'https://ddragon.leagueoflegends.com/cdn/{LEAGUE_VERSION}/data/en_US/champion.json').text)['data']
+LEAGUE_CHANNEL = "#league"
 
 class League(BotPlugin):
     """League plugin for Errbot"""
 
-    # Temp disabled
-    # def last_match_cron(self):
-    #     summoner_list = os.environ['SUMMONER_LIST'].split(' ')
-    #     return self.last_match_main(summoner_list)
+    def last_match_cron(self):
+        """
+        Last match function on a schedule! Posts league stats
+        """
+        db_items = cosmos.read_items()
+        for item in db_items:
+            # Gets the last match data
+            last_match_data = self.get_last_match_data(item['data']['summoner_name'])
+            # Calcutes a unique hash of the match
+            current_match_sha256 = util.sha256(json.dumps(last_match_data))
+            # Checks if the last match data is already in the database
+            if item['data']['last_match_sha256'] == current_match_sha256:
+                continue
 
-    # def activate(self):
-    #     super().activate()
-    #     self.start_poller(500, self.last_match_cron)
+            # Get the Discord Server GuildID
+            guild_id = item['data']['discord_server_id']
+
+            # Updates the match sha so results for a match are never posted twice
+            cosmos.update_item(
+                item['data']['discord_handle'],
+                data={'last_match_sha256': current_match_sha256}, partition_key=guild_id
+            )
+
+            # Sends a message to the user's discord channel which they registered with
+            self.send(
+                self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
+                self.league_message(item['data']['summoner_name'], last_match_data)
+            )
+
+    def activate(self):
+        """
+        Runs the last_match_cron() function every minute
+        """
+        super().activate()
+        self.start_poller(60, self.last_match_cron)
 
     @arg_botcmd('summoner_name', type=str)
     def add_me_to_league_watcher(self, msg, summoner_name=None):
@@ -44,14 +81,46 @@ class League(BotPlugin):
             data = {
                 'discord_handle': discord_handle,
                 'summoner_name': summoner_name,
-                'discord_server_id': guild_id
+                'discord_server_id': guild_id,
+                'last_match_sha256': None,
+                'bot_can_at_me': True
             }
         )
 
         if result:
             return f"✅ Added {discord.mention_user(msg)} to the league watcher!"
         else:
-            return f"ℹ️ {discord.mention_user(msg)} is already in the league watcher!"
+            return f"ℹ️ {discord.mention_user(msg)} already has an entry in the league watcher!"
+
+    @botcmd(admin_only=True)
+    @arg_botcmd('--summoner_name', dest='summoner_name', type=str)
+    @arg_botcmd('--discord_handle', dest='discord_handle', type=str)
+    def add_to_league_watcher(self, msg, summoner_name=None, discord_handle=None):
+        """
+        Adds a summoner to the league watcher - Admin command
+        Run from the channel you wish to use the league watcher in
+        
+        Usage: .add to league watcher <summoner_name> <discord_handle>
+        Example: .add to league watcher --summoner_name birki --discord_handle birki#0001
+        """
+        guild_id, guild_msg = discord.guild_id(msg)
+
+        if not guild_id:
+            return guild_msg
+
+        result = cosmos.create_items(
+            id = discord_handle,
+            data = {
+                'discord_handle': discord_handle,
+                'summoner_name': summoner_name,
+                'discord_server_id': guild_id
+            }
+        )
+
+        if result:
+            return f"✅ Added `{discord_handle}` to the league watcher! | Summoner Name: `{summoner_name}`"
+        else:
+            return f"ℹ️ `{discord_handle}` already has an entry in the league watcher!"
 
     @botcmd
     def remove_me_from_league_watcher(self, msg, args):
@@ -78,9 +147,12 @@ class League(BotPlugin):
             return f"ℹ️ {discord.mention_user(msg)} is not in the league watcher!"
 
     @botcmd
-    def view_league_watcher_data(self, msg, args):
-        """Views your data for the League Watcher"""
-
+    def view_my_league_watcher_data(self, msg, args):
+        """
+        Views your data for the League Watcher
+        
+        This is mostly for debugging
+        """
         discord_handle = discord.handle(msg)
         guild_id, guild_msg = discord.guild_id(msg)
 
@@ -94,30 +166,33 @@ class League(BotPlugin):
             message = f"**League Watcher Data**:\n"
             message += f"• Discord Handle: `{response['data']['discord_handle']}`\n"
             message += f"• Summoner Name: `{response['data']['summoner_name']}`\n"
+            message += f"• Last Match SHA: `{response['data']['last_match_sha256'][:8]}`"
+            message += f"• Can I fucking @you?: {response['data']['bot_can_at_me']}"
+            message += f"• Last Updated: {response['updated_at']}"
 
             return message
         else:
-            message = f"ℹ️ {discord.mention_user(msg)} is not in the league watcher!\n"
+            message = f"ℹ️ {discord.mention_user(msg)} is not in the league watcher for this Discord server!\n"
             message += "Use `.add me to league watcher <summoner_name>` to add yourself"
             return message
 
     @arg_botcmd('summoner_name', type=str)
-    def last_match(self, msg, summoner_name=None):
+    def last_match_for(self, msg, summoner_name=None):
         """Get the last match for a user (LoL)"""
 
         if type(summoner_name) is str:
             summoner_list = summoner_name.split(',')
 
-        return self.last_match_main(msg, summoner_list)
+        return self.last_match_main(summoner_list)
 
-    def last_match_main(self, msg, summoner_list):
+    def last_match_main(self, summoner_list):
 
         messages = []
         for summoner in summoner_list:
-            player_game_stats = self.get_last_match_data(summoner)
-            messages.append(self.message(msg, player_game_stats))
+            last_match_data = self.get_last_match_data(summoner)
+            messages.append(self.league_message(summoner, last_match_data))
 
-        message = '\n'.join(messages)
+        message = '\n\n'.join(messages)
 
         return message
 
@@ -142,31 +217,31 @@ class League(BotPlugin):
         participant_identities = match_details['participantIdentities']
         participant_id = [p_id for p_id in participant_identities if p_id['player']['accountId'] == account_id][0]['participantId']
 
-        return [player for player in match_details['participants'] if player['participantId'] == participant_id][0]['stats']
+        return [player for player in match_details['participants'] if player['participantId'] == participant_id][0]
 
-    def message(self, msg, player_game_stats):
+    def league_message(self, summoner, match_data):
 
-        message = f'{discord.mention_user(msg)} - '
+        message = f'Last Match For: **{summoner}**\n'
 
-        if player_game_stats['win'] == True:
-            message += '• Match Result: `win`\n'
+        if match_data['stats']['win'] == True:
+            message += '• Match Result: `win` 🏆\n'
         else:
-            message += '• Match Result: `loss`\n'
+            message += '• Match Result: `loss` ❌\n'
 
-        deaths = player_game_stats['deaths']
-        kills = player_game_stats['kills']
-        assists = player_game_stats['assists']
+        message += f"• Lane: `{match_data['timeline']['lane'].lower()}`\n"
+        message += f"• Champion: `{self.get_champion(match_data['championId'])}`\n"
+
+        deaths = match_data['stats']['deaths']
+        kills = match_data['stats']['kills']
+        assists = match_data['stats']['assists']
 
         perf = self.performance(kills, deaths, assists)
 
-        with open('responses.json', 'r') as raw:
-            responses = json.loads(raw.read())
+        rand_response = random.randrange(0, len(RESPONSES[perf]))
 
-        rand_response = random.randrange(0, len(responses[perf]))
-
-        message += f'• Performance Evaluation: *{responses[perf][rand_response]}*\n'
-
-        message += f'• KDA: `{kills}/{deaths}/{assists}`'
+        message += f'• KDA: `{kills}/{deaths}/{assists}`\n'
+        message += f'• Performance Evaluation: `{perf}` {self.performance_emote(perf)}\n'
+        message += f"> *{RESPONSES[perf][rand_response]}*"
         return message
 
     def performance(self, kills, deaths, assists):
@@ -183,3 +258,22 @@ class League(BotPlugin):
             return 'poor'
         elif kda_calc <= -4:
             return 'terrible'
+
+    def performance_emote(self, performance):
+
+        if performance == 'excellent':
+            return '🌟'
+        elif performance == 'good':
+            return '👍'
+        elif performance == 'average':
+            return '😐'
+        elif performance == 'poor':
+            return '👎'
+        elif performance == 'terrible':
+            return '💀'
+    
+    def get_champion(self, champion_id):
+        for item in CHAMPION_DATA:
+            if int(CHAMPION_DATA[item]['key']) == int(champion_id):
+                return item.lower()
+        return None
