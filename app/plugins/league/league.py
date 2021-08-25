@@ -20,21 +20,32 @@ with open('plugins/league/responses.json', 'r') as raw:
 
 LEAGUE_VERSION = json.loads(requests.get('https://ddragon.leagueoflegends.com/realms/na.json').text)['n']['champion']
 CHAMPION_DATA = json.loads(requests.get(f'https://ddragon.leagueoflegends.com/cdn/{LEAGUE_VERSION}/data/en_US/champion.json').text)['data']
+LEAGUE_CHANNEL = "#league"
 
 class League(BotPlugin):
     """League plugin for Errbot"""
 
     def last_match_cron(self):
 
-        channel_name = '#general'
-        guild_id = '873463331917299722'
-
         db_items = cosmos.read_items()
-        summoner_list = [item['data']['summoner_name'] for item in db_items]
-        self.send(
-            self.build_identifier(f'{channel_name}@{guild_id}'),
-            self.last_match_main(summoner_list)
-        )
+        for item in db_items:
+            last_match_data = self.get_last_match_data(item['data']['summoner_name'])
+            current_match_sha256 = util.sha256(json.dumps(last_match_data))
+
+            if item['data']['last_match_sha256'] == current_match_sha256:
+                continue
+
+            guild_id = item['data']['discord_server_id']
+
+            cosmos.update_item(
+                item['data']['discord_handle'],
+                data={'last_match_sha256': current_match_sha256}, partition_key=guild_id
+            )
+
+            self.send(
+                self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
+                self.league_message(item['data']['summoner_name'], last_match_data)
+            )
 
     def activate(self):
         super().activate()
