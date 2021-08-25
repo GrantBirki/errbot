@@ -174,9 +174,9 @@ class League(BotPlugin):
         messages = []
         for summoner in summoner_list:
             last_match_data = self.get_last_match_data(summoner)
-            messages.append(self.message(summoner, last_match_data))
+            messages.append(self.league_message(summoner, last_match_data))
 
-        message = '\n\n==========================\n\n'.join(messages) + '\n\n=========================='
+        message = '\n'.join(messages)
 
         return message
 
@@ -203,7 +203,7 @@ class League(BotPlugin):
 
         return [player for player in match_details['participants'] if player['participantId'] == participant_id][0]
 
-    def message(self, summoner, match_data):
+    def league_message(self, summoner, match_data):
 
         message = f'Last Match For: **{summoner}**\n'
 
