@@ -31,28 +31,31 @@ class League(BotPlugin):
         """
         db_items = cosmos.read_items()
         for item in db_items:
-            # Gets the last match data
-            last_match_data = self.get_last_match_data(item['data']['summoner_name'])
-            # Calcutes a unique hash of the match
-            current_match_sha256 = util.sha256(json.dumps(last_match_data))
-            # Checks if the last match data is already in the database
-            if item['data']['last_match_sha256'] == current_match_sha256:
+            try:
+                # Gets the last match data
+                last_match_data = self.get_last_match_data(item['data']['summoner_name'])
+                # Calcutes a unique hash of the match
+                current_match_sha256 = util.sha256(json.dumps(last_match_data))
+                # Checks if the last match data is already in the database
+                if item['data']['last_match_sha256'] == current_match_sha256:
+                    continue
+
+                # Get the Discord Server GuildID
+                guild_id = item['data']['discord_server_id']
+
+                # Updates the match sha so results for a match are never posted twice
+                cosmos.update_item(
+                    item['data']['discord_handle'],
+                    data={'last_match_sha256': current_match_sha256}, partition_key=guild_id
+                )
+
+                # Sends a message to the user's discord channel which they registered with
+                self.send(
+                    self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
+                    self.league_message(item['data']['summoner_name'], last_match_data)
+                )
+            except:
                 continue
-
-            # Get the Discord Server GuildID
-            guild_id = item['data']['discord_server_id']
-
-            # Updates the match sha so results for a match are never posted twice
-            cosmos.update_item(
-                item['data']['discord_handle'],
-                data={'last_match_sha256': current_match_sha256}, partition_key=guild_id
-            )
-
-            # Sends a message to the user's discord channel which they registered with
-            self.send(
-                self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
-                self.league_message(item['data']['summoner_name'], last_match_data)
-            )
 
     def activate(self):
         """
