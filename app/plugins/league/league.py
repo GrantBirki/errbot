@@ -71,7 +71,9 @@ class League(BotPlugin):
             data = {
                 'discord_handle': discord_handle,
                 'summoner_name': summoner_name,
-                'discord_server_id': guild_id
+                'discord_server_id': guild_id,
+                'last_match_sha256': None,
+                'bot_can_at_me': True
             }
         )
 
