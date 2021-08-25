@@ -176,7 +176,7 @@ class League(BotPlugin):
             last_match_data = self.get_last_match_data(summoner)
             messages.append(self.league_message(summoner, last_match_data))
 
-        message = '\n'.join(messages)
+        message = '\n\n'.join(messages)
 
         return message
 
