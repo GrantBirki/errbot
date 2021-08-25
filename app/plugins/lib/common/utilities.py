@@ -11,7 +11,7 @@ class Util:
         """
         return datetime.now().replace(microsecond=0).isoformat()
 
-    def sha256_hash(self, data):
+    def sha256(self, data):
         """
         Hash a string and return a SHA256 hash
         """
