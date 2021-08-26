@@ -24,7 +24,9 @@ module "errbot_container" {
   source = "./modules/container"
 
   # Bot Creds
-  CHAT_SERVICE_TOKEN = var.CHAT_SERVICE_TOKEN
+  CHAT_SERVICE_TOKEN    = var.CHAT_SERVICE_TOKEN
+  AWS_ACCESS_KEY_ID     = var.AWS_ACCESS_KEY_ID
+  AWS_SECRET_ACCESS_KEY = var.AWS_SECRET_ACCESS_KEY
 
   # Bot Config
   COMMIT_SHA            = var.COMMIT_SHA
