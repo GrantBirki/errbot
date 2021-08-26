@@ -4,6 +4,17 @@ from pynamodb.models import Model
 from pynamodb.attributes import (
     UnicodeAttribute, NumberAttribute, UnicodeSetAttribute, UTCDateTimeAttribute
 )
+from pynamodb.exceptions import DoesNotExist
+
+import boto3
+
+session = boto3.Session(
+    aws_access_key_id = os.environ['AWS_ACCESS_KEY_ID'],
+    aws_secret_access_key = os.environ['AWS_SECRET_ACCESS_KEY'],
+    region_name = "us-west-2"
+)
+
+dynamo = session.resource('dynamodb')
 
 util = Util()
 
@@ -15,10 +26,10 @@ class LeagueTable(Model):
         aws_access_key_id = os.environ['AWS_ACCESS_KEY_ID']
         aws_secret_access_key = os.environ['AWS_SECRET_ACCESS_KEY']
   
-    discord_server_id = UnicodeAttribute(hash_key=True)
+    discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
     summoner_name = UnicodeAttribute()
-    created_at = UnicodeAttribute(default_for_new=util.iso_timestamp())
+    created_at = UnicodeAttribute()
     updated_at = UnicodeAttribute()
     last_match_sha256 = UnicodeAttribute(default_for_new=None, null=True)
     bot_can_at_me = UnicodeAttribute(default_for_new='True')
@@ -29,24 +40,33 @@ class Dynamo():
         Write a new (and replace) a database record
         """
         try:
-            setattr(object, 'updated_at', util.iso_timestamp())
+            iso_timestamp = util.iso_timestamp()
+            setattr(object, 'created_at', iso_timestamp)
+            setattr(object, 'updated_at', iso_timestamp)
             object.save()
             return True
         except:
             return False
 
-    def update(self, object, records):
+    def update(self, table: object, record: object, records_to_update: list):
         """
         Input an existing database upject and update it in place
 
-        Example [records]:
+        Example [records_to_update]:
         [SomeTable.hello_world.set("i am a message")]
         """
         try:
-            object.update(
-                actions = records 
+
+            # Update the timestamp
+
+            records_to_update.append(table.updated_at.set(util.iso_timestamp()))
+
+            record.update(
+                actions = records_to_update
             )
             return True
+        except DoesNotExist:
+            return None
         except:
             return False
 
@@ -58,6 +78,8 @@ class Dynamo():
         try:
             result = object.get(partition_key, sort_key)
             return result
+        except DoesNotExist:
+            return None
         except:
             return False
 
@@ -72,3 +94,25 @@ class Dynamo():
             return True
         except:
             return False
+
+    def scan(self, table_name, **kwargs):
+        """
+        A scan means to get ALL records in a table
+
+        NOTE: Anytime you are filtering by a specific equivalency attribute such as id, name 
+        or date equal to ... etc., you should consider using a query not scan
+
+        kwargs are any parameters you want to pass to the scan operation
+        """
+        try:
+            dbTable = dynamo.Table(table_name)
+            response = dbTable.scan(**kwargs)
+            if kwargs.get('Select')=="COUNT":
+                return response.get('Count')
+            data = response.get('Items')
+            while 'LastEvaluatedKey' in response:
+                response = kwargs.get('table').scan(ExclusiveStartKey=response['LastEvaluatedKey'], **kwargs)
+                data.extend(response['Items'])
+            return data
+        except:
+            False
