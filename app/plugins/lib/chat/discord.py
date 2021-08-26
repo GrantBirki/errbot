@@ -8,6 +8,14 @@ class Discord:
         except AttributeError:
             return False, 'Please run this command in a Discord channel, not a DM'
 
+    def fmt_guild_id(self, guild_raw):
+        """
+        Formats the guild_raw to a proper guild_id
+
+        Mainly used for formatting when reading from the database
+        """
+        return int(guild_raw)
+
     def handle(self, msg):
         """
         Gets the Discord handle of a user
