@@ -59,10 +59,7 @@ class League(BotPlugin):
                         ]
                     )
                 else:
-                    self.send(
-                        self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
-                        f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`"   
-                    )
+                    self.warn_admins(f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`")
                     continue
 
                 if update_result:
@@ -72,13 +69,10 @@ class League(BotPlugin):
                         self.league_message(item['summoner_name'], last_match_data, full_match_data)
                     )
                 else:
-                    self.send(
-                        self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
-                        f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`"
-                    )
+                    self.warn_admins(f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`")
                     continue
             except:
-                self.warn_admins(traceback.format_exc())
+                self.warn_admins(f"{traceback.format_exc()}")
                 continue
 
     def activate(self):
