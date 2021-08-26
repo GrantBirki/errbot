@@ -141,15 +141,16 @@ class League(BotPlugin):
         if not guild_id:
             return guild_msg
 
-        result = cosmos.delete_item(
-            id = discord_handle,
-            partition_key = guild_id
-        )
+        get_result = dynamo.get(LeagueTable, guild_id, discord_handle)
+        if get_result is None:
+            return f"ℹ️ {discord.mention_user(msg)} is not in the league watcher!"
+
+        result = dynamo.delete(get_result)
 
         if result:
             return f"✅ Removed {discord.mention_user(msg)} from the league watcher!"
         else:
-            return f"ℹ️ {discord.mention_user(msg)} is not in the league watcher!"
+            return f"❌ Faile to remove {discord.mention_user(msg)} to the league watcher!"
 
     @botcmd
     def view_my_league_watcher_data(self, msg, args):
