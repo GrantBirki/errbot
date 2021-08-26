@@ -170,16 +170,19 @@ class League(BotPlugin):
         if not guild_id:
             return guild_msg
 
-        response = cosmos.read_item(discord_handle, partition_key=guild_id)
+        response = dynamo.get(LeagueTable, guild_id, discord_handle)
 
         if response:
 
+            if not response.last_match_sha256:
+                last_match_sha256 = 'Waiting for auto update...'
+
             message = f"**League Watcher Data**:\n"
-            message += f"• Discord Handle: `{response['data']['discord_handle']}`\n"
-            message += f"• Summoner Name: `{response['data']['summoner_name']}`\n"
-            message += f"• Last Match SHA: `{response['data']['last_match_sha256'][:8]}`\n"
-            message += f"• Can I fucking @you?: `{response['data']['bot_can_at_me']}`\n"
-            message += f"• Last Updated: `{response['updated_at']}`"
+            message += f"• Discord Handle: `{response.discord_handle}`\n"
+            message += f"• Summoner Name: `{response.summoner_name}`\n"
+            message += f"• Last Match SHA: `{last_match_sha256}`\n"
+            message += f"• Can I fucking @you?: `{response.bot_can_at_me}`\n"
+            message += f"• Last Updated: `{response.updated_at}`"
 
             return message
         else:
