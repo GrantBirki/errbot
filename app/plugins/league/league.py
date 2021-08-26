@@ -10,7 +10,7 @@ from lib.common.utilities import Util
 from lib.database.dynamo import Dynamo, LeagueTable
 from riotwatcher import ApiError, LolWatcher
 
-LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
+LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'], timeout=8)
 REGION = os.environ['RIOT_REGION']
 discord = Discord()
 util = Util()
@@ -49,15 +49,23 @@ class League(BotPlugin):
 
                 # Updates the match sha so results for a match are never posted twice
                 get_result = dynamo.get(LeagueTable, guild_id, item['discord_handle'])
-                update_result = dynamo.update(
-                    table = LeagueTable,
-                    record = get_result,
-                    records_to_update = [
-                        LeagueTable.last_match_sha256.set(current_match_sha256)
-                    ]
-                )
 
                 if get_result:
+                    update_result = dynamo.update(
+                        table = LeagueTable,
+                        record = get_result,
+                        records_to_update = [
+                            LeagueTable.last_match_sha256.set(current_match_sha256)
+                        ]
+                    )
+                else:
+                    self.send(
+                        self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
+                        f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`"   
+                    )
+                    continue
+
+                if update_result:
                     # Sends a message to the user's discord channel which they registered with
                     self.send(
                         self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
@@ -66,18 +74,19 @@ class League(BotPlugin):
                 else:
                     self.send(
                         self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
-                        f"❌ Something went wrong posting a league game for `{item['summoner_name']}`"
+                        f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`"
                     )
+                    continue
             except:
                 self.warn_admins(traceback.format_exc())
                 continue
 
     def activate(self):
         """
-        Runs the last_match_cron() function every 30 seconds
+        Runs the last_match_cron() function every minute
         """
         super().activate()
-        self.start_poller(30, self.last_match_cron)
+        self.start_poller(60, self.last_match_cron)
 
     @arg_botcmd('summoner_name', type=str)
     def add_me_to_league_watcher(self, msg, summoner_name=None):
@@ -256,7 +265,7 @@ class League(BotPlugin):
         
         account_id = self.get_summoner_account_id(summoner_name)
         if not account_id:
-            return None
+            return None, None
         match_list = self.get_summoner_match_list(account_id)
 
         last_match = match_list['matches'][0]
@@ -295,15 +304,6 @@ class League(BotPlugin):
         message += f"> *{RESPONSES[perf][rand_response]}*"
         return message
 
-    def get_league_game_duration(self, game_duration):
-        timings = util.hours_minutes_seconds(game_duration)
-
-        if timings['hours'] == 0:
-            return '{:02d}m:{:02d}s'.format(timings['minutes'], timings['seconds'])
-        
-        return '{:02d}h:{:02d}m:{:02d}s'.format(timings['hours'], timings['minutes'], timings['seconds'])
-        
-
     def performance(self, kills, deaths, assists):
 
         kda_calc = kills - deaths + assists / 2
@@ -337,3 +337,11 @@ class League(BotPlugin):
             if int(CHAMPION_DATA[item]['key']) == int(champion_id):
                 return item.lower()
         return None
+
+    def get_league_game_duration(self, game_duration):
+        timings = util.hours_minutes_seconds(game_duration)
+
+        if timings['hours'] == 0:
+            return '{:02d}m:{:02d}s'.format(timings['minutes'], timings['seconds'])
+        
+        return '{:02d}h:{:02d}m:{:02d}s'.format(timings['hours'], timings['minutes'], timings['seconds'])
