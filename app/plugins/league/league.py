@@ -95,9 +95,8 @@ class League(BotPlugin):
         else:
             return f"ℹ️ {discord.mention_user(msg)} already has an entry in the league watcher!"
 
-    @botcmd(admin_only=True)
-    @arg_botcmd('--summoner_name', dest='summoner_name', type=str)
-    @arg_botcmd('--discord_handle', dest='discord_handle', type=str)
+    @arg_botcmd('--summoner_name', dest='summoner_name', type=str, admin_only=True)
+    @arg_botcmd('--discord_handle', dest='discord_handle', type=str, admin_only=True)
     def add_to_league_watcher(self, msg, summoner_name=None, discord_handle=None):
         """
         Adds a summoner to the league watcher - Admin command
