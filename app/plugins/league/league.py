@@ -35,6 +35,9 @@ class League(BotPlugin):
             try:
                 # Gets the last match data
                 last_match_data = self.get_last_match_data(item['summoner_name'])
+                if not last_match_data:
+                    # summoner_name was not found so we skip it
+                    continue
                 # Calcutes a unique hash of the match
                 current_match_sha256 = util.sha256(json.dumps(last_match_data))
                 # Checks if the last match data is already in the database
@@ -97,6 +100,10 @@ class League(BotPlugin):
         elif get_result is False:
             return f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
 
+        # Runs a quick check against the Riot API to see if the summoner_name entered is valid
+        if not self.get_summoner_account_id(summoner_name):
+            return f"❌ Summoner `{summoner_name}` not found in the Riot API! Check your spelling and try again.."
+
         write_result = dynamo.write(
             LeagueTable(
                 discord_server_id=guild_id,
@@ -128,6 +135,10 @@ class League(BotPlugin):
             return f"ℹ️ {discord.mention_user(msg)} already has an entry in the league watcher!"
         elif get_result is False:
             return f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
+        
+        # Runs a quick check against the Riot API to see if the summoner_name entered is valid
+        if not self.get_summoner_account_id(summoner_name):
+            return f"❌ Summoner `{summoner_name}` not found in the Riot API! Check your spelling and try again.."
 
         write_result = dynamo.write(
             LeagueTable(
@@ -214,15 +225,24 @@ class League(BotPlugin):
         messages = []
         for summoner in summoner_list:
             last_match_data = self.get_last_match_data(summoner)
-            messages.append(self.league_message(summoner, last_match_data))
+            if not last_match_data:
+                messages.append(f"ℹ️ A {summoner} with that ridiculous name was not found!")
+            else:
+                messages.append(self.league_message(summoner, last_match_data))
 
         message = '\n\n'.join(messages)
 
         return message
 
     def get_summoner_account_id(self, summoner_name):
-            summoner = LOL_WATCHER.summoner.by_name(REGION, summoner_name)
-            return summoner['accountId']
+            try:
+                summoner = LOL_WATCHER.summoner.by_name(REGION, summoner_name)
+                return summoner['accountId']
+            except ApiError as err:
+                if err.response.status_code == 404:
+                    return None
+                else:
+                    raise
     
     def get_summoner_match_list(self, summoner_account_id):
         return LOL_WATCHER.match.matchlist_by_account(REGION, summoner_account_id)
@@ -233,6 +253,8 @@ class League(BotPlugin):
     def get_last_match_data(self, summoner_name):
         
         account_id = self.get_summoner_account_id(summoner_name)
+        if not account_id:
+            return None
         match_list = self.get_summoner_match_list(account_id)
 
         last_match = match_list['matches'][0]
