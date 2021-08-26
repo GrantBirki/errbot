@@ -83,3 +83,12 @@ variable "RIOT_TOKEN" {
 variable "RIOT_REGION" {
   type = string
 }
+
+# AWS DynamoDB
+variable "AWS_ACCESS_KEY_ID" {
+  type = string
+}
+
+variable "AWS_SECRET_ACCESS_KEY" {
+  type = string
+}
