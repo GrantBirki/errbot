@@ -169,9 +169,9 @@ class League(BotPlugin):
             message = f"**League Watcher Data**:\n"
             message += f"• Discord Handle: `{response['data']['discord_handle']}`\n"
             message += f"• Summoner Name: `{response['data']['summoner_name']}`\n"
-            message += f"• Last Match SHA: `{response['data']['last_match_sha256'][:8]}`"
-            message += f"• Can I fucking @you?: {response['data']['bot_can_at_me']}"
-            message += f"• Last Updated: {response['updated_at']}"
+            message += f"• Last Match SHA: `{response['data']['last_match_sha256'][:8]}`\n"
+            message += f"• Can I fucking @you?: `{response['data']['bot_can_at_me']}`\n"
+            message += f"• Last Updated: `{response['updated_at']}`"
 
             return message
         else:
