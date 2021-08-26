@@ -79,21 +79,24 @@ class League(BotPlugin):
         if not guild_id:
             return guild_msg
 
-        result = cosmos.create_items(
-            id = discord_handle,
-            data = {
-                'discord_handle': discord_handle,
-                'summoner_name': summoner_name,
-                'discord_server_id': guild_id,
-                'last_match_sha256': None,
-                'bot_can_at_me': True
-            }
+        get_result = dynamo.get(LeagueTable, guild_id, discord_handle)
+        if get_result:
+            return f"ℹ️ {discord.mention_user(msg)} already has an entry in the league watcher!"
+        elif get_result is False:
+            return f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
+
+        write_result = dynamo.write(
+            LeagueTable(
+                discord_server_id=guild_id,
+                discord_handle=discord_handle,
+                summoner_name=summoner_name
+            )
         )
 
-        if result:
+        if write_result:
             return f"✅ Added {discord.mention_user(msg)} to the league watcher!"
         else:
-            return f"ℹ️ {discord.mention_user(msg)} already has an entry in the league watcher!"
+            return f"❌ Faile to add {discord.mention_user(msg)} to the league watcher!"
 
     @arg_botcmd('--summoner_name', dest='summoner_name', type=str, admin_only=True)
     @arg_botcmd('--discord_handle', dest='discord_handle', type=str, admin_only=True)
