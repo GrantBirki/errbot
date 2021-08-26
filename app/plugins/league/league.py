@@ -5,8 +5,9 @@ import random
 import requests
 from errbot import BotPlugin, arg_botcmd, botcmd
 from lib.chat.discord import Discord
-from lib.database.cosmos import Cosmos
 from lib.common.utilities import Util
+from lib.database.cosmos import Cosmos
+from lib.database.dynamo import Dynamo, LeagueTable
 from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
@@ -14,6 +15,7 @@ REGION = os.environ['RIOT_REGION']
 cosmos = Cosmos(cosmos_container='league') # using the specific league container
 discord = Discord()
 util = Util()
+dynamo = Dynamo()
 
 with open('plugins/league/responses.json', 'r') as raw:
     RESPONSES = json.loads(raw.read())
