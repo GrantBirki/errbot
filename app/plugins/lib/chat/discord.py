@@ -1,9 +1,20 @@
 class Discord:
     def guild_id(self, msg):
+        """
+        Returns the guild_id as a an int
+        """
         try:
             return msg.frm.room.__dict__['_guild_id'], None
         except AttributeError:
             return False, 'Please run this command in a Discord channel, not a DM'
+
+    def fmt_guild_id(self, guild_raw):
+        """
+        Formats the guild_raw to a proper guild_id
+
+        Mainly used for formatting when reading from the database
+        """
+        return int(guild_raw)
 
     def handle(self, msg):
         """

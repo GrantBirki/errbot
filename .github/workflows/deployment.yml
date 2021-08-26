@@ -167,6 +167,8 @@ jobs:
           TF_VAR_RIOT_TOKEN: ${{ secrets.TF_VAR_RIOT_TOKEN }}
           TF_VAR_RIOT_REGION: ${{ secrets.TF_VAR_RIOT_REGION }}
           TF_VAR_COSMOS_ACCOUNT_KEY: ${{ secrets.TF_VAR_COSMOS_ACCOUNT_KEY }}
+          TF_VAR_AWS_ACCESS_KEY_ID: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
+          TF_VAR_AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY }}
         run: terraform plan -no-color
         continue-on-error: true
 
@@ -218,4 +220,6 @@ jobs:
           TF_VAR_RIOT_TOKEN: ${{ secrets.TF_VAR_RIOT_TOKEN }}
           TF_VAR_RIOT_REGION: ${{ secrets.TF_VAR_RIOT_REGION }}
           TF_VAR_COSMOS_ACCOUNT_KEY: ${{ secrets.TF_VAR_COSMOS_ACCOUNT_KEY }}
+          TF_VAR_AWS_ACCESS_KEY_ID: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
+          TF_VAR_AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY }}
         run: terraform apply -auto-approve

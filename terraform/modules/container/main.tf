@@ -117,6 +117,8 @@ resource "azurerm_container_group" "container_group" {
       "BOT_ADMINS"            = var.BOT_ADMINS
       "RIOT_TOKEN"            = var.RIOT_TOKEN
       "COSMOS_ACCOUNT_KEY"    = var.COSMOS_ACCOUNT_KEY
+      "AWS_ACCESS_KEY_ID"     = var.AWS_ACCESS_KEY_ID
+      "AWS_SECRET_ACCESS_KEY" = var.AWS_SECRET_ACCESS_KEY
     }
 
     ports {
