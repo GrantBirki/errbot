@@ -1,5 +1,8 @@
 class Discord:
     def guild_id(self, msg):
+        """
+        Returns the guild_id as a an int
+        """
         try:
             return msg.frm.room.__dict__['_guild_id'], None
         except AttributeError:
