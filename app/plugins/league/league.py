@@ -1,18 +1,17 @@
 import json
 import os
 import random
+import traceback
 
 import requests
 from errbot import BotPlugin, arg_botcmd, botcmd
 from lib.chat.discord import Discord
 from lib.common.utilities import Util
-from lib.database.cosmos import Cosmos
 from lib.database.dynamo import Dynamo, LeagueTable
 from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'])
 REGION = os.environ['RIOT_REGION']
-cosmos = Cosmos(cosmos_container='league') # using the specific league container
 discord = Discord()
 util = Util()
 dynamo = Dynamo()
@@ -31,40 +30,51 @@ class League(BotPlugin):
         """
         Last match function on a schedule! Posts league stats
         """
-        db_items = cosmos.read_items()
+        db_items = dynamo.scan('league')
         for item in db_items:
             try:
                 # Gets the last match data
-                last_match_data = self.get_last_match_data(item['data']['summoner_name'])
+                last_match_data = self.get_last_match_data(item['summoner_name'])
                 # Calcutes a unique hash of the match
                 current_match_sha256 = util.sha256(json.dumps(last_match_data))
                 # Checks if the last match data is already in the database
-                if item['data']['last_match_sha256'] == current_match_sha256:
+                if item.get('last_match_sha256', None) == current_match_sha256:
                     continue
 
-                # Get the Discord Server GuildID
-                guild_id = item['data']['discord_server_id']
+                # Get the Discord Server guild_id
+                guild_id = discord.fmt_guild_id(item['discord_server_id'])
 
                 # Updates the match sha so results for a match are never posted twice
-                cosmos.update_item(
-                    item['data']['discord_handle'],
-                    data={'last_match_sha256': current_match_sha256}, partition_key=guild_id
+                get_result = dynamo.get(LeagueTable, guild_id, item['discord_handle'])
+                update_result = dynamo.update(
+                    table = LeagueTable,
+                    record = get_result,
+                    records_to_update = [
+                        LeagueTable.last_match_sha256.set(current_match_sha256)
+                    ]
                 )
 
-                # Sends a message to the user's discord channel which they registered with
-                self.send(
-                    self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
-                    self.league_message(item['data']['summoner_name'], last_match_data)
-                )
+                if get_result:
+                    # Sends a message to the user's discord channel which they registered with
+                    self.send(
+                        self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
+                        self.league_message(item['summoner_name'], last_match_data)
+                    )
+                else:
+                    self.send(
+                        self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
+                        f"❌ Something went wrong posting a league game for `{item['summoner_name']}`"
+                    )
             except:
+                self.warn_admins(traceback.format_exc())
                 continue
 
     def activate(self):
         """
-        Runs the last_match_cron() function every minute
+        Runs the last_match_cron() function every 30 seconds
         """
         super().activate()
-        self.start_poller(60, self.last_match_cron)
+        self.start_poller(30, self.last_match_cron)
 
     @arg_botcmd('summoner_name', type=str)
     def add_me_to_league_watcher(self, msg, summoner_name=None):
@@ -98,7 +108,7 @@ class League(BotPlugin):
         if write_result:
             return f"✅ Added {discord.mention_user(msg)} to the league watcher!"
         else:
-            return f"❌ Faile to add {discord.mention_user(msg)} to the league watcher!"
+            return f"❌ Failed to add {discord.mention_user(msg)} to the league watcher!"
 
     @arg_botcmd('--summoner_name', dest='summoner_name', type=str, admin_only=True)
     @arg_botcmd('--discord_handle', dest='discord_handle', type=str, admin_only=True)
