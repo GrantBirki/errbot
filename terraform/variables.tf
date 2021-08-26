@@ -80,3 +80,12 @@ variable "COSMOS_CONTAINER" {
 variable "COSMOS_ACCOUNT_KEY" {
   type = string
 }
+
+# AWS DynamoDB
+variable "AWS_ACCESS_KEY_ID" {
+  type = string
+}
+
+variable "AWS_SECRET_ACCESS_KEY" {
+  type = string
+}
