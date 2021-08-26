@@ -69,6 +69,11 @@ jobs:
           pip install safety
           safety check
 
+      - name: JSON Validation
+        working-directory: app
+        run: |
+          python -mjson.tool plugins/league/responses.json > /dev/null
+
   build:
 
     needs: [changes, test]
