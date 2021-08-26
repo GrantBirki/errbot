@@ -46,3 +46,6 @@ azure-cosmos==4.2.0
 
 # DynamoDB
 pynamodb==5.1.0
+
+# AWS
+boto3==1.18.29
