@@ -197,6 +197,8 @@ class League(BotPlugin):
 
             if not response.last_match_sha256:
                 last_match_sha256 = 'Waiting for auto update...'
+            else:
+                last_match_sha256 = response.last_match_sha256[:8]
 
             message = f"**League Watcher Data**:\n"
             message += f"• Discord Handle: `{response.discord_handle}`\n"
