@@ -34,7 +34,7 @@ class League(BotPlugin):
         for item in db_items:
             try:
                 # Gets the last match data
-                last_match_data = self.get_last_match_data(item['summoner_name'])
+                last_match_data, full_match_data = self.get_last_match_data(item['summoner_name'])
                 if not last_match_data:
                     # summoner_name was not found so we skip it
                     continue
@@ -61,7 +61,7 @@ class League(BotPlugin):
                     # Sends a message to the user's discord channel which they registered with
                     self.send(
                         self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
-                        self.league_message(item['summoner_name'], last_match_data)
+                        self.league_message(item['summoner_name'], last_match_data, full_match_data)
                     )
                 else:
                     self.send(
@@ -197,6 +197,8 @@ class League(BotPlugin):
 
             if not response.last_match_sha256:
                 last_match_sha256 = 'Waiting for auto update...'
+            else:
+                last_match_sha256 = response.last_match_sha256[:8]
 
             message = f"**League Watcher Data**:\n"
             message += f"• Discord Handle: `{response.discord_handle}`\n"
@@ -224,11 +226,11 @@ class League(BotPlugin):
 
         messages = []
         for summoner in summoner_list:
-            last_match_data = self.get_last_match_data(summoner)
+            last_match_data, full_match_data = self.get_last_match_data(summoner)
             if not last_match_data:
                 messages.append(f"ℹ️ A {summoner} with that ridiculous name was not found!")
             else:
-                messages.append(self.league_message(summoner, last_match_data))
+                messages.append(self.league_message(summoner, last_match_data, full_match_data))
 
         message = '\n\n'.join(messages)
 
@@ -263,9 +265,9 @@ class League(BotPlugin):
         participant_identities = match_details['participantIdentities']
         participant_id = [p_id for p_id in participant_identities if p_id['player']['accountId'] == account_id][0]['participantId']
 
-        return [player for player in match_details['participants'] if player['participantId'] == participant_id][0]
+        return [player for player in match_details['participants'] if player['participantId'] == participant_id][0], match_details
 
-    def league_message(self, summoner, match_data):
+    def league_message(self, summoner, match_data, full_match_data):
 
         message = f'Last Match For: **{summoner}**\n'
 
@@ -274,6 +276,9 @@ class League(BotPlugin):
         else:
             message += '• Match Result: `loss` ❌\n'
 
+        game_duration = self.get_league_game_duration(full_match_data['gameDuration'])
+
+        message += f"• Game Length: `{game_duration}`\n"
         message += f"• Lane: `{match_data['timeline']['lane'].lower()}`\n"
         message += f"• Champion: `{self.get_champion(match_data['championId'])}`\n"
 
@@ -289,6 +294,15 @@ class League(BotPlugin):
         message += f'• Performance Evaluation: `{perf}` {self.performance_emote(perf)}\n'
         message += f"> *{RESPONSES[perf][rand_response]}*"
         return message
+
+    def get_league_game_duration(self, game_duration):
+        timings = util.hours_minutes_seconds(game_duration)
+
+        if timings['hours'] == 0:
+            return '{:02d}m:{:02d}s'.format(timings['minutes'], timings['seconds'])
+        
+        return '{:02d}h:{:02d}m:{:02d}s'.format(timings['hours'], timings['minutes'], timings['seconds'])
+        
 
     def performance(self, kills, deaths, assists):
 
