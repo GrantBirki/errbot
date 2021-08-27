@@ -154,7 +154,11 @@ Creating chatbot ... done
 [#] Container is now running!
 ```
 
+> Note: for security reasons the `creds.env` file is not commited to this repo and NEVER should be. Reach out to @grantbirki to obtain the credz
+
 If you followed the steps above and everything succeeded, you should get a DM from the bot stating that it is "Now Online". You should note that you will only get this message if `BOT_ADMINS='@username'` is set to your username in the `config.env` file.
+
+> Note x2: Running `make run` will start the `errbot-dev` bot and can be invoked with `!` rather than the usual `.`
 
 ---
 
@@ -249,4 +253,10 @@ Here is a high level overview of this project and the software/infrastruce that 
 
 Use the link below to invite the bot to a Discord server. This link includes pre-made permissions:
 
+PROD:
+
 `https://discord.com/api/oauth2/authorize?client_id=742592739975233577&permissions=259912104770&scope=bot`
+
+DEV:
+
+`https://discord.com/api/oauth2/authorize?client_id=880643531503448085&permissions=257764621120&scope=bot`
