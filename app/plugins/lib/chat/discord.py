@@ -1,4 +1,21 @@
+COLORS = {
+    "red": '#FF0000',
+    "green": '#008000',
+    "yellow": '#FFA500',
+    "blue": '#0000FF',
+    "white": '#FFFFFF',
+    "cyan": '#00FFFF',
+    "black": '#000000'
+}
+
 class Discord:
+    def color(self, color):
+        """
+        Gets the hex of a color for send_card() calls
+        """
+
+        return COLORS[color]
+
     def guild_id(self, msg):
         """
         Returns the guild_id as a an int
