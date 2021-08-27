@@ -1,14 +1,11 @@
 from errbot import BotPlugin, botcmd
 import requests
+
+from lib.chat.discord import Discord
+
+discord = Discord()
 class Insult(BotPlugin):
     """Insult plugin for Errbot"""
-
-    @botcmd
-    def insult_me(self, msg, args):
-        """
-        Get insulted to reset your confidence
-        """
-        return self.insult()
     
     @botcmd
     def insult(self, msg, args):
@@ -16,7 +13,13 @@ class Insult(BotPlugin):
         Insult a specifc user
         Example: .insult @user
         """
-        return f"{args} {self.get_insult()}"
+
+        if args == 'me':
+            user = discord.mention_user(msg)
+        else:
+            user = args
+
+        return f"{user} {self.get_insult()}"
 
     def get_insult(self):
         return requests.get('https://evilinsult.com/generate_insult.php?lang=en&type=json').json()['insult']
