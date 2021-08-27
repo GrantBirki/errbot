@@ -1,6 +1,5 @@
 from errbot import BotPlugin, botcmd
 import requests
-
 class Insult(BotPlugin):
     """Insult plugin for Errbot"""
 
