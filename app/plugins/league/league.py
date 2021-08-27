@@ -10,7 +10,7 @@ from lib.common.utilities import Util
 from lib.database.dynamo import Dynamo, LeagueTable
 from riotwatcher import ApiError, LolWatcher
 
-LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'], timeout=8)
+LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'], timeout=10)
 REGION = os.environ['RIOT_REGION']
 discord = Discord()
 util = Util()
@@ -26,6 +26,54 @@ LEAGUE_CHANNEL = "#league"
 class League(BotPlugin):
     """League plugin for Errbot"""
 
+    def last_match_cron_main(self, item):
+        # Gets the last match data
+        last_match_data, full_match_data = self.get_last_match_data(item['summoner_name'])
+        if not last_match_data:
+            # summoner_name was not found so we skip it
+            self.log.error(f"error getting game data for {item['summoner_name']}")
+            return False
+        # Calcutes a unique hash of the match
+        current_match_sha256 = util.sha256(json.dumps(last_match_data))
+        # Checks if the last match data is already in the database
+        if item.get('last_match_sha256', None) == current_match_sha256:
+            self.log.info(f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_match_sha256[:8]} | {item['summoner_name']}")
+            return 'duplicate_sha'
+
+        # Get the Discord Server guild_id
+        guild_id = discord.fmt_guild_id(item['discord_server_id'])
+
+        # Updates the match sha so results for a match are never posted twice
+        get_result = dynamo.get(LeagueTable, guild_id, item['discord_handle'])
+
+        if get_result:
+            update_result = dynamo.update(
+                table = LeagueTable,
+                record = get_result,
+                records_to_update = [
+                    LeagueTable.last_match_sha256.set(current_match_sha256)
+                ]
+            )
+        else:
+            self.warn_admins(f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`")
+            self.log.error(f"error processing game: {current_match_sha256[:8]} | {item['summoner_name']}")
+            return False
+
+        if update_result:
+            # Sends a message to the user's discord channel which they registered with
+            self.send(
+                self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
+                self.league_message(item['summoner_name'], last_match_data, full_match_data)
+            )
+        else:
+            self.warn_admins(f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`")
+            self.log.error(f"error processing game: {current_match_sha256[:8]} | {item['summoner_name']}")
+            return False
+
+        # Item processed so we can return true
+        self.log.info(f"processed game: {current_match_sha256[:8]} | {item['summoner_name']}")
+        return True
+
     def last_match_cron(self):
         """
         Last match function on a schedule! Posts league stats
@@ -33,45 +81,12 @@ class League(BotPlugin):
         db_items = dynamo.scan('league')
         for item in db_items:
             try:
-                # Gets the last match data
-                last_match_data, full_match_data = self.get_last_match_data(item['summoner_name'])
-                if not last_match_data:
-                    # summoner_name was not found so we skip it
-                    continue
-                # Calcutes a unique hash of the match
-                current_match_sha256 = util.sha256(json.dumps(last_match_data))
-                # Checks if the last match data is already in the database
-                if item.get('last_match_sha256', None) == current_match_sha256:
-                    continue
-
-                # Get the Discord Server guild_id
-                guild_id = discord.fmt_guild_id(item['discord_server_id'])
-
-                # Updates the match sha so results for a match are never posted twice
-                get_result = dynamo.get(LeagueTable, guild_id, item['discord_handle'])
-
-                if get_result:
-                    update_result = dynamo.update(
-                        table = LeagueTable,
-                        record = get_result,
-                        records_to_update = [
-                            LeagueTable.last_match_sha256.set(current_match_sha256)
-                        ]
-                    )
-                else:
-                    self.warn_admins(f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`")
-                    continue
-
-                if update_result:
-                    # Sends a message to the user's discord channel which they registered with
-                    self.send(
-                        self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
-                        self.league_message(item['summoner_name'], last_match_data, full_match_data)
-                    )
-                else:
-                    self.warn_admins(f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`")
-                    continue
-            except:
+                self.last_match_cron_main(item)
+            except requests.exceptions.HTTPError as err:
+                self.log.error(f"HTTPError: {err}")
+                continue
+            except Exception:
+                self.log.error(f"error: {err}")
                 self.warn_admins(f"{traceback.format_exc()}")
                 continue
 
