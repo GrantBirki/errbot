@@ -105,7 +105,6 @@ class League(BotPlugin):
         Usage: .add me to league watcher <summoner_name>
         Example: .add me to league watcher birki
         """
-
         discord_handle = discord.handle(msg)
         guild_id, guild_msg = discord.guild_id(msg)
 
@@ -135,41 +134,63 @@ class League(BotPlugin):
         else:
             return f"❌ Failed to add {discord.mention_user(msg)} to the league watcher!"
 
-    @arg_botcmd('--summoner_name', dest='summoner_name', type=str, admin_only=True)
-    @arg_botcmd('--discord_handle', dest='discord_handle', type=str, admin_only=True)
+    @arg_botcmd('--summoner', dest='summoner', type=str, admin_only=True)
+    @arg_botcmd('--discord', dest='discord', type=str, admin_only=True)
     @arg_botcmd('--guild', dest='guild', type=int, admin_only=True)
-    def add_to_league_watcher(self, msg, summoner_name=None, discord_handle=None, guild=None):
+    def add_to_league_watcher(self, msg, summoner=None, discord=None, guild=None):
         """
         Adds a summoner to the league watcher - Admin command
         Run from the channel you wish to use the league watcher in
         
-        Usage: .add to league watcher <summoner_name> <discord_handle>
-        Example: .add to league watcher --summoner_name birki --discord_handle birki#0001
+        Usage: .add to league watcher <summoner> <discord> <guild>
+        Example: .add to league watcher --summoner birki --discord birki#0001 --guild 12345
         """
         guild_id = int(guild)
 
-        get_result = dynamo.get(LeagueTable, guild_id, discord_handle)
+        get_result = dynamo.get(LeagueTable, guild_id, discord)
         if get_result:
-            return f"ℹ️ {discord.mention_user(msg)} already has an entry in the league watcher!"
+            return f"ℹ️ `{discord}` already has an entry in the league watcher!"
         elif get_result is False:
-            return f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
+            return f"❌ Failed to check the league watcher for `{discord}`"
         
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
-        if not self.get_summoner_account_id(summoner_name):
-            return f"❌ Summoner `{summoner_name}` not found in the Riot API! Check your spelling and try again.."
+        if not self.get_summoner_account_id(summoner):
+            return f"❌ Summoner `{summoner}` not found in the Riot API! Check your spelling and try again.."
 
         write_result = dynamo.write(
             LeagueTable(
                 discord_server_id=guild_id,
-                discord_handle=discord_handle,
-                summoner_name=summoner_name
+                discord_handle=discord,
+                summoner_name=summoner
             )
         )
 
         if write_result:
-            return f"✅ Added {discord.mention_user(msg)} to the league watcher!"
+            return f"✅ Added `{discord}` to the league watcher!"
         else:
-            return f"❌ Faile to add {discord.mention_user(msg)} to the league watcher!"
+            return f"❌ Failed to add `{discord}` to the league watcher!"
+
+    @arg_botcmd('--guild', dest='guild', type=int, admin_only=True)
+    @arg_botcmd('--discord', dest='discord', type=str, admin_only=True)
+    def remove_from_league_watcher(self, msg, guild=None, discord=None):
+        """
+        Removes a summoner from the league watcher - Admin command
+
+        Usage: .remove from league watcher <guild> <discord>
+        Example: .remove from league watcher --guild 12345 --discord birki#0001
+        """
+        guild_id = int(guild)
+
+        get_result = dynamo.get(LeagueTable, guild_id, discord)
+        if get_result is None:
+            return f"ℹ️ `{discord}` is not in the league watcher!"
+
+        result = dynamo.delete(get_result)
+
+        if result:
+            return f"✅ Removed `{discord}` from the league watcher!"
+        else:
+            return f"❌ Failed to remove `{discord}` to the league watcher!"
 
     @botcmd
     def remove_me_from_league_watcher(self, msg, args):
@@ -178,7 +199,6 @@ class League(BotPlugin):
 
         Usage: .remove me from league watcher
         """
-
         discord_handle = discord.handle(msg)
         guild_id, guild_msg = discord.guild_id(msg)
 
@@ -241,7 +261,10 @@ class League(BotPlugin):
         return self.last_match_main(summoner_list)
 
     def last_match_main(self, summoner_list):
-
+        """
+        Main last match function
+        :returns: A string of the messages for a summoner or a list of summoners
+        """
         messages = []
         for summoner in summoner_list:
             last_match_data, full_match_data = self.get_last_match_data(summoner)
@@ -255,23 +278,31 @@ class League(BotPlugin):
         return message
 
     def get_summoner_account_id(self, summoner_name):
-            try:
-                summoner = LOL_WATCHER.summoner.by_name(REGION, summoner_name)
-                return summoner['accountId']
-            except ApiError as err:
-                if err.response.status_code == 404:
-                    return None
-                else:
-                    raise
+        """
+        Tries to get a summoner account id from the Riot API
+        """
+        try:
+            summoner = LOL_WATCHER.summoner.by_name(REGION, summoner_name)
+            return summoner['accountId']
+        except ApiError as err:
+            if err.response.status_code == 404:
+                return None
+            else:
+                raise
     
     def get_summoner_match_list(self, summoner_account_id):
+        """Gets a summoners list of previous matches"""
         return LOL_WATCHER.match.matchlist_by_account(REGION, summoner_account_id)
 
     def get_match_data(self, match_id):
+        """Gets the exact match data for a summoner given a match ID"""
         return LOL_WATCHER.match.by_id(REGION, match_id)
 
     def get_last_match_data(self, summoner_name):
-        
+        """
+        Gets the last match data for a summoner
+        :returns: two dictionaries, one for the last match data (summoner specific) and one for the full match data (all data)
+        """
         account_id = self.get_summoner_account_id(summoner_name)
         if not account_id:
             return None, None
@@ -286,7 +317,13 @@ class League(BotPlugin):
         return [player for player in match_details['participants'] if player['participantId'] == participant_id][0], match_details
 
     def league_message(self, summoner, match_data, full_match_data):
+        """
+        Creates the formatted league message to be displayed in discord
 
+        :param summoner: The summoner name
+        :param match_data: The last match data for a specific summoner
+        :param full_match_data: The full match data (all)
+        """
         message = f'Last Match For: **{summoner}**\n'
 
         if match_data['stats']['win'] == True:
@@ -314,6 +351,9 @@ class League(BotPlugin):
         return message
 
     def performance(self, kills, deaths, assists):
+        """
+        Calcualtes the performance of a summoner
+        """
 
         kda_calc = kills - deaths + assists / 2
 
@@ -329,7 +369,9 @@ class League(BotPlugin):
             return 'terrible'
 
     def performance_emote(self, performance):
-
+        """
+        Adds emotes based on summoner performance
+        """
         if performance == 'excellent':
             return '🌟'
         elif performance == 'good':
@@ -342,12 +384,18 @@ class League(BotPlugin):
             return '💀'
     
     def get_champion(self, champion_id):
+        """
+        Gets the champion name from the champion ID
+        """
         for item in CHAMPION_DATA:
             if int(CHAMPION_DATA[item]['key']) == int(champion_id):
                 return item.lower()
         return None
 
     def get_league_game_duration(self, game_duration):
+        """
+        Calculates the game duration
+        """
         timings = util.hours_minutes_seconds(game_duration)
 
         if timings['hours'] == 0:
