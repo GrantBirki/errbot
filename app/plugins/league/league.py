@@ -28,13 +28,13 @@ class League(BotPlugin):
 
     def last_match_cron_main(self, item):
         # Gets the last match data
-        last_match_data, full_match_data = self.get_last_match_data(item['summoner_name'])
-        if not last_match_data:
+        match_data = self.get_last_match_data(item['summoner_name'])
+        if not match_data['summoner']:
             # summoner_name was not found so we skip it
             self.log.error(f"error getting game data for {item['summoner_name']}")
             return False
         # Calcutes a unique hash of the match
-        current_match_sha256 = util.sha256(json.dumps(last_match_data))
+        current_match_sha256 = util.sha256(json.dumps(match_data['summoner']))
         # Checks if the last match data is already in the database
         if item.get('last_match_sha256', None) == current_match_sha256:
             self.log.info(f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_match_sha256[:8]} | {item['summoner_name']}")
@@ -61,9 +61,17 @@ class League(BotPlugin):
 
         if update_result:
             # Sends a message to the user's discord channel which they registered with
-            self.send(
-                self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
-                self.league_message(item['summoner_name'], last_match_data, full_match_data)
+            message_data = self.league_message(match_data)
+            if message_data['win'] == True:
+                color = discord.color('green')
+            else:
+                color = discord.color('red')
+
+            self.send_card(
+                to=self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
+                title=f"Last Match For: `{item['summoner_name']}`",
+                body=message_data['message'],
+                color=color
             )
         else:
             self.warn_admins(f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`")
@@ -95,7 +103,7 @@ class League(BotPlugin):
         Runs the last_match_cron() function every minute
         """
         super().activate()
-        self.start_poller(60, self.last_match_cron)
+        self.start_poller(90, self.last_match_cron)
 
     @arg_botcmd('summoner_name', type=str)
     def add_me_to_league_watcher(self, msg, summoner_name=None):
@@ -258,7 +266,19 @@ class League(BotPlugin):
         if type(summoner_name) is str:
             summoner_list = summoner_name.split(',')
 
-        return self.last_match_main(summoner_list)
+        messages = self.last_match_main(summoner_list)
+
+        for message in messages:
+            if message['win'] == True:
+                color = discord.color('green')
+            else:
+                color = discord.color('red')
+            self.send_card(
+                title=f"Last Match For: `{message['summoner']}`",
+                body=message['message'],
+                color=color,
+                in_reply_to=msg
+            )
 
     def last_match_main(self, summoner_list):
         """
@@ -267,19 +287,20 @@ class League(BotPlugin):
         """
         messages = []
         for summoner in summoner_list:
-            last_match_data, full_match_data = self.get_last_match_data(summoner)
-            if not last_match_data:
+            match_data = self.get_last_match_data(summoner)
+            if not match_data['summoner']:
                 messages.append(f"ℹ️ A {summoner} with that ridiculous name was not found!")
             else:
-                messages.append(self.league_message(summoner, last_match_data, full_match_data))
+                message = self.league_message(match_data)
+                message['summoner'] = summoner
+                messages.append(message)
 
-        message = '\n\n'.join(messages)
-
-        return message
+        return messages
 
     def get_summoner_account_id(self, summoner_name):
         """
         Tries to get a summoner account id from the Riot API
+        [i] API CALL
         """
         try:
             summoner = LOL_WATCHER.summoner.by_name(REGION, summoner_name)
@@ -291,17 +312,23 @@ class League(BotPlugin):
                 raise
     
     def get_summoner_match_list(self, summoner_account_id):
-        """Gets a summoners list of previous matches"""
+        """
+        Gets a summoners list of previous matches
+        [i] API CALL
+        """
         return LOL_WATCHER.match.matchlist_by_account(REGION, summoner_account_id)
 
     def get_match_data(self, match_id):
-        """Gets the exact match data for a summoner given a match ID"""
+        """
+        Gets the exact match data for a summoner given a match ID
+        [i] API CALL
+        """
         return LOL_WATCHER.match.by_id(REGION, match_id)
 
     def get_last_match_data(self, summoner_name):
         """
         Gets the last match data for a summoner
-        :returns: two dictionaries, one for the last match data (summoner specific) and one for the full match data (all data)
+        :returns: a dictionary, with two items: one for the last match data (summoner specific) and one for the full match data (all data)
         """
         account_id = self.get_summoner_account_id(summoner_name)
         if not account_id:
@@ -314,32 +341,32 @@ class League(BotPlugin):
         participant_identities = match_details['participantIdentities']
         participant_id = [p_id for p_id in participant_identities if p_id['player']['accountId'] == account_id][0]['participantId']
 
-        return [player for player in match_details['participants'] if player['participantId'] == participant_id][0], match_details
+        return {
+            'summoner': [player for player in match_details['participants'] if player['participantId'] == participant_id][0],
+            'full': match_details
+        }
 
-    def league_message(self, summoner, match_data, full_match_data):
+    def league_message(self, match_data):
         """
         Creates the formatted league message to be displayed in discord
 
         :param summoner: The summoner name
-        :param match_data: The last match data for a specific summoner
-        :param full_match_data: The full match data (all)
+        :param match_data: The last match data ('summoner') or the full match data ('full')
         """
-        message = f'Last Match For: **{summoner}**\n'
-
-        if match_data['stats']['win'] == True:
-            message += '• Match Result: `win` 🏆\n'
+        if match_data['summoner']['stats']['win'] == True:
+            message = '• Match Result: `win` 🏆\n'
         else:
-            message += '• Match Result: `loss` ❌\n'
+            message = '• Match Result: `loss` ❌\n'
 
-        game_duration = self.get_league_game_duration(full_match_data['gameDuration'])
+        game_duration = self.get_league_game_duration(match_data['full']['gameDuration'])
 
         message += f"• Game Length: `{game_duration}`\n"
-        message += f"• Lane: `{match_data['timeline']['lane'].lower()}`\n"
-        message += f"• Champion: `{self.get_champion(match_data['championId'])}`\n"
+        message += f"• Lane: `{match_data['summoner']['timeline']['lane'].lower()}`\n"
+        message += f"• Champion: `{self.get_champion(match_data['summoner']['championId'])}`\n"
 
-        deaths = match_data['stats']['deaths']
-        kills = match_data['stats']['kills']
-        assists = match_data['stats']['assists']
+        deaths = match_data['summoner']['stats']['deaths']
+        kills = match_data['summoner']['stats']['kills']
+        assists = match_data['summoner']['stats']['assists']
 
         perf = self.performance(kills, deaths, assists)
 
@@ -348,7 +375,7 @@ class League(BotPlugin):
         message += f'• KDA: `{kills}/{deaths}/{assists}`\n'
         message += f'• Performance Evaluation: `{perf}` {self.performance_emote(perf)}\n'
         message += f"> *{RESPONSES[perf][rand_response]}*"
-        return message
+        return {'message': message, 'win': match_data['summoner']['stats']['win']}
 
     def performance(self, kills, deaths, assists):
         """
