@@ -25,7 +25,7 @@ The goal of this project is to make it as easy as possible to launch a minimal, 
 
 Want to get going quick? Run the following commands to bring up a CLI to interact with `errbot` locally:
 
-1. `git clone git@github.com:GrantBirki/errbot-launchpad.git`
+1. `git clone git@github.com:GrantBirki/errbot.git`
 2. `cd errbot-launchpad`
 3. `make local`
 
