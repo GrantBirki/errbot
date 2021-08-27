@@ -58,6 +58,29 @@ class Example(BotPlugin):
         return '\n'.join(message)
 
     @botcmd
+    def card(self, msg, args):
+        """
+        Sends a card
+        Example: .card <color>
+        """
+        if not args:
+            color = discord.color('white')
+        else:
+            color = discord.color(args)
+
+        self.send_card(
+            # to=self.build_identifier(f'#general@873463331917299722'),
+            title='Hey!',
+            body='body',
+            # image='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+            # link='http://www.google.com',
+            color=color,
+            in_reply_to=msg,
+            thumbnail='https://raw.githubusercontent.com/errbotio/errbot/master/docs/_static/errbot.png',
+            fields=(('field1', 'field2'),('field1', 'field2'))
+        )
+
+    @botcmd
     def hello(self, msg, args):
         """Say hello to the world"""
 
