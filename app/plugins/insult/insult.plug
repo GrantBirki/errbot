@@ -1,0 +1,9 @@
+[Core]
+Name = Insult
+Module = insult
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Insult plugin
