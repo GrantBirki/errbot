@@ -5,6 +5,7 @@ COLORS = {
     "blue": '#0000FF',
     "white": '#FFFFFF',
     "cyan": '#00FFFF',
+    "black": '#000000'
 }
 
 class Discord:
