@@ -1,0 +1,9 @@
+[Core]
+Name = Wallstreetbets
+Module = wallstreetbets
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Wallstreetbets plugin
