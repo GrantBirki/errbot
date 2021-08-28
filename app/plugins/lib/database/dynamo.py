@@ -33,6 +33,8 @@ class LeagueTable(Model):
     updated_at = UnicodeAttribute()
     last_match_sha256 = UnicodeAttribute(default_for_new=None, null=True)
     bot_can_at_me = UnicodeAttribute(default_for_new='True')
+    win_streak = NumberAttribute(default_for_new=0)
+    loss_streak = NumberAttribute(default_for_new=0)
 
 class Dynamo():
     def write(self, object):
