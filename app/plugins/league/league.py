@@ -49,12 +49,12 @@ class League(BotPlugin):
         if get_result:
 
             # Check and update the win/loss streak
-            if get_result.last_win_streak is not None:
-                last_win_streak = get_result.last_win_streak
+            if get_result.win_streak is not None:
+                last_win_streak = get_result.win_streak
             else:
                 last_win_streak = 0
-            if get_result.last_loss_streak is not None:
-                last_loss_streak = get_result.last_loss_streak
+            if get_result.loss_streak is not None:
+                last_loss_streak = get_result.loss_streak
             else:
                 last_loss_streak = 0
 
