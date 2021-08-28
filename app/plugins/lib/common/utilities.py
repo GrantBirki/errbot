@@ -1,5 +1,6 @@
 import hashlib
 from datetime import datetime
+import urllib.parse
 
 class Util:
     """
@@ -23,3 +24,9 @@ class Util:
         s = seconds % 3600 % 60
 
         return {'hours': h, 'minutes': m, 'seconds': s}
+
+    def url_encode(self, string):
+        """
+        url encode a string
+        """
+        return urllib.parse.quote(string)
