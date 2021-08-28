@@ -32,26 +32,33 @@ class Example(BotPlugin):
 
         message = []
 
+        message.append(f"__Checking General Message Info__")
+        message.append(f'• `Type of msg`: {type(msg)}')
+        message.append(f'• `msg.__dict__`: {msg.__dict__}')
         message.append(f"• `msg.frm`: {msg.frm}")
         message.append(f"• `msg.frm.__dict__`: {msg.frm.__dict__}")
-        message.append(f'• Type of msg: {type(msg)} | `msg.__dict__`: {msg.__dict__}')
+        message.append(f'• `msg.frm.__dict__["_channel"]__dict__`: {msg.frm.__dict__["_channel"].__dict__}"')
+        message.append(f"• `msg.to`: {msg.to}")
+        message.append(f"• `msg.to.__dict__`: {msg.to.__dict__}")
+        message.append(f'• `msg.body`: {msg.body}')
+        message.append(f'• `msg.is_direct`: {msg.is_direct}')
+        message.append(f'• `msg.frm.id`: {msg.frm.id}')
 
         try:
-            message.append(f"__Checking Room / Channel info from `msg`__")
-            message.append(f"• `msg.frm.room`: {msg.frm.room}")
-            message.append(f"• `msg.frm.room.__dict__`: {msg.frm.room.__dict__}")
-            message.append(f"• `guild_id`: {msg.frm.room.__dict__['_guild_id']}")
-            #yield f"• `occupants`: {msg.frm.room.occupants}" # noisy
+            message.append(f"\n__Checking Room / Channel info from `msg`__")
             message.append(f"• `msg.frm.room.name`: {msg.frm.room.name}")
             message.append(f"• `msg.frm.room.id`: {msg.frm.room.id}") # same as _channel_id
+            message.append(f"• `msg.frm.room`: {msg.frm.room}")
+            message.append(f"• `msg.frm.room.__dict__`: {msg.frm.room.__dict__}")
+            message.append(f"• `msg.frm.room.__dict__['_guild_id']`: {msg.frm.room.__dict__['_guild_id']}")
+            #yield f"• `occupants`: {msg.frm.room.occupants}" # noisy
             message.append("Room checks passed")
         except:
             message.append("Room checks failed. Are you in a room / channel?")
 
-        message.append(f"__Checking Person info from `msg`__")
+        message.append(f"\n__Checking Person info from `msg`__")
         message.append(f"• `msg.frm.person`: {msg.frm.person}")
-        message.append(f"• @ test: {discord.mention_user(msg)}")
-        message.append("Person checks passed")
+        message.append(f"• `@ test`: {discord.mention_user(msg)}")
 
         message.append(f'Done! 🎉')
 
