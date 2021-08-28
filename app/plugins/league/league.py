@@ -47,11 +47,27 @@ class League(BotPlugin):
         get_result = dynamo.get(LeagueTable, guild_id, item['discord_handle'])
 
         if get_result:
+
+            # Check and update the win/loss streak
+            if match_data['summoner']['stats']['win']:
+                win_streak = get_result.win_streak + 1
+                loss_streak = 0
+            else:
+                win_streak = 0
+                loss_streak = get_result.loss_streak + 1
+
+            # Update the win/loss streak in the match_data dict for message display later on
+            match_data['win_streak'] = win_streak
+            match_data['loss_streak'] = loss_streak
+
+            # Update the DynamoDB entry
             update_result = dynamo.update(
                 table = LeagueTable,
                 record = get_result,
                 records_to_update = [
-                    LeagueTable.last_match_sha256.set(current_match_sha256)
+                    LeagueTable.last_match_sha256.set(current_match_sha256),
+                    LeagueTable.win_streak.set(win_streak),
+                    LeagueTable.loss_streak.set(loss_streak)
                 ]
             )
         else:
@@ -100,10 +116,11 @@ class League(BotPlugin):
 
     def activate(self):
         """
-        Runs the last_match_cron() function every minute
+        Runs the last_match_cron() function every interval
         """
+        interval = 60
         super().activate()
-        self.start_poller(90, self.last_match_cron)
+        self.start_poller(interval, self.last_match_cron)
 
     @arg_botcmd('summoner_name', type=str)
     def add_me_to_league_watcher(self, msg, summoner_name=None):
@@ -249,6 +266,7 @@ class League(BotPlugin):
             message = f"**League Watcher Data**:\n"
             message += f"• Discord Handle: `{response.discord_handle}`\n"
             message += f"• Summoner Name: `{response.summoner_name}`\n"
+            message += f"• Win/Loss Streak: `{self.get_streak(response.win_streak, response.loss_streak)}`\n"
             message += f"• Last Match SHA: `{last_match_sha256}`\n"
             message += f"• Can I fucking @you?: `{response.bot_can_at_me}`\n"
             message += f"• Last Updated: `{response.updated_at}`"
@@ -373,6 +391,15 @@ class League(BotPlugin):
         rand_response = random.randrange(0, len(RESPONSES[perf]))
 
         message += f'• KDA: `{kills}/{deaths}/{assists}`\n'
+
+        # Try to get the win/loss streak
+        win_streak = match_data.get('win_streak', None)
+        loss_streak = match_data.get('loss_streak', None)
+        if win_streak is not None and loss_streak is not None:
+            message += f"• Win/Loss Streak: `{self.get_streak(win_streak, loss_streak)}`\n"
+        else:
+            message += f"• Win/Loss Streak: `unknown`\n"
+
         message += f'• Performance Evaluation: `{perf}` {self.performance_emote(perf)}\n'
         message += f"> *{RESPONSES[perf][rand_response]}*"
         return {'message': message, 'win': match_data['summoner']['stats']['win']}
@@ -418,6 +445,20 @@ class League(BotPlugin):
             if int(CHAMPION_DATA[item]['key']) == int(champion_id):
                 return item.lower()
         return None
+
+    def get_streak(self, win_streak, loss_streak):
+        """
+        Get win and loss streak data
+        """
+
+        if win_streak == None or loss_streak == None:
+            return 'No Data'
+        elif win_streak == 0 and loss_streak == 0:
+            return 'No Data'
+        elif win_streak >= 1 and loss_streak == 0:
+            return '🏆' * win_streak
+        else:
+            return '❌' * loss_streak
 
     def get_league_game_duration(self, game_duration):
         """
