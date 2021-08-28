@@ -25,6 +25,12 @@ class Discord:
         except AttributeError:
             return False, 'Please run this command in a Discord channel, not a DM'
 
+    def channel_id(self, msg):
+        """
+        Returns the channel ID as an int
+        """
+        return msg.frm.room.__dict__['_channel_id']
+
     def fmt_guild_id(self, guild_raw):
         """
         Formats the guild_raw to a proper guild_id
