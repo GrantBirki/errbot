@@ -171,14 +171,16 @@ class League(BotPlugin):
             return f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
 
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
-        if not self.get_summoner_account_id(summoner_name):
+        account_id = self.get_summoner_account_id(summoner_name)
+        if not account_id:
             return f"❌ Summoner `{summoner_name}` not found in the Riot API! Check your spelling and try again.."
 
         write_result = dynamo.write(
             LeagueTable(
                 discord_server_id=guild_id,
                 discord_handle=discord_handle,
-                summoner_name=summoner_name
+                summoner_name=summoner_name,
+                account_id=account_id
             )
         )
 
@@ -207,14 +209,16 @@ class League(BotPlugin):
             return f"❌ Failed to check the league watcher for `{discord}`"
         
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
-        if not self.get_summoner_account_id(summoner):
+        account_id = self.get_summoner_account_id(summoner)
+        if not account_id:
             return f"❌ Summoner `{summoner}` not found in the Riot API! Check your spelling and try again.."
 
         write_result = dynamo.write(
             LeagueTable(
                 discord_server_id=guild_id,
                 discord_handle=discord,
-                summoner_name=summoner
+                summoner_name=summoner,
+                account_id=account_id
             )
         )
 
@@ -294,6 +298,7 @@ class League(BotPlugin):
             message = f"**League Watcher Data**:\n"
             message += f"• Discord Handle: `{response.discord_handle}`\n"
             message += f"• Summoner Name: `{response.summoner_name}`\n"
+            message += f"• Account ID: `{response.account_id[:8]}...`\n"
             message += f"• Win/Loss Streak: `{self.get_streak(response.win_streak, response.loss_streak)}`\n"
             message += f"• Last Match SHA: `{last_match_sha256}`\n"
             message += f"• Can I fucking @you?: `{response.bot_can_at_me}`\n"
