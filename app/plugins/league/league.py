@@ -28,17 +28,36 @@ class League(BotPlugin):
 
     def last_match_cron_main(self, item):
         # Gets the last match data
-        match_data = self.get_last_match_data(item['summoner_name'])
+
+        # Query the RIOT API for a list of all matches for the summoner
+        match_list = self.get_summoner_match_list(item['account_id'])
+
+        # Calcutes a unique hash of the last matches for a summoner
+        current_matches_sha256 = util.sha256(json.dumps(match_list))
+        # Checks if the last match data is already in the database
+        if item.get('last_match_sha256', None) == current_matches_sha256:
+            self.log.info(f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_matches_sha256[:8]} | {item['summoner_name']}")
+            return 'duplicate_sha'
+
+        # Grab only the most recent match [0]
+        last_match = match_list['matches'][0]
+
+        # Query the RIOT API for the full match data for a given gameId
+        match_data_full = self.get_match_data(last_match['gameId'])
+
+        # Parse the output of the last match and use the account_id to get exact summoner data for the match (no API call)
+        match_data_summoner = self.find_summoner_specific_match_data(match_data_full, item['account_id'])
+
+        # Return the summoner specific data and the full match data
+        match_data = {
+            'summoner': match_data_summoner,
+            'full': match_data_full
+        }
+
         if not match_data['summoner']:
             # summoner_name was not found so we skip it
             self.log.error(f"error getting game data for {item['summoner_name']}")
             return False
-        # Calcutes a unique hash of the match
-        current_match_sha256 = util.sha256(json.dumps(match_data['summoner']))
-        # Checks if the last match data is already in the database
-        if item.get('last_match_sha256', None) == current_match_sha256:
-            self.log.info(f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_match_sha256[:8]} | {item['summoner_name']}")
-            return 'duplicate_sha'
 
         # Get the Discord Server guild_id
         guild_id = discord.fmt_guild_id(item['discord_server_id'])
@@ -74,14 +93,14 @@ class League(BotPlugin):
                 table = LeagueTable,
                 record = get_result,
                 records_to_update = [
-                    LeagueTable.last_match_sha256.set(current_match_sha256),
+                    LeagueTable.last_match_sha256.set(current_matches_sha256),
                     LeagueTable.win_streak.set(win_streak),
                     LeagueTable.loss_streak.set(loss_streak)
                 ]
             )
         else:
             self.warn_admins(f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`")
-            self.log.error(f"error processing game: {current_match_sha256[:8]} | {item['summoner_name']}")
+            self.log.error(f"error processing game: {current_matches_sha256[:8]} | {item['summoner_name']}")
             return False
 
         if update_result:
@@ -100,11 +119,11 @@ class League(BotPlugin):
             )
         else:
             self.warn_admins(f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`")
-            self.log.error(f"error processing game: {current_match_sha256[:8]} | {item['summoner_name']}")
+            self.log.error(f"error processing game: {current_matches_sha256[:8]} | {item['summoner_name']}")
             return False
 
         # Item processed so we can return true
-        self.log.info(f"processed game: {current_match_sha256[:8]} | {item['summoner_name']}")
+        self.log.info(f"processed game: {current_matches_sha256[:8]} | {item['summoner_name']}")
         return True
 
     def last_match_cron(self):
@@ -152,14 +171,16 @@ class League(BotPlugin):
             return f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
 
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
-        if not self.get_summoner_account_id(summoner_name):
+        account_id = self.get_summoner_account_id(summoner_name)
+        if not account_id:
             return f"❌ Summoner `{summoner_name}` not found in the Riot API! Check your spelling and try again.."
 
         write_result = dynamo.write(
             LeagueTable(
                 discord_server_id=guild_id,
                 discord_handle=discord_handle,
-                summoner_name=summoner_name
+                summoner_name=summoner_name,
+                account_id=account_id
             )
         )
 
@@ -188,14 +209,16 @@ class League(BotPlugin):
             return f"❌ Failed to check the league watcher for `{discord}`"
         
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
-        if not self.get_summoner_account_id(summoner):
+        account_id = self.get_summoner_account_id(summoner)
+        if not account_id:
             return f"❌ Summoner `{summoner}` not found in the Riot API! Check your spelling and try again.."
 
         write_result = dynamo.write(
             LeagueTable(
                 discord_server_id=guild_id,
                 discord_handle=discord,
-                summoner_name=summoner
+                summoner_name=summoner,
+                account_id=account_id
             )
         )
 
@@ -275,6 +298,7 @@ class League(BotPlugin):
             message = f"**League Watcher Data**:\n"
             message += f"• Discord Handle: `{response.discord_handle}`\n"
             message += f"• Summoner Name: `{response.summoner_name}`\n"
+            message += f"• Account ID: `{response.account_id[:8]}...`\n"
             message += f"• Win/Loss Streak: `{self.get_streak(response.win_streak, response.loss_streak)}`\n"
             message += f"• Last Match SHA: `{last_match_sha256}`\n"
             message += f"• Can I fucking @you?: `{response.bot_can_at_me}`\n"
@@ -352,25 +376,48 @@ class League(BotPlugin):
         """
         return LOL_WATCHER.match.by_id(REGION, match_id)
 
+    def find_summoner_specific_match_data(self, full_match_data, account_id):
+        """
+        Parses match data and returns the exact data for a specific summoner
+
+        :param match_details: Full match_data object from self.get_match_data()
+        :param account_id: The account id of the summoner
+        """
+
+        # Do some wild list comprehensions to find the summoner's match data
+        participant_identities = full_match_data['participantIdentities']
+        participant_id = [p_id for p_id in participant_identities if p_id['player']['accountId'] == account_id][0]['participantId']
+        summoner_specific_match_data = [player for player in full_match_data['participants'] if player['participantId'] == participant_id][0]
+        return summoner_specific_match_data
+
     def get_last_match_data(self, summoner_name):
         """
         Gets the last match data for a summoner
         :returns: a dictionary, with two items: one for the last match data (summoner specific) and one for the full match data (all data)
         """
+        # Query the RIOT API for the account_id of the summoner
         account_id = self.get_summoner_account_id(summoner_name)
+
+        # Return None if the account was not found
         if not account_id:
-            return None, None
+            return None
+
+        # Query the RIOT API for a list of all matchs for the summoner
         match_list = self.get_summoner_match_list(account_id)
 
+        # Grab only the most recent match [0]
         last_match = match_list['matches'][0]
-        match_details = self.get_match_data(last_match['gameId'])
 
-        participant_identities = match_details['participantIdentities']
-        participant_id = [p_id for p_id in participant_identities if p_id['player']['accountId'] == account_id][0]['participantId']
+        # Query the RIOT API for the full match data for a given gameId
+        match_data_full = self.get_match_data(last_match['gameId'])
 
+        # Parse the output of the last match and use the account_id to get exact summoner data for the match (no API call)
+        match_data_summoner = self.find_summoner_specific_match_data(match_data_full, account_id)
+
+        # Return the summoner specific data and the full match data
         return {
-            'summoner': [player for player in match_details['participants'] if player['participantId'] == participant_id][0],
-            'full': match_details
+            'summoner': match_data_summoner,
+            'full': match_data_full
         }
 
     def league_message(self, match_data):
