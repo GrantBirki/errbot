@@ -93,7 +93,7 @@ class League(BotPlugin):
                 table = LeagueTable,
                 record = get_result,
                 records_to_update = [
-                    LeagueTable.last_match_sha256.set(current_match_sha256),
+                    LeagueTable.last_match_sha256.set(current_matches_sha256),
                     LeagueTable.win_streak.set(win_streak),
                     LeagueTable.loss_streak.set(loss_streak)
                 ]
