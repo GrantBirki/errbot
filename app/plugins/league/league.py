@@ -376,6 +376,20 @@ class League(BotPlugin):
         """
         return LOL_WATCHER.match.by_id(REGION, match_id)
 
+    def find_summoner_specific_match_data(self, full_match_data, account_id):
+        """
+        Parses match data and returns the exact data for a specific summoner
+
+        :param match_details: Full match_data object from self.get_match_data()
+        :param account_id: The account id of the summoner
+        """
+
+        # Do some wild list comprehensions to find the summoner's match data
+        participant_identities = full_match_data['participantIdentities']
+        participant_id = [p_id for p_id in participant_identities if p_id['player']['accountId'] == account_id][0]['participantId']
+        summoner_specific_match_data = [player for player in full_match_data['participants'] if player['participantId'] == participant_id][0]
+        return summoner_specific_match_data
+
     def get_last_match_data(self, summoner_name):
         """
         Gets the last match data for a summoner
