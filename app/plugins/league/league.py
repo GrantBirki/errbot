@@ -28,7 +28,32 @@ class League(BotPlugin):
 
     def last_match_cron_main(self, item):
         # Gets the last match data
-        match_data = self.get_last_match_data(item['summoner_name'])
+
+        # Query the RIOT API for a list of all matches for the summoner
+        match_list = self.get_summoner_match_list(item['account_id'])
+
+        # Calcutes a unique hash of the last matches for a summoner
+        current_matches_sha256 = util.sha256(json.dumps(match_list))
+        # Checks if the last match data is already in the database
+        if item.get('last_match_sha256', None) == current_matches_sha256:
+            self.log.info(f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_matches_sha256[:8]} | {item['summoner_name']}")
+            return 'duplicate_sha'
+
+        # Grab only the most recent match [0]
+        last_match = match_list['matches'][0]
+
+        # Query the RIOT API for the full match data for a given gameId
+        match_data_full = self.get_match_data(last_match['gameId'])
+
+        # Parse the output of the last match and use the account_id to get exact summoner data for the match (no API call)
+        match_data_summoner = self.find_summoner_specific_match_data(match_data_full, item['account_id'])
+
+        # Return the summoner specific data and the full match data
+        match_data = {
+            'summoner': match_data_summoner,
+            'full': match_data_full
+        }
+
         if not match_data['summoner']:
             # summoner_name was not found so we skip it
             self.log.error(f"error getting game data for {item['summoner_name']}")
