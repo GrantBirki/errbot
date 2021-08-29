@@ -395,20 +395,29 @@ class League(BotPlugin):
         Gets the last match data for a summoner
         :returns: a dictionary, with two items: one for the last match data (summoner specific) and one for the full match data (all data)
         """
+        # Query the RIOT API for the account_id of the summoner
         account_id = self.get_summoner_account_id(summoner_name)
+
+        # Return None if the account was not found
         if not account_id:
-            return None, None
+            return None
+
+        # Query the RIOT API for a list of all matchs for the summoner
         match_list = self.get_summoner_match_list(account_id)
 
+        # Grab only the most recent match [0]
         last_match = match_list['matches'][0]
-        match_details = self.get_match_data(last_match['gameId'])
 
-        participant_identities = match_details['participantIdentities']
-        participant_id = [p_id for p_id in participant_identities if p_id['player']['accountId'] == account_id][0]['participantId']
+        # Query the RIOT API for the full match data for a given gameId
+        match_data_full = self.get_match_data(last_match['gameId'])
 
+        # Parse the output of the last match and use the account_id to get exact summoner data for the match (no API call)
+        match_data_summoner = self.find_summoner_specific_match_data(match_data_full, account_id)
+
+        # Return the summoner specific data and the full match data
         return {
-            'summoner': [player for player in match_details['participants'] if player['participantId'] == participant_id][0],
-            'full': match_details
+            'summoner': match_data_summoner,
+            'full': match_data_full
         }
 
     def league_message(self, match_data):
