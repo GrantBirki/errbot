@@ -100,7 +100,7 @@ class League(BotPlugin):
             )
         else:
             self.warn_admins(f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`")
-            self.log.error(f"error processing game: {current_match_sha256[:8]} | {item['summoner_name']}")
+            self.log.error(f"error processing game: {current_matches_sha256[:8]} | {item['summoner_name']}")
             return False
 
         if update_result:
@@ -119,11 +119,11 @@ class League(BotPlugin):
             )
         else:
             self.warn_admins(f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`")
-            self.log.error(f"error processing game: {current_match_sha256[:8]} | {item['summoner_name']}")
+            self.log.error(f"error processing game: {current_matches_sha256[:8]} | {item['summoner_name']}")
             return False
 
         # Item processed so we can return true
-        self.log.info(f"processed game: {current_match_sha256[:8]} | {item['summoner_name']}")
+        self.log.info(f"processed game: {current_matches_sha256[:8]} | {item['summoner_name']}")
         return True
 
     def last_match_cron(self):
