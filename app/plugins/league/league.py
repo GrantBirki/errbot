@@ -58,12 +58,6 @@ class League(BotPlugin):
             # summoner_name was not found so we skip it
             self.log.error(f"error getting game data for {item['summoner_name']}")
             return False
-        # Calcutes a unique hash of the match
-        current_match_sha256 = util.sha256(json.dumps(match_data['summoner']))
-        # Checks if the last match data is already in the database
-        if item.get('last_match_sha256', None) == current_match_sha256:
-            self.log.info(f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_match_sha256[:8]} | {item['summoner_name']}")
-            return 'duplicate_sha'
 
         # Get the Discord Server guild_id
         guild_id = discord.fmt_guild_id(item['discord_server_id'])
