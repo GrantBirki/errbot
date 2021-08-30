@@ -28,6 +28,7 @@ jobs:
             - 'terraform/**'
 
   branch-deploy-comment:
+    if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     outputs: 
       triggered: ${{ steps.branch_deploy_check.outputs.triggered }}
