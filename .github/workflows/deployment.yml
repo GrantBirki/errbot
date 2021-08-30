@@ -62,6 +62,13 @@ jobs:
       #   id: main_deploy
       #   run: echo "::set-output name=main_deploy::false"
 
+      - name: Step To run on failure
+        if: ${{ failure() }}
+        run: |
+          echo "failed"
+          echo "::set-output name=main_deploy::false"
+          echo "::set-output name=branch_deploy::false"
+
   test:
 
       needs: [changes, deploy-comment]
