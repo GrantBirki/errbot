@@ -27,39 +27,10 @@ jobs:
           terraform:
             - 'terraform/**'
 
-  deploy-comment:
-    needs: changes
-    runs-on: ubuntu-latest
-    steps:
-      # branch_deploy output from comment
-      - uses: Khan/pull-request-comment-trigger@1.0.0
-        continue-on-error: true
-        id: branch_deploy
-        with:
-          trigger: '.deploy branch'
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-      # main_deploy output from comment
-      - uses: Khan/pull-request-comment-trigger@1.0.0
-        continue-on-error: true
-        id: main_deploy
-        with:
-          trigger: '.deploy main'
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-
-  deploy-comment-result:
-    needs: deploy-comment
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Echo comment result
-        run: echo ${{ needs.branch_deploy.outputs.triggered }}
-
   test:
 
-      needs: [changes, deploy-comment]
-      if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true' || needs.branch_deploy.outputs.triggered == 'true'
+      needs: changes
+      if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
 
       runs-on: ubuntu-latest
 
@@ -107,8 +78,8 @@ jobs:
 
   build:
 
-    needs: [changes, test, deploy-comment]
-    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true' || needs.branch_deploy.outputs.triggered == 'true'
+    needs: [changes, test]
+    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
 
     runs-on: ubuntu-latest
 
@@ -136,7 +107,7 @@ jobs:
           docker run --rm --env-file ../config.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
 
       - name: 'Build and Push image - latest'
-        if: github.event_name == 'push' || needs.branch_deploy.outputs.triggered == 'true'
+        if: github.event_name == 'push'
         working-directory: app
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
@@ -145,8 +116,8 @@ jobs:
 
   terraform:
 
-    needs: [changes, build, deploy-comment]
-    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true' || needs.branch_deploy.outputs.triggered == 'true'
+    needs: [changes, build]
+    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
 
     runs-on: ubuntu-latest
 
@@ -237,7 +208,7 @@ jobs:
             })
 
       - name: Terraform apply
-        if: github.event_name == 'push' || needs.branch_deploy.outputs.triggered == 'true'
+        if: github.event_name == 'push'
         working-directory: terraform
         env:
           # Config
