@@ -11,7 +11,26 @@ on:
 
 jobs:
 
+
+
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+      terraform: ${{ steps.filter.outputs.terraform }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          app:
+            - 'app/**'
+          terraform:
+            - 'terraform/**'
+
   deploy-comment:
+    needs: changes
     if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     outputs: 
@@ -30,23 +49,6 @@ jobs:
           trigger: '.deploy main'
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-
-  changes:
-    needs: deploy-comment
-    runs-on: ubuntu-latest
-    outputs:
-      app: ${{ steps.filter.outputs.app }}
-      terraform: ${{ steps.filter.outputs.terraform }}
-    steps:
-    - uses: actions/checkout@v2
-    - uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          app:
-            - 'app/**'
-          terraform:
-            - 'terraform/**'
 
   test:
 
