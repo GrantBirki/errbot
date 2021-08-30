@@ -48,6 +48,14 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 
+  deploy-comment-result:
+    needs: deploy-comment
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Echo comment result
+        run: echo needs.branch_deploy.outputs.triggered
+
   test:
 
       needs: [changes, deploy-comment]
