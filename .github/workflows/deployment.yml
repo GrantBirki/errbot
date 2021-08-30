@@ -6,6 +6,8 @@ on:
       - main
   pull_request:
     branches: [ main ]
+  issue_comment:
+    types: [created]
 
 jobs:
 
@@ -24,6 +26,20 @@ jobs:
             - 'app/**'
           terraform:
             - 'terraform/**'
+
+  branch-deploy-comment:
+    runs-on: ubuntu-latest
+    outputs: 
+      triggered: ${{ steps.branch_deploy_check.outputs.triggered }}
+    steps:
+      - uses: Khan/pull-request-comment-trigger@1.0.0
+        id: branch_deploy_check
+        with:
+          trigger: '.deploy'
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      - run: 'echo Found it!'
+        if: steps.branch_deploy_check.outputs.triggered == 'true'
 
   test:
 
