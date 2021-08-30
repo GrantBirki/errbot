@@ -28,6 +28,9 @@ jobs:
             - 'terraform/**'
 
   deploy-comment:
+
+    needs: changes
+
     if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     outputs: 
@@ -49,7 +52,7 @@ jobs:
 
   test:
 
-      needs: changes
+      needs: [changes, deploy-comment]
       if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
 
       runs-on: ubuntu-latest
