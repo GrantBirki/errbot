@@ -51,14 +51,14 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
       # Set main_deploy and branch_deploy to false
-      - name: no-branch-deploy-comment
-        if: ${{ !github.event.issue.pull_request }}
-        id: branch_deploy
-        run: echo "::set-output name=branch_deploy::false"
-      - name: no-branch-deploy-comment
-        if: ${{ !github.event.issue.pull_request }}
-        id: main_deploy
-        run: echo "::set-output name=main_deploy::false"
+      # - name: no-branch-deploy-comment
+      #   if: ${{ !github.event.issue.pull_request }}
+      #   id: branch_deploy
+      #   run: echo "::set-output name=branch_deploy::false"
+      # - name: no-branch-deploy-comment
+      #   if: ${{ !github.event.issue.pull_request }}
+      #   id: main_deploy
+      #   run: echo "::set-output name=main_deploy::false"
 
   test:
 
