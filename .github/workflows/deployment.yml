@@ -28,7 +28,7 @@ jobs:
   test:
 
       needs: changes
-      if: ${{ needs.changes.outputs.terraform == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
+      if: ${{ needs.changes.outputs.app == 'true' }}
 
       runs-on: ubuntu-latest
 
