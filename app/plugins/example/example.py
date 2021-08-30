@@ -15,7 +15,7 @@ class Example(BotPlugin):
         # Add code here
 
         # Return a message / output below
-        return 'Hello, World!!!'
+        return 'Hello, World!!!!'
 
     @botcmd
     def show_args(self, msg, args):
