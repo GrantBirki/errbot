@@ -11,8 +11,6 @@ on:
 
 jobs:
 
-
-
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -31,24 +29,34 @@ jobs:
 
   deploy-comment:
     needs: changes
-    if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     outputs: 
       branch: ${{ steps.branch_deploy.outputs.triggered }}
       main: ${{ steps.main_deploy.outputs.triggered }}
     steps:
+      # branch_deploy output from comment
       - uses: Khan/pull-request-comment-trigger@1.0.0
+        if: ${{ github.event.issue.pull_request }}
         id: branch_deploy
         with:
           trigger: '.deploy branch'
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      # main_deploy output from comment
       - uses: Khan/pull-request-comment-trigger@1.0.0
+        if: ${{ github.event.issue.pull_request }}
         id: main_deploy
         with:
           trigger: '.deploy main'
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      # Set main_deploy and branch_deploy to false
+      - name: no-deploy-comment
+        if: ${{ !github.event.issue.pull_request }}
+      - id: branch_deploy
+        run: echo "::set-output name=branch_deploy::false"
+      - id: main_deploy
+        run: echo "::set-output name=main_deploy::false"
 
   test:
 
