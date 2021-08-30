@@ -77,7 +77,7 @@ jobs:
   build:
 
     needs: [changes, test]
-    if: ${{ needs.changes.outputs.terraform == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
+    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
 
     runs-on: ubuntu-latest
 
@@ -115,7 +115,7 @@ jobs:
   terraform:
 
     needs: [changes, build]
-    if: ${{ needs.changes.outputs.terraform == 'true' }} || ${{ needs.changes.outputs.app == 'true' }}
+    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
 
     runs-on: ubuntu-latest
 
