@@ -11,26 +11,7 @@ on:
 
 jobs:
 
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      app: ${{ steps.filter.outputs.app }}
-      terraform: ${{ steps.filter.outputs.terraform }}
-    steps:
-    - uses: actions/checkout@v2
-    - uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          app:
-            - 'app/**'
-          terraform:
-            - 'terraform/**'
-
   deploy-comment:
-
-    needs: changes
-
     if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     outputs: 
@@ -50,10 +31,27 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 
+  changes:
+    needs: deploy-comment
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+      terraform: ${{ steps.filter.outputs.terraform }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          app:
+            - 'app/**'
+          terraform:
+            - 'terraform/**'
+
   test:
 
       needs: [changes, deploy-comment]
-      if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
+      if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true' || needs.deploy-comment.outputs.branch == 'true'
 
       runs-on: ubuntu-latest
 
@@ -102,7 +100,7 @@ jobs:
   build:
 
     needs: [changes, test]
-    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
+    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true' || needs.deploy-comment.outputs.branch == 'true'
 
     runs-on: ubuntu-latest
 
@@ -130,7 +128,7 @@ jobs:
           docker run --rm --env-file ../config.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
 
       - name: 'Build and Push image - latest'
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || needs.deploy-comment.outputs.branch == 'true'
         working-directory: app
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
@@ -140,7 +138,7 @@ jobs:
   terraform:
 
     needs: [changes, build]
-    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
+    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true' || needs.deploy-comment.outputs.branch == 'true'
 
     runs-on: ubuntu-latest
 
@@ -231,7 +229,7 @@ jobs:
             })
 
       - name: Terraform apply
-        if: github.event_name == 'push' || steps.branch_deploy.outputs.triggered == 'true'
+        if: github.event_name == 'push' || steps.branch_deploy.outputs.triggered == 'true' || needs.deploy-comment.outputs.branch == 'true'
         working-directory: terraform
         env:
           # Config
