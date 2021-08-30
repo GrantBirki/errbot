@@ -42,6 +42,8 @@ jobs:
           trigger: '.deploy branch'
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        if: failed()
+        run: echo "::set-output name=branch_deploy::false"
       # main_deploy output from comment
       - uses: Khan/pull-request-comment-trigger@1.0.0
         # if: ${{ github.event.issue.pull_request }}
@@ -50,6 +52,8 @@ jobs:
           trigger: '.deploy main'
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        if: failed()
+        run: echo "::set-output name=main_deploy::false"
       # Set main_deploy and branch_deploy to false
       # - name: no-branch-deploy-comment
       #   if: ${{ !github.event.issue.pull_request }}
