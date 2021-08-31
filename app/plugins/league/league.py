@@ -16,11 +16,20 @@ discord = Discord()
 util = Util()
 dynamo = Dynamo()
 
+# Load the responses from disk into memory as a global variable
 with open('plugins/league/responses.json', 'r') as raw:
     RESPONSES = json.loads(raw.read())
 
+# Load the queue id data from disk into memory as a global variable
+with open('plugins/league/queue_id_cache.json', 'r') as raw:
+    QUEUE_ID_CACHE = json.loads(raw.read())
+
+# Query the league API to get the current version of league
 LEAGUE_VERSION = json.loads(requests.get('https://ddragon.leagueoflegends.com/realms/na.json').text)['n']['champion']
+# Get the latest champion data and save it to memory as a global variable
 CHAMPION_DATA = json.loads(requests.get(f'https://ddragon.leagueoflegends.com/cdn/{LEAGUE_VERSION}/data/en_US/champion.json').text)['data']
+
+# Specify the default league channel to use in discord
 LEAGUE_CHANNEL = "#league"
 
 class League(BotPlugin):
@@ -435,8 +444,10 @@ class League(BotPlugin):
         game_duration = self.get_league_game_duration(match_data['full']['gameDuration'])
 
         message += f"• Game Length: `{game_duration}`\n"
+        message += f"• Game Type: `{self.get_queue_type(match_data['full']['queueId'])}`\n"
         message += f"• Lane: `{match_data['summoner']['timeline']['lane'].lower()}`\n"
         message += f"• Champion: `{self.get_champion(match_data['summoner']['championId'])}`\n"
+        message += f"• Creep Score: `{match_data['summoner']['stats']['totalMinionsKilled']}`\n"
 
         deaths = match_data['summoner']['stats']['deaths']
         kills = match_data['summoner']['stats']['kills']
@@ -526,3 +537,13 @@ class League(BotPlugin):
             return '{:02d}m:{:02d}s'.format(timings['minutes'], timings['seconds'])
         
         return '{:02d}h:{:02d}m:{:02d}s'.format(timings['hours'], timings['minutes'], timings['seconds'])
+
+    def get_queue_type(self, queue_id):
+        """
+        Gets the queue type from the queue id
+
+        :param queue_id: The queue id (int)
+        """
+        for item in QUEUE_ID_CACHE:
+           if item['queueId'] == queue_id:
+                return item['description'].replace('games', '').strip()
