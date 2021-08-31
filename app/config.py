@@ -44,7 +44,7 @@ import os
 #              on security and speed. (https://telegram.org/)
 
 # BACKEND = 'Slack'  # defaults to XMPP
-BACKEND = os.environ.get('BACKEND', 'Text')
+BACKEND = os.environ.get('FRONTEND', 'Text')
 
 # Set the admins of your bot. Only these users will have access
 # to the admin-only commands.
