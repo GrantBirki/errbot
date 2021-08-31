@@ -22,4 +22,4 @@ class Insult(BotPlugin):
         return f"{user} {self.get_insult()}"
 
     def get_insult(self):
-        return requests.get('https://evilinsult.com/generate_insult.php?lang=en&type=json').json()['insult']
+        return requests.get('https://perchance.org/compliments-4-u').json()['insult']
