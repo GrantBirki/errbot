@@ -465,54 +465,57 @@ class League(BotPlugin):
     def league_message(self, match_data):
         """
         Creates the formatted league message to be displayed in discord
-
-        :param summoner: The summoner name
         :param match_data: The last match data ('summoner') or the full match data ('full')
         """
+        # Match result (win or loss)
         if match_data["summoner"]["stats"]["win"] == True:
             message = "• Match Result: `win` 🏆\n"
         else:
             message = "• Match Result: `loss` ❌\n"
-
-        game_duration = self.get_league_game_duration(
-            match_data["full"]["gameDuration"]
-        )
-
-        message += f"• Game Length: `{game_duration}`\n"
+        # Match length (##m:##s)
+        message += f"• Game Length: `{self.get_league_game_duration(match_data['full']['gameDuration'])}`\n"
+        # Match type (Solo, Blind Pick, etc.)
         message += (
             f"• Game Type: `{self.get_queue_type(match_data['full']['queueId'])}`\n"
         )
+        # Lane
         message += f"• Lane: `{match_data['summoner']['timeline']['lane'].lower()}`\n"
+        # Champion
         message += (
             f"• Champion: `{self.get_champion(match_data['summoner']['championId'])}`\n"
         )
+        # Creep Score (CS)
         message += f"• Creep Score: `{match_data['summoner']['stats']['totalMinionsKilled']}`\n"
-
-        deaths = match_data["summoner"]["stats"]["deaths"]
-        kills = match_data["summoner"]["stats"]["kills"]
-        assists = match_data["summoner"]["stats"]["assists"]
-
-        perf = self.performance(kills, deaths, assists)
-
-        rand_response = random.randrange(0, len(RESPONSES[perf]))
-
+        # KDA
+        kills, deaths, assists = self.get_kda(match_data)
         message += f"• KDA: `{kills}/{deaths}/{assists}`\n"
-
-        # Try to get the win/loss streak
-        win_streak = match_data.get("win_streak", None)
-        loss_streak = match_data.get("loss_streak", None)
-        if win_streak is not None and loss_streak is not None:
-            message += (
-                f"• Win/Loss Streak: `{self.get_streak(win_streak, loss_streak)}`\n"
-            )
-        else:
-            message += f"• Win/Loss Streak: `unknown`\n"
-
+        # Win/Loss Streak
+        message += f"• Win/Loss Streak: `{self.get_streak(match_data)}`\n"
+        # Computed Performance
+        perf = self.performance(kills, deaths, assists)
         message += (
             f"• Performance Evaluation: `{perf}` {self.performance_emote(perf)}\n"
         )
-        message += f"> *{RESPONSES[perf][rand_response]}*"
+        # Random Response Based on Performance
+        message += f"> *{self.get_random_response(perf)}*"
+        # Return the message and the match result (win/loss)
         return {"message": message, "win": match_data["summoner"]["stats"]["win"]}
+
+    def get_random_response(self, perf):
+        """
+        Returns a random response from the RESPONSES dictionary
+        :param perf: The performance evaluation
+        """
+        return RESPONSES[perf][random.randrange(0, len(RESPONSES[perf]))]
+
+    def get_kda(self, match_data):
+        """
+        Gets the KDA for a summoner
+        """
+        kills = match_data["summoner"]["stats"]["kills"]
+        deaths = match_data["summoner"]["stats"]["deaths"]
+        assists = match_data["summoner"]["stats"]["assists"]
+        return kills, deaths, assists
 
     def performance(self, kills, deaths, assists):
         """
@@ -556,10 +559,14 @@ class League(BotPlugin):
                 return item.lower()
         return None
 
-    def get_streak(self, win_streak, loss_streak):
+    def get_streak(self, match_data):
         """
         Get win and loss streak data
         """
+        win_streak = match_data.get("win_streak", None)
+        loss_streak = match_data.get("loss_streak", None)
+        if win_streak is None and loss_streak is None:
+            return "unknown"
 
         if win_streak == None or loss_streak == None:
             return "No Data"
