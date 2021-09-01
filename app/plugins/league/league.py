@@ -489,6 +489,8 @@ class League(BotPlugin):
         # KDA
         kills, deaths, assists = self.get_kda(match_data)
         message += f"• KDA: `{kills}/{deaths}/{assists}`\n"
+        # Largest MultiKill
+        message += f"• Largest MultiKill: {self.get_largest_multi_kill(match_data)}\n"
         # Win/Loss Streak
         message += f"• Win/Loss Streak: `{self.get_streak(match_data)}`\n"
         # Computed Performance
@@ -500,6 +502,10 @@ class League(BotPlugin):
         message += f"> *{self.get_random_response(perf)}*"
         # Return the message and the match result (win/loss)
         return {"message": message, "win": match_data["summoner"]["stats"]["win"]}
+
+    def get_largest_multi_kill(self, match_data):
+        largest_multi_kill = match_data["summoner"]["stats"]["largestMultiKill"]
+        return "⚔️" * largest_multi_kill
 
     def get_random_response(self, perf):
         """
