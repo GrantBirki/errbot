@@ -1,3 +1,4 @@
+
 ##########################################################################
 #                                                                        #
 #  This is the config-template for Err. This file should be copied and   #
