@@ -151,7 +151,6 @@ class Example(BotPlugin):
     #     # Standard
     #     for hey in messages:
     #         yield hey
-    #
 
     @botcmd
     def usertest(self, msg, args):
