@@ -87,9 +87,11 @@ jobs:
 
       - uses: actions/checkout@v2
       - uses: azure/login@v1
+        if: github.event_name == 'push'
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: 'ACR Login'
+        if: github.event_name == 'push'
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
@@ -103,7 +105,7 @@ jobs:
         # Ignore the failure of a step and avoid terminating the job.
         continue-on-error: true
       
-      - name: 'Build and Push image - ci-test'
+      - name: 'Build image - ci-test'
         if: github.event_name == 'pull_request'
         working-directory: app
         # run: |
@@ -111,8 +113,7 @@ jobs:
         #   docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
-          docker run --rm --env-file ../config.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
+          docker run --rm --env-file ../config.env --env-file ../.github/ci/creds-mock.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
 
       - name: 'Build and Push image - latest'
         if: github.event_name == 'push'
@@ -120,7 +121,7 @@ jobs:
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
-          docker run --rm --env-file ../config.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
+          docker run --rm --env-file ../config.env --env-file ../.github/ci/creds-mock.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
 
   terraform:
 
