@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Usage:
+# script/lint
+# script/lint --check
+# script/lint --<any black params>
+
+# Get the directory of this script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+REPO_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Check if Black is installed
+python3 -c "import black" > /dev/null 2>&1 || python -c "import black" > /dev/null 2>&1
+
+# If Black is not installed, install it
+if [ $? -ne 0 ]; then
+  echo "Installing Black..."
+  pip install black || pip3 install black
+fi
+
+# Lint the whole repo
+black "$REPO_DIR" $@
