@@ -20,7 +20,27 @@ jobs:
           black_args: "."
       - name: Comment Black Message
         if: steps.action_black.outputs.is_formatted == 'true'
-        uses: thollander/actions-comment-pull-request@1.0.2
+        uses: peter-evans/create-or-update-comment@v1.4.5
         with:
-          message: 'Example of message !\n## I am a heading'
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ❌ Linting Failed ❌
+            
+            You will need to properly lint your code before CI can pass
+
+            Run the following script to lint your code:
+
+            ```bash
+            script/lint
+            ```
+
+            Or manually lint the repo:
+
+            ```bash
+            pip install black
+            black .
+            ```
+
+            > If you are running manually, ensure you run the command from the root of the repo
+
+            Commit your changes and try again!
