@@ -40,7 +40,12 @@ LEAGUE_CHANNEL = "#league"
 
 
 class League(BotPlugin):
-    """League plugin for Errbot"""
+    """
+    League plugin for Errbot
+
+    Add yourself to the 'league' watcher, and you'll get a message every time you play a game.
+    You can also view your data, your last game, and more!
+    """
 
     def last_match_cron_main(self, item):
         # Gets the last match data
