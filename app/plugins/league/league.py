@@ -344,6 +344,32 @@ class League(BotPlugin):
             return message
 
     @arg_botcmd("summoner_name", type=str)
+    def lmf(self, msg, summoner_name=None):
+        """
+        Get the last match for a user (LoL)
+        Shortcut for "last_match_for"
+        """
+
+        #TODO This code is all duplicated of the last_match_for command. No bueno
+
+        if type(summoner_name) is str:
+            summoner_list = summoner_name.split(",")
+
+        messages = self.last_match_main(summoner_list)
+
+        for message in messages:
+            if message["win"] == True:
+                color = discord.color("green")
+            else:
+                color = discord.color("red")
+            self.send_card(
+                title=f"Last Match For: `{message['summoner']}`",
+                body=message["message"],
+                color=color,
+                in_reply_to=msg,
+            )
+
+    @arg_botcmd("summoner_name", type=str)
     def last_match_for(self, msg, summoner_name=None):
         """Get the last match for a user (LoL)"""
 
