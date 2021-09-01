@@ -103,7 +103,7 @@ jobs:
         # Ignore the failure of a step and avoid terminating the job.
         continue-on-error: true
       
-      - name: 'Build and Push image - ci-test'
+      - name: 'Build image - ci-test'
         if: github.event_name == 'pull_request'
         working-directory: app
         # run: |
@@ -111,7 +111,6 @@ jobs:
         #   docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
           docker run --rm --env-file ../config.env --env-file ../.github/ci/creds-mock.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
 
       - name: 'Build and Push image - latest'
