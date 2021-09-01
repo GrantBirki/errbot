@@ -34,13 +34,20 @@ jobs:
             script/lint
             ```
 
-            Or manually lint the repo:
+            Or manually lint the repo from the command line:
 
-            ```bash
-            pip install black
-            black .
+            ```console
+            $ pip install black && black .
+            ...
+            All done! ✨ 🍰 ✨
             ```
 
             > If you are running manually, ensure you run the command from the root of the repo
 
             Commit your changes and try again!
+
+      - name: Linting Required
+        if: steps.action_black.outputs.is_formatted == 'true'
+        run: |
+          echo "Please lint your code with 'black' and try again! -> 'pip install black && black .'"
+          exit 1
