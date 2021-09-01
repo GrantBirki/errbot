@@ -350,7 +350,7 @@ class League(BotPlugin):
         Shortcut for "last_match_for"
         """
 
-        #TODO This code is all duplicated of the last_match_for command. No bueno
+        # TODO This code is all duplicated of the last_match_for command. No bueno
 
         if type(summoner_name) is str:
             summoner_list = summoner_name.split(",")
