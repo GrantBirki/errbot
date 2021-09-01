@@ -172,7 +172,7 @@ Creating chatbot ... done
 [#] Container is now running!
 ```
 
-> Note: for security reasons the `creds.env` file is not commited to this repo and NEVER should be. Reach out to @grantbirki to obtain the credz
+> Note: for security reasons the `creds.env` file is not committed to this repo and NEVER should be. Reach out to @grantbirki to obtain the credz
 
 If you followed the steps above and everything succeeded, you should get a DM from the bot stating that it is "Now Online". You should note that you will only get this message if `BOT_ADMINS='@username'` is set to your username in the `config.env` file.
 
