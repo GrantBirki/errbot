@@ -58,7 +58,9 @@ class DiscordSender(ABC, discord.abc.Snowflake):
 
 class DiscordPerson(Person, DiscordSender):
     @classmethod
-    def username_and_discriminator_to_userid(cls, username: str, discriminator: str) -> str:
+    def username_and_discriminator_to_userid(
+        cls, username: str, discriminator: str
+    ) -> str:
         return find(
             lambda m: m.name == username and m.discriminator == discriminator,
             DiscordBackend.client.get_all_members(),
@@ -162,7 +164,9 @@ class DiscordRoom(Room, DiscordSender):
 
         self._guild_id = guild_id
         self._channel_name = channel_name
-        self._channel_id = self.channel_name_to_id()  # Can be None if channel doesn't exist
+        self._channel_id = (
+            self.channel_name_to_id()
+        )  # Can be None if channel doesn't exist
 
     def get_discord_object(self):
         return self.discord_channel()
@@ -289,7 +293,10 @@ class DiscordRoom(Room, DiscordSender):
 
     @property
     def exists(self) -> bool:
-        return None not in [self._channel_id, DiscordBackend.client.get_channel(self._channel_id)]
+        return None not in [
+            self._channel_id,
+            DiscordBackend.client.get_channel(self._channel_id),
+        ]
 
     @property
     def guild(self):
@@ -310,7 +317,9 @@ class DiscordRoom(Room, DiscordSender):
         if self._channel_id is None:
             return self._channel_name
         else:
-            self._channel_name = DiscordBackend.client.get_channel(self._channel_id).name
+            self._channel_name = DiscordBackend.client.get_channel(
+                self._channel_id
+            ).name
             return self._channel_name
 
     @property
@@ -481,7 +490,9 @@ class DiscordBackend(ErrBot):
         will be used otherwise the default backend size will be used.
         """
         try:
-            limit = min(int(self.bot_config.MESSAGE_SIZE_LIMIT), DISCORD_MESSAGE_SIZE_LIMIT)
+            limit = min(
+                int(self.bot_config.MESSAGE_SIZE_LIMIT), DISCORD_MESSAGE_SIZE_LIMIT
+            )
         except (AttributeError, ValueError) as e:
             limit = DISCORD_MESSAGE_SIZE_LIMIT
         return limit
@@ -530,7 +541,10 @@ class DiscordBackend(ErrBot):
         if msg.mentions:
             self.callback_mention(
                 err_msg,
-                [DiscordRoomOccupant(mention.id, msg.channel.id) for mention in msg.mentions],
+                [
+                    DiscordRoomOccupant(mention.id, msg.channel.id)
+                    for mention in msg.mentions
+                ],
             )
 
     def is_from_self(self, msg: Message) -> bool:
@@ -545,7 +559,9 @@ class DiscordBackend(ErrBot):
         if before.status != after.status:
             person = DiscordPerson(after.id)
 
-            log.debug(f"Person {person} changed status to {after.status} from {before.status}")
+            log.debug(
+                f"Person {person} changed status to {after.status} from {before.status}"
+            )
             if after.status == discord.Status.online:
                 self.callback_presence(Presence(person, ONLINE))
             elif after.status == discord.Status.offline:
@@ -650,9 +666,13 @@ class DiscordBackend(ErrBot):
 
     def serve_once(self):
         try:
-            DiscordBackend.client.loop.run_until_complete(DiscordBackend.client.start(self.token))
+            DiscordBackend.client.loop.run_until_complete(
+                DiscordBackend.client.start(self.token)
+            )
         except KeyboardInterrupt:
-            DiscordBackend.client.loop.run_until_complete(DiscordBackend.client.logout())
+            DiscordBackend.client.loop.run_until_complete(
+                DiscordBackend.client.logout()
+            )
             pending = asyncio.Task.all_tasks()
             gathered = asyncio.gather(*pending)
             # noinspection PyBroadException
@@ -678,7 +698,8 @@ class DiscordBackend(ErrBot):
 
     def rooms(self):
         return [
-            DiscordRoom.from_id(channel.id) for channel in DiscordBackend.client.get_all_channels()
+            DiscordRoom.from_id(channel.id)
+            for channel in DiscordBackend.client.get_all_channels()
         ]
 
     @property
@@ -700,9 +721,9 @@ class DiscordBackend(ErrBot):
         """
         if not string_representation:
             raise ValueError("Empty strrep")
-        
-        if string_representation.startswith('#'):
-            strrep_split = string_representation.split('@')
+
+        if string_representation.startswith("#"):
+            strrep_split = string_representation.split("@")
             return DiscordRoom(strrep_split[0][1:], int(strrep_split[1]))
 
         if "#" in str(string_representation):
@@ -731,7 +752,12 @@ class DiscordBackend(ErrBot):
         mychannel = discord.utils.get(self.client.get_all_channels(), name=channelname)
 
         async def gethist(mychannel, before=None):
-            return [i async for i in self.client.logs_from(mychannel, limit=10, before=before)]
+            return [
+                i
+                async for i in self.client.logs_from(mychannel, limit=10, before=before)
+            ]
 
-        future = asyncio.run_coroutine_threadsafe(gethist(mychannel, before), loop=self.client.loop)
+        future = asyncio.run_coroutine_threadsafe(
+            gethist(mychannel, before), loop=self.client.loop
+        )
         return future.result(timeout=None)

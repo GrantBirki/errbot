@@ -1,6 +1,7 @@
 from errbot import BotPlugin, botcmd
 import requests
 
+
 class Wallstreetbets(BotPlugin):
     """Wallstreetbets plugin for Errbot"""
 
@@ -18,7 +19,7 @@ class Wallstreetbets(BotPlugin):
                 f"Ticker: `${stonk['ticker'].ljust(4)}` | Sentiment: `{stonk['sentiment']}` | Comments: `{stonk['no_of_comments']}`"
             )
 
-        return '\n'.join(message)
+        return "\n".join(message)
 
     def get_wallstreebets(self):
-        return requests.get('https://dashboard.nbshare.io/api/v1/apps/reddit').json()
+        return requests.get("https://dashboard.nbshare.io/api/v1/apps/reddit").json()

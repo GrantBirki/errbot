@@ -10,27 +10,34 @@ from lib.common.utilities import Util
 from lib.database.dynamo import Dynamo, LeagueTable
 from riotwatcher import ApiError, LolWatcher
 
-LOL_WATCHER = LolWatcher(os.environ['RIOT_TOKEN'], timeout=10)
-REGION = os.environ['RIOT_REGION']
+LOL_WATCHER = LolWatcher(os.environ["RIOT_TOKEN"], timeout=10)
+REGION = os.environ["RIOT_REGION"]
 discord = Discord()
 util = Util()
 dynamo = Dynamo()
 
 # Load the responses from disk into memory as a global variable
-with open('plugins/league/responses.json', 'r') as raw:
+with open("plugins/league/responses.json", "r") as raw:
     RESPONSES = json.loads(raw.read())
 
 # Load the queue id data from disk into memory as a global variable
-with open('plugins/league/queue_id_cache.json', 'r') as raw:
+with open("plugins/league/queue_id_cache.json", "r") as raw:
     QUEUE_ID_CACHE = json.loads(raw.read())
 
 # Query the league API to get the current version of league
-LEAGUE_VERSION = json.loads(requests.get('https://ddragon.leagueoflegends.com/realms/na.json').text)['n']['champion']
+LEAGUE_VERSION = json.loads(
+    requests.get("https://ddragon.leagueoflegends.com/realms/na.json").text
+)["n"]["champion"]
 # Get the latest champion data and save it to memory as a global variable
-CHAMPION_DATA = json.loads(requests.get(f'https://ddragon.leagueoflegends.com/cdn/{LEAGUE_VERSION}/data/en_US/champion.json').text)['data']
+CHAMPION_DATA = json.loads(
+    requests.get(
+        f"https://ddragon.leagueoflegends.com/cdn/{LEAGUE_VERSION}/data/en_US/champion.json"
+    ).text
+)["data"]
 
 # Specify the default league channel to use in discord
 LEAGUE_CHANNEL = "#league"
+
 
 class League(BotPlugin):
     """League plugin for Errbot"""
@@ -39,40 +46,41 @@ class League(BotPlugin):
         # Gets the last match data
 
         # Query the RIOT API for a list of all matches for the summoner
-        match_list = self.get_summoner_match_list(item['account_id'])
+        match_list = self.get_summoner_match_list(item["account_id"])
 
         # Calcutes a unique hash of the last matches for a summoner
         current_matches_sha256 = util.sha256(json.dumps(match_list))
         # Checks if the last match data is already in the database
-        if item.get('last_match_sha256', None) == current_matches_sha256:
-            self.log.info(f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_matches_sha256[:8]} | {item['summoner_name']}")
-            return 'duplicate_sha'
+        if item.get("last_match_sha256", None) == current_matches_sha256:
+            self.log.info(
+                f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_matches_sha256[:8]} | {item['summoner_name']}"
+            )
+            return "duplicate_sha"
 
         # Grab only the most recent match [0]
-        last_match = match_list['matches'][0]
+        last_match = match_list["matches"][0]
 
         # Query the RIOT API for the full match data for a given gameId
-        match_data_full = self.get_match_data(last_match['gameId'])
+        match_data_full = self.get_match_data(last_match["gameId"])
 
         # Parse the output of the last match and use the account_id to get exact summoner data for the match (no API call)
-        match_data_summoner = self.find_summoner_specific_match_data(match_data_full, item['account_id'])
+        match_data_summoner = self.find_summoner_specific_match_data(
+            match_data_full, item["account_id"]
+        )
 
         # Return the summoner specific data and the full match data
-        match_data = {
-            'summoner': match_data_summoner,
-            'full': match_data_full
-        }
+        match_data = {"summoner": match_data_summoner, "full": match_data_full}
 
-        if not match_data['summoner']:
+        if not match_data["summoner"]:
             # summoner_name was not found so we skip it
             self.log.error(f"error getting game data for {item['summoner_name']}")
             return False
 
         # Get the Discord Server guild_id
-        guild_id = discord.fmt_guild_id(item['discord_server_id'])
+        guild_id = discord.fmt_guild_id(item["discord_server_id"])
 
         # Updates the match sha so results for a match are never posted twice
-        get_result = dynamo.get(LeagueTable, guild_id, item['discord_handle'])
+        get_result = dynamo.get(LeagueTable, guild_id, item["discord_handle"])
 
         if get_result:
 
@@ -86,7 +94,7 @@ class League(BotPlugin):
             else:
                 last_loss_streak = 0
 
-            if match_data['summoner']['stats']['win']:
+            if match_data["summoner"]["stats"]["win"]:
                 win_streak = last_win_streak + 1
                 loss_streak = 0
             else:
@@ -94,52 +102,62 @@ class League(BotPlugin):
                 loss_streak = last_loss_streak + 1
 
             # Update the win/loss streak in the match_data dict for message display later on
-            match_data['win_streak'] = win_streak
-            match_data['loss_streak'] = loss_streak
+            match_data["win_streak"] = win_streak
+            match_data["loss_streak"] = loss_streak
 
             # Update the DynamoDB entry
             update_result = dynamo.update(
-                table = LeagueTable,
-                record = get_result,
-                records_to_update = [
+                table=LeagueTable,
+                record=get_result,
+                records_to_update=[
                     LeagueTable.last_match_sha256.set(current_matches_sha256),
                     LeagueTable.win_streak.set(win_streak),
-                    LeagueTable.loss_streak.set(loss_streak)
-                ]
+                    LeagueTable.loss_streak.set(loss_streak),
+                ],
             )
         else:
-            self.warn_admins(f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`")
-            self.log.error(f"error processing game: {current_matches_sha256[:8]} | {item['summoner_name']}")
+            self.warn_admins(
+                f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`"
+            )
+            self.log.error(
+                f"error processing game: {current_matches_sha256[:8]} | {item['summoner_name']}"
+            )
             return False
 
         if update_result:
             # Sends a message to the user's discord channel which they registered with
             message_data = self.league_message(match_data)
-            if message_data['win'] == True:
-                color = discord.color('green')
+            if message_data["win"] == True:
+                color = discord.color("green")
             else:
-                color = discord.color('red')
+                color = discord.color("red")
 
             self.send_card(
-                to=self.build_identifier(f'{LEAGUE_CHANNEL}@{guild_id}'),
+                to=self.build_identifier(f"{LEAGUE_CHANNEL}@{guild_id}"),
                 title=f"Last Match For: `{item['summoner_name']}`",
-                body=message_data['message'],
-                color=color
+                body=message_data["message"],
+                color=color,
             )
         else:
-            self.warn_admins(f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`")
-            self.log.error(f"error processing game: {current_matches_sha256[:8]} | {item['summoner_name']}")
+            self.warn_admins(
+                f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`"
+            )
+            self.log.error(
+                f"error processing game: {current_matches_sha256[:8]} | {item['summoner_name']}"
+            )
             return False
 
         # Item processed so we can return true
-        self.log.info(f"processed game: {current_matches_sha256[:8]} | {item['summoner_name']}")
+        self.log.info(
+            f"processed game: {current_matches_sha256[:8]} | {item['summoner_name']}"
+        )
         return True
 
     def last_match_cron(self):
         """
         Last match function on a schedule! Posts league stats
         """
-        db_items = dynamo.scan('league')
+        db_items = dynamo.scan("league")
         for item in db_items:
             try:
                 self.last_match_cron_main(item)
@@ -159,11 +177,11 @@ class League(BotPlugin):
         super().activate()
         self.start_poller(interval, self.last_match_cron)
 
-    @arg_botcmd('summoner_name', type=str)
+    @arg_botcmd("summoner_name", type=str)
     def add_me_to_league_watcher(self, msg, summoner_name=None):
         """
         Adds a summoner to the league watcher
-        
+
         Usage: .add me to league watcher <summoner_name>
         Example: .add me to league watcher birki
         """
@@ -177,7 +195,9 @@ class League(BotPlugin):
         if get_result:
             return f"ℹ️ {discord.mention_user(msg)} already has an entry in the league watcher!"
         elif get_result is False:
-            return f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
+            return (
+                f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
+            )
 
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
         account_id = self.get_summoner_account_id(summoner_name)
@@ -189,7 +209,7 @@ class League(BotPlugin):
                 discord_server_id=guild_id,
                 discord_handle=discord_handle,
                 summoner_name=summoner_name,
-                account_id=account_id
+                account_id=account_id,
             )
         )
 
@@ -198,14 +218,14 @@ class League(BotPlugin):
         else:
             return f"❌ Failed to add {discord.mention_user(msg)} to the league watcher!"
 
-    @arg_botcmd('--summoner', dest='summoner', type=str, admin_only=True)
-    @arg_botcmd('--discord', dest='discord', type=str, admin_only=True)
-    @arg_botcmd('--guild', dest='guild', type=int, admin_only=True)
+    @arg_botcmd("--summoner", dest="summoner", type=str, admin_only=True)
+    @arg_botcmd("--discord", dest="discord", type=str, admin_only=True)
+    @arg_botcmd("--guild", dest="guild", type=int, admin_only=True)
     def add_to_league_watcher(self, msg, summoner=None, discord=None, guild=None):
         """
         Adds a summoner to the league watcher - Admin command
         Run from the channel you wish to use the league watcher in
-        
+
         Usage: .add to league watcher <summoner> <discord> <guild>
         Example: .add to league watcher --summoner birki --discord birki#0001 --guild 12345
         """
@@ -216,7 +236,7 @@ class League(BotPlugin):
             return f"ℹ️ `{discord}` already has an entry in the league watcher!"
         elif get_result is False:
             return f"❌ Failed to check the league watcher for `{discord}`"
-        
+
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
         account_id = self.get_summoner_account_id(summoner)
         if not account_id:
@@ -227,7 +247,7 @@ class League(BotPlugin):
                 discord_server_id=guild_id,
                 discord_handle=discord,
                 summoner_name=summoner,
-                account_id=account_id
+                account_id=account_id,
             )
         )
 
@@ -236,8 +256,8 @@ class League(BotPlugin):
         else:
             return f"❌ Failed to add `{discord}` to the league watcher!"
 
-    @arg_botcmd('--guild', dest='guild', type=int, admin_only=True)
-    @arg_botcmd('--discord', dest='discord', type=str, admin_only=True)
+    @arg_botcmd("--guild", dest="guild", type=int, admin_only=True)
+    @arg_botcmd("--discord", dest="discord", type=str, admin_only=True)
     def remove_from_league_watcher(self, msg, guild=None, discord=None):
         """
         Removes a summoner from the league watcher - Admin command
@@ -280,13 +300,15 @@ class League(BotPlugin):
         if result:
             return f"✅ Removed {discord.mention_user(msg)} from the league watcher!"
         else:
-            return f"❌ Faile to remove {discord.mention_user(msg)} to the league watcher!"
+            return (
+                f"❌ Faile to remove {discord.mention_user(msg)} to the league watcher!"
+            )
 
     @botcmd
     def view_my_league_watcher_data(self, msg, args):
         """
         Views your data for the League Watcher
-        
+
         This is mostly for debugging
         """
         discord_handle = discord.handle(msg)
@@ -300,7 +322,7 @@ class League(BotPlugin):
         if response:
 
             if not response.last_match_sha256:
-                last_match_sha256 = 'Waiting for auto update...'
+                last_match_sha256 = "Waiting for auto update..."
             else:
                 last_match_sha256 = response.last_match_sha256[:8]
 
@@ -319,25 +341,25 @@ class League(BotPlugin):
             message += "Use `.add me to league watcher <summoner_name>` to add yourself"
             return message
 
-    @arg_botcmd('summoner_name', type=str)
+    @arg_botcmd("summoner_name", type=str)
     def last_match_for(self, msg, summoner_name=None):
         """Get the last match for a user (LoL)"""
 
         if type(summoner_name) is str:
-            summoner_list = summoner_name.split(',')
+            summoner_list = summoner_name.split(",")
 
         messages = self.last_match_main(summoner_list)
 
         for message in messages:
-            if message['win'] == True:
-                color = discord.color('green')
+            if message["win"] == True:
+                color = discord.color("green")
             else:
-                color = discord.color('red')
+                color = discord.color("red")
             self.send_card(
                 title=f"Last Match For: `{message['summoner']}`",
-                body=message['message'],
+                body=message["message"],
                 color=color,
-                in_reply_to=msg
+                in_reply_to=msg,
             )
 
     def last_match_main(self, summoner_list):
@@ -348,11 +370,13 @@ class League(BotPlugin):
         messages = []
         for summoner in summoner_list:
             match_data = self.get_last_match_data(summoner)
-            if not match_data['summoner']:
-                messages.append(f"ℹ️ A {summoner} with that ridiculous name was not found!")
+            if not match_data["summoner"]:
+                messages.append(
+                    f"ℹ️ A {summoner} with that ridiculous name was not found!"
+                )
             else:
                 message = self.league_message(match_data)
-                message['summoner'] = summoner
+                message["summoner"] = summoner
                 messages.append(message)
 
         return messages
@@ -364,13 +388,13 @@ class League(BotPlugin):
         """
         try:
             summoner = LOL_WATCHER.summoner.by_name(REGION, summoner_name)
-            return summoner['accountId']
+            return summoner["accountId"]
         except ApiError as err:
             if err.response.status_code == 404:
                 return None
             else:
                 raise
-    
+
     def get_summoner_match_list(self, summoner_account_id):
         """
         Gets a summoners list of previous matches
@@ -394,9 +418,17 @@ class League(BotPlugin):
         """
 
         # Do some wild list comprehensions to find the summoner's match data
-        participant_identities = full_match_data['participantIdentities']
-        participant_id = [p_id for p_id in participant_identities if p_id['player']['accountId'] == account_id][0]['participantId']
-        summoner_specific_match_data = [player for player in full_match_data['participants'] if player['participantId'] == participant_id][0]
+        participant_identities = full_match_data["participantIdentities"]
+        participant_id = [
+            p_id
+            for p_id in participant_identities
+            if p_id["player"]["accountId"] == account_id
+        ][0]["participantId"]
+        summoner_specific_match_data = [
+            player
+            for player in full_match_data["participants"]
+            if player["participantId"] == participant_id
+        ][0]
         return summoner_specific_match_data
 
     def get_last_match_data(self, summoner_name):
@@ -415,19 +447,18 @@ class League(BotPlugin):
         match_list = self.get_summoner_match_list(account_id)
 
         # Grab only the most recent match [0]
-        last_match = match_list['matches'][0]
+        last_match = match_list["matches"][0]
 
         # Query the RIOT API for the full match data for a given gameId
-        match_data_full = self.get_match_data(last_match['gameId'])
+        match_data_full = self.get_match_data(last_match["gameId"])
 
         # Parse the output of the last match and use the account_id to get exact summoner data for the match (no API call)
-        match_data_summoner = self.find_summoner_specific_match_data(match_data_full, account_id)
+        match_data_summoner = self.find_summoner_specific_match_data(
+            match_data_full, account_id
+        )
 
         # Return the summoner specific data and the full match data
-        return {
-            'summoner': match_data_summoner,
-            'full': match_data_full
-        }
+        return {"summoner": match_data_summoner, "full": match_data_full}
 
     def league_message(self, match_data):
         """
@@ -436,40 +467,50 @@ class League(BotPlugin):
         :param summoner: The summoner name
         :param match_data: The last match data ('summoner') or the full match data ('full')
         """
-        if match_data['summoner']['stats']['win'] == True:
-            message = '• Match Result: `win` 🏆\n'
+        if match_data["summoner"]["stats"]["win"] == True:
+            message = "• Match Result: `win` 🏆\n"
         else:
-            message = '• Match Result: `loss` ❌\n'
+            message = "• Match Result: `loss` ❌\n"
 
-        game_duration = self.get_league_game_duration(match_data['full']['gameDuration'])
+        game_duration = self.get_league_game_duration(
+            match_data["full"]["gameDuration"]
+        )
 
         message += f"• Game Length: `{game_duration}`\n"
-        message += f"• Game Type: `{self.get_queue_type(match_data['full']['queueId'])}`\n"
+        message += (
+            f"• Game Type: `{self.get_queue_type(match_data['full']['queueId'])}`\n"
+        )
         message += f"• Lane: `{match_data['summoner']['timeline']['lane'].lower()}`\n"
-        message += f"• Champion: `{self.get_champion(match_data['summoner']['championId'])}`\n"
+        message += (
+            f"• Champion: `{self.get_champion(match_data['summoner']['championId'])}`\n"
+        )
         message += f"• Creep Score: `{match_data['summoner']['stats']['totalMinionsKilled']}`\n"
 
-        deaths = match_data['summoner']['stats']['deaths']
-        kills = match_data['summoner']['stats']['kills']
-        assists = match_data['summoner']['stats']['assists']
+        deaths = match_data["summoner"]["stats"]["deaths"]
+        kills = match_data["summoner"]["stats"]["kills"]
+        assists = match_data["summoner"]["stats"]["assists"]
 
         perf = self.performance(kills, deaths, assists)
 
         rand_response = random.randrange(0, len(RESPONSES[perf]))
 
-        message += f'• KDA: `{kills}/{deaths}/{assists}`\n'
+        message += f"• KDA: `{kills}/{deaths}/{assists}`\n"
 
         # Try to get the win/loss streak
-        win_streak = match_data.get('win_streak', None)
-        loss_streak = match_data.get('loss_streak', None)
+        win_streak = match_data.get("win_streak", None)
+        loss_streak = match_data.get("loss_streak", None)
         if win_streak is not None and loss_streak is not None:
-            message += f"• Win/Loss Streak: `{self.get_streak(win_streak, loss_streak)}`\n"
+            message += (
+                f"• Win/Loss Streak: `{self.get_streak(win_streak, loss_streak)}`\n"
+            )
         else:
             message += f"• Win/Loss Streak: `unknown`\n"
 
-        message += f'• Performance Evaluation: `{perf}` {self.performance_emote(perf)}\n'
+        message += (
+            f"• Performance Evaluation: `{perf}` {self.performance_emote(perf)}\n"
+        )
         message += f"> *{RESPONSES[perf][rand_response]}*"
-        return {'message': message, 'win': match_data['summoner']['stats']['win']}
+        return {"message": message, "win": match_data["summoner"]["stats"]["win"]}
 
     def performance(self, kills, deaths, assists):
         """
@@ -479,37 +520,37 @@ class League(BotPlugin):
         kda_calc = kills - deaths + assists / 2
 
         if kda_calc >= 8:
-            return 'excellent'
+            return "excellent"
         elif kda_calc >= 4 and kda_calc < 8:
-            return 'good'
+            return "good"
         elif kda_calc >= 0 and kda_calc < 4:
-            return 'average'
+            return "average"
         elif kda_calc <= 0 and kda_calc > -4:
-            return 'poor'
+            return "poor"
         elif kda_calc <= -4:
-            return 'terrible'
+            return "terrible"
 
     def performance_emote(self, performance):
         """
         Adds emotes based on summoner performance
         """
-        if performance == 'excellent':
-            return '🌟'
-        elif performance == 'good':
-            return '👍'
-        elif performance == 'average':
-            return '😐'
-        elif performance == 'poor':
-            return '👎'
-        elif performance == 'terrible':
-            return '💀'
-    
+        if performance == "excellent":
+            return "🌟"
+        elif performance == "good":
+            return "👍"
+        elif performance == "average":
+            return "😐"
+        elif performance == "poor":
+            return "👎"
+        elif performance == "terrible":
+            return "💀"
+
     def get_champion(self, champion_id):
         """
         Gets the champion name from the champion ID
         """
         for item in CHAMPION_DATA:
-            if int(CHAMPION_DATA[item]['key']) == int(champion_id):
+            if int(CHAMPION_DATA[item]["key"]) == int(champion_id):
                 return item.lower()
         return None
 
@@ -519,13 +560,13 @@ class League(BotPlugin):
         """
 
         if win_streak == None or loss_streak == None:
-            return 'No Data'
+            return "No Data"
         elif win_streak == 0 and loss_streak == 0:
-            return 'No Data'
+            return "No Data"
         elif win_streak >= 1 and loss_streak == 0:
-            return '🏆' * win_streak
+            return "🏆" * win_streak
         else:
-            return '❌' * loss_streak
+            return "❌" * loss_streak
 
     def get_league_game_duration(self, game_duration):
         """
@@ -533,10 +574,12 @@ class League(BotPlugin):
         """
         timings = util.hours_minutes_seconds(game_duration)
 
-        if timings['hours'] == 0:
-            return '{:02d}m:{:02d}s'.format(timings['minutes'], timings['seconds'])
-        
-        return '{:02d}h:{:02d}m:{:02d}s'.format(timings['hours'], timings['minutes'], timings['seconds'])
+        if timings["hours"] == 0:
+            return "{:02d}m:{:02d}s".format(timings["minutes"], timings["seconds"])
+
+        return "{:02d}h:{:02d}m:{:02d}s".format(
+            timings["hours"], timings["minutes"], timings["seconds"]
+        )
 
     def get_queue_type(self, queue_id):
         """
@@ -545,5 +588,5 @@ class League(BotPlugin):
         :param queue_id: The queue id (int)
         """
         for item in QUEUE_ID_CACHE:
-           if item['queueId'] == queue_id:
-                return item['description'].replace('games', '').strip()
+            if item["queueId"] == queue_id:
+                return item["description"].replace("games", "").strip()
