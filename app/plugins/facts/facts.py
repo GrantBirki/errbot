@@ -1,6 +1,7 @@
 from errbot import BotPlugin, botcmd
 import requests
 
+
 class Facts(BotPlugin):
     """Facts plugin for Errbot"""
 
@@ -15,4 +16,6 @@ class Facts(BotPlugin):
         """
         Get a random fact from the file
         """
-        return requests.get('https://uselessfacts.jsph.pl/random.json?language=en').json()['text']
+        return requests.get(
+            "https://uselessfacts.jsph.pl/random.json?language=en"
+        ).json()["text"]
