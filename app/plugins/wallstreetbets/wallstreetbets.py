@@ -3,7 +3,7 @@ import requests
 
 
 class Wallstreetbets(BotPlugin):
-    """Wallstreetbets plugin for Errbot"""
+    """Wallstreetbets plugin for Errbot - For getting S T O N K S"""
 
     @botcmd
     def wallstreetbets(self, msg, args):
