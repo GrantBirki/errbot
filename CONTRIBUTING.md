@@ -162,6 +162,21 @@ Your new plugin should be loaded and you can interact with it via the CLI:
 meow!
 ```
 
+## Linting your code
+
+In order for CI to pass, you must have properly linted code. Luckily, this is extremely easy to do and can be performed in a single command:
+
+```console
+$ script/lint
+
+All done! ✨ 🍰 ✨
+1 file reformatted, 14 files left unchanged.
+```
+
+That's it! This will lint all `*.py` files in the repo to ensure they conform to the [Black](https://black.readthedocs.io/en/stable/) linting guidelines
+
+> Linting is just the formatting of your code to a certain standard (ie: no trailing whitespaces, "" quotes instead of '', etc)
+
 ## Deploying 🚀
 
 Deploying your changes to the prod instance of `errbot` is *really* easy.
