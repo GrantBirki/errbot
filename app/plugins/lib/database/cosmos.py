@@ -8,14 +8,14 @@ import os
 
 util = Util()
 
-class Cosmos:
 
-    def __init__(self, cosmos_container='discord'):
+class Cosmos:
+    def __init__(self, cosmos_container="discord"):
         self.container = self.init_container(
-            os.environ['COSMOS_ACCOUNT_HOST'],
-            os.environ['COSMOS_ACCOUNT_KEY'],
-            os.environ['COSMOS_DATABASE'],
-            cosmos_container
+            os.environ["COSMOS_ACCOUNT_HOST"],
+            os.environ["COSMOS_ACCOUNT_KEY"],
+            os.environ["COSMOS_DATABASE"],
+            cosmos_container,
         )
 
     def init_container(self, host, account_key, database_id, container_id):
@@ -37,7 +37,7 @@ class Cosmos:
     def create_items(self, data=None, id=None):
         """
         Creates an item in Azure Cosmos DB
-        Where 'data' is a dict containing the data you wish to store 
+        Where 'data' is a dict containing the data you wish to store
         """
         try:
             iso_timestamp = util.iso_timestamp()
@@ -48,22 +48,21 @@ class Cosmos:
                 id = self.fmt_id(id)
 
             try:
-                data['discord_server_id']
+                data["discord_server_id"]
             except KeyError:
-                data['discord_server_id'] = 'unknown'
+                data["discord_server_id"] = "unknown"
 
             body = {
                 "id": id,
                 "created_at": iso_timestamp,
                 "updated_at": iso_timestamp,
-                "data": data
+                "data": data,
             }
 
             self.container.create_item(body=body)
             return True
         except exceptions.CosmosResourceExistsError:
             return False
-
 
     def read_item(self, id, partition_key=None):
         """
@@ -77,9 +76,11 @@ class Cosmos:
             id = self.fmt_id(id)
 
             if partition_key:
-                response = self.container.read_item(item=id, partition_key=partition_key)
+                response = self.container.read_item(
+                    item=id, partition_key=partition_key
+                )
             else:
-                response = self.container.read_item(item=id, partition_key='unknown')
+                response = self.container.read_item(item=id, partition_key="unknown")
 
             return response
         except exceptions.CosmosResourceNotFoundError:
@@ -101,19 +102,17 @@ class Cosmos:
         # for doc in item_list:
         #     print("Item Id: {0}".format(doc.get("id")))
 
-
     def query_items(self, container, partition_key):
         # TODO test this magic
         # Including the partition key value of account_number in the WHERE filter results in a more efficient query
         items = list(
             container.query_items(
                 query=f"SELECT * FROM r WHERE r.partitionKey=@{partition_key}",
-                parameters=[{"name": f"@{partition_key}", "value": partition_key}]
+                parameters=[{"name": f"@{partition_key}", "value": partition_key}],
             )
         )
 
         print("Item queried by Partition Key {0}".format(items[0].get("id")))
-
 
     def replace_item(self, id, data=None, partition_key=None):
         """
@@ -122,20 +121,22 @@ class Cosmos:
         :param: data - The data body of the record with new key:value pairs to update
         :param: partition_key - The "partition_key" of the record to fetch
 
-        Note: in most cases, the partition_key is the Discord server guild id 
+        Note: in most cases, the partition_key is the Discord server guild id
         """
-        #TODO determine if this is truly a replace - ie: read and write
+        # TODO determine if this is truly a replace - ie: read and write
         try:
             id = self.fmt_id(id)
 
             if partition_key:
-                response = self.container.read_item(item=id, partition_key=partition_key)
+                response = self.container.read_item(
+                    item=id, partition_key=partition_key
+                )
             else:
-                response = self.container.read_item(item=id, partition_key='unknown')
+                response = self.container.read_item(item=id, partition_key="unknown")
 
             # Update values in place
-            response['updated_at'] = util.iso_timestamp()
-            response['data'] = data #TODO only changed key:values
+            response["updated_at"] = util.iso_timestamp()
+            response["data"] = data  # TODO only changed key:values
 
             # Set the new values
             response = self.container.replace_item(item=response, body=response)
@@ -157,16 +158,18 @@ class Cosmos:
 
             # Read the current record
             if partition_key:
-                response = self.container.read_item(item=id, partition_key=partition_key)
+                response = self.container.read_item(
+                    item=id, partition_key=partition_key
+                )
             else:
-                response = self.container.read_item(item=id, partition_key='unknown')
+                response = self.container.read_item(item=id, partition_key="unknown")
 
             # Update the record "updated_at" value to now
             response["updated_at"] = util.iso_timestamp()
 
             # Update the record "data" with our new data
             for i in data:
-                response['data'][i] = data[i]
+                response["data"][i] = data[i]
 
             # Write the record
             response = self.container.upsert_item(body=response)
@@ -181,7 +184,7 @@ class Cosmos:
             if partition_key:
                 self.container.read_item(item=id, partition_key=partition_key)
             else:
-                self.container.read_item(item=id, partition_key='unknown')
+                self.container.read_item(item=id, partition_key="unknown")
 
             self.container.delete_item(item=id, partition_key=partition_key)
             return True
