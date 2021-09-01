@@ -3,7 +3,7 @@ import requests
 
 
 class Facts(BotPlugin):
-    """Facts plugin for Errbot"""
+    """Facts plugin for Errbot - Get a random fact"""
 
     @botcmd
     def random_fact(self, msg, args):
