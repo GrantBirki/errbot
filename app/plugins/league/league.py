@@ -172,6 +172,8 @@ class League(BotPlugin):
     def activate(self):
         """
         Runs the last_match_cron() function every interval
+
+        Note: the self.start_polling() function will wait for the first cron job to finish before starting the next one
         """
         interval = 60
         super().activate()
