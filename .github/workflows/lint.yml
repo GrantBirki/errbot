@@ -5,6 +5,8 @@ on:
       - main
   pull_request:
     branches: [ main ]
+    paths:
+      - '**.py'
 jobs:
   lint:
     name: runner / black
@@ -16,8 +18,9 @@ jobs:
         id: action_black
         with:
           black_args: "."
-      - name: Annotate diff changes using reviewdog
+      - name: Comment Black Message
         if: steps.action_black.outputs.is_formatted == 'true'
-        uses: reviewdog/action-suggester@v1
+        uses: thollander/actions-comment-pull-request@1.0.2
         with:
-          tool_name: blackfmt
+          message: 'Example of message !\n## I am a heading'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
