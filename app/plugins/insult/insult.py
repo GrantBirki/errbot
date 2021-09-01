@@ -4,9 +4,11 @@ import requests
 from lib.chat.discord import Discord
 
 discord = Discord()
+
+
 class Insult(BotPlugin):
     """Insult plugin for Errbot"""
-    
+
     @botcmd
     def insult(self, msg, args):
         """
@@ -14,7 +16,7 @@ class Insult(BotPlugin):
         Example: .insult @user
         """
 
-        if args == 'me':
+        if args == "me":
             user = discord.mention_user(msg)
         else:
             user = args
@@ -22,4 +24,6 @@ class Insult(BotPlugin):
         return f"{user} {self.get_insult()}"
 
     def get_insult(self):
-        return requests.get('https://evilinsult.com/generate_insult.php?lang=en&type=json').json()['insult']
+        return requests.get(
+            "https://evilinsult.com/generate_insult.php?lang=en&type=json"
+        ).json()["insult"]

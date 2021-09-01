@@ -4,7 +4,6 @@
 <div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
 -->
 
-
 <h2 align="center">errbot</h1>
 <p align="center">
   A Dicord chatbot that is easy to deploy and build upon
@@ -12,8 +11,22 @@
 
 <p align="center">
   <a href="https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/deployment.yml/badge.svg?event=push" alt="deployment" height="18"></a>
-  <a href="https://github.com/GrantBirki/errbot/actions/workflows/review.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/review.yml/badge.svg?event=push" alt="review" /></a>
+  <a href="https://github.com/GrantBirki/errbot/actions/workflows/review.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/review.yml/badge.svg?event=push" alt="review"/></a>
   <a href="https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml/badge.svg?event=push" alt="tfsec"/></a>
+  <a href="https://github.com/GrantBirki/errbot/actions/workflows/lint.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/lint.yml/badge.svg?event=push" alt="lint"/></a>
+</p>
+
+<p align="center">
+  <img src="docs/assets/code-style-black.svg" alt="code style black"/>
+  <img src="docs/assets/language-python-blue.svg" alt="language python"/>
+  <img src="docs/assets/framework-errbot-blue.svg" alt="framework errbot"/>
+  <img src="docs/assets/backend-discord-blue.svg" alt="backend discord"/>
+</p>
+
+<p align="center">
+  <img src="docs/assets/terraform.svg" alt="terraform"/>
+  <img src="docs/assets/aws.svg" alt="aws"/>
+  <img src="docs/assets/azure.svg" alt="azure"/>
 </p>
 
 <hr>
