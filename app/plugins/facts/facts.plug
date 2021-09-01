@@ -1,0 +1,9 @@
+[Core]
+Name = Facts
+Module = facts
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Facts plugin
