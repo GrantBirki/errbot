@@ -10,12 +10,6 @@ class Facts(BotPlugin):
         """
         Get a random fact!
         """
-        return self.get_random_fact()
-
-    def get_random_fact(self):
-        """
-        Get a random fact from the file
-        """
         return requests.get(
             "https://uselessfacts.jsph.pl/random.json?language=en"
         ).json()["text"]
