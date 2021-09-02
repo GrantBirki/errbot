@@ -40,6 +40,7 @@ class LeagueTable(Model):
     win_streak = NumberAttribute(default_for_new=0)
     loss_streak = NumberAttribute(default_for_new=0)
 
+
 class RememberTable(Model):
     class Meta:
         table_name = "remember"
@@ -50,6 +51,7 @@ class RememberTable(Model):
     discord_server_id = NumberAttribute(hash_key=True)
     rem_key = UnicodeAttribute(range_key=True)
     rem_value = UnicodeAttribute()
+
 
 class Dynamo:
     def write(self, object):
