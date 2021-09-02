@@ -62,10 +62,11 @@ resource "aws_dynamodb_table" "this" {
     }
   }
 
-  server_side_encryption {
-    enabled     = var.server_side_encryption_enabled
-    kms_key_arn = var.server_side_encryption_kms_key_arn
-  }
+  # Use the AWS provided encryption for FREE
+  # server_side_encryption {
+  #   enabled     = var.server_side_encryption_enabled
+  #   kms_key_arn = var.server_side_encryption_kms_key_arn
+  # }
 
   tags = merge(
     var.tags,
