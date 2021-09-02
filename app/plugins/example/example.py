@@ -173,4 +173,5 @@ class Example(BotPlugin):
 
     @botcmd
     def version(self, msg, args):
+        """Get the version (COMMIT_SHA) that this instance of errbot is running"""
         return os.environ["COMMIT_SHA"]

@@ -107,7 +107,7 @@ At the root of this repo you will notice a `template` folder. This folder contai
 Run the following command to copy the `template` folder into the plugin directory:
 
 ```bash
-make command-template
+make command
 ```
 
 Now enter the `app/plugins/template` folder and poke around the two files you see in there for a bit.

@@ -7,7 +7,11 @@ discord = Discord()
 
 
 class Insult(BotPlugin):
-    """Insult plugin for Errbot"""
+    """
+    Insult plugin for Errbot
+
+    Insult yourself or friends!
+    """
 
     @botcmd
     def insult(self, msg, args):

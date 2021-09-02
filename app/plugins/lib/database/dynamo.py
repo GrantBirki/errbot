@@ -41,6 +41,18 @@ class LeagueTable(Model):
     loss_streak = NumberAttribute(default_for_new=0)
 
 
+class RememberTable(Model):
+    class Meta:
+        table_name = "remember"
+        region = "us-west-2"
+        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
+        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+
+    discord_server_id = NumberAttribute(hash_key=True)
+    rem_key = UnicodeAttribute(range_key=True)
+    rem_value = UnicodeAttribute()
+
+
 class Dynamo:
     def write(self, object):
         """
