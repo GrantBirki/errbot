@@ -97,13 +97,13 @@ variable "stream_view_type" {
 variable "server_side_encryption_enabled" {
   description = "Whether or not to enable encryption at rest using an AWS managed KMS customer master key (CMK)"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "server_side_encryption_kms_key_arn" {
   description = "The ARN of the CMK that should be used for the AWS KMS encryption. This attribute should only be specified if the key is different from the default DynamoDB CMK, alias/aws/dynamodb."
   type        = string
-  default     = true
+  default     = null
 }
 
 variable "tags" {
