@@ -47,6 +47,16 @@ class League(BotPlugin):
     You can also view your data, your last game, and more!
     """
 
+    def activate(self):
+        """
+        Runs the last_match_cron() function every interval
+
+        Note: the self.start_polling() function will wait for the first cron job to finish before starting the next one
+        """
+        interval = 60
+        super().activate()
+        self.start_poller(interval, self.last_match_cron)
+
     def last_match_cron_main(self, item):
         # Gets the last match data
 
@@ -173,16 +183,6 @@ class League(BotPlugin):
                 self.log.error(f"error: {err}")
                 self.warn_admins(f"{traceback.format_exc()}")
                 continue
-
-    def activate(self):
-        """
-        Runs the last_match_cron() function every interval
-
-        Note: the self.start_polling() function will wait for the first cron job to finish before starting the next one
-        """
-        interval = 60
-        super().activate()
-        self.start_poller(interval, self.last_match_cron)
 
     @arg_botcmd("summoner_name", type=str)
     def add_me_to_league_watcher(self, msg, summoner_name=None):
