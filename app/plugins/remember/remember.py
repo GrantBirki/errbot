@@ -6,11 +6,12 @@ from lib.chat.discord import Discord
 dynamo = Dynamo()
 discord = Discord()
 
-class Remember(BotPlugin):  
+
+class Remember(BotPlugin):
     """Remember plugin for Errbot"""
 
     @botcmd
-    def remember(self, msg, args):  
+    def remember(self, msg, args):
         """
         Remember something / anything for any reason
         """
@@ -36,7 +37,7 @@ class Remember(BotPlugin):
         # If the message matches the regex, create the key and value if it is not already in the database
         if result:
             # Try to get the record to see if it exists
-            record = dynamo.get(RememberTable, guild_id, result['key'])
+            record = dynamo.get(RememberTable, guild_id, result["key"])
             if record:
                 message = f"I am already remembering something for `{result['key']}`:"
                 message += f"> Use `.forget {result['key']}` to forget it"
@@ -47,8 +48,8 @@ class Remember(BotPlugin):
                 new_record = dynamo.write(
                     RememberTable(
                         discord_server_id=guild_id,
-                        rem_key=result['key'],
-                        rem_value=result['value']                    
+                        rem_key=result["key"],
+                        rem_value=result["value"],
                     )
                 )
                 if new_record:
@@ -82,7 +83,9 @@ class Remember(BotPlugin):
 
         # If the record was deleted, return a message
         if result:
-            return f"✅ Ok {discord.mention_user(msg)}, I'll forget about `{args}` for you"
+            return (
+                f"✅ Ok {discord.mention_user(msg)}, I'll forget about `{args}` for you"
+            )
         else:
             return f"❌ Failed to forget about `{args}`!"
 
