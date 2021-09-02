@@ -22,8 +22,8 @@ local:
 discord:
 	script/discord.sh
 
-command-template:
-	script/template.sh
+command:
+	script/command.sh
 
 push-azure: # Builds and pushes image to azure - testing only
 	@az acr login -n errbot

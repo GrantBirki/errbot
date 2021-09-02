@@ -1,8 +1,9 @@
 .vscode
-.terraform
+terraform.tfstate
 creds.env
 app/plugins/test
 test_files
-terraform.tfvars.json
+terraform.auto.tfvars.json
 test.py
 test.json
+terraform/.terraform/providers

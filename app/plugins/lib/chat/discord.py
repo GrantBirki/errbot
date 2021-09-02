@@ -17,12 +17,18 @@ class Discord:
 
         return COLORS[color]
 
-    def guild_id(self, msg):
+    def guild_id(self, msg, format=False):
         """
         Returns the guild_id as a an int
         """
         try:
-            return msg.frm.room.__dict__["_guild_id"], None
+
+            guild_id_raw = msg.frm.room.__dict__["_guild_id"]
+
+            if format:
+                return self.fmt_guild_id(guild_id_raw), None
+
+            return guild_id_raw, None
         except AttributeError:
             return False, "Please run this command in a Discord channel, not a DM"
 
