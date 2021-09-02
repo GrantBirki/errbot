@@ -1,0 +1,9 @@
+[Core]
+Name = Remember 
+Module = remember 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Remember plugin 
