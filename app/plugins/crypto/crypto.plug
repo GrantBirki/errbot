@@ -1,0 +1,9 @@
+[Core]
+Name = Crypto 
+Module = crypto 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Crypto plugin 
