@@ -12,9 +12,11 @@ class Crypto(BotPlugin):
         Example: .crypto ada
         Example: .crypto btc
         """
-
-        value = requests.get(
-            f"https://min-api.cryptocompare.com/data/price?fsym={args}&tsyms=USD"
-        ).json()["USD"]
+        try:
+            value = requests.get(
+                f"https://min-api.cryptocompare.com/data/price?fsym={args}&tsyms=USD"
+            ).json()["USD"]
+        except KeyError:
+            return f"`{args}` is not a valid crypto currency"
 
         return f"**{args.upper()}**: ${value}"

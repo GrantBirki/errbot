@@ -14,37 +14,22 @@ class Discord:
         """
         Gets the hex of a color for send_card() calls
         """
-
         return COLORS[color]
 
-    def guild_id(self, msg, format=False):
+    def guild_id(self, msg):
         """
         Returns the guild_id as a an int
         """
         try:
-
-            guild_id_raw = msg.frm.room.__dict__["_guild_id"]
-
-            if format:
-                return self.fmt_guild_id(guild_id_raw), None
-
-            return guild_id_raw, None
+            return int(msg.frm.room.__dict__["_guild_id"])
         except AttributeError:
-            return False, "Please run this command in a Discord channel, not a DM"
+            return False
 
     def channel_id(self, msg):
         """
         Returns the channel ID as an int
         """
-        return msg.frm.room.__dict__["_channel_id"]
-
-    def fmt_guild_id(self, guild_raw):
-        """
-        Formats the guild_raw to a proper guild_id
-
-        Mainly used for formatting when reading from the database
-        """
-        return int(guild_raw)
+        return int(msg.frm.room.__dict__["_channel_id"])
 
     def handle(self, msg):
         """
