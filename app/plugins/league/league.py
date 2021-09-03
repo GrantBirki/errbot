@@ -225,6 +225,37 @@ class League(BotPlugin):
         else:
             return f"❌ Failed to add {discord.mention_user(msg)} to the league watcher!"
 
+    @botcmd
+    def league_streak(self, msg, args):
+        """
+        Display's your summoner's win/loss streak
+        """
+
+        if args.strip() != "" and args != "me":
+            return "What you are trying to do is not implemented yet"
+
+        discord_handle = discord.handle(msg)
+        guild_id = discord.guild_id(msg)
+
+        if not guild_id:
+            return "Please run this command in a Discord channel, not a DM"
+
+        record = dynamo.get(LeagueTable, guild_id, discord_handle)
+        if record is False:
+            return (
+                f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
+            )
+        elif record is None:
+            return f"❌ {discord.mention_user(msg)} is not in the league watcher!"
+        
+        if record.win_streak is None or record.loss_streak is None:
+            return f"❌ {discord.mention_user(msg)} has no win/loss streak data yet! Go play a game!"
+
+        match_data = {"win_streak": record.win_streak, "loss_streak": record.loss_streak}
+        
+        return f"{discord.mention_user(msg)} {self.get_streak(match_data)}"
+
+
     @arg_botcmd("--summoner", dest="summoner", type=str, admin_only=True)
     @arg_botcmd("--discord", dest="discord", type=str, admin_only=True)
     @arg_botcmd("--guild", dest="guild", type=int, admin_only=True)
