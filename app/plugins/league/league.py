@@ -247,14 +247,16 @@ class League(BotPlugin):
             )
         elif record is None:
             return f"❌ {discord.mention_user(msg)} is not in the league watcher!"
-        
+
         if record.win_streak is None or record.loss_streak is None:
             return f"❌ {discord.mention_user(msg)} has no win/loss streak data yet! Go play a game!"
 
-        match_data = {"win_streak": record.win_streak, "loss_streak": record.loss_streak}
-        
-        return f"{discord.mention_user(msg)} {self.get_streak(match_data)}"
+        match_data = {
+            "win_streak": record.win_streak,
+            "loss_streak": record.loss_streak,
+        }
 
+        return f"{discord.mention_user(msg)} {self.get_streak(match_data)}"
 
     @arg_botcmd("--summoner", dest="summoner", type=str, admin_only=True)
     @arg_botcmd("--discord", dest="discord", type=str, admin_only=True)
@@ -365,7 +367,10 @@ class League(BotPlugin):
                 last_match_sha256 = response.last_match_sha256[:8]
 
             # Get win/loss streak data
-            match_data = {"win_streak": response.win_streak, "loss_streak": response.loss_streak}
+            match_data = {
+                "win_streak": response.win_streak,
+                "loss_streak": response.loss_streak,
+            }
 
             message = f"**League Watcher Data**:\n"
             message += f"• Discord Handle: `{response.discord_handle}`\n"
