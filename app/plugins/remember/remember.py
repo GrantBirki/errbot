@@ -30,7 +30,11 @@ class Remember(BotPlugin):
         The main logic which drives the .rem/.remember command
         """
 
-        guild_id, _ = discord.guild_id(msg, format=True)
+        guild_id = discord.guild_id(msg)
+
+        # If the message is a private message
+        if not guild_id:
+            return "Please run this command in a Discord channel, not a DM"
 
         result = self.rem_regex(msg)
 
@@ -71,7 +75,11 @@ class Remember(BotPlugin):
         """
         Forget something that is being remembered
         """
-        guild_id, _ = discord.guild_id(msg, format=True)
+        guild_id = discord.guild_id(msg)
+
+        # If the message is a private message
+        if not guild_id:
+            return "Please run this command in a Discord channel, not a DM"
 
         # Try to get the record to see if it exists
         record = dynamo.get(RememberTable, guild_id, args)
