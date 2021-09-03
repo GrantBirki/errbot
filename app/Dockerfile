@@ -3,7 +3,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # install dependencies
-# RUN apt update -y && apt upgrade -y
+RUN apt update -y && apt upgrade -y
 
 # setup errbot base
 COPY requirements.txt .
