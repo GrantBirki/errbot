@@ -63,17 +63,17 @@ variable "RIOT_REGION" {
 
 # Azure Cosmos DB
 variable "COSMOS_ACCOUNT_HOST" {
-  type = string
+  type    = string
   default = "https://errbot-nosql-db.documents.azure.com:443/"
 }
 
 variable "COSMOS_DATABASE" {
-  type = string
+  type    = string
   default = "errbot"
 }
 
 variable "COSMOS_CONTAINER" {
-  type = string
+  type    = string
   default = "discord"
 }
 
