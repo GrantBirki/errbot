@@ -92,7 +92,7 @@ class League(BotPlugin):
             return False
 
         # Get the Discord Server guild_id
-        guild_id = discord.fmt_guild_id(item["discord_server_id"])
+        guild_id = int(item["discord_server_id"])
 
         # Updates the match sha so results for a match are never posted twice
         get_result = dynamo.get(LeagueTable, guild_id, item["discord_handle"])
@@ -193,10 +193,10 @@ class League(BotPlugin):
         Example: .add me to league watcher birki
         """
         discord_handle = discord.handle(msg)
-        guild_id, guild_msg = discord.guild_id(msg)
+        guild_id = discord.guild_id(msg)
 
         if not guild_id:
-            return guild_msg
+            return "Please run this command in a Discord channel, not a DM"
 
         get_result = dynamo.get(LeagueTable, guild_id, discord_handle)
         if get_result:
@@ -324,10 +324,10 @@ class League(BotPlugin):
         Usage: .remove me from league watcher
         """
         discord_handle = discord.handle(msg)
-        guild_id, guild_msg = discord.guild_id(msg)
+        guild_id = discord.guild_id(msg)
 
         if not guild_id:
-            return guild_msg
+            return "Please run this command in a Discord channel, not a DM"
 
         get_result = dynamo.get(LeagueTable, guild_id, discord_handle)
         if get_result is None:
@@ -350,10 +350,10 @@ class League(BotPlugin):
         This is mostly for debugging
         """
         discord_handle = discord.handle(msg)
-        guild_id, guild_msg = discord.guild_id(msg)
+        guild_id = discord.guild_id(msg)
 
         if not guild_id:
-            return guild_msg
+            return "Please run this command in a Discord channel, not a DM"
 
         response = dynamo.get(LeagueTable, guild_id, discord_handle)
 
@@ -364,11 +364,14 @@ class League(BotPlugin):
             else:
                 last_match_sha256 = response.last_match_sha256[:8]
 
+            # Get win/loss streak data
+            match_data = {"win_streak": response.win_streak, "loss_streak": response.loss_streak}
+
             message = f"**League Watcher Data**:\n"
             message += f"• Discord Handle: `{response.discord_handle}`\n"
             message += f"• Summoner Name: `{response.summoner_name}`\n"
             message += f"• Account ID: `{response.account_id[:8]}...`\n"
-            message += f"• Win/Loss Streak: `{self.get_streak(response.win_streak, response.loss_streak)}`\n"
+            message += f"• Win/Loss Streak: `{self.get_streak(match_data)}`\n"
             message += f"• Last Match SHA: `{last_match_sha256}`\n"
             message += f"• Can I fucking @you?: `{response.bot_can_at_me}`\n"
             message += f"• Last Updated: `{response.updated_at}`"
