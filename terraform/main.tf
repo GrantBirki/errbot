@@ -9,19 +9,19 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-west-2"
+  region     = "us-west-2"
   access_key = var.AWS_ACCESS_KEY_ID
   secret_key = var.AWS_SECRET_ACCESS_KEY
 }
 
 module "dynamodb_table" {
-  source   = "terraform-aws-modules/dynamodb-table/aws"
+  source  = "terraform-aws-modules/dynamodb-table/aws"
   version = "1.1.0"
 
-  name     = "remember"
-  hash_key = "discord_server_id"
-  range_key = "rem_key"
-  billing_mode = "PAY_PER_REQUEST"
+  name                           = "remember"
+  hash_key                       = "discord_server_id"
+  range_key                      = "rem_key"
+  billing_mode                   = "PAY_PER_REQUEST"
   point_in_time_recovery_enabled = true
 
   attributes = [
