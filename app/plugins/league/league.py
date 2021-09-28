@@ -12,6 +12,7 @@ from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ["RIOT_TOKEN"], timeout=10)
 REGION = os.environ["RIOT_REGION"]
+RIOT_REGION_V5 = os.environ["RIOT_REGION_V5"]
 discord = Discord()
 util = Util()
 dynamo = Dynamo()
@@ -61,7 +62,7 @@ class League(BotPlugin):
         # Gets the last match data
 
         # Query the RIOT API for a list of all matches for the summoner
-        match_list = self.get_summoner_match_list(item["account_id"])
+        match_list = self.get_summoner_match_list(item["puuid"])
 
         # Calcutes a unique hash of the last matches for a summoner
         current_matches_sha256 = util.sha256(json.dumps(match_list))
@@ -73,14 +74,14 @@ class League(BotPlugin):
             return "duplicate_sha"
 
         # Grab only the most recent match [0]
-        last_match = match_list["matches"][0]
+        last_match = match_list[0]
 
         # Query the RIOT API for the full match data for a given gameId
-        match_data_full = self.get_match_data(last_match["gameId"])
+        match_data_full = self.get_match_data(last_match)
 
-        # Parse the output of the last match and use the account_id to get exact summoner data for the match (no API call)
+        # Parse the output of the last match and use the puuid to get exact summoner data for the match (no API call)
         match_data_summoner = self.find_summoner_specific_match_data(
-            match_data_full, item["account_id"]
+            match_data_full, item["puuid"]
         )
 
         # Return the summoner specific data and the full match data
@@ -109,7 +110,7 @@ class League(BotPlugin):
             else:
                 last_loss_streak = 0
 
-            if match_data["summoner"]["stats"]["win"]:
+            if match_data["summoner"]["win"]:
                 win_streak = last_win_streak + 1
                 loss_streak = 0
             else:
@@ -207,8 +208,8 @@ class League(BotPlugin):
             )
 
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
-        account_id = self.get_summoner_account_id(summoner_name)
-        if not account_id:
+        puuid = self.get_summoner_puuid(summoner_name)
+        if not puuid:
             return f"❌ Summoner `{summoner_name}` not found in the Riot API! Check your spelling and try again.."
 
         write_result = dynamo.write(
@@ -216,7 +217,7 @@ class League(BotPlugin):
                 discord_server_id=guild_id,
                 discord_handle=discord_handle,
                 summoner_name=summoner_name,
-                account_id=account_id,
+                puuid=puuid,
             )
         )
 
@@ -278,8 +279,8 @@ class League(BotPlugin):
             return f"❌ Failed to check the league watcher for `{discord}`"
 
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
-        account_id = self.get_summoner_account_id(summoner)
-        if not account_id:
+        puuid = self.get_summoner_puuid(summoner)
+        if not puuid:
             return f"❌ Summoner `{summoner}` not found in the Riot API! Check your spelling and try again.."
 
         write_result = dynamo.write(
@@ -287,7 +288,7 @@ class League(BotPlugin):
                 discord_server_id=guild_id,
                 discord_handle=discord,
                 summoner_name=summoner,
-                account_id=account_id,
+                puuid=puuid,
             )
         )
 
@@ -375,7 +376,7 @@ class League(BotPlugin):
             message = f"**League Watcher Data**:\n"
             message += f"• Discord Handle: `{response.discord_handle}`\n"
             message += f"• Summoner Name: `{response.summoner_name}`\n"
-            message += f"• Account ID: `{response.account_id[:8]}...`\n"
+            message += f"• Account ID: `{response.puuid[:8]}...`\n"
             message += f"• Win/Loss Streak: `{self.get_streak(match_data)}`\n"
             message += f"• Last Match SHA: `{last_match_sha256}`\n"
             message += f"• Can I fucking @you?: `{response.bot_can_at_me}`\n"
@@ -453,53 +454,47 @@ class League(BotPlugin):
 
         return messages
 
-    def get_summoner_account_id(self, summoner_name):
+    def get_summoner_puuid(self, summoner_name):
         """
-        Tries to get a summoner account id from the Riot API
+        Tries to get a summoner puuid from the Riot API
         [i] API CALL
         """
         try:
             summoner = LOL_WATCHER.summoner.by_name(REGION, summoner_name)
-            return summoner["accountId"]
+            return summoner["puuid"]
         except ApiError as err:
             if err.response.status_code == 404:
                 return None
             else:
                 raise
 
-    def get_summoner_match_list(self, summoner_account_id):
+    def get_summoner_match_list(self, summoner_puuid):
         """
         Gets a summoners list of previous matches
         [i] API CALL
         """
-        return LOL_WATCHER.match.matchlist_by_account(REGION, summoner_account_id)
+        return LOL_WATCHER.match_v5.matchlist_by_puuid(RIOT_REGION_V5, summoner_puuid)
 
     def get_match_data(self, match_id):
         """
         Gets the exact match data for a summoner given a match ID
         [i] API CALL
         """
-        return LOL_WATCHER.match.by_id(REGION, match_id)
+        return LOL_WATCHER.match_v5.by_id(RIOT_REGION_V5, match_id)
 
-    def find_summoner_specific_match_data(self, full_match_data, account_id):
+    def find_summoner_specific_match_data(self, full_match_data, puuid):
         """
         Parses match data and returns the exact data for a specific summoner
 
         :param match_details: Full match_data object from self.get_match_data()
-        :param account_id: The account id of the summoner
+        :param puuid: The puuid of the summoner
         """
 
         # Do some wild list comprehensions to find the summoner's match data
-        participant_identities = full_match_data["participantIdentities"]
-        participant_id = [
-            p_id
-            for p_id in participant_identities
-            if p_id["player"]["accountId"] == account_id
-        ][0]["participantId"]
         summoner_specific_match_data = [
             player
-            for player in full_match_data["participants"]
-            if player["participantId"] == participant_id
+            for player in full_match_data["info"]["participants"]
+            if player["puuid"] == puuid
         ][0]
         return summoner_specific_match_data
 
@@ -508,25 +503,25 @@ class League(BotPlugin):
         Gets the last match data for a summoner
         :returns: a dictionary, with two items: one for the last match data (summoner specific) and one for the full match data (all data)
         """
-        # Query the RIOT API for the account_id of the summoner
-        account_id = self.get_summoner_account_id(summoner_name)
+        # Query the RIOT API for the puuid of the summoner
+        puuid = self.get_summoner_puuid(summoner_name)
 
         # Return None if the account was not found
-        if not account_id:
+        if not puuid:
             return None
 
         # Query the RIOT API for a list of all matchs for the summoner
-        match_list = self.get_summoner_match_list(account_id)
+        match_list = self.get_summoner_match_list(puuid)
 
         # Grab only the most recent match [0]
-        last_match = match_list["matches"][0]
+        last_match = match_list[0]
 
         # Query the RIOT API for the full match data for a given gameId
-        match_data_full = self.get_match_data(last_match["gameId"])
+        match_data_full = self.get_match_data(last_match)
 
-        # Parse the output of the last match and use the account_id to get exact summoner data for the match (no API call)
+        # Parse the output of the last match and use the puuid to get exact summoner data for the match (no API call)
         match_data_summoner = self.find_summoner_specific_match_data(
-            match_data_full, account_id
+            match_data_full, puuid
         )
 
         # Return the summoner specific data and the full match data
@@ -538,24 +533,22 @@ class League(BotPlugin):
         :param match_data: The last match data ('summoner') or the full match data ('full')
         """
         # Match result (win or loss)
-        if match_data["summoner"]["stats"]["win"] == True:
+        if match_data["summoner"]["win"] == True:
             message = "• Match Result: `win` 🏆\n"
         else:
             message = "• Match Result: `loss` ❌\n"
         # Match length (##m:##s)
-        message += f"• Game Length: `{self.get_league_game_duration(match_data['full']['gameDuration'])}`\n"
+        message += f"• Game Length: `{self.get_league_game_duration(match_data['full']['info']['gameDuration'])}`\n"
         # Match type (Solo, Blind Pick, etc.)
-        message += (
-            f"• Game Type: `{self.get_queue_type(match_data['full']['queueId'])}`\n"
-        )
+        message += f"• Game Type: `{self.get_queue_type(match_data['full']['info']['queueId'])}`\n"
         # Lane
-        message += f"• Lane: `{match_data['summoner']['timeline']['lane'].lower()}`\n"
+        message += f"• Lane: `{match_data['summoner']['lane'].lower()}`\n"
         # Champion
         message += (
             f"• Champion: `{self.get_champion(match_data['summoner']['championId'])}`\n"
         )
         # Creep Score (CS)
-        message += f"• Creep Score: `{match_data['summoner']['stats']['totalMinionsKilled']}`\n"
+        message += f"• Creep Score: `{match_data['summoner']['totalMinionsKilled']}`\n"
         # KDA
         kills, deaths, assists = self.get_kda(match_data)
         message += f"• KDA: `{kills}/{deaths}/{assists}`\n"
@@ -571,10 +564,10 @@ class League(BotPlugin):
         # Random Response Based on Performance
         message += f"> *{self.get_random_response(perf)}*"
         # Return the message and the match result (win/loss)
-        return {"message": message, "win": match_data["summoner"]["stats"]["win"]}
+        return {"message": message, "win": match_data["summoner"]["win"]}
 
     def get_largest_multi_kill(self, match_data):
-        largest_multi_kill = match_data["summoner"]["stats"]["largestMultiKill"]
+        largest_multi_kill = match_data["summoner"]["largestMultiKill"]
         return "⚔️" * largest_multi_kill
 
     def get_random_response(self, perf):
@@ -588,9 +581,9 @@ class League(BotPlugin):
         """
         Gets the KDA for a summoner
         """
-        kills = match_data["summoner"]["stats"]["kills"]
-        deaths = match_data["summoner"]["stats"]["deaths"]
-        assists = match_data["summoner"]["stats"]["assists"]
+        kills = match_data["summoner"]["kills"]
+        deaths = match_data["summoner"]["deaths"]
+        assists = match_data["summoner"]["assists"]
         return kills, deaths, assists
 
     def performance(self, kills, deaths, assists):
@@ -657,7 +650,7 @@ class League(BotPlugin):
         """
         Calculates the game duration
         """
-        timings = util.hours_minutes_seconds(game_duration)
+        timings = util.hours_minutes_seconds_from_ms(game_duration)
 
         if timings["hours"] == 0:
             return "{:02d}m:{:02d}s".format(timings["minutes"], timings["seconds"])
