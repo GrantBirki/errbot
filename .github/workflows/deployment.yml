@@ -169,6 +169,7 @@ jobs:
         env:
           # Config
           TF_VAR_image_tag: ci-test
+          TF_VAR_RIOT_REGION_V5: AMERICAS
           TF_VAR_BOT_ADMINS: ${{ secrets.TF_VAR_BOT_ADMINS }}
           TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
           TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
@@ -222,6 +223,7 @@ jobs:
         env:
           # Config
           TF_VAR_image_tag: latest
+          TF_VAR_RIOT_REGION_V5: AMERICAS
           TF_VAR_BOT_ADMINS: ${{ secrets.TF_VAR_BOT_ADMINS }}
           TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
           TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
