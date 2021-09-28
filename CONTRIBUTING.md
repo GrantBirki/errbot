@@ -194,3 +194,4 @@ All you need to do is the following:
 1. Request review on your pull request and obtain an approval (@grantbirki or any other member)
 1. Merge your pull request and your change will be automatically deployed! 🚀✨
 1. Run `.cat meme` in Discord to see your command in action 🐈
+
