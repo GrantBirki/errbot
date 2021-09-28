@@ -668,7 +668,7 @@ class League(BotPlugin):
 
     def get_queue_type(self, queue_id):
         """
-        Gets the queue type from the queue id
+        Gets the queue type from the queue id.
 
         :param queue_id: The queue id (int)
         """
