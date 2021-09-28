@@ -83,7 +83,7 @@ resource "azurerm_network_profile" "net_profile" {
 }
 
 resource "azurerm_container_group" "container_group" {
-  ip_address_type = "Private"
+  ip_address_type     = "Private"
   network_profile_id  = azurerm_network_profile.net_profile.id
   location            = var.azure_location
   name                = "${var.project_name}_${var.project_env}"
@@ -98,14 +98,15 @@ resource "azurerm_container_group" "container_group" {
     commands = var.commands
     cpu      = var.cpu
     environment_variables = {
-      "ENV" = var.project_env
+      "ENV"                   = var.project_env
       "COMMIT_SHA"            = var.COMMIT_SHA
       "RIOT_REGION"           = var.RIOT_REGION
+      "RIOT_REGION_V5"        = var.RIOT_REGION_V5
       "BOT_EXTRA_BACKEND_DIR" = var.BOT_EXTRA_BACKEND_DIR
       "BOT_PREFIX"            = var.BOT_PREFIX
       "BACKEND"               = var.BACKEND
       "COSMOS_ACCOUNT_HOST"   = var.COSMOS_ACCOUNT_HOST
-      "COSMOS_DATABASE"        = var.COSMOS_DATABASE
+      "COSMOS_DATABASE"       = var.COSMOS_DATABASE
       "COSMOS_CONTAINER"      = var.COSMOS_CONTAINER
     }
     # image  = "${var.project_name}.azurecr.io/${var.project_name}:${var.project_env}-${var.image_tag}"
