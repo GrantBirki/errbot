@@ -84,6 +84,10 @@ variable "RIOT_REGION" {
   type = string
 }
 
+variable "RIOT_REGION_V5" {
+  type = string
+}
+
 # AWS DynamoDB
 variable "AWS_ACCESS_KEY_ID" {
   type = string
