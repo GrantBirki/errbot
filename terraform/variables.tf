@@ -61,6 +61,10 @@ variable "RIOT_REGION" {
   type = string
 }
 
+variable "RIOT_REGION_V5" {
+  type = string
+}
+
 # Azure Cosmos DB
 variable "COSMOS_ACCOUNT_HOST" {
   type    = string

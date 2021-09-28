@@ -32,7 +32,7 @@ class LeagueTable(Model):
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
     summoner_name = UnicodeAttribute()
-    account_id = UnicodeAttribute()
+    puuid = UnicodeAttribute()
     created_at = UnicodeAttribute()
     updated_at = UnicodeAttribute()
     last_match_sha256 = UnicodeAttribute(default_for_new=None, null=True)
