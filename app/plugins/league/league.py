@@ -650,7 +650,7 @@ class League(BotPlugin):
         """
         Calculates the game duration
         """
-        timings = util.hours_minutes_seconds_from_ms(game_duration)
+        timings = util.hours_minutes_seconds(game_duration)
 
         if timings["hours"] == 0:
             return "{:02d}m:{:02d}s".format(timings["minutes"], timings["seconds"])
