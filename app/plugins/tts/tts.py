@@ -34,12 +34,13 @@ class Tts(BotPlugin):
         Pro Tip: "_" in function names render as spaces so you can do 'def send_tts(...)' -> .send tts
         """
 
-        Bot()
+        dws = DiscordWebSocket()
+        dws.join_voice()
 
         # Return a message / output below
         return "test"
 
-class Bot:
+class DiscordWebSocket:
     def __init__(self):
         self.interval = None
         self.sequence = None
@@ -56,9 +57,11 @@ class Bot:
             },
         }
 
-        asyncio.run(self.main())
 
-    async def main(self):
+    def join_voice(self):
+        asyncio.run(self.main(self.join_voice_task(GUILD_ID, VOICE_CHANNEL)))
+
+    async def main(self, task):
         async with websockets.connect(
             "wss://gateway.discord.gg/?v=9&encoding=json"
         ) as self.websocket:
@@ -66,15 +69,11 @@ class Bot:
             if self.interval is None:
                 print("Hello failed, exiting")
                 return
-            payload = {
-                "guild_id": GUILD_ID,
-                "channel_id": VOICE_CHANNEL,
-                "self_mute": False,
-                "self_deaf": False,
-            }
+
             await asyncio.gather(
-                self.heartbeat(), self.receive(), self.send(4, payload)
+                self.heartbeat(), self.receive(), task
             )
+
 
     async def receive(self):
         print("Entering receive")
@@ -102,6 +101,16 @@ class Bot:
         data = self.opcode(opcode, payload)
         print(">", data)
         await self.websocket.send(data)
+
+    async def join_voice_task(self, guild_id, channel_id):
+
+        payload = {
+                "guild_id": guild_id,
+                "channel_id": channel_id,
+                "self_mute": False,
+                "self_deaf": False,
+            }
+        await self.send(4, payload)
 
     async def heartbeat(self):
         print("Entering heartbeat")
