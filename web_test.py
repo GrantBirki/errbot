@@ -6,7 +6,6 @@ import requests
 import sys
 
 
-
 VOICE_CHANNEL = 873463331917299726
 GUILD_ID = 873463331917299722
 
@@ -31,7 +30,7 @@ class DiscordWebSocket:
         self.invalid_session = 9
         self.hello_op = 10
         self.heartbeat_ack = 11
-        self.closed = False # call self.close = True to close the websocket
+        self.closed = False  # call self.close = True to close the websocket
         self.auth = {
             "token": TOKEN,
             "properties": {"$os": "linux", "$browser": "python", "$device": "errbot"},
@@ -65,9 +64,11 @@ class DiscordWebSocket:
         gateway = requests.get(
             "https://discord.com/api/gateway/bot", headers=headers
         ).json()
-        
+
         # Connect to the gateway
-        self.websocket = websocket.create_connection(f"{gateway['url']}/?v=9&encoding=json")
+        self.websocket = websocket.create_connection(
+            f"{gateway['url']}/?v=9&encoding=json"
+        )
 
         # Run the gateway hello
         self.hello()
@@ -113,6 +114,16 @@ class DiscordWebSocket:
         server_state_update = self.recv()
         print("server_state_update:", server_state_update)
 
+        voice_websocket_data = {
+            "op": 0,
+            "d": {
+                "server_id": "41771983423143937",
+                "user_id": "104694319306248192",
+                "session_id": "my_session_id",
+                "token": "my_token",
+            },
+        }
+
     def recv(self):
         """
         method to receive a payload from the Discord gateway
@@ -134,7 +145,7 @@ class DiscordWebSocket:
                 break
 
             # Use rapid sleeps to rip through the loop checking for self.closed
-            time.sleep(.25)
+            time.sleep(0.25)
             end_time = time.time()
 
             # If the elapsed time is greater than the interval we send a heartbeat
