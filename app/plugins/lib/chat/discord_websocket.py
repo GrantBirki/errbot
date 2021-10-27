@@ -3,14 +3,9 @@ import time
 from threading import Thread
 import websocket
 import requests
+import os
 
-
-
-VOICE_CHANNEL = 873463331917299726
-GUILD_ID = 873463331917299722
-
-from token_file import TOKEN
-
+TOKEN = os.environ['CHAT_SERVICE_TOKEN']
 
 class DiscordWebSocket:
     def __init__(self):
@@ -173,10 +168,3 @@ class DiscordWebSocket:
                                 print("id", id)
             except:
                 continue
-
-
-dws = DiscordWebSocket()
-
-dws.join_voice(GUILD_ID, VOICE_CHANNEL)
-time.sleep(5)
-dws.close()
