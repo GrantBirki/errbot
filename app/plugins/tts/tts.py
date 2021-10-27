@@ -1,8 +1,10 @@
 from errbot import BotPlugin, botcmd
-import asyncio
-import websockets
+import websocket
+import requests
+from threading import Thread
 import json
 import os
+import time
 
 DEFAULT_INTENT = 32460
 
@@ -35,7 +37,7 @@ class Tts(BotPlugin):
         """
 
         dws = DiscordWebSocket()
-        dws.join_voice()
+        dws.main()
 
         # Return a message / output below
         return "test"
@@ -45,7 +47,7 @@ class DiscordWebSocket:
         self.interval = None
         self.sequence = None
         self.session_id = None
-
+        self.action_complete = False
         self.auth = {
             "token": TOKEN,
             "properties": {"$os": "linux", "$browser": "python", "$device": "errbot"},
@@ -57,27 +59,45 @@ class DiscordWebSocket:
             },
         }
 
-
     def join_voice(self):
-        asyncio.run(self.main(self.join_voice_task(GUILD_ID, VOICE_CHANNEL)))
-
-    async def main(self, task):
-        async with websockets.connect(
-            "wss://gateway.discord.gg/?v=9&encoding=json"
-        ) as self.websocket:
-            await self.hello()
-            if self.interval is None:
-                print("Hello failed, exiting")
-                return
-
-            await asyncio.gather(
-                self.heartbeat(), self.receive(), task
-            )
+        self.run(self.join_voice_websocket(GUILD_ID, VOICE_CHANNEL))
 
 
-    async def receive(self):
+    def run(self, task):
+        self.main(task)
+
+    def run_tasks(self):
+        self.join_voice_websocket(GUILD_ID, VOICE_CHANNEL)
+
+
+    def main(self): #task):
+        headers = {"Authorization": "Bot " + TOKEN}
+        gateway = requests.get(
+            "https://discord.com/api/gateway/bot", headers=headers
+        ).json()
+        
+        self.websocket = websocket.create_connection(f"{gateway['url']}/?v=9&encoding=json")
+        print("Connected")
+
+        self.hello()
+        if self.interval is None:
+            print("Hello failed, exiting")
+            return
+
+        heartbeat_thread = Thread(target=self.heartbeat)
+        task_thread = Thread(target=self.run_tasks)
+        
+        heartbeat_thread.start()
+        task_thread.start()
+
+    def receive(self):
         print("Entering receive")
-        async for message in self.websocket:
+        while not self.action_complete:
+            message = self.websocket.recv()
+
+            if message is None or message.strip() == "":
+                continue
+
             print("<", message)
             data = json.loads(message)
             if data["op"] == DISPATCH:
@@ -97,33 +117,34 @@ class DiscordWebSocket:
                             id = parts[1]
                             print("id", id)
 
-    async def send(self, opcode, payload):
+    def send(self, opcode, payload):
         data = self.opcode(opcode, payload)
         print(">", data)
-        await self.websocket.send(data)
+        self.websocket.send(data)
 
-    async def join_voice_task(self, guild_id, channel_id):
-
+    def join_voice_websocket(self, guild_id, channel_id):
+        print("Entering join_voice_websocket")
         payload = {
-                "guild_id": guild_id,
-                "channel_id": channel_id,
-                "self_mute": False,
-                "self_deaf": False,
-            }
-        await self.send(4, payload)
+            "guild_id": guild_id,
+            "channel_id": channel_id,
+            "self_mute": False,
+            "self_deaf": False,
+        }
+        self.send(4, payload)
+        self.action_complete = True
 
-    async def heartbeat(self):
+    def heartbeat(self):
         print("Entering heartbeat")
-        while self.interval is not None:
+        while self.interval is not None and not self.action_complete:
             print("Sending a heartbeat")
-            await self.send(HEARTBEAT, self.sequence)
-            await asyncio.sleep(self.interval)
+            self.send(HEARTBEAT, self.sequence)
+            time.sleep(self.interval)
 
-    async def hello(self):
-        await self.send(IDENTIFY, self.auth)
+    def hello(self):
+        self.send(IDENTIFY, self.auth)
         print(f"hello > auth")
 
-        ret = await self.websocket.recv()
+        ret = self.websocket.recv()
         print(f"hello < {ret}")
 
         data = json.loads(ret)
