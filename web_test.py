@@ -3,6 +3,7 @@ import time
 from threading import Thread
 import websocket
 import requests
+import sys
 
 
 
@@ -73,6 +74,9 @@ class DiscordWebSocket:
         if self.interval is None:
             return
 
+        # Get the 'ready' event
+        self.ready_event = self.recv()
+
         # Start the heartbeat thread
         heartbeat_thread = Thread(target=self.heartbeat)
         heartbeat_thread.start()
@@ -80,14 +84,15 @@ class DiscordWebSocket:
         # Return the heartbeat thread object (useful if you need to force close the thread)
         return heartbeat_thread
 
-    def send(self, opcode, data):
+    def send(self, opcode, data, debug=False):
         """
         Send a payload to the Discord websocket gateway
         :param opcode: The opcode to send (int)
         :param payload: The payload to send (dict)
         """
         payload = self.create_payload(opcode, data)
-        print(">", payload)
+        if debug:
+            print(">", payload)
         self.websocket.send(payload)
 
     def __join_voice_websocket(self, guild_id, channel_id):
@@ -103,6 +108,18 @@ class DiscordWebSocket:
             "self_deaf": False,
         }
         self.send(4, data)
+        voice_state_update = self.recv()
+        print("voice_state_update:", voice_state_update)
+        server_state_update = self.recv()
+        print("server_state_update:", server_state_update)
+
+    def recv(self):
+        """
+        method to receive a payload from the Discord gateway
+        :return: The payload (dict)
+        """
+        response = self.websocket.recv()
+        return json.loads(response)
 
     def heartbeat(self):
         """
@@ -126,19 +143,20 @@ class DiscordWebSocket:
                 start_time = time.time()
                 continue
 
-    def hello(self):
+    def hello(self, debug=False):
         """
         Send the gateway hello
         """
         self.send(self.identify, self.auth)
-        ret = self.websocket.recv()
-        print(f"hello < {ret}")
+        data = self.recv()
+        if debug:
+            print(f"hello < {json.dumps(data)}")
 
-        data = json.loads(ret)
         opcode = data["op"]
         if opcode != 10:
             print("Unexpected reply")
-            print(ret)
+            print(json.dumps(data))
+            sys.stdout.flush()
             return
         self.interval = (data["d"]["heartbeat_interval"] - 2000) / 1000
 
@@ -150,7 +168,7 @@ class DiscordWebSocket:
         print("Entering receive")
         while not self.closed:
             try:
-                message = self.websocket.recv()
+                message = self.recv()
                 if message is None or message.strip() == "":
                     continue
                 print("<", message)
