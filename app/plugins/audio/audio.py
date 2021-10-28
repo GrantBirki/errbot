@@ -2,8 +2,9 @@ from errbot import BotPlugin, botcmd, arg_botcmd
 
 from lib.chat.discord_custom import DiscordCustom
 
+import os, random
 
-PATH = "plugins/audio"
+PATH = "plugins/audio/sounds"
 
 class Audio(BotPlugin):
     """Audio plugin for Errbot"""
@@ -12,10 +13,25 @@ class Audio(BotPlugin):
     @arg_botcmd("--sound", dest="sound", type=str, default=None)
     def audio(self, msg, channel=None, sound=None):
         """
-        Send a text to speech message
+        Play an audio file from the sounds folder in a given channel
         """
         
         yield f"🎵 Playing: `{sound}`"
 
         dc = DiscordCustom(self._bot)
         dc.play_audio_file(channel, f"{PATH}/{sound}")
+
+    @arg_botcmd("--channel", dest="channel", type=int, default=None)
+    def random_audio(self, msg, channel=None):
+        """
+        Play a random audio file from the sounds folder in a given channel
+        """
+        
+        sound = random.choice(os.listdir("plugins/audio/sounds"))
+
+        yield f"🎵 Playing Random Sound: `{sound}`"
+
+        dc = DiscordCustom(self._bot)
+        dc.play_audio_file(channel, f"{PATH}/{sound}")
+
+
