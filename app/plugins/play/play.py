@@ -14,7 +14,7 @@ class Play(BotPlugin):
         Play a youtube video in chat!
         """
 
-        yield "📁 Downloading started for requested url... please be patient"
+        yield "📁 Download started for requested url... please be patient"
 
         ytdl = YtdlLib()
         out_file = ytdl.download_audio(url)
