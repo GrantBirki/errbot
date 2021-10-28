@@ -13,6 +13,9 @@ pynamodb==5.1.0
 # AWS
 boto3==1.18.29
 
+# youtube-dl
+youtube-dl==2021.6.6
+
 ########## DISABLED ##########
 
 # Azure

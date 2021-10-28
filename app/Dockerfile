@@ -4,6 +4,7 @@ WORKDIR /app
 
 # install dependencies
 RUN apt update -y && apt upgrade -y
+RUN apt install ffmpeg -y
 
 # setup errbot base
 COPY requirements.txt .
