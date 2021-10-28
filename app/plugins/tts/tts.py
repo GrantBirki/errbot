@@ -1,7 +1,10 @@
 from errbot import BotPlugin, botcmd
-import time
-from lib.chat.discord_websocket import DiscordWebSocket
-import os
+
+from lib.chat.discord_custom import DiscordCustom
+
+
+VOICE_CHANNEL = 901023702626484255
+
 
 class Tts(BotPlugin):
     """Tts plugin for Errbot"""
@@ -12,10 +15,8 @@ class Tts(BotPlugin):
         Send a text to speech message
         """
 
-        dws = DiscordWebSocket()
-        dws.join_voice(873463331917299722, 873463331917299726)
-        time.sleep(5)
-        dws.close()
+        dc = DiscordCustom(self._bot)
 
-        # Return a message / output below
+        dc.play_audio_file(VOICE_CHANNEL, "plugins/tts/gden-youre.mp3")
+
         return "done"
