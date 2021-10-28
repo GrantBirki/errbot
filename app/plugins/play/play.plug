@@ -1,0 +1,9 @@
+[Core]
+Name = Play 
+Module = play 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Play plugin 
