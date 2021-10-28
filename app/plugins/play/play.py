@@ -4,12 +4,13 @@ from lib.common.youtube_dl_lib import YtdlLib
 
 from lib.chat.discord_custom import DiscordCustom
 
-class Play(BotPlugin):  
+
+class Play(BotPlugin):
     """Play plugin for Errbot"""
 
     @arg_botcmd("--url", dest="url", type=str, default=None)
     @arg_botcmd("--channel", dest="channel", type=int, default=None)
-    def play(self, msg, url=None, channel=None):  
+    def play(self, msg, url=None, channel=None):
         """
         Play a youtube video in chat!
         """

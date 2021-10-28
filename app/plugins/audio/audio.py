@@ -6,6 +6,7 @@ import os, random
 
 PATH = "plugins/audio/sounds"
 
+
 class Audio(BotPlugin):
     """Audio plugin for Errbot"""
 
@@ -15,7 +16,7 @@ class Audio(BotPlugin):
         """
         Play an audio file from the sounds folder in a given channel
         """
-        
+
         yield f"🎵 Playing: `{sound}`"
 
         dc = DiscordCustom(self._bot)
@@ -26,12 +27,10 @@ class Audio(BotPlugin):
         """
         Play a random audio file from the sounds folder in a given channel
         """
-        
+
         sound = random.choice(os.listdir("plugins/audio/sounds"))
 
         yield f"🎵 Playing Random Sound: `{sound}`"
 
         dc = DiscordCustom(self._bot)
         dc.play_audio_file(channel, f"{PATH}/{sound}")
-
-
