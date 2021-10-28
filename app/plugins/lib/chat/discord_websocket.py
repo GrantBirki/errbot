@@ -5,7 +5,8 @@ import websocket
 import requests
 import os
 
-TOKEN = os.environ['CHAT_SERVICE_TOKEN']
+TOKEN = os.environ["CHAT_SERVICE_TOKEN"]
+
 
 class DiscordWebSocket:
     def __init__(self):
@@ -25,7 +26,7 @@ class DiscordWebSocket:
         self.invalid_session = 9
         self.hello_op = 10
         self.heartbeat_ack = 11
-        self.closed = False # call self.close = True to close the websocket
+        self.closed = False  # call self.close = True to close the websocket
         self.auth = {
             "token": TOKEN,
             "properties": {"$os": "linux", "$browser": "python", "$device": "errbot"},
@@ -59,9 +60,11 @@ class DiscordWebSocket:
         gateway = requests.get(
             "https://discord.com/api/gateway/bot", headers=headers
         ).json()
-        
+
         # Connect to the gateway
-        self.websocket = websocket.create_connection(f"{gateway['url']}/?v=9&encoding=json")
+        self.websocket = websocket.create_connection(
+            f"{gateway['url']}/?v=9&encoding=json"
+        )
 
         # Run the gateway hello
         self.hello()
@@ -112,7 +115,7 @@ class DiscordWebSocket:
                 break
 
             # Use rapid sleeps to rip through the loop checking for self.closed
-            time.sleep(.25)
+            time.sleep(0.25)
             end_time = time.time()
 
             # If the elapsed time is greater than the interval we send a heartbeat
