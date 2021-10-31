@@ -53,6 +53,18 @@ class RememberTable(Model):
     rem_value = UnicodeAttribute()
 
 
+class LoudTable(Model):
+    class Meta:
+        table_name = "loud"
+        region = "us-west-2"
+        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
+        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+
+    discord_server_id = NumberAttribute(hash_key=True)
+    discord_handle = UnicodeAttribute(range_key=True)
+    last_used = UnicodeAttribute()
+
+
 class Dynamo:
     def write(self, object):
         """
