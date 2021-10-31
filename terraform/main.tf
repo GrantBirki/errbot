@@ -48,7 +48,7 @@ module "dynamodb_table_loud" {
 
   name                           = "loud"
   hash_key                       = "discord_server_id"
-  range_key                      = "last_used"
+  range_key                      = "discord_handle"
   billing_mode                   = "PAY_PER_REQUEST"
   point_in_time_recovery_enabled = true
 
@@ -58,9 +58,9 @@ module "dynamodb_table_loud" {
       type = "N"
     },
     {
-      name = "last_used"
+      name = "discord_handle"
       type = "S"
-    }
+    },
   ]
 
   tags = {

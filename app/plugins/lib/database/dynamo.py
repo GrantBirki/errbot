@@ -52,6 +52,7 @@ class RememberTable(Model):
     rem_key = UnicodeAttribute(range_key=True)
     rem_value = UnicodeAttribute()
 
+
 class LoudTable(Model):
     class Meta:
         table_name = "loud"
@@ -60,8 +61,9 @@ class LoudTable(Model):
         aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
 
     discord_server_id = NumberAttribute(hash_key=True)
-    last_used = UnicodeAttribute(range_key=True)
-    last_used_value = UnicodeAttribute()
+    discord_handle = UnicodeAttribute(range_key=True)
+    last_used = UnicodeAttribute()
+
 
 class Dynamo:
     def write(self, object):
