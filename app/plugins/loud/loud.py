@@ -1,15 +1,18 @@
-from errbot import BotPlugin, botcmd, arg_botcmd
+import os
+import random
 
-from lib.chat.discord_custom import DiscordCustom
-from lib.database.dynamo import Dynamo, LoudTable
+from errbot import BotPlugin, arg_botcmd, botcmd
 from lib.chat.discord import Discord
+from lib.chat.discord_custom import DiscordCustom
+from lib.common.utilities import Util
+from lib.database.dynamo import Dynamo, LoudTable
 
 dynamo = Dynamo()
 discord = Discord()
-
-import os, random
+util = Util()
 
 PATH = "plugins/loud/sounds"
+COOLDOWN = 1  # Days
 
 
 class Load(BotPlugin):
@@ -22,59 +25,76 @@ class Load(BotPlugin):
         Play an audio file from the sounds folder in a given channel
         """
 
-        yield f"📢 LOUD Playing: `{sound}`"
+        if self.check_updated_at(msg):
 
-        dc = DiscordCustom(self._bot)
-        dc.play_audio_file(channel, f"{PATH}/{sound}")
+            yield f"📢 LOUD Playing: `{sound}`"
+
+            dc = DiscordCustom(self._bot)
+            dc.play_audio_file(channel, f"{PATH}/{sound}")
+        else:
+            yield "Not playing sound! You can only use this command once per day"
 
     @arg_botcmd("--channel", dest="channel", type=int, default=None)
-    def random_audio(self, msg, channel=None):
+    def random_loud(self, msg, channel=None):
         """
         Play a random audio file from the sounds folder in a given channel
         """
 
         sound = random.choice(os.listdir("plugins/audio/sounds"))
 
-        yield f"📢 LOUD Playing Random Sound: `{sound}`"
+        if self.check_updated_at(msg):
 
-        dc = DiscordCustom(self._bot)
-        dc.play_audio_file(channel, f"{PATH}/{sound}")
+            yield f"📢 LOUD Playing Random Sound: `{sound}`"
 
-    def check_last_used(self, msg):
+            dc = DiscordCustom(self._bot)
+            dc.play_audio_file(channel, f"{PATH}/{sound}")
+        else:
+            yield "Not playing sound! You can only use this command once per day"
+
+    def check_timestamp(self, timestamp):
+        """
+        Checks if the timestamp is within the cool down period
+        :return: False if the timestamp is within the cool down period, True if not
+        """
+        timestamp = util.parse_iso_timestamp(timestamp)
+        return util.is_timestamp_older_than_n_days(timestamp, COOLDOWN)
+
+    def check_updated_at(self, msg):
         """
         Checks when the 'loud' command was last used for cool down timers
+        :return: True if the command was used recently, False if not
         """
 
         guild_id = discord.guild_id(msg)
+        handle = discord.handle(msg)
 
         # If the message matches the regex, create the key and value if it is not already in the database
         # Try to get the record to see if it exists
-        record = dynamo.get(LoudTable, guild_id, result["key"])
+        record = dynamo.get(LoudTable, guild_id, handle)
         if record:
-            message = f"I am already remembering something for `{result['key']}`:"
-            message += f"> Use `.forget {result['key']}` to forget it"
-            message += str(record.rem_value)
-            return "\n".join(message)
+            if self.check_timestamp(record.updated_at):
+                # Update record with new timestamp
+                dynamo.update(
+                    table=LoudTable,
+                    record=record,
+                    fields_to_update=[],  # no items to update as the update method changes the timestamp
+                )
+
+                return True
+            else:
+                return False
         else:
             # Write the record if it does not exist
             new_record = dynamo.write(
                 LoudTable(
                     discord_server_id=guild_id,
-                    rem_key=result["key"],
-                    rem_value=result["value"],
+                    discord_handle=handle,
+                    updated_at=util.iso_timestamp(),
                 )
             )
             if new_record:
-                return f"✅ Ok {discord.mention_user(msg)}, I'll remember `{result['key']}` for you"
+                # Return true as the record was created for a first time user
+                return True
             else:
-                return f"❌ I couldn't write to the database, sorry {discord.mention_user(msg)}"
-
-        # If there was a match, we need to check if the record exists
-        record = dynamo.get(RememberTable, guild_id, args)
-
-        # If the record exists, return the value
-        if record:
-            return str(record.rem_value)
-        else:
-            return f"🤔 I couldn't remember anything for `{args}`"
-
+                # Failed to write to the DB so we will let the user play the sound
+                return False
