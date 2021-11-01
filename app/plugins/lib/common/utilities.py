@@ -1,5 +1,5 @@
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 import urllib.parse
 
 
@@ -12,7 +12,27 @@ class Util:
         """
         Return a ISO formatted timestamp of the current time
         """
-        return datetime.now().replace(microsecond=0).isoformat()
+        return datetime.utcnow().replace(microsecond=0).isoformat()
+
+    def parse_iso_timestamp(self, timestamp):
+        """
+        Parse a ISO formatted timestamp and return a datetime object
+        Used in conjunction with iso_timestamp()
+        """
+        return datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+
+    def is_timestamp_older_than_n_days(self, timestamp, days):
+        """
+        Given a timestamp and N days, check the timestamp
+        :return: True if timestamp is older than N days, False otherwise
+        """
+        expiration = datetime.utcnow() - timedelta(days=days)
+
+        if timestamp < expiration:
+            return True
+
+        else:
+            return False
 
     def sha256(self, data):
         """
