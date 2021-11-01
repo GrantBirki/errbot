@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import sys
 import traceback
 
 import requests
@@ -54,9 +55,16 @@ class League(BotPlugin):
 
         Note: the self.start_polling() function will wait for the first cron job to finish before starting the next one
         """
-        interval = 60
-        super().activate()
-        self.start_poller(interval, self.last_match_cron)
+
+        enabled = os.environ.get("LOCAL_DISABLE_LEAGUE_CRON", False)
+
+        if not enabled:
+            interval = 60
+            super().activate()
+            self.start_poller(interval, self.last_match_cron)
+        else:
+            print("League cron disabled for local testing")
+            sys.stdout.flush()
 
     def last_match_cron_main(self, item):
         # Gets the last match data
@@ -125,7 +133,7 @@ class League(BotPlugin):
             update_result = dynamo.update(
                 table=LeagueTable,
                 record=get_result,
-                records_to_update=[
+                fields_to_update=[
                     LeagueTable.last_match_sha256.set(current_matches_sha256),
                     LeagueTable.win_streak.set(win_streak),
                     LeagueTable.loss_streak.set(loss_streak),
