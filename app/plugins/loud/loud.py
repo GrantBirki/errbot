@@ -40,7 +40,7 @@ class Load(BotPlugin):
         Play a random audio file from the sounds folder in a given channel
         """
 
-        sound = random.choice(os.listdir("plugins/audio/sounds"))
+        sound = random.choice(os.listdir(PATH))
 
         if self.check_updated_at(msg):
 
