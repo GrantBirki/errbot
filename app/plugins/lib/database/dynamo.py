@@ -62,7 +62,7 @@ class LoudTable(Model):
 
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
-    last_used = UnicodeAttribute()
+    updated_at = UnicodeAttribute()
 
 
 class Dynamo:
@@ -79,7 +79,7 @@ class Dynamo:
         except:
             return False
 
-    def update(self, table: object, record: object, records_to_update: list):
+    def update(self, table: object, record: object, fields_to_update: list):
         """
         Input an existing database upject and update it in place
 
@@ -90,9 +90,9 @@ class Dynamo:
 
             # Update the timestamp
 
-            records_to_update.append(table.updated_at.set(util.iso_timestamp()))
+            fields_to_update.append(table.updated_at.set(util.iso_timestamp()))
 
-            record.update(actions=records_to_update)
+            record.update(actions=fields_to_update)
             return True
         except DoesNotExist:
             return None

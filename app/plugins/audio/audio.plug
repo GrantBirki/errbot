@@ -1,9 +1,0 @@
-[Core]
-Name = Audio 
-Module = audio 
-
-[Python]
-Version = 2+
-
-[Documentation]
-Description = Audio plugin 
