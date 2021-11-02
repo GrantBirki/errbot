@@ -14,6 +14,11 @@ class CoolDown:
     """
 
     def __init__(self, cooldown_in_seconds, db_table):
+        """
+        To init the cooldown class you need to provide the cooldown and the db table to use
+        :param: cooldown_in_seconds - int - ex: 60
+        :param: db_table - object - ex: LoudTable - The DB table object where dynamodb should read/write the records
+        """
         self.cooldown_in_seconds = cooldown_in_seconds
         self.db_table = db_table
         self.updated_at = datetime
@@ -30,7 +35,7 @@ class CoolDown:
     def check_timestamp(self, timestamp):
         """
         Checks if the timestamp is within the cool down period
-        :return: False if the timestamp is within the cool down period, True if not
+        :return: True if the timestamp is no longer on cool down. False if the timestamp is still on cooldown
         """
         timestamp = util.parse_iso_timestamp(timestamp)
         return util.is_timestamp_older_than_n_seconds(timestamp, self.cooldown_in_seconds)
@@ -49,6 +54,7 @@ class CoolDown:
         record = dynamo.get(self.db_table, guild_id, handle)
         if record:
             if self.check_timestamp(record.updated_at):
+                # If check_timestamp() the user is no longer on cooldown
                 # Update record with new timestamp
                 dynamo.update(
                     table=self.db_table,
@@ -56,10 +62,16 @@ class CoolDown:
                     fields_to_update=[],  # no items to update as the update method changes the timestamp
                 )
 
+                # Update the updated_at variable for the class with the latest updated_at time
                 self.updated_at = record.updated_at
 
+                # Return true to allow the user to use the command
                 return True
+            
+            # The user is still on cooldown
             else:
+                # Set the updated_at value so we have a current version of what the cooldown looks like
+                self.updated_at = record.updated_at
                 return False
         else:
             # Write the record if it does not exist

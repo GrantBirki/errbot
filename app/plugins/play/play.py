@@ -17,6 +17,9 @@ class Play(BotPlugin):
     def play(self, msg, url=None, channel=None):
         """
         Play a youtube video in chat!
+
+        --channel <channel ID> - The full channel id to play the video/audio in
+        --url <url> - The full url of the video/audio to play in chat
         """
 
         allowed = cooldown.check(msg)

@@ -23,6 +23,8 @@ class Load(BotPlugin):
     def loud(self, msg, channel=None, sound=None):
         """
         Play an audio file from the sounds folder in a given channel
+        These are insanely loud sounds which can only be played once per user per day
+        📢📢📢 bye bye ears
         """
 
         allowed = cooldown.check(msg)
