@@ -1,6 +1,6 @@
 import os
 import random
-from app.plugins.lib.common.cooldown import CoolDown
+from lib.common.cooldown import CoolDown
 
 from errbot import BotPlugin, arg_botcmd, botcmd
 from lib.chat.discord import Discord
