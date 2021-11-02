@@ -2,7 +2,7 @@ from errbot import BotPlugin, botcmd, arg_botcmd
 
 from lib.common.youtube_dl_lib import YtdlLib
 from lib.common.cooldown import CoolDown
-from lib.database.dynamo import PlayTable
+from lib.database.dynamo_tables import PlayTable
 
 
 from lib.chat.discord_custom import DiscordCustom
