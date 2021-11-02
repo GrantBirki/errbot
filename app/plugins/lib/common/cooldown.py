@@ -7,6 +7,7 @@ dynamo = Dynamo()
 discord = Discord()
 util = Util()
 
+
 class CoolDown:
     """
     Helper class for checking / setting a cool down for a given user for a given command
@@ -38,7 +39,9 @@ class CoolDown:
         :return: True if the timestamp is no longer on cool down. False if the timestamp is still on cooldown
         """
         timestamp = util.parse_iso_timestamp(timestamp)
-        return util.is_timestamp_older_than_n_seconds(timestamp, self.cooldown_in_seconds)
+        return util.is_timestamp_older_than_n_seconds(
+            timestamp, self.cooldown_in_seconds
+        )
 
     def check(self, msg):
         """
@@ -67,7 +70,7 @@ class CoolDown:
 
                 # Return true to allow the user to use the command
                 return True
-            
+
             # The user is still on cooldown
             else:
                 # Set the updated_at value so we have a current version of what the cooldown looks like
