@@ -1,9 +1,13 @@
 from errbot import BotPlugin, botcmd, arg_botcmd
 
 from lib.common.youtube_dl_lib import YtdlLib
+from lib.common.cooldown import CoolDown
+from lib.database.dynamo import PlayTable
+
 
 from lib.chat.discord_custom import DiscordCustom
 
+cooldown = CoolDown(30, PlayTable)
 
 class Play(BotPlugin):
     """Play plugin for Errbot"""
@@ -15,12 +19,21 @@ class Play(BotPlugin):
         Play a youtube video in chat!
         """
 
-        yield "📁 Download started for requested url... please be patient"
+        allowed = cooldown.check(msg)
 
-        ytdl = YtdlLib()
-        out_file = ytdl.download_audio(url)
+        if allowed:
 
-        yield f"🎵 Playing: `{out_file}`"
+            yield "📁 Download started for requested url... please be patient"
 
-        dc = DiscordCustom(self._bot)
-        dc.play_audio_file(channel, out_file)
+            ytdl = YtdlLib()
+            out_file = ytdl.download_audio(url)
+
+            yield f"🎵 Playing: `{out_file}`"
+
+            dc = DiscordCustom(self._bot)
+            dc.play_audio_file(channel, out_file)
+
+        else:
+            message = "Slow down!\n"
+            message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`"
+            yield message
