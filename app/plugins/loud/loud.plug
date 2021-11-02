@@ -1,0 +1,9 @@
+[Core]
+Name = Loud 
+Module = loud 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Loud plugin 
