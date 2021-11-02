@@ -7,7 +7,7 @@ from lib.chat.discord import Discord
 from lib.chat.discord_custom import DiscordCustom
 from lib.common.utilities import Util
 from lib.common.cooldown import CoolDown
-from lib.database.dynamo import LoudTable
+from lib.database.dynamo_tables import LoudTable
 
 discord = Discord()
 util = Util()

@@ -8,7 +8,8 @@ import requests
 from errbot import BotPlugin, arg_botcmd, botcmd
 from lib.chat.discord import Discord
 from lib.common.utilities import Util
-from lib.database.dynamo import Dynamo, LeagueTable
+from lib.database.dynamo import Dynamo
+from lib.database.dynamo_tables import LeagueTable
 from riotwatcher import ApiError, LolWatcher
 
 LOL_WATCHER = LolWatcher(os.environ["RIOT_TOKEN"], timeout=10)
