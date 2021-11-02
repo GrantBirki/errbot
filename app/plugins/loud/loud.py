@@ -25,14 +25,20 @@ class Load(BotPlugin):
         Play an audio file from the sounds folder in a given channel
         """
 
-        if self.check_updated_at(msg):
+        allowed, timestamp = self.check_updated_at(msg)
+
+        if allowed:
 
             yield f"📢 LOUD Playing: `{sound}`"
 
             dc = DiscordCustom(self._bot)
             dc.play_audio_file(channel, f"{PATH}/{sound}")
         else:
-            yield "Not playing sound! You can only use this command once per day"
+            timestamp = util.parse_iso_timestamp(timestamp)
+            hms = util.when_ready_timestamp(timestamp, COOLDOWN)
+            message = "Not playing sound! You can only use this command once per day\n"
+            message += f"⏲️ Cooldown expires in `{util.fmt_hms(hms)}`"
+            yield message
 
     @arg_botcmd("--channel", dest="channel", type=int, default=None)
     def random_loud(self, msg, channel=None):
@@ -42,14 +48,20 @@ class Load(BotPlugin):
 
         sound = random.choice(os.listdir(PATH))
 
-        if self.check_updated_at(msg):
+        allowed, timestamp = self.check_updated_at(msg)
+
+        if allowed:
 
             yield f"📢 LOUD Playing Random Sound: `{sound}`"
 
             dc = DiscordCustom(self._bot)
             dc.play_audio_file(channel, f"{PATH}/{sound}")
         else:
-            yield "Not playing sound! You can only use this command once per day"
+            timestamp = util.parse_iso_timestamp(timestamp)
+            hms = util.when_ready_timestamp(timestamp, COOLDOWN)
+            message = "Not playing sound! You can only use this command once per day\n"
+            message += f"⏲️ Cooldown expires in `{util.fmt_hms(hms)}`"
+            yield message
 
     def check_timestamp(self, timestamp):
         """
@@ -62,7 +74,8 @@ class Load(BotPlugin):
     def check_updated_at(self, msg):
         """
         Checks when the 'loud' command was last used for cool down timers
-        :return: True if the command was used recently, False if not
+        :return first: True if the command was used recently, False if not
+        :return second: The updated_at timestamp if the command was used recently, None if not
         """
 
         guild_id = discord.guild_id(msg)
@@ -80,21 +93,17 @@ class Load(BotPlugin):
                     fields_to_update=[],  # no items to update as the update method changes the timestamp
                 )
 
-                return True
+                return True, None
             else:
-                return False
+                return False, record.updated_at
         else:
             # Write the record if it does not exist
-            new_record = dynamo.write(
+            dynamo.write(
                 LoudTable(
                     discord_server_id=guild_id,
                     discord_handle=handle,
                     updated_at=util.iso_timestamp(),
                 )
             )
-            if new_record:
-                # Return true as the record was created for a first time user
-                return True
-            else:
-                # Failed to write to the DB so we will let the user play the sound
-                return False
+            # We write the record and let the user play the sound
+            return True, None
