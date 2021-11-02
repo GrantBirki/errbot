@@ -34,6 +34,26 @@ class Util:
         else:
             return False
 
+    def when_ready_timestamp(self, timestamp, days):
+        """
+        Given X days in the future, determine when a timestamp is considered ready
+        :return: a dict with hours_minutes_seconds() like formatting
+        """
+        ready = timestamp + timedelta(days=days)
+        now = datetime.utcnow()
+        delta = ready - now
+        total_seconds = delta.total_seconds()
+        return self.hours_minutes_seconds(total_seconds)
+
+    def fmt_hms(self, hms):
+        """
+        Format a dict of hours, minutes and seconds into a string
+        """
+        hours = int(hms.get("hours", 0))
+        minutes = int(hms.get("minutes", 0))
+        seconds = int(hms.get("seconds", 0))
+        return f"H:{hours} M:{minutes} S:{seconds}"
+
     def sha256(self, data):
         """
         Hash a string and return a SHA256 hash
