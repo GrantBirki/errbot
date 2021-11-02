@@ -9,6 +9,7 @@ from lib.chat.discord_custom import DiscordCustom
 
 cooldown = CoolDown(30, PlayTable)
 
+
 class Play(BotPlugin):
     """Play plugin for Errbot"""
 

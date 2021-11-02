@@ -15,6 +15,7 @@ cooldown = CoolDown(86400, LoudTable)
 
 PATH = "plugins/loud/sounds"
 
+
 class Load(BotPlugin):
     """Loud plugin for Errbot - Plays loud sounds"""
 
