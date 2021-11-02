@@ -34,12 +34,12 @@ class Util:
         else:
             return False
 
-    def when_ready_timestamp(self, timestamp, days):
+    def when_ready_timestamp(self, timestamp, seconds):
         """
-        Given X days in the future, determine when a timestamp is considered ready
+        Given X seconds in the future, determine when a timestamp is considered ready
         :return: a dict with hours_minutes_seconds() like formatting
         """
-        ready = timestamp + timedelta(days=days)
+        ready = timestamp + timedelta(seconds=seconds)
         now = datetime.utcnow()
         delta = ready - now
         total_seconds = delta.total_seconds()
