@@ -1,6 +1,7 @@
 from errbot import BotPlugin, botcmd
 import re
-from lib.database.dynamo import Dynamo, RememberTable
+from lib.database.dynamo import Dynamo
+from lib.database.dynamo_tables import RememberTable
 from lib.chat.discord import Discord
 
 dynamo = Dynamo()
