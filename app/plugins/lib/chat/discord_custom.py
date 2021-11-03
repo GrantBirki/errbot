@@ -1,21 +1,73 @@
 import asyncio
+import subprocess
+import time
 import discord
+import os
 
 
 class DiscordCustom:
     def __init__(self, bot):
         self.bot = bot
 
-    def play_audio_file(self, channel, file):
+    def play_audio_file(self, channel_id, file):
+        """
+        Play an audio file from disk in a Discord voice channel
+        :param channel: the voice channel to play the file in (id)
+        :param file: the file to play (path)
+        """
 
+        # First we get the file duration so we can kick the bot once its done playing
+        file_duration = self.get_audio_file_duration(file)
+
+        # Then we run the runner in a new thread
         asyncio.run_coroutine_threadsafe(
-            self.__play_audio_file_runner(channel, file),
+            self.__play_audio_file_runner(channel_id, file, file_duration),
             loop=self.bot.client.loop,
         )
 
-    async def __play_audio_file_runner(self, channel, file):
+        # Sleep for a little longer than the duration of the audio file, then delete it
+        time.sleep(file_duration + 5)
+        if os.path.exists(file):
+            os.remove(file)
 
-        channel = self.bot.client.get_channel(channel)
+    def get_audio_file_duration(self, file):
+        """
+        Get's the audio file duration in seconds as a float
+        :return: the duration of the file in seconds (float)
+        """
+
+        # Use native FFMPEG to get the duration of the file
+        process = subprocess.Popen(
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                file,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        stdout, _ = process.communicate()
+        return float(stdout)
+
+    async def __play_audio_file_runner(self, channel_id, file, file_duration):
+        """
+        A disgusting function to connect to a Discord voice channel and play an audio file. Disconnects once the file is done playing (we hope)
+        """
+
+        # Get the channel object from the ID
+        channel = self.bot.client.get_channel(channel_id)
+        # Connect to the channel
         vc = await channel.connect()
-        await vc.play(discord.FFmpegPCMAudio(file))
-        await channel.disconnect()
+
+        # Play the file
+        vc.play(discord.FFmpegPCMAudio(file), after=vc.stop())
+
+        # Sleep and block the thread for the duration of the audio file
+        await asyncio.sleep(file_duration + 0.75)
+        # Disconnect from the channel
+        await vc.disconnect()
