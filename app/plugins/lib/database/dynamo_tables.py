@@ -63,6 +63,7 @@ class PlayTable(Model):
     discord_handle = UnicodeAttribute(range_key=True)
     updated_at = UnicodeAttribute()
 
+
 class TtsTable(Model):
     class Meta:
         table_name = "tts"
