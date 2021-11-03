@@ -62,3 +62,15 @@ class PlayTable(Model):
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
     updated_at = UnicodeAttribute()
+
+
+class TtsTable(Model):
+    class Meta:
+        table_name = "tts"
+        region = "us-west-2"
+        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
+        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+
+    discord_server_id = NumberAttribute(hash_key=True)
+    discord_handle = UnicodeAttribute(range_key=True)
+    updated_at = UnicodeAttribute()
