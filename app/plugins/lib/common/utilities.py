@@ -21,12 +21,12 @@ class Util:
         """
         return datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
 
-    def is_timestamp_older_than_n_days(self, timestamp, days):
+    def is_timestamp_older_than_n_seconds(self, timestamp, seconds):
         """
-        Given a timestamp and N days, check the timestamp
-        :return: True if timestamp is older than N days, False otherwise
+        Given a timestamp and N seconds, check the timestamp
+        :return: True if timestamp is older than N seconds, False otherwise
         """
-        expiration = datetime.utcnow() - timedelta(days=days)
+        expiration = datetime.utcnow() - timedelta(seconds=seconds)
 
         if timestamp < expiration:
             return True
@@ -34,12 +34,12 @@ class Util:
         else:
             return False
 
-    def when_ready_timestamp(self, timestamp, days):
+    def when_ready_timestamp(self, timestamp, seconds):
         """
-        Given X days in the future, determine when a timestamp is considered ready
+        Given X seconds in the future, determine when a timestamp is considered ready
         :return: a dict with hours_minutes_seconds() like formatting
         """
-        ready = timestamp + timedelta(days=days)
+        ready = timestamp + timedelta(seconds=seconds)
         now = datetime.utcnow()
         delta = ready - now
         total_seconds = delta.total_seconds()
