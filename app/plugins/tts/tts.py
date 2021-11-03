@@ -5,7 +5,7 @@ from lib.common.cooldown import CoolDown
 from lib.database.dynamo_tables import TtsTable
 from lib.chat.discord_custom import DiscordCustom
 
-cooldown = CoolDown(15, TtsTable)
+cooldown = CoolDown(3, TtsTable)
 
 
 class Tts(BotPlugin):
