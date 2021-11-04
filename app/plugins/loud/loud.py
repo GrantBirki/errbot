@@ -11,7 +11,7 @@ from lib.database.dynamo_tables import LoudTable
 
 discord = Discord()
 util = Util()
-cooldown = CoolDown(86400, LoudTable)
+cooldown = CoolDown(21600, LoudTable)
 
 PATH = "plugins/loud/sounds"
 
@@ -35,7 +35,7 @@ class Load(BotPlugin):
             yield f"📢 LOUD Playing: `{sound}`"
 
             dc = DiscordCustom(self._bot)
-            dc.play_audio_file(channel, f"{PATH}/{sound}")
+            dc.play_audio_file(channel, f"{PATH}/{sound}", preserve_file=True)
         else:
             message = "Not playing sound! You can only use this command once per day\n"
             message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`"
@@ -56,7 +56,7 @@ class Load(BotPlugin):
             yield f"📢 LOUD Playing Random Sound: `{sound}`"
 
             dc = DiscordCustom(self._bot)
-            dc.play_audio_file(channel, f"{PATH}/{sound}")
+            dc.play_audio_file(channel, f"{PATH}/{sound}", preserve_file=True)
         else:
             message = "Not playing sound! You can only use this command once per day\n"
             message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`"
