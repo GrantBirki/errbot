@@ -9,7 +9,7 @@ class DiscordCustom:
     def __init__(self, bot):
         self.bot = bot
 
-    def play_audio_file(self, channel_id, file):
+    def play_audio_file(self, channel_id, file, preserve_file=False):
         """
         Play an audio file from disk in a Discord voice channel
         :param channel: the voice channel to play the file in (id)
@@ -26,9 +26,10 @@ class DiscordCustom:
         )
 
         # Sleep for a little longer than the duration of the audio file, then delete it
-        time.sleep(file_duration + 5)
-        if os.path.exists(file):
-            os.remove(file)
+        if not preserve_file:
+            time.sleep(file_duration + 5)
+            if os.path.exists(file):
+                os.remove(file)
 
     def get_audio_file_duration(self, file):
         """
