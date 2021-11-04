@@ -19,6 +19,9 @@ youtube-dl==2021.6.6
 # text to speech
 gTTS==2.2.3
 
+# validators
+validators==0.18.2
+
 ########## DISABLED ##########
 
 # Azure
