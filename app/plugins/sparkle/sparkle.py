@@ -7,7 +7,7 @@ from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import SparkleTable
 from lib.common.utilities import Util
 
-cooldown = CoolDown(5, SparkleTable)
+cooldown = CoolDown(2, SparkleTable)
 discord = Discord()
 dynamo = Dynamo()
 util = Util()
