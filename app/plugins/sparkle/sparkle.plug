@@ -1,0 +1,9 @@
+[Core]
+Name = Sparkle 
+Module = sparkle 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Sparkle plugin 
