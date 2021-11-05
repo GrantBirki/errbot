@@ -124,6 +124,7 @@ class Sparkle(BotPlugin):
                         return f"❌ {discord.mention_user(msg)} I failed to update the database with your `.sparkle` command"
 
             else:
+                # Create the record with a sparkle_reason
                 if result["sparkle_reason"] is not None:
                     # Write the record if it does not exist
                     new_record = dynamo.write(
@@ -135,12 +136,15 @@ class Sparkle(BotPlugin):
                             updated_at=util.iso_timestamp(),
                         )
                     )
+
+                # Create the record with no sparkle reason
                 else:
                     new_record = dynamo.write(
                         SparkleTable(
                             discord_server_id=guild_id,
                             discord_handle=result["handle"],
                             total_sparkles=1,
+                            sparkle_reasons="",
                             updated_at=util.iso_timestamp(),
                         )
                     )
