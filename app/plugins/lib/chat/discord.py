@@ -1,3 +1,5 @@
+import re
+
 COLORS = {
     "red": "#FF0000",
     "green": "#008000",
@@ -55,5 +57,11 @@ class Discord:
         The user ID is an integer
         Example: 12345678909876543
         """
-
-        return msg.frm.__dict__["_user_id"]
+        try:
+            return int(msg.frm.__dict__["_user_id"])
+        except:
+            pattern = r"^<\D+(\d+)>$"
+            match = re.search(pattern, msg)
+            if not match:
+                raise ValueError("Could not find user ID")
+            return int(match.group(1).strip())
