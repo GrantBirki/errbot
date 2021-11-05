@@ -19,7 +19,7 @@ class Sparkle(BotPlugin):
     @botcmd()
     def sparkle(self, msg, args):
         """
-        Sparkle another Discord user to show your appreciation
+        ✨ Sparkle another Discord user to show your appreciation ✨
 
         Example 1: .sparkle @username for being awesome
         Example 2: .sparkle @username
@@ -44,7 +44,7 @@ class Sparkle(BotPlugin):
             return "Please run this command in a Discord channel, not a DM"
 
         # Users cannot sparkle themselves
-        if discord.handle(msg).lower() == result['handle'].lower():
+        if int(discord.get_user_id(msg)) == int(result['handle']):
             return "You can't sparkle yourself but nice try"
 
         # If no conditions are met then we passed!
@@ -87,10 +87,10 @@ class Sparkle(BotPlugin):
                     # Return the responses to chat depending on if a sparkle_reason was provided or not
                     if result['sparkle_reason'] is not None:
                         # With a sparkle reason
-                        return f"{discord.mention_user(msg)} sparkled {result['handle']} for {result['sparkle_reason']}"
+                        return f"{discord.mention_user(msg)} sparkled {result['handle_full']} for {result['sparkle_reason']}"
                     else:
                         # Without a sparkle reason
-                        return f"{discord.mention_user(msg)} sparkled {result['handle']}"
+                        return f"{discord.mention_user(msg)} sparkled {result['handle_full']}"
                 else:
                     # If the update_result is anything other than True, it failed
                     return f"❌ {discord.mention_user(msg)} I failed to update the database with your `.sparkle` command"
@@ -106,7 +106,7 @@ class Sparkle(BotPlugin):
                 )
                 # If the new record was written successfully, we post a 'first' sparkle message!
                 if new_record:
-                    return f"{result['handle']} just got their first sparkle!!"
+                    return f"{result['handle_full']} just got their first sparkle!!"
                 else:
                     return f"❌ I couldn't write to the database, sorry {discord.mention_user(msg)}"
         else:
@@ -145,4 +145,8 @@ class Sparkle(BotPlugin):
             sparkle_reason = match.group(5).strip()
 
         # return the dict of the handle and sparkle_reason
-        return {"handle": handle, "sparkle_reason": sparkle_reason}
+        return {
+            "handle": str(discord.get_user_id(handle)),
+            "sparkle_reason": sparkle_reason,
+            "handle_full": handle
+        }
