@@ -75,6 +75,7 @@ class TtsTable(Model):
     discord_handle = UnicodeAttribute(range_key=True)
     updated_at = UnicodeAttribute()
 
+
 class SparkleTable(Model):
     class Meta:
         table_name = "sparkle"
