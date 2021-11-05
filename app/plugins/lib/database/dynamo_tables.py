@@ -85,4 +85,5 @@ class SparkleTable(Model):
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
     total_sparkles = NumberAttribute()
+    sparkle_reasons = UnicodeAttribute()
     updated_at = UnicodeAttribute()
