@@ -1,6 +1,8 @@
 import os
 from lib.common.utilities import Util
 from pynamodb.exceptions import DoesNotExist
+from traceback import print_exc
+from sys import stdout
 
 import boto3
 
@@ -27,6 +29,8 @@ class Dynamo:
             object.save()
             return True
         except:
+            print_exc()
+            stdout.flush()
             return False
 
     def update(self, table: object, record: object, fields_to_update: list):
@@ -47,6 +51,8 @@ class Dynamo:
         except DoesNotExist:
             return None
         except:
+            print_exc()
+            stdout.flush()
             return False
 
     def get(self, object, partition_key, sort_key):
@@ -60,6 +66,8 @@ class Dynamo:
         except DoesNotExist:
             return None
         except:
+            print_exc()
+            stdout.flush()
             return False
 
     def delete(self, object):
@@ -72,6 +80,8 @@ class Dynamo:
             object.delete()
             return True
         except:
+            print_exc()
+            stdout.flush()
             return False
 
     def scan(self, table_name, **kwargs):
@@ -96,4 +106,6 @@ class Dynamo:
                 data.extend(response["Items"])
             return data
         except:
+            print_exc()
+            stdout.flush()
             False
