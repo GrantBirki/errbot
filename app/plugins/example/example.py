@@ -30,7 +30,6 @@ class Example(BotPlugin):
         Used for showing message attributes from Discord
         """
         # Displays msg attributes
-
         message = []
         message.append(f"__Checking General Message Info__")
         message.append(f"• `Type of msg`: {type(msg)}")
