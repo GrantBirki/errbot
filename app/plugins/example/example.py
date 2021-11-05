@@ -36,8 +36,12 @@ class Example(BotPlugin):
         message.append(f"• `Type of msg`: {type(msg)}")
         message.append(f"• `msg.__dict__`: {msg.__dict__}")
         message.append(f"• `msg.frm`: {msg.frm}")
-        message.append(f"• `msg.frm.__dict__['_user_id']`: {msg.frm.__dict__['_user_id']}")
-        message.append(f"• `type(msg.frm.__dict__['_user_id'])`: {type(msg.frm.__dict__['_user_id'])}")
+        message.append(
+            f"• `msg.frm.__dict__['_user_id']`: {msg.frm.__dict__['_user_id']}"
+        )
+        message.append(
+            f"• `type(msg.frm.__dict__['_user_id'])`: {type(msg.frm.__dict__['_user_id'])}"
+        )
         message.append(f"• `msg.frm.__dict__`: {msg.frm.__dict__}")
         message.append(
             f'• `msg.frm.__dict__["_channel"]__dict__`: {msg.frm.__dict__["_channel"].__dict__}"'

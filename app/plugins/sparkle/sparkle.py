@@ -14,6 +14,7 @@ util = Util()
 
 MAX_SPARKLE_REASON_LENGTH = 100
 
+
 class Sparkle(BotPlugin):
     """Sparkle plugin for Errbot"""
 
@@ -49,11 +50,11 @@ class Sparkle(BotPlugin):
         if not result:
             return f"❌ {discord.mention_user(msg)} I couldn't properly parse that command with my magic regex"
 
-        if result["sparkle_reason"] is not None and "|" in result['sparkle_reason']:
+        if result["sparkle_reason"] is not None and "|" in result["sparkle_reason"]:
             return f"❌ {discord.mention_user(msg)} The `|` is a reserved character for this command and cannot be used"
 
         # Users cannot sparkle themselves
-        if int(discord.get_user_id(msg)) == int(result['handle']):
+        if int(discord.get_user_id(msg)) == int(result["handle"]):
             return "You can't sparkle yourself but nice try"
 
         # If no conditions are met then we passed!
@@ -79,56 +80,58 @@ class Sparkle(BotPlugin):
         # If the message matches the regex, create the key and value if it is not already in the database
         if result:
             # Try to get the record to see if it exists
-            record = dynamo.get(SparkleTable, guild_id, result['handle'])
+            record = dynamo.get(SparkleTable, guild_id, result["handle"])
 
             # If the record exists, we can run logic to update the record with the new sparkle
             if record:
-                    
-                    # Logic if a sparkle reason is supplied
-                    if result['sparkle_reason'] is not None:
 
-                        # Update the record with a sparkle reason
-                        update_result = dynamo.update(
-                            table=SparkleTable,
-                            record=record,
-                            fields_to_update=[
-                                SparkleTable.total_sparkles.set(record.total_sparkles + 1),
-                                SparkleTable.sparkle_reasons.set(record.sparkle_reasons + f"|{result['sparkle_reason']}")
-                            ],
-                        )
-                        # The update passed
-                        if update_result:
-                            return f"{discord.mention_user(msg)} sparkled {result['handle_full']} for {result['sparkle_reason']} ✨✨**{record.total_sparkles}**✨✨"
-                        else:
-                            # If the update_result is anything other than True, it failed
-                            return f"❌ {discord.mention_user(msg)} I failed to update the database with your `.sparkle` command"
+                # Logic if a sparkle reason is supplied
+                if result["sparkle_reason"] is not None:
 
-                    # Logic if no sparkle reason is supplied
+                    # Update the record with a sparkle reason
+                    update_result = dynamo.update(
+                        table=SparkleTable,
+                        record=record,
+                        fields_to_update=[
+                            SparkleTable.total_sparkles.set(record.total_sparkles + 1),
+                            SparkleTable.sparkle_reasons.set(
+                                record.sparkle_reasons + f"|{result['sparkle_reason']}"
+                            ),
+                        ],
+                    )
+                    # The update passed
+                    if update_result:
+                        return f"{discord.mention_user(msg)} sparkled {result['handle_full']} for {result['sparkle_reason']} ✨✨**{record.total_sparkles}**✨✨"
                     else:
-                        # Update the record with no sparkle reason supplied
-                        update_result = dynamo.update(
-                            table=SparkleTable,
-                            record=record,
-                            fields_to_update=[
-                                SparkleTable.total_sparkles.set(record.total_sparkles + 1)
-                            ],
-                        )
-                        # The update passed
-                        if update_result:
-                            return f"{discord.mention_user(msg)} sparkled {result['handle_full']} ✨✨**{record.total_sparkles}**✨✨" 
-                        else:
-                            # If the update_result is anything other than True, it failed
-                            return f"❌ {discord.mention_user(msg)} I failed to update the database with your `.sparkle` command"
-                                           
+                        # If the update_result is anything other than True, it failed
+                        return f"❌ {discord.mention_user(msg)} I failed to update the database with your `.sparkle` command"
+
+                # Logic if no sparkle reason is supplied
+                else:
+                    # Update the record with no sparkle reason supplied
+                    update_result = dynamo.update(
+                        table=SparkleTable,
+                        record=record,
+                        fields_to_update=[
+                            SparkleTable.total_sparkles.set(record.total_sparkles + 1)
+                        ],
+                    )
+                    # The update passed
+                    if update_result:
+                        return f"{discord.mention_user(msg)} sparkled {result['handle_full']} ✨✨**{record.total_sparkles}**✨✨"
+                    else:
+                        # If the update_result is anything other than True, it failed
+                        return f"❌ {discord.mention_user(msg)} I failed to update the database with your `.sparkle` command"
+
             else:
-                if result['sparkle_reason'] is not None:
+                if result["sparkle_reason"] is not None:
                     # Write the record if it does not exist
                     new_record = dynamo.write(
                         SparkleTable(
                             discord_server_id=guild_id,
-                            discord_handle=result['handle'],
+                            discord_handle=result["handle"],
                             total_sparkles=1,
-                            sparkle_reasons=result['sparkle_reason'],
+                            sparkle_reasons=result["sparkle_reason"],
                             updated_at=util.iso_timestamp(),
                         )
                     )
@@ -136,7 +139,7 @@ class Sparkle(BotPlugin):
                     new_record = dynamo.write(
                         SparkleTable(
                             discord_server_id=guild_id,
-                            discord_handle=result['handle'],
+                            discord_handle=result["handle"],
                             total_sparkles=1,
                             updated_at=util.iso_timestamp(),
                         )
@@ -173,7 +176,7 @@ class Sparkle(BotPlugin):
                 # If there was a match, set the handle and make the sparkle_reason 'None'
                 handle = match.group(3).strip()
                 sparkle_reason = None
-            
+
             # If there is an initial match we have a handle and a sparkle_reason.. yay!
             else:
                 handle = match.group(3).strip()
@@ -189,7 +192,7 @@ class Sparkle(BotPlugin):
             return {
                 "handle": str(discord.get_user_id(handle)),
                 "sparkle_reason": sparkle_reason,
-                "handle_full": handle
+                "handle_full": handle,
             }
         except:
             # If anything goes wrong, return None
