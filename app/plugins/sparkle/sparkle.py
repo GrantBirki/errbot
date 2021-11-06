@@ -26,6 +26,7 @@ class Sparkle(BotPlugin):
         Example 1: .sparkle @username for being awesome
         Example 2: .sparkle @username
         Example 3: .sparkle @username because are the best
+        Note: 100 characters max for the reason
         """
 
         allowed = cooldown.check(msg)
