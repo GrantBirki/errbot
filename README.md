@@ -184,6 +184,8 @@ If you followed the steps above and everything succeeded, you should get a DM fr
 
 Check out the [CONTRIBUTING.md](CONTRIBUTING.md) file in this repo for all the info you will need to develop, test, and deploy!
 
+> Note: The `make command` function exists to easily populate all the file you need to make a new plugin
+
 ---
 
 ## Fork Notice 🍴
@@ -241,6 +243,7 @@ What is in each folder?
 
   - `app/backend/` - Folder containing extra backend modules (Discord)
   - `app/plugins/` - Folder containing all the extra / custom plugins for our chatop commands
+  - `app/plugins/lib/` - Folder containing shared libraries for plugins
 
 What are these files?
 
@@ -262,7 +265,7 @@ Here is a high level overview of this project and the software/infrastruce that 
 - We use Terraform and GitHub actions to deploy the Docker image (from our CI/CD pipeline) to Azure
 - The Docker image runs in a container in Azure and connects to Discord
 - The bot then listens for commands and responds to them
-- For any commands that require some form of "state" we use Azure Cosmos DB to store information since containers are ephemeral by design
+- For any commands that require some form of "state" we use AWS DynamoDB to store information since containers are ephemeral by design
 - We store any configuration or credentials as environment variables which get injected into the container in our CI/CD builds
 
 ---
