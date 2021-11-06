@@ -242,10 +242,11 @@ jobs:
           TF_VAR_AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY }}
         run: terraform apply -auto-approve
 
+      # Send a deployment message to Discord via a webhook
       - name: Discord notification
         if: github.event_name == 'push'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_DEPLOYMENT }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed to production 🚀'
+          args: 'The project `{{ EVENT_PAYLOAD.repository.full_name }}` has been **deployed** to **production** 🚀'
