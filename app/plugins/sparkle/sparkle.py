@@ -85,7 +85,7 @@ class Sparkle(BotPlugin):
                     continue
                 message.append(f"• {sparkle.strip()}")
             message = "\n".join(message)
-            return f"✨✨✨ **Total Sparkles: {record.total_sparkles}**\n{message} ✨✨✨"
+            return f"✨✨✨ **Total Sparkles: {record.total_sparkles}**✨✨✨\n{message}"
 
         # If we got no record, we return a message stating so
         # Note: if a user copies a Discord handle it changes in a weird way so they should always type it out as @username and not try to copy from a previous message
