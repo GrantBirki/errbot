@@ -37,6 +37,58 @@ class Sparkle(BotPlugin):
             message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`"
             return message
 
+    @botcmd()
+    def show_sparkles(self, msg, args):
+        """
+        Show the sparkles a user has received
+
+        Shows the total count of sparkles and the reasons if provided
+
+        Example: show sparkles (see the sparkles for yourself)
+        Example: show sparkles @username (see the sparkles for a user)
+        Example: show sparkles for @username (see the sparkles for a user)
+        """
+
+        # Get the guild_id for the channel where the .sparkle command was run
+        guild_id = discord.guild_id(msg)
+        if not guild_id:
+            return "Please run this command in a Discord channel, not a DM"
+
+        # Format the args
+        args = str(args).strip()
+
+        # If the args is blank, we show the sparkles for the current user
+        if len(args) == 0:
+            handle = str(discord.get_user_id(msg))
+        else:
+            pattern = r"^.*<\D+(\d+)>$"
+            match = re.search(pattern, args)
+            # If no match, check with no reason
+            if not match:
+                return f"❌ {discord.mention_user(msg)} I couldn't properly parse that command with my magic regex"
+            handle = str(match.group(1).strip())
+
+        # Attempt to get the sparkles for the user
+        record = dynamo.get(SparkleTable, guild_id, handle)
+
+        # If we got a record, we can check the contents
+        if record:
+            # If the record contains no sparkle reasons, we return a message stating so but with the count
+            if len(record.sparkle_reasons.strip()) == 0:
+                return f"✨✨✨ **Total Sparkles: {record.total_sparkles}** ✨✨✨\n>No sparkle reasons yet for this user"
+
+            # If the record contains sparkle reasons, we return a message stating so with the count and reasons
+            message = []
+            for sparkle in record.sparkle_reasons.split("|"):
+                message.append(f"• {sparkle.strip()}")
+            message = "\n".join(message)
+            return f"✨✨✨ **Total Sparkles: {record.total_sparkles}**\n{message} ✨✨✨"
+
+        # If we got no record, we return a message stating so
+        # Note: if a user copies a Discord handle it changes in a weird way so they should always type it out as @username and not try to copy from a previous message
+        else:
+            return f"❌ {discord.mention_user(msg)} I couldn't find any matching sparkles for that user. Make sure to type the name and don't copy it because Discord is funky"
+
     def sparkle_check(self, msg, result, guild_id):
         """
         Sanity checks for the .sparkle command
