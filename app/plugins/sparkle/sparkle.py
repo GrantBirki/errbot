@@ -76,11 +76,13 @@ class Sparkle(BotPlugin):
         if record:
             # If the record contains no sparkle reasons, we return a message stating so but with the count
             if len(record.sparkle_reasons.strip()) == 0:
-                return f"✨✨✨ **Total Sparkles: {record.total_sparkles}** ✨✨✨\n>No sparkle reasons yet for this user"
+                return f"✨✨✨ **Total Sparkles: {record.total_sparkles}** ✨✨✨\n> *No sparkle reasons yet for this user*"
 
             # If the record contains sparkle reasons, we return a message stating so with the count and reasons
             message = []
             for sparkle in record.sparkle_reasons.split("|"):
+                if len(sparkle.strip()) == 0:
+                    continue
                 message.append(f"• {sparkle.strip()}")
             message = "\n".join(message)
             return f"✨✨✨ **Total Sparkles: {record.total_sparkles}**\n{message} ✨✨✨"
