@@ -16,6 +16,34 @@ class DiscordCustom:
         """
         return self.bot.client.get_channel(channel_id)
 
+    def get_voice_channel_of_a_user(self, guild_id, user_id):
+        """
+        Helper method to find what voice channel a user is in
+        :param guild_id: the guild ID (int)
+        :param user_id: the user ID (int)
+        :return: a dict with the channel_id and channel_name - if the user is not in a voice channel, return None
+        """
+        # Loops through all the voice channels in the guild
+        for channel in self.get_all_voice_channels(guild_id):
+            # Get all the members in a given voice channel
+            member_ids = self.get_voice_channel_members(channel.id)
+            # If the user_id is in the list of member_ids, return the channel dict
+            if user_id in member_ids:
+                return {
+                    "channel_id": channel.id,
+                    "channel_name": channel.name,
+                }
+        # If no matches are found, the user is not in a voice channel - Return None
+        return None
+
+    def get_all_voice_channels(self, guild_id):
+        """
+        Get's all the voice channels in a guild
+        :return: a list of channels (list)
+        """
+        guild = self.bot.client.get_guild(guild_id)
+        return guild.voice_channels
+
     def get_voice_channel_members(self, channel_id):
         """
         Get's the member IDs of a Discord voice channel
