@@ -13,7 +13,7 @@ from lib.common.utilities import Util
 from lib.common.youtube_dl_lib import YtdlLib
 from lib.database.dynamo_tables import PlayTable
 
-cooldown = CoolDown(10, PlayTable)
+# cooldown = CoolDown(10, PlayTable) # uncomment to enable cooldowl
 util = Util()
 discord = Discord()
 ytdl = YtdlLib()
@@ -52,25 +52,21 @@ class Play(BotPlugin):
         for queue in self.scan_queue_dir():
             # If a queue file is found for a guild/server, read it
             queue_items = self.read_queue(queue)
-            # Loop through all the items in the queue
-            for full_queue in queue_items:
-                # Load the full queue into a dictionary
-                full_queue = json.loads(full_queue)
-                
-                # If the queue is empty, return
-                if len(full_queue) == 0:
-                    return
 
-                # Load the first item in the queue since we are processing songs in FIFO order
-                queue_item = full_queue[0]
+            # If the queue is empty, return
+            if len(queue_items) == 0:
+                return
 
-                # Play the item in the queue
-                out_file = ytdl.download_audio(queue_item['url'])
-                dc = DiscordCustom(self._bot)
-                dc.play_audio_file(queue_item['discord_channel_id'], out_file)
+            # Load the first item in the queue since we are processing songs in FIFO order
+            queue_item = queue_items[0]
 
-                # Remove the item from the queue after it has been played
-                self.delete_from_queue(queue_item['guild_id'], queue_item['song_uuid'])
+            # Play the item in the queue
+            out_file = ytdl.download_audio(queue_item['url'])
+            dc = DiscordCustom(self._bot)
+            dc.play_audio_file(queue_item['discord_channel_id'], out_file)
+
+            # Remove the item from the queue after it has been played
+            self.delete_from_queue(queue_item['guild_id'], queue_item['song_uuid'])
 
     @arg_botcmd("--url", dest="url", type=str, default=None)
     @arg_botcmd("--channel", dest="channel", type=int, default=None)
@@ -89,7 +85,8 @@ class Play(BotPlugin):
             return "❌ I only accept URLs that start with `https://www.youtube.com/`"
 
         # Check the user's cooldown for the .play command
-        allowed = cooldown.check(msg)
+        # allowed = cooldown.check(msg) # uncomment to enable cooldowl
+        allowed = True # comment to enable cooldowl
 
         if allowed:
             # Get all the metadata for a given video from a URL
@@ -124,8 +121,27 @@ class Play(BotPlugin):
         else:
             # A user is trying to play a song too quickly
             message = "Slow down!\n"
-            message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`"
+            # message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`" # uncomment to enable cooldowl
             return message
+
+    @botcmd
+    def play_queue(self, msg, args):
+        """
+        See what is in the .play queue
+        Usage: .play queue
+        """
+        queue_items = self.read_queue(discord.guild_id(msg))
+
+        # If the queue is empty, return
+        if len(queue_items) == 0:
+            return "🎵 No songs in the queue"
+
+        # If the queue is not empty, return the queue items
+        message = "🎵 Songs in the queue:\n"
+        for place, item in enumerate(queue_items):
+            message += f"{place + 1}: `{item['song']}`\n"
+
+        return message
 
     def read_queue(self, guild_id):
         """
@@ -133,14 +149,12 @@ class Play(BotPlugin):
         :param guild_id: The guild/server ID
         :return: A list of queue items - each item is a dictionary
         """
-        with open(f"{QUEUE_PATH}/{guild_id}_queue.json", "r") as queue_file:
-            queue_items = queue_file.readlines()
-
-        queue_list = []
-        for item in queue_items:
-            queue_list.append(json.loads(item.strip()))
-
-        return queue_items
+        try:
+            with open(f"{QUEUE_PATH}/{guild_id}_queue.json", "r") as queue_file:
+                queue_items = json.loads(queue_file.read())
+            return queue_items
+        except FileNotFoundError:
+            return []
 
     def scan_queue_dir(self):
         """
