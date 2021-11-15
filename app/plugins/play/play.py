@@ -78,6 +78,8 @@ class Play(BotPlugin):
         --url <url> - The full url of the video/audio to play in chat
         """
 
+        # Dev Notes: This command always adds files to the queue. The play_cron is responsible for playing all songs
+
         # Run some validation on the URL the user is providing
         if not validators.url(url):
             return "❌ Invalid URL"
@@ -108,6 +110,15 @@ class Play(BotPlugin):
             if not file_ready:
                 return QUEUE_ERROR_MSG
 
+            # Check if there are any files in the queue
+            queue_items = self.read_queue(discord.guild_id(msg))
+            # If the queue is empty, change the response message
+            if len(queue_items) == 0:
+                response_message = f"🎵 Now playing: `{video_metadata['title']}`"
+            # If the queue is not empty, change the response message to 'added'
+            else:
+                response_message = f"🎵 Added to queue: `{video_metadata['title']}`"
+
             # If the queue file is ready, we can add the song to the queue
             result = self.add_to_queue(msg, channel, video_metadata)
 
@@ -116,7 +127,7 @@ class Play(BotPlugin):
                 return QUEUE_ERROR_MSG
 
             # If we got this far, the song has been queue'd and will be picked up and played by the cron
-            return f"🎵 Your song is queued up: `{video_metadata['title']}`"
+            return response_message
 
         else:
             # A user is trying to play a song too quickly
