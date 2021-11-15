@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+import re
 import sys
 import uuid
 
@@ -68,21 +69,29 @@ class Play(BotPlugin):
             # Remove the item from the queue after it has been played
             self.delete_from_queue(queue_item['guild_id'], queue_item['song_uuid'])
 
-    @arg_botcmd("--url", dest="url", type=str, default=None)
-    @arg_botcmd("--channel", dest="channel", type=int, default=None)
-    def play(self, msg, url=None, channel=None):
+    @botcmd
+    def play(self, msg, args):
         """
-        Play a YouTube video in chat!
+        Play the audio from a YouTube video in chat!
 
-        --channel <channel ID> - The full channel id to play the video/audio in
-        --url <url> - The full url of the video/audio to play in chat
+        Usage: .play <youtube url>
+
+        --channel <channel ID> - Optional: The full channel id to play the video/audio in
+        Note: Use the --channel flag if you are not in a voice channel or want to play in a specific channel
         """
 
-        # Dev Notes: This command always adds files to the queue. The play_cron is responsible for playing all songs
+        # Dev Notes: This command always adds files to the queue. The play_cron() is responsible for playing all songs
+
+        # Parse the URL and channel out of the user's input
+        result = self.play_regex(args)
+        if not result:
+            return f"❌ My magic regex failed to parse your command!\n`{msg}`"
+        url = result['url']
+        channel = result['channel']
 
         # Run some validation on the URL the user is providing
         if not validators.url(url):
-            return "❌ Invalid URL"
+            return f"❌ Invalid URL\n{url}"
         if not url.startswith("https://www.youtube.com/"):
             return "❌ I only accept URLs that start with `https://www.youtube.com/`"
 
@@ -118,6 +127,16 @@ class Play(BotPlugin):
             # If the queue is not empty, change the response message to 'added'
             else:
                 response_message = f"🎵 Added to queue: `{video_metadata['title']}`"
+
+            # If the --channel flag was not provided, use the channel the user is in as the .play target channel
+            if channel is None:
+                # Get the current voice channel of the user who invoked the command
+                dc = DiscordCustom(self._bot)
+                channel_dict = dc.get_voice_channel_of_a_user(discord.guild_id(msg), discord.get_user_id(msg))
+                # If the user is not in a voice channel, return a helpful error message
+                if not channel_dict:
+                    return "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
+                channel = channel_dict['channel_id']
 
             # If the queue file is ready, we can add the song to the queue
             result = self.add_to_queue(msg, channel, video_metadata)
@@ -246,3 +265,38 @@ class Play(BotPlugin):
                 queue_file.truncate(0)
                 # Overwrite the file with the new queue data
                 queue_file.write(json.dumps(queue_list))
+
+    def play_regex(self, args):
+        """
+        Helper function - Regex for the .play command
+        Captures the song URL from the message
+        :param msg: The message object
+        :param channel: The --channel flag value
+        :return: the url as a string
+        """
+        # If the --channel flag was used, check for the URL with different regex patterns
+        if "--channel" in args:
+            # First, check if the --channel flag is present at the end of the string
+            pattern = r'^(https:\/\/www\.youtube\.com\/.*)\s--channel\s(\d+)$'
+            match = re.search(pattern, args)
+            # If there is a match, we have the data we need and can return
+            if match:
+                return {"url": match.group(1), "channel": int(match.group(2).strip())}
+
+            # Second, check if the --channel flag is present at the beginning of the string
+            pattern = r'^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*)$'
+            match = re.search(pattern, args)
+            # If there is a match, we have the data we need and can return
+            if match:
+                return {"url": match.group(2), "channel": int(match.group(1).strip())}
+
+        # If the --channel flag was not used, we just look for the URL
+        else:
+            pattern = r'^(https:\/\/www\.youtube\.com\/.*)$'
+            match = re.search(pattern, args)
+            # If a match was found, return the URL
+            if match:
+                return {"url": match.group(1).strip(), "channel": None}
+
+        # If there is still no match, return None
+        return None
