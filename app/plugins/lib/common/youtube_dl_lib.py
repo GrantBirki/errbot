@@ -29,14 +29,19 @@ class YtdlLib:
             dictMeta = ydl.extract_info(url, download=False)
             return dictMeta
 
-    def download_audio(self, url):
+    def download_audio(self, url, file_name=None):
         """
         Downloads an audio file from a given youtube url
         :param url: the full url to the video
+        :param file_name: optional file name to save the file as
         :return: the path to the downloaded audio file
         """
 
-        output_file = f"{self.path}/{uuid.uuid4()}.mp3"
+        # If the file_name was provided, use it, otherwise generate a random one
+        if file_name:
+            output_file = f"{self.path}/{file_name}.mp3"
+        else:
+            output_file = f"{self.path}/{uuid.uuid4()}.mp3"
 
         ydl_opts = {
             "format": "bestaudio/best",
