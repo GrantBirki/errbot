@@ -76,7 +76,7 @@ class DiscordCustom:
 
         # Sleep for a little longer than the duration of the audio file, then delete it
         if not preserve_file:
-            time.sleep(file_duration + 2)
+            time.sleep(file_duration + 1)
             if os.path.exists(file):
                 os.remove(file)
 
