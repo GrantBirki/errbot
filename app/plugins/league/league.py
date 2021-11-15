@@ -56,15 +56,13 @@ class League(BotPlugin):
 
         Note: the self.start_polling() function will wait for the first cron job to finish before starting the next one
         """
-
+        super().activate()
         disabled = os.environ.get("DISABLE_LEAGUE_CRON", False)
-
         if disabled:
             print("League cron disabled for local testing")
             sys.stdout.flush()
         else:
             interval = 60
-            super().activate()
             self.start_poller(interval, self.last_match_cron)
 
     def last_match_cron_main(self, item):
