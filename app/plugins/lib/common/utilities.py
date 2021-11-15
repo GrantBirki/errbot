@@ -1,6 +1,9 @@
 import hashlib
-from datetime import datetime, timedelta
 import urllib.parse
+from datetime import datetime, timedelta
+import time
+
+import psutil
 
 
 class Util:
@@ -81,3 +84,42 @@ class Util:
         url encode a string
         """
         return urllib.parse.quote(string)
+
+    def is_file_open(self, file_path):
+        """
+        Checks if a file is open
+        :return: True if file is open, False if not
+        Note: will return False if file does not exist which is okay
+        Example: is_file_open('test.txt')
+        """
+        for proc in psutil.process_iter():
+            try:
+                flist = proc.open_files()
+                if flist:
+                    for nt in flist:
+                        if file_path in nt.path:
+                            # File is open so we return True
+                            return True
+            except psutil.NoSuchProcess:
+                pass
+            except psutil.AccessDenied:
+                pass
+        # File is either closed or not found so we return False
+        return False
+
+    def check_file_ready(self, file_path, retries=5, sleep_time=.1):
+        """
+        Helper function to check if a file is ready to be opened
+        Use in conjunction with is_file_open()
+        :return: True if file is ready, False if not
+        """
+        for _ in range(retries):
+            if self.is_file_open(file_path):
+                # File is still open so we will sleep
+                time.sleep(sleep_time)
+            else:
+                # The file is not open and ready
+                return True
+
+        # The file was not deemed ready after retries
+        return False
