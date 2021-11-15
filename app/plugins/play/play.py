@@ -38,7 +38,7 @@ class Play(BotPlugin):
             print("Play cron disabled for local testing")
             sys.stdout.flush()
         else:
-            interval = 5
+            interval = 3
             self.start_poller(interval, self.play_cron)
 
     def play_cron(self):
@@ -62,9 +62,8 @@ class Play(BotPlugin):
             queue_item = queue_items[0]
 
             # Play the item in the queue
-            out_file = ytdl.download_audio(queue_item['url'])
             dc = DiscordCustom(self._bot)
-            dc.play_audio_file(queue_item['discord_channel_id'], out_file, file_duration=queue_item['song_duration'])
+            dc.play_audio_file(queue_item['discord_channel_id'], queue_item['file_path'], file_duration=queue_item['song_duration'])
 
             # Remove the item from the queue after it has been played
             self.delete_from_queue(queue_item['guild_id'], queue_item['song_uuid'])
@@ -85,15 +84,18 @@ class Play(BotPlugin):
         # Parse the URL and channel out of the user's input
         result = self.play_regex(args)
         if not result:
-            return f"❌ My magic regex failed to parse your command!\n`{msg}`"
+            yield f"❌ My magic regex failed to parse your command!\n`{msg}`"
+            return
         url = result['url']
         channel = result['channel']
 
         # Run some validation on the URL the user is providing
         if not validators.url(url):
-            return f"❌ Invalid URL\n{url}"
+            yield f"❌ Invalid URL\n{url}"
+            return
         if not url.startswith("https://www.youtube.com/"):
-            return "❌ I only accept URLs that start with `https://www.youtube.com/`"
+            yield "❌ I only accept URLs that start with `https://www.youtube.com/`"
+            return
 
         # Check the user's cooldown for the .play command
         # allowed = cooldown.check(msg) # uncomment to enable cooldowl
@@ -106,18 +108,21 @@ class Play(BotPlugin):
             length = video_metadata['duration']
             # If the length is 0 it is probably a live stream
             if length == 0:
-                return f"❌ Cannot play a live stream from YouTube"
+                yield f"❌ Cannot play a live stream from YouTube"
+                return
 
             # If the video is greater than the configured max length, don't play it
             if length > ytdl.max_length:
-                return f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
+                yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
+                yield
 
             # Check if the queue .json file is read for reads/writes
             file_ready = util.check_file_ready(f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json")
 
             # If it is not ready and open by another process we have to exit
             if not file_ready:
-                return QUEUE_ERROR_MSG
+                yield QUEUE_ERROR_MSG
+                return
 
             # Check if there are any files in the queue
             queue_items = self.read_queue(discord.guild_id(msg))
@@ -135,24 +140,32 @@ class Play(BotPlugin):
                 channel_dict = dc.get_voice_channel_of_a_user(discord.guild_id(msg), discord.get_user_id(msg))
                 # If the user is not in a voice channel, return a helpful error message
                 if not channel_dict:
-                    return "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
+                    yield "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
+                    return
                 channel = channel_dict['channel_id']
 
+            # Pre-Download the file for the queue
+            yield f"⚙ Downloading: `{video_metadata['title']}`"
+            song_uuid = str(uuid.uuid4())           
+            file_path = ytdl.download_audio(url, file_name=song_uuid)
+
             # If the queue file is ready, we can add the song to the queue
-            result = self.add_to_queue(msg, channel, video_metadata)
+            result = self.add_to_queue(msg, channel, video_metadata, file_path, song_uuid)
 
             # If something went wrong, we can't add the song to the queue and send an error message
             if not result:
-                return QUEUE_ERROR_MSG
+                yield QUEUE_ERROR_MSG
 
             # If we got this far, the song has been queue'd and will be picked up and played by the cron
-            return response_message
+            yield response_message
+            return
 
         else:
             # A user is trying to play a song too quickly
             message = "Slow down!\n"
             # message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`" # uncomment to enable cooldowl
-            return message
+            yield message
+            return
 
     @botcmd
     def play_queue(self, msg, args):
@@ -169,7 +182,8 @@ class Play(BotPlugin):
         # If the queue is not empty, return the queue items
         message = "🎵 Songs in the queue:\n"
         for place, item in enumerate(queue_items):
-            message += f"{place + 1}: `{item['song']}`\n"
+            hms = util.hours_minutes_seconds(item['song_duration'])
+            message += f"**{place + 1}:** `{item['song']}` - `h:{hms['hours']} m:{hms['minutes']} s:{hms['seconds']}`\n"
 
         return message
 
@@ -196,7 +210,7 @@ class Play(BotPlugin):
             queue_files.append(int(filepath.strip().replace("_queue.json", "").replace(f"{QUEUE_PATH}/", "")))
         return queue_files
 
-    def add_to_queue(self, msg, channel, video_metadata):
+    def add_to_queue(self, msg, channel, video_metadata, file_name, song_uuid):
         """
         Helper function - Add a song to the .play queue
         """
@@ -207,10 +221,11 @@ class Play(BotPlugin):
             "guild_id": discord.guild_id(msg),
             "user_id": discord.get_user_id(msg),
             "discord_channel_id": channel,
-            "song_uuid": str(uuid.uuid4()),
+            "song_uuid": song_uuid,
             "song": video_metadata['title'],
             "song_duration": video_metadata['duration'],
             "url": video_metadata['webpage_url'],
+            "file_path": file_name
         }
 
         # Check if the queue file exists
