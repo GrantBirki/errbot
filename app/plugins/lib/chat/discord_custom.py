@@ -53,15 +53,20 @@ class DiscordCustom:
         member_ids = channel.voice_states.keys()
         return list(member_ids)
 
-    def play_audio_file(self, channel_id, file, preserve_file=False):
+    def play_audio_file(self, channel_id, file, preserve_file=False, file_duration=None):
         """
         Play an audio file from disk in a Discord voice channel
         :param channel: the voice channel to play the file in (id)
+        :param file_duration: the duration of the file in seconds (int) - Default None will get the duration from youtube-dl
         :param file: the file to play (path)
         """
 
         # First we get the file duration so we can kick the bot once its done playing
-        file_duration = self.get_audio_file_duration(file)
+        if file_duration is None:
+            file_duration = self.get_audio_file_duration(file)
+        # If the file_duration is not None that means it was provided to this function
+        else:
+            file_duration = float(file_duration)
 
         # Then we run the runner in a new thread
         asyncio.run_coroutine_threadsafe(
@@ -71,7 +76,7 @@ class DiscordCustom:
 
         # Sleep for a little longer than the duration of the audio file, then delete it
         if not preserve_file:
-            time.sleep(file_duration + 5)
+            time.sleep(file_duration + 2)
             if os.path.exists(file):
                 os.remove(file)
 

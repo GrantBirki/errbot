@@ -64,7 +64,7 @@ class Play(BotPlugin):
             # Play the item in the queue
             out_file = ytdl.download_audio(queue_item['url'])
             dc = DiscordCustom(self._bot)
-            dc.play_audio_file(queue_item['discord_channel_id'], out_file)
+            dc.play_audio_file(queue_item['discord_channel_id'], out_file, file_duration=queue_item['song_duration'])
 
             # Remove the item from the queue after it has been played
             self.delete_from_queue(queue_item['guild_id'], queue_item['song_uuid'])
