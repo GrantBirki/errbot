@@ -2,6 +2,7 @@ import glob
 import json
 import os
 import sys
+import uuid
 
 import validators
 from errbot import BotPlugin, arg_botcmd, botcmd
@@ -52,13 +53,24 @@ class Play(BotPlugin):
             # If a queue file is found for a guild/server, read it
             queue_items = self.read_queue(queue)
             # Loop through all the items in the queue
-            for item in queue_items:
-                # Load the queue item into a dictionary
-                item = json.loads(item)
+            for full_queue in queue_items:
+                # Load the full queue into a dictionary
+                full_queue = json.loads(full_queue)
+                
+                # If the queue is empty, return
+                if len(full_queue) == 0:
+                    return
 
-                out_file = ytdl.download_audio(item['url'])
+                # Load the first item in the queue since we are processing songs in FIFO order
+                queue_item = full_queue[0]
+
+                # Play the item in the queue
+                out_file = ytdl.download_audio(queue_item['url'])
                 dc = DiscordCustom(self._bot)
-                dc.play_audio_file(item['discord_channel_id'], out_file)
+                dc.play_audio_file(queue_item['discord_channel_id'], out_file)
+
+                # Remove the item from the queue after it has been played
+                self.delete_from_queue(queue_item['guild_id'], queue_item['song_uuid'])
 
     @arg_botcmd("--url", dest="url", type=str, default=None)
     @arg_botcmd("--channel", dest="channel", type=int, default=None)
@@ -144,16 +156,68 @@ class Play(BotPlugin):
         """
         Helper function - Add a song to the .play queue
         """
+
+        queue_path = f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
+
         queue_item = {
             "guild_id": discord.guild_id(msg),
             "user_id": discord.get_user_id(msg),
             "discord_channel_id": channel,
+            "song_uuid": str(uuid.uuid4()),
             "song": video_metadata['title'],
             "song_duration": video_metadata['duration'],
             "url": video_metadata['webpage_url'],
         }
 
-        with open(f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json", "a") as queue_file:
-            queue_file.write(json.dumps(queue_item) + "\n")
+        # Check if the queue file exists
+        file_exists = os.path.exists(queue_path)
+
+        # The the file exists, we read the queue data
+        if file_exists:
+            with open(queue_path, "r+") as queue_file:
+                # Append to the queue with the new queue item
+                queue = json.loads(queue_file.read()) + [queue_item]
+                # Seek to the start of the file and nuke the contents
+                queue_file.seek(0)
+                queue_file.truncate(0)
+                # Overwrite the file with the new queue data
+                queue_file.write(json.dumps(queue))
+        # If the file doesn't exist, we create it and add the queue item
+        else:
+            with open(queue_path, "w") as queue_file:
+                queue_file.write(json.dumps([queue_item]))
 
         return True
+
+    def delete_from_queue(self, guild_id, song_uuid):
+        """
+        Helper function - Delete a song from the .play queue
+        :param guild_id: The guild/server ID of the queue file
+        :param song_uuid: The song UUID to delete
+        """
+        # Compute the queue path
+        queue_path = f"{QUEUE_PATH}/{guild_id}_queue.json"
+        # Check if the queue file exists
+        file_exists = os.path.exists(queue_path)
+
+        # If the file exists, we read the queue data
+        if file_exists:
+            with open(queue_path, "r+") as queue_file:
+                # Read and load the queue data as json
+                queue = json.loads(queue_file.read())
+
+                # Loop through the queue and delete the item with the matching UUID
+                queue_list = []
+                for item in queue:
+                    # If the UUID matches, we skip it (effectively deleting it)
+                    if item["song_uuid"] == song_uuid:
+                        continue
+                    # Add all the other non-matching items to the queue list
+                    else:
+                        queue_list.append(item)
+
+                # Seek to the start of the file and nuke the contents
+                queue_file.seek(0)
+                queue_file.truncate(0)
+                # Overwrite the file with the new queue data
+                queue_file.write(json.dumps(queue_list))
