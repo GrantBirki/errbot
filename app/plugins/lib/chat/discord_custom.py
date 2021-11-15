@@ -9,6 +9,22 @@ class DiscordCustom:
     def __init__(self, bot):
         self.bot = bot
 
+    def get_channel(self, channel_id):
+        """
+        Get's the channel object from the ID
+        :return: the channel object (discord.VoiceChannel)
+        """
+        return self.bot.client.get_channel(channel_id)
+
+    def get_voice_channel_members(self, channel_id):
+        """
+        Get's the member IDs of a Discord voice channel
+        :return: a list of member IDs (list)
+        """
+        channel = self.bot.client.get_channel(channel_id)
+        member_ids = channel.voice_states.keys()
+        return list(member_ids)
+
     def play_audio_file(self, channel_id, file, preserve_file=False):
         """
         Play an audio file from disk in a Discord voice channel
