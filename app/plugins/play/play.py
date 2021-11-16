@@ -21,7 +21,7 @@ ytdl = YtdlLib()
 
 CRON_INTERVAL = 2
 QUEUE_PATH = "plugins/play/queue"
-QUEUE_ERROR_MSG = f"❌ An error occuring writing your request to the `.play` queue!"
+QUEUE_ERROR_MSG = f"❌ An error occurring writing your request to the `.play` queue!"
 
 
 class Play(BotPlugin):
