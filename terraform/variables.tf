@@ -45,6 +45,10 @@ variable "BOT_PREFIX" {
   type = string
 }
 
+variable "BOT_HOME_CHANNEL" {
+  type = string
+}
+
 variable "BOT_ADMINS" {
   type = string
 }
