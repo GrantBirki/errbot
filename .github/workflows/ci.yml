@@ -141,6 +141,7 @@ jobs:
         with:
           azcliversion: 2.0.72
           inlineScript: |
+            az account set --subscription ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
             az container restart --name errbot_prod -g errbot
 
       # Send a deployment message to Discord via a webhook
