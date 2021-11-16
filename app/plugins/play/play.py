@@ -6,7 +6,7 @@ import sys
 import uuid
 
 import validators
-from errbot import BotPlugin, arg_botcmd, botcmd
+from errbot import BotPlugin, botcmd
 from lib.chat.discord import Discord
 from lib.chat.discord_custom import DiscordCustom
 from lib.common.cooldown import CoolDown
@@ -32,9 +32,6 @@ class Play(BotPlugin):
         The core logic for the .play cron (aka running from the queue)
         """
 
-        print('play cron has started')
-        sys.stdout.flush()
-
         # Scans all the .play queue files (checks all guilds/servers)
         for queue in self.scan_queue_dir():
             # If a queue file is found for a guild/server, read it
@@ -48,6 +45,24 @@ class Play(BotPlugin):
 
             # Load the first item in the queue since we are processing songs in FIFO order
             queue_item = queue_items[0]
+
+            hms = util.hours_minutes_seconds(queue_item['song_duration'])
+            message = f"• **Song:** {queue_item['song']}\n"
+            message += f"• **Duration:** {hms['minutes']}:{hms['seconds']}\n"
+            message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
+            
+            try:
+                message += f"> **Next song:** {queue_items[1]['song']}"
+            except IndexError:
+                message += "> **Next song:** None"
+
+            # Send the currently playing song into to the BOT_HOME_CHANNEL
+            self.send_card(
+                to=self.build_identifier(f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"),
+                title=f"🎶 Now Playing:",
+                body=message,
+                color=discord.color("blue"),
+            )
 
             # Play the item in the queue
             dc = DiscordCustom(self._bot)
@@ -119,7 +134,7 @@ class Play(BotPlugin):
                 response_message = f"🎵 Now playing: `{video_metadata['title']}`"
             # If the queue is not empty, change the response message to 'added'
             else:
-                response_message = f"🎵 Added to queue: `{video_metadata['title']}`"
+                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
 
             # If the --channel flag was not provided, use the channel the user is in as the .play target channel
             if channel is None:
@@ -133,7 +148,7 @@ class Play(BotPlugin):
                 channel = channel_dict['channel_id']
 
             # Pre-Download the file for the queue
-            yield f"⚙ Downloading: `{video_metadata['title']}`"
+            yield f"📂 Downloading: `{video_metadata['title']}`"
             song_uuid = str(uuid.uuid4())           
             file_path = ytdl.download_audio(url, file_name=song_uuid)
 
@@ -177,7 +192,7 @@ class Play(BotPlugin):
         message = "🎵 Songs in the queue:\n"
         for place, item in enumerate(queue_items):
             hms = util.hours_minutes_seconds(item['song_duration'])
-            message += f"**{place + 1}:** `{item['song']}` - `h:{hms['hours']} m:{hms['minutes']} s:{hms['seconds']}`\n"
+            message += f"**{place + 1}:** `{item['song']}` - `{hms['minutes']}:{hms['seconds']}` - <@{item['user_id']}>\n"
 
         return message
 
@@ -211,12 +226,19 @@ class Play(BotPlugin):
 
         queue_path = f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
 
+        # Truncate long song titles
+        title_length = 40
+        if len(video_metadata['title']) > title_length:
+            song = video_metadata['title'][:title_length] + "..."
+        else:
+            song = video_metadata['title']
+
         queue_item = {
             "guild_id": discord.guild_id(msg),
             "user_id": discord.get_user_id(msg),
             "discord_channel_id": channel,
             "song_uuid": song_uuid,
-            "song": video_metadata['title'],
+            "song": song,
             "song_duration": video_metadata['duration'],
             "url": video_metadata['webpage_url'],
             "file_path": file_name
