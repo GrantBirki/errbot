@@ -6,8 +6,9 @@ import os
 
 
 class DiscordCustom:
-    def __init__(self, bot):
+    def __init__(self, bot, play_sleep_duration=1):
         self.bot = bot
+        self.play_sleep_duration = play_sleep_duration
 
     def get_channel(self, channel_id):
         """
@@ -53,7 +54,9 @@ class DiscordCustom:
         member_ids = channel.voice_states.keys()
         return list(member_ids)
 
-    def play_audio_file(self, channel_id, file, preserve_file=False, file_duration=None):
+    def play_audio_file(
+        self, channel_id, file, preserve_file=False, file_duration=None
+    ):
         """
         Play an audio file from disk in a Discord voice channel
         :param channel: the voice channel to play the file in (id)
@@ -76,7 +79,7 @@ class DiscordCustom:
 
         # Sleep for a little longer than the duration of the audio file, then delete it
         if not preserve_file:
-            time.sleep(file_duration + 1)
+            time.sleep(file_duration + self.play_sleep_duration)
             if os.path.exists(file):
                 os.remove(file)
 
