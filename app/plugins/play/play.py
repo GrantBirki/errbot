@@ -46,11 +46,11 @@ class Play(BotPlugin):
             # Load the first item in the queue since we are processing songs in FIFO order
             queue_item = queue_items[0]
 
-            hms = util.hours_minutes_seconds(queue_item['song_duration'])
+            hms = util.hours_minutes_seconds(queue_item["song_duration"])
             message = f"• **Song:** {queue_item['song']}\n"
             message += f"• **Duration:** {hms['minutes']}:{hms['seconds']}\n"
             message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
-            
+
             try:
                 message += f"> **Next song:** {queue_items[1]['song']}"
             except IndexError:
@@ -58,7 +58,9 @@ class Play(BotPlugin):
 
             # Send the currently playing song into to the BOT_HOME_CHANNEL
             self.send_card(
-                to=self.build_identifier(f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"),
+                to=self.build_identifier(
+                    f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"
+                ),
                 title=f"🎶 Now Playing:",
                 body=message,
                 color=discord.color("blue"),
@@ -66,10 +68,14 @@ class Play(BotPlugin):
 
             # Play the item in the queue
             dc = DiscordCustom(self._bot)
-            dc.play_audio_file(queue_item['discord_channel_id'], queue_item['file_path'], file_duration=queue_item['song_duration'])
+            dc.play_audio_file(
+                queue_item["discord_channel_id"],
+                queue_item["file_path"],
+                file_duration=queue_item["song_duration"],
+            )
 
             # Remove the item from the queue after it has been played
-            self.delete_from_queue(queue_item['guild_id'], queue_item['song_uuid'])
+            self.delete_from_queue(queue_item["guild_id"], queue_item["song_uuid"])
 
     @botcmd
     def play(self, msg, args):
@@ -89,8 +95,8 @@ class Play(BotPlugin):
         if not result:
             yield f"❌ My magic regex failed to parse your command!\n`{msg}`"
             return
-        url = result['url']
-        channel = result['channel']
+        url = result["url"]
+        channel = result["channel"]
 
         # Run some validation on the URL the user is providing
         if not validators.url(url):
@@ -102,13 +108,13 @@ class Play(BotPlugin):
 
         # Check the user's cooldown for the .play command
         # allowed = cooldown.check(msg) # uncomment to enable cooldowl
-        allowed = True # comment to enable cooldowl
+        allowed = True  # comment to enable cooldowl
 
         if allowed:
             # Get all the metadata for a given video from a URL
             video_metadata = ytdl.video_metadata(url)
 
-            length = video_metadata['duration']
+            length = video_metadata["duration"]
             # If the length is 0 it is probably a live stream
             if length == 0:
                 yield f"❌ Cannot play a live stream from YouTube"
@@ -120,7 +126,9 @@ class Play(BotPlugin):
                 yield
 
             # Check if the queue .json file is read for reads/writes
-            file_ready = util.check_file_ready(f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json")
+            file_ready = util.check_file_ready(
+                f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
+            )
 
             # If it is not ready and open by another process we have to exit
             if not file_ready:
@@ -140,20 +148,24 @@ class Play(BotPlugin):
             if channel is None:
                 # Get the current voice channel of the user who invoked the command
                 dc = DiscordCustom(self._bot)
-                channel_dict = dc.get_voice_channel_of_a_user(discord.guild_id(msg), discord.get_user_id(msg))
+                channel_dict = dc.get_voice_channel_of_a_user(
+                    discord.guild_id(msg), discord.get_user_id(msg)
+                )
                 # If the user is not in a voice channel, return a helpful error message
                 if not channel_dict:
                     yield "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
                     return
-                channel = channel_dict['channel_id']
+                channel = channel_dict["channel_id"]
 
             # Pre-Download the file for the queue
             yield f"📂 Downloading: `{video_metadata['title']}`"
-            song_uuid = str(uuid.uuid4())           
+            song_uuid = str(uuid.uuid4())
             file_path = ytdl.download_audio(url, file_name=song_uuid)
 
             # If the queue file is ready, we can add the song to the queue
-            result = self.add_to_queue(msg, channel, video_metadata, file_path, song_uuid)
+            result = self.add_to_queue(
+                msg, channel, video_metadata, file_path, song_uuid
+            )
 
             # If something went wrong, we can't add the song to the queue and send an error message
             if not result:
@@ -166,7 +178,7 @@ class Play(BotPlugin):
             # Dev note: pollers are isolated to an errbot plugin so it can't affect other plugin cron pollers
             if len(self.current_pollers) == 0:
                 self.start_poller(CRON_INTERVAL, self.play_cron)
-            
+
             return
 
         else:
@@ -191,7 +203,7 @@ class Play(BotPlugin):
         # If the queue is not empty, return the queue items
         message = "🎵 Songs in the queue:\n"
         for place, item in enumerate(queue_items):
-            hms = util.hours_minutes_seconds(item['song_duration'])
+            hms = util.hours_minutes_seconds(item["song_duration"])
             message += f"**{place + 1}:** `{item['song']}` - `{hms['minutes']}:{hms['seconds']}` - <@{item['user_id']}>\n"
 
         return message
@@ -215,8 +227,14 @@ class Play(BotPlugin):
         :return: A list of all the queue files (each item in the list is an int of the guild ID)
         """
         queue_files = []
-        for filepath in glob.iglob(f'{QUEUE_PATH}/*.json'):
-            queue_files.append(int(filepath.strip().replace("_queue.json", "").replace(f"{QUEUE_PATH}/", "")))
+        for filepath in glob.iglob(f"{QUEUE_PATH}/*.json"):
+            queue_files.append(
+                int(
+                    filepath.strip()
+                    .replace("_queue.json", "")
+                    .replace(f"{QUEUE_PATH}/", "")
+                )
+            )
         return queue_files
 
     def add_to_queue(self, msg, channel, video_metadata, file_name, song_uuid):
@@ -228,10 +246,10 @@ class Play(BotPlugin):
 
         # Truncate long song titles
         title_length = 40
-        if len(video_metadata['title']) > title_length:
-            song = video_metadata['title'][:title_length] + "..."
+        if len(video_metadata["title"]) > title_length:
+            song = video_metadata["title"][:title_length] + "..."
         else:
-            song = video_metadata['title']
+            song = video_metadata["title"]
 
         queue_item = {
             "guild_id": discord.guild_id(msg),
@@ -239,9 +257,9 @@ class Play(BotPlugin):
             "discord_channel_id": channel,
             "song_uuid": song_uuid,
             "song": song,
-            "song_duration": video_metadata['duration'],
-            "url": video_metadata['webpage_url'],
-            "file_path": file_name
+            "song_duration": video_metadata["duration"],
+            "url": video_metadata["webpage_url"],
+            "file_path": file_name,
         }
 
         # Check if the queue file exists
@@ -308,14 +326,14 @@ class Play(BotPlugin):
         # If the --channel flag was used, check for the URL with different regex patterns
         if "--channel" in args:
             # First, check if the --channel flag is present at the end of the string
-            pattern = r'^(https:\/\/www\.youtube\.com\/.*)\s--channel\s(\d+)$'
+            pattern = r"^(https:\/\/www\.youtube\.com\/.*)\s--channel\s(\d+)$"
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
                 return {"url": match.group(1), "channel": int(match.group(2).strip())}
 
             # Second, check if the --channel flag is present at the beginning of the string
-            pattern = r'^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*)$'
+            pattern = r"^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*)$"
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
@@ -323,7 +341,7 @@ class Play(BotPlugin):
 
         # If the --channel flag was not used, we just look for the URL
         else:
-            pattern = r'^(https:\/\/www\.youtube\.com\/.*)$'
+            pattern = r"^(https:\/\/www\.youtube\.com\/.*)$"
             match = re.search(pattern, args)
             # If a match was found, return the URL
             if match:
