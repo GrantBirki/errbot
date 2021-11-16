@@ -112,7 +112,7 @@ class Example(BotPlugin):
         #     in_reply_to=msg
         # )
 
-        return "hello world!!"
+        return "hello world!!!"
 
     # @botcmd
     # def longcompute(self, msg, args):
