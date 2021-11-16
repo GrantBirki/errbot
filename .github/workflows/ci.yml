@@ -121,42 +121,10 @@ jobs:
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
           docker run --rm --env-file ../config.env --env-file ../.github/ci/creds-mock.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
-
-  deploy-container:
-    # If there are no changes to Terraform files, we can simply restart the container instance and it will pull the latest image
+  terraform:
     needs: [changes, build]
     if:
-      needs.changes.outputs.app == 'true' && needs.changes.outputs.terraform !=
-      'true' && github.event_name == 'push'
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: azure/login@77f1b2e3fb80c0e8645114159d17008b8a2e475a # pin@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Deploy Container Changes
-        uses: azure/CLI@7378ce2ca3c38b4b063feb7a4cbe384fef978055 # pin@v1
-        with:
-          inlineScript: |
-            az account set --subscription ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
-            az container restart --name errbot_prod -g errbot
-
-      # Send a deployment message to Discord via a webhook
-      - name: Discord notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_DEPLOYMENT }}
-        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9 # pin@0.3.2
-        with:
-          args: "The project `{{ EVENT_PAYLOAD.repository.full_name }}` has been
-            **deployed** to **production** 🚀"
-
-  terraform:
-    # If there is a change to the terraform files, then run the terraform apply
-    # Terraform will fully re-deploy everything and takes much longer that just a container restart
-    needs: [changes, build]
-    if: needs.changes.outputs.terraform == 'true'
+      needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
 
     runs-on: ubuntu-latest
 
