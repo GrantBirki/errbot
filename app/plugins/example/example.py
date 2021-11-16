@@ -179,5 +179,5 @@ class Example(BotPlugin):
     def version(self, msg, args):
         """Get the version (COMMIT_SHA) that this instance of errbot is running"""
         message = f'{os.environ["COMMIT_SHA"]}\n'
-        message += '> Note: This value only gets updated on TF deployments. Not idea'
+        message += "> Note: This value only gets updated on TF deployments. Not idea"
         return message
