@@ -86,7 +86,7 @@ resource "azurerm_container_group" "container_group" {
   ip_address_type     = "Private"
   network_profile_id  = azurerm_network_profile.net_profile.id
   location            = var.azure_location
-  name                = "${var.project_name}_${var.project_env}"
+  name                = "${var.project_name}-${var.project_env}"
   os_type             = "Linux"
   resource_group_name = var.azure_resource_group
   restart_policy      = "Always"
