@@ -173,6 +173,7 @@ jobs:
           TF_VAR_BOT_ADMINS: ${{ secrets.TF_VAR_BOT_ADMINS }}
           TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
           TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
+          TF_VAR_BOT_HOME_CHANNEL: errbot
           TF_VAR_BOT_EXTRA_BACKEND_DIR: ${{ secrets.TF_VAR_BOT_EXTRA_BACKEND_DIR }}
           TF_VAR_COMMIT_SHA: ${{ github.sha }}
           # Creds
@@ -227,6 +228,7 @@ jobs:
           TF_VAR_BOT_ADMINS: ${{ secrets.TF_VAR_BOT_ADMINS }}
           TF_VAR_BACKEND: ${{ secrets.TF_VAR_BACKEND }}
           TF_VAR_BOT_PREFIX: ${{ secrets.TF_VAR_BOT_PREFIX }}
+          TF_VAR_BOT_HOME_CHANNEL: errbot
           TF_VAR_BOT_EXTRA_BACKEND_DIR: ${{ secrets.TF_VAR_BOT_EXTRA_BACKEND_DIR }}
           TF_VAR_COMMIT_SHA: ${{ github.sha }}
           # Creds
