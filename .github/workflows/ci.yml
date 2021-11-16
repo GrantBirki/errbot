@@ -1,48 +1,48 @@
-name: deployment
+name: ci
 
 on:
   push:
     branches:
       - main
   pull_request:
-    branches: [ main ]
+    branches: [main]
   issue_comment:
     types: [created]
 
 jobs:
-
   changes:
     runs-on: ubuntu-latest
     outputs:
       app: ${{ steps.filter.outputs.app }}
       terraform: ${{ steps.filter.outputs.terraform }}
     steps:
-    - uses: actions/checkout@v2
-    - uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          app:
-            - 'app/**'
-          terraform:
-            - 'terraform/**'
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
+      - uses: dorny/paths-filter@b2feaf19c27470162a626bd6fa8438ae5b263721 # pin@v2
+        id: filter
+        with:
+          filters: |
+            app:
+              - 'app/**'
+            terraform:
+              - 'terraform/**'
 
   test:
+    needs: changes
+    if:
+      needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform ==
+      'true'
 
-      needs: changes
-      if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
+    runs-on: ubuntu-latest
 
-      runs-on: ubuntu-latest
-
-      steps:
-      - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
 
       - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@dc73133d4da04e56a135ae2246682783cc7c7cb6 # pin@v2
         with:
           python-version: 3.9
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
         id: cache
         with:
           path: ~/.cache/pip
@@ -64,7 +64,6 @@ jobs:
       #     sudo apt install pylint -y
       #     pylint -E app.py -d E0401 || { echo "Failure! - Python Error Checks Failed - $?" ; exit 1; }
       #     echo "Success! - Python Error Checks Passed"
-
       - name: python vuln check
         working-directory: app
         run: |
@@ -77,22 +76,22 @@ jobs:
           python -mjson.tool plugins/league/responses.json > /dev/null
 
   build:
-
     needs: [changes, test]
-    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
+    if:
+      needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform ==
+      'true'
 
     runs-on: ubuntu-latest
 
     steps:
-
-      - uses: actions/checkout@v2
-      - uses: azure/login@v1
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
+      - uses: azure/login@77f1b2e3fb80c0e8645114159d17008b8a2e475a # pin@v1
         if: github.event_name == 'push'
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: 'ACR Login'
+      - name: "ACR Login"
         if: github.event_name == 'push'
-        uses: azure/docker-login@v1
+        uses: azure/docker-login@81744f9799e7eaa418697cb168452a2882ae844a # pin@v1
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
@@ -101,11 +100,11 @@ jobs:
       # In this step, this action saves a list of existing images,
       # the cache is created without them in the post run.
       # It also restores the cache if it exists.
-      - uses: satackey/action-docker-layer-caching@v0.0.11
+      - uses: satackey/action-docker-layer-caching@46d2c640b1d8ef50d185452ad6fb324e6bd1d052 # pin@v0.0.11
         # Ignore the failure of a step and avoid terminating the job.
         continue-on-error: true
-      
-      - name: 'Build image - ci-test'
+
+      - name: "Build image - ci-test"
         if: github.event_name == 'pull_request'
         working-directory: app
         # run: |
@@ -115,7 +114,7 @@ jobs:
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
           docker run --rm --env-file ../config.env --env-file ../.github/ci/creds-mock.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
 
-      - name: 'Build and Push image - latest'
+      - name: "Build and Push image - latest"
         if: github.event_name == 'push'
         working-directory: app
         run: |
@@ -123,22 +122,52 @@ jobs:
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
           docker run --rm --env-file ../config.env --env-file ../.github/ci/creds-mock.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
 
-  terraform:
-
+  deploy-container:
+    # If there are no changes to Terraform files, we can simply restart the container instance and it will pull the latest image
     needs: [changes, build]
-    if: needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform == 'true'
+    if:
+      needs.changes.outputs.app == 'true' && needs.changes.outputs.terraform !=
+      'true' && github.event_name == 'push'
 
     runs-on: ubuntu-latest
 
     steps:
-
-      - uses: actions/checkout@v2
-
-      - uses: azure/login@v1
+      - uses: azure/login@77f1b2e3fb80c0e8645114159d17008b8a2e475a # pin@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - uses: hashicorp/setup-terraform@v1
+      - name: Deploy Container Changes
+        uses: azure/CLI@7378ce2ca3c38b4b063feb7a4cbe384fef978055 # pin@v1
+        with:
+          azcliversion: 2.0.72
+          inlineScript: |
+            az container restart --name errbot_prod -g errbot
+
+      # Send a deployment message to Discord via a webhook
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_DEPLOYMENT }}
+        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9 # pin@0.3.2
+        with:
+          args: "The project `{{ EVENT_PAYLOAD.repository.full_name }}` has been
+            **deployed** to **production** 🚀"
+
+  terraform:
+    # If there is a change to the terraform files, then run the terraform apply
+    # Terraform will fully re-deploy everything and takes much longer that just a container restart
+    needs: [changes, build]
+    if: needs.changes.outputs.terraform == 'true'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
+
+      - uses: azure/login@77f1b2e3fb80c0e8645114159d17008b8a2e475a # pin@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: hashicorp/setup-terraform@3d8debd658c92063839bc97da5c2427100420dec # pin@v1
         with:
           terraform_version: 1.0.4
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
@@ -190,10 +219,12 @@ jobs:
         run: terraform plan -no-color
         continue-on-error: true
 
-      - uses: actions/github-script@0.9.0
+      - uses: actions/github-script@5d03ada4b0a753e9460b312e61cc4f8fdeacf163 # pin@0.9.0
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+          PLAN: "terraform
+
+            ${{ steps.plan.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -202,13 +233,13 @@ jobs:
             - Terraform Initialization ⚙️: \`${{ steps.init.outcome }}\`
             - Terraform Validation 🤖: ${{ steps.validate.outputs.stdout }}
             - Terraform Plan 📖: \`${{ steps.plan.outcome }}\`
-            
+
             <details><summary><b>Show Plan</b></summary>
-            
+
             \`\`\`${process.env.PLAN}\`\`\`
-            
+
             </details>
-            
+
             > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform\`, Workflow: \`${{ github.workflow }}\``;
               
             github.issues.createComment({
@@ -249,6 +280,7 @@ jobs:
         if: github.event_name == 'push'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_DEPLOYMENT }}
-        uses: Ilshidur/action-discord@0.3.2
+        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9 # pin@0.3.2
         with:
-          args: 'The project `{{ EVENT_PAYLOAD.repository.full_name }}` has been **deployed** to **production** 🚀'
+          args: "The project `{{ EVENT_PAYLOAD.repository.full_name }}` has been
+            **deployed** to **production** 🚀"
