@@ -112,7 +112,7 @@ class Example(BotPlugin):
         #     in_reply_to=msg
         # )
 
-        return "hello world!!!"
+        return "hello world!"
 
     # @botcmd
     # def longcompute(self, msg, args):
@@ -178,6 +178,4 @@ class Example(BotPlugin):
     @botcmd
     def version(self, msg, args):
         """Get the version (COMMIT_SHA) that this instance of errbot is running"""
-        message = f'{os.environ["COMMIT_SHA"]}\n'
-        message += "> Note: This value only gets updated on TF deployments. Not idea"
-        return message
+        return str(os.environ["COMMIT_SHA"])
