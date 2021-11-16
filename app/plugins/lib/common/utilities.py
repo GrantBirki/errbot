@@ -107,7 +107,7 @@ class Util:
         # File is either closed or not found so we return False
         return False
 
-    def check_file_ready(self, file_path, retries=5, sleep_time=.1):
+    def check_file_ready(self, file_path, retries=5, sleep_time=0.1):
         """
         Helper function to check if a file is ready to be opened
         Use in conjunction with is_file_open()
