@@ -22,6 +22,9 @@ gTTS==2.2.3
 # validators
 validators==0.18.2
 
+# psutil
+psutil==5.8.0
+
 ########## DISABLED ##########
 
 # Azure
