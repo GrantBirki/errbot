@@ -19,27 +19,13 @@ util = Util()
 discord = Discord()
 ytdl = YtdlLib()
 
+CRON_INTERVAL = 2
 QUEUE_PATH = "plugins/play/queue"
-
 QUEUE_ERROR_MSG = f"❌ An error occuring writing your request to the `.play` queue!"
 
 
 class Play(BotPlugin):
     """Play plugin for Errbot"""
-
-    def activate(self):
-        """
-        Runs the play_cron() function every interval
-        Note: the self.start_polling() function will wait for the first cron job to finish before starting the next one
-        """
-        super().activate()
-        disabled = os.environ.get("DISABLE_PLAY_CRON", False)
-        if disabled:
-            print("Play cron disabled for local testing")
-            sys.stdout.flush()
-        else:
-            interval = 3
-            self.start_poller(interval, self.play_cron)
 
     def play_cron(self):
         """
@@ -56,6 +42,8 @@ class Play(BotPlugin):
 
             # If the queue is empty, return
             if len(queue_items) == 0:
+                # Stop the poller as well until another .play command invokes it
+                self.stop_poller(self.play_cron)
                 return
 
             # Load the first item in the queue since we are processing songs in FIFO order
@@ -158,6 +146,12 @@ class Play(BotPlugin):
 
             # If we got this far, the song has been queue'd and will be picked up and played by the cron
             yield response_message
+
+            # If a cron poller for self.play_cron is not running, start it
+            # Dev note: pollers are isolated to an errbot plugin so it can't affect other plugin cron pollers
+            if len(self.current_pollers) == 0:
+                self.start_poller(CRON_INTERVAL, self.play_cron)
+            
             return
 
         else:
