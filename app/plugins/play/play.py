@@ -101,7 +101,7 @@ class Play(BotPlugin):
             return
         url = result["url"]
         channel = result["channel"]
-        
+
         # If the user provided a string instead of a raw URL, we search YouTube for the given string
         if result["text_search"]:
             yt_search_result = self.youtube_text_search(result["text_search"])
@@ -111,7 +111,7 @@ class Play(BotPlugin):
             # If a result was not returned, return an error message
             else:
                 yield f"❌ No results found for `{result['text_search']}`"
-                return 
+                return
 
         # Run some validation on the URL the user is providing
         if not validators.url(url):
@@ -337,7 +337,7 @@ class Play(BotPlugin):
         :return: The URL of the first result or None if no results / bad results
         """
         # Search YouTube with a given query and return the first result
-        result = VideosSearch(query, limit = 1)
+        result = VideosSearch(query, limit=1)
         result = result.result()["result"]
 
         # If the search returns no results, return None
@@ -346,7 +346,7 @@ class Play(BotPlugin):
         # If the type of the search is not a video, return None
         if result[0]["type"] != "video":
             return None
-        
+
         # Return the video link/url if present, otherwise return None
         return result[0].get("link", None)
 
@@ -373,14 +373,22 @@ class Play(BotPlugin):
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
-                return {"url": match.group(1), "channel": int(match.group(2).strip()), "text_search": None}
+                return {
+                    "url": match.group(1),
+                    "channel": int(match.group(2).strip()),
+                    "text_search": None,
+                }
 
             # Second, check if the --channel flag is present at the beginning of the string
             pattern = r"^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*)$"
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
-                return {"url": match.group(2), "channel": int(match.group(1).strip()), "text_search": None}
+                return {
+                    "url": match.group(2),
+                    "channel": int(match.group(1).strip()),
+                    "text_search": None,
+                }
 
         # If the --channel flag was not used, we first look for the URL
         else:
@@ -388,7 +396,11 @@ class Play(BotPlugin):
             match = re.search(pattern, args)
             # If a match was found, return the URL
             if match:
-                return {"url": match.group(1).strip(), "channel": None, "text_search": None}
+                return {
+                    "url": match.group(1).strip(),
+                    "channel": None,
+                    "text_search": None,
+                }
             # If no match was found then we assume a text search is taking place
             else:
                 return {"url": None, "channel": None, "text_search": args}
