@@ -12,12 +12,11 @@ class YtdlLib:
         self.path = "plugins/play/audio"
         self.max_length = max_length
 
-    def video_length(self, url):
+    def video_metadata(self, url):
         """
-        Get the length of a video in seconds given a url
-        Does not download the video, only reads the metadata
+        Get all the video metadata for a YouTube URL with youtube_dl
         :param url: the full url to the video
-        :return: the length of the video in seconds (int)
+        :return: a dictionary with all the metadata
         """
         ydl_opts = {
             "format": "bestaudio/best",
@@ -28,16 +27,21 @@ class YtdlLib:
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             dictMeta = ydl.extract_info(url, download=False)
-            return int(dictMeta["duration"])
+            return dictMeta
 
-    def download_audio(self, url):
+    def download_audio(self, url, file_name=None):
         """
         Downloads an audio file from a given youtube url
         :param url: the full url to the video
+        :param file_name: optional file name to save the file as
         :return: the path to the downloaded audio file
         """
 
-        output_file = f"{self.path}/{uuid.uuid4()}.mp3"
+        # If the file_name was provided, use it, otherwise generate a random one
+        if file_name:
+            output_file = f"{self.path}/{file_name}.mp3"
+        else:
+            output_file = f"{self.path}/{uuid.uuid4()}.mp3"
 
         ydl_opts = {
             "format": "bestaudio/best",

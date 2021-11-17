@@ -86,7 +86,7 @@ resource "azurerm_container_group" "container_group" {
   ip_address_type     = "Private"
   network_profile_id  = azurerm_network_profile.net_profile.id
   location            = var.azure_location
-  name                = "${var.project_name}_${var.project_env}"
+  name                = "${var.project_name}-${var.project_env}"
   os_type             = "Linux"
   resource_group_name = var.azure_resource_group
   restart_policy      = "Always"
@@ -104,6 +104,7 @@ resource "azurerm_container_group" "container_group" {
       "RIOT_REGION_V5"        = var.RIOT_REGION_V5
       "BOT_EXTRA_BACKEND_DIR" = var.BOT_EXTRA_BACKEND_DIR
       "BOT_PREFIX"            = var.BOT_PREFIX
+      "BOT_HOME_CHANNEL"      = var.BOT_HOME_CHANNEL
       "BACKEND"               = var.BACKEND
       "COSMOS_ACCOUNT_HOST"   = var.COSMOS_ACCOUNT_HOST
       "COSMOS_DATABASE"       = var.COSMOS_DATABASE
