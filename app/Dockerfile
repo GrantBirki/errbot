@@ -4,7 +4,9 @@ WORKDIR /app
 
 # install dependencies
 RUN apt update -y && apt upgrade -y
+RUN apt install gcc -y
 RUN apt install ffmpeg -y
+RUN apt autoremove -y && apt clean -y
 
 # setup errbot base
 COPY requirements.txt .

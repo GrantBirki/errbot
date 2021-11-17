@@ -38,6 +38,7 @@ module "errbot_container" {
   COMMIT_SHA            = var.COMMIT_SHA
   BACKEND               = var.BACKEND
   BOT_PREFIX            = var.BOT_PREFIX
+  BOT_HOME_CHANNEL      = var.BOT_HOME_CHANNEL
   BOT_ADMINS            = var.BOT_ADMINS
   BOT_EXTRA_BACKEND_DIR = var.BOT_EXTRA_BACKEND_DIR
   RIOT_TOKEN            = var.RIOT_TOKEN
