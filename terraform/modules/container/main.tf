@@ -109,7 +109,6 @@ resource "azurerm_container_group" "container_group" {
       "COSMOS_ACCOUNT_HOST"   = var.COSMOS_ACCOUNT_HOST
       "COSMOS_DATABASE"       = var.COSMOS_DATABASE
       "COSMOS_CONTAINER"      = var.COSMOS_CONTAINER
-      "DISABLE_LEAGUE_CRON"   = "true"
     }
     # image  = "${var.project_name}.azurecr.io/${var.project_name}:${var.project_env}-${var.image_tag}"
     image  = "${var.project_name}.azurecr.io/${var.project_name}:${var.image_tag}"
