@@ -16,6 +16,9 @@ boto3==1.18.29
 # youtube-dl
 youtube-dl==2021.6.6
 
+# youtube string searching
+youtube-search-python==1.5.1
+
 # text to speech
 gTTS==2.2.3
 
