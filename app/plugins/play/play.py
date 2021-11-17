@@ -13,6 +13,7 @@ from lib.common.cooldown import CoolDown
 from lib.common.utilities import Util
 from lib.common.youtube_dl_lib import YtdlLib
 from lib.database.dynamo_tables import PlayTable
+from youtubesearchpython import VideosSearch
 
 # cooldown = CoolDown(10, PlayTable) # uncomment to enable cooldowl
 util = Util()
@@ -92,11 +93,25 @@ class Play(BotPlugin):
 
         # Parse the URL and channel out of the user's input
         result = self.play_regex(args)
-        if not result:
+        if result is None:
             yield f"❌ My magic regex failed to parse your command!\n`{msg}`"
+            return
+        elif result is False:
+            yield f"❌ You must provide the exact URL to a song if you are using the --channel flag"
             return
         url = result["url"]
         channel = result["channel"]
+
+        # If the user provided a string instead of a raw URL, we search YouTube for the given string
+        if result["text_search"]:
+            yt_search_result = self.youtube_text_search(result["text_search"])
+            # If a result was returned, use the returned URL
+            if yt_search_result:
+                url = yt_search_result
+            # If a result was not returned, return an error message
+            else:
+                yield f"❌ No results found for `{result['text_search']}`"
+                return
 
         # Run some validation on the URL the user is providing
         if not validators.url(url):
@@ -315,14 +330,42 @@ class Play(BotPlugin):
                 # Overwrite the file with the new queue data
                 queue_file.write(json.dumps(queue_list))
 
+    def youtube_text_search(self, query):
+        """
+        Helper function - Search for a song on YouTube
+        :param query: The search query (string)
+        :return: The URL of the first result or None if no results / bad results
+        """
+        # Search YouTube with a given query and return the first result
+        result = VideosSearch(query, limit=1)
+        result = result.result()["result"]
+
+        # If the search returns no results, return None
+        if len(result) == 0:
+            return None
+        # If the type of the search is not a video, return None
+        if result[0]["type"] != "video":
+            return None
+
+        # Return the video link/url if present, otherwise return None
+        return result[0].get("link", None)
+
     def play_regex(self, args):
         """
         Helper function - Regex for the .play command
         Captures the song URL from the message
         :param msg: The message object
         :param channel: The --channel flag value
-        :return: the url as a string
+        :return 1: False if --channel was used without an exact URL
+        :return 2: A dict with "url", "channel", and "text_search" values
+        :return 3: None if no other conditions were met
         """
+
+        # Check if the user is attempting a text search with --channel
+        # This could lead to a random song playing so we actively prevent it
+        if "--channel" in args and not "https://www.youtube.com" in args:
+            return False
+
         # If the --channel flag was used, check for the URL with different regex patterns
         if "--channel" in args:
             # First, check if the --channel flag is present at the end of the string
@@ -330,22 +373,37 @@ class Play(BotPlugin):
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
-                return {"url": match.group(1), "channel": int(match.group(2).strip())}
+                return {
+                    "url": match.group(1),
+                    "channel": int(match.group(2).strip()),
+                    "text_search": None,
+                }
 
             # Second, check if the --channel flag is present at the beginning of the string
             pattern = r"^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*)$"
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
-                return {"url": match.group(2), "channel": int(match.group(1).strip())}
+                return {
+                    "url": match.group(2),
+                    "channel": int(match.group(1).strip()),
+                    "text_search": None,
+                }
 
-        # If the --channel flag was not used, we just look for the URL
+        # If the --channel flag was not used, we first look for the URL
         else:
             pattern = r"^(https:\/\/www\.youtube\.com\/.*)$"
             match = re.search(pattern, args)
             # If a match was found, return the URL
             if match:
-                return {"url": match.group(1).strip(), "channel": None}
+                return {
+                    "url": match.group(1).strip(),
+                    "channel": None,
+                    "text_search": None,
+                }
+            # If no match was found then we assume a text search is taking place
+            else:
+                return {"url": None, "channel": None, "text_search": args}
 
         # If there is still no match, return None
         return None
