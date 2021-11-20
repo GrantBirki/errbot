@@ -122,6 +122,8 @@ resource "azurerm_container_group" "container_group" {
       "COSMOS_ACCOUNT_KEY"    = var.COSMOS_ACCOUNT_KEY
       "AWS_ACCESS_KEY_ID"     = var.AWS_ACCESS_KEY_ID
       "AWS_SECRET_ACCESS_KEY" = var.AWS_SECRET_ACCESS_KEY
+      "SPOTIFY_CLIENT_ID"     = var.SPOTIFY_CLIENT_ID
+      "SPOTIFY_CLIENT_SECRET" = var.SPOTIFY_CLIENT_SECRET
     }
 
     ports {
