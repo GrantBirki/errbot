@@ -220,19 +220,6 @@ class Play(BotPlugin):
             yield message
             return
 
-    def spotify_url(self, song):
-        """
-        Get the Spotify URL for a song
-        If a URL is provided, return it as a string
-        If no URL is provided, or it fails, return None
-        """
-        try:
-            results = sp.search(q=song, limit=1)
-            for track in results["tracks"]["items"]:
-                return track["external_urls"]["spotify"]
-        except:
-            return None
-
     @botcmd
     def play_queue(self, msg, args):
         """
@@ -252,6 +239,19 @@ class Play(BotPlugin):
             message += f"**{place + 1}:** `{item['song']}` - `{hms['minutes']}:{hms['seconds']}` - <@{item['user_id']}>\n"
 
         return message
+
+    def spotify_url(self, song):
+        """
+        Get the Spotify URL for a song
+        If a URL is provided, return it as a string
+        If no URL is provided, or it fails, return None
+        """
+        try:
+            results = sp.search(q=song, limit=1)
+            for track in results["tracks"]["items"]:
+                return track["external_urls"]["spotify"]
+        except:
+            return None
 
     def read_queue(self, guild_id):
         """
