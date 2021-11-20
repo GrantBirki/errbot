@@ -1,8 +1,10 @@
 import asyncio
+import os
+import re
 import subprocess
 import time
+
 import discord
-import os
 
 
 class DiscordCustom:
@@ -82,6 +84,74 @@ class DiscordCustom:
             time.sleep(file_duration + self.play_sleep_duration)
             if os.path.exists(file):
                 os.remove(file)
+
+    def voice_channel_regex(self, args):
+        """
+        Helper function - Regex for the cmds that use the --channel param
+        Captures the args from the command args and the value of --channel if used
+        :param args: The args object
+        :return: A dict with "args" and "channel"
+        note: The value of the channel in the dict will either be an INT or None
+        note: The value of the args in the dict will always be a string
+        :return: None if no matches were found at all
+        """
+
+        # If the --channel flag was used, check for the --channel value with different regex patterns
+        if "--channel" in args:
+            # First, check if the --channel flag is present at the end of the string
+            # Note: Args is assumed to be a string with no spaces
+            pattern = r"^(\S+)\s--channel\s(\d+)$"
+            match = re.search(pattern, args)
+            # If there is a match, we have the data we need and can return
+            if match:
+                return {
+                    "args": match.group(1).strip(),
+                    "channel": int(match.group(2).strip())
+                }
+
+            # Second, check if the --channel flag is present at the end of the string
+            # Note: Args in this case is assumed to be wrapped in "" (quotes) and it CAN have spaces
+            pattern = r'^(".*")\s--channel\s(\d+)$'
+            match = re.search(pattern, args)
+            # If there is a match, we have the data we need and can return
+            if match:
+                return {
+                    "args": match.group(1).strip(),
+                    "channel": int(match.group(2).strip())
+                }
+
+
+            # Third, check if the --channel flag is present at the beginning of the string instead of at the end
+            # Note: Args is assumed to be a string with no spaces
+            pattern = r"^--channel\s(\d+)\s(\S+)$"
+            match = re.search(pattern, args)
+            # If there is a match, we have the data we need and can return
+            if match:
+                return {
+                    "args": match.group(2).strip(),
+                    "channel": int(match.group(1).strip())
+                }
+
+            # Fourth, check if the --channel flag is present at the beginning of the string instead of at the end
+            # Note: Args in this case is assumed to be wrapped in "" (quotes) and it CAN have spaces
+            pattern = r'^--channel\s(\d+)\s(".*")$'
+            match = re.search(pattern, args)
+            # If there is a match, we have the data we need and can return
+            if match:
+                return {
+                    "args": match.group(2).strip(),
+                    "channel": int(match.group(1).strip())
+                }
+
+        # If the --channel flag was not used, we return the raw args
+        else:
+            return {
+                "args": args.strip(),
+                "channel": None,
+            }
+
+        # If there is still no match, return None
+        return None
 
     def get_audio_file_duration(self, file):
         """
