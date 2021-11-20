@@ -2,6 +2,7 @@ import os
 import random
 
 from errbot import BotPlugin, botcmd
+from errbot.backends.base import Message
 from lib.chat.discord import Discord
 from lib.chat.discord_custom import DiscordCustom
 from lib.common.cooldown import CoolDown
@@ -66,6 +67,25 @@ class Load(BotPlugin):
             message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`"
             yield message
             return
+
+    @botcmd
+    def loud_list(self, msg, args):
+        """
+        List all the files that are ready to be played with the .loud command
+        """
+        # Get the list of files in the sounds folder
+        files = os.listdir(PATH)
+
+        # If there are no files, return a helpful error message
+        if not files:
+            return "❌ There are no sounds in the sounds folder!"
+
+        # If there are files, return a message of them
+        message = "📢 LOUD Sounds:\n"
+        for file in files:
+            message += f"• `{file}`\n"
+
+        return message
 
     @botcmd
     def loud_random(self, msg, args):
