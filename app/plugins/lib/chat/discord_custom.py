@@ -91,8 +91,8 @@ class DiscordCustom:
         Captures the args from the command args and the value of --channel if used
         :param args: The args object
         :return: A dict with "args" and "channel"
-        note: The value of the channel in the dict will either be an INT or None
-        note: The value of the args in the dict will always be a string
+        note: The value of the channel in the dict will either be an Int or None
+        note: The value of the args in the dict will either be a String or None
         :return: None if no matches were found at all
         """
 
@@ -120,7 +120,6 @@ class DiscordCustom:
                     "channel": int(match.group(2).strip())
                 }
 
-
             # Third, check if the --channel flag is present at the beginning of the string instead of at the end
             # Note: Args is assumed to be a string with no spaces
             pattern = r"^--channel\s(\d+)\s(\S+)$"
@@ -140,6 +139,16 @@ class DiscordCustom:
             if match:
                 return {
                     "args": match.group(2).strip(),
+                    "channel": int(match.group(1).strip())
+                }
+
+            # Fifth, check if the --channel flag is the ONLY thing present in the args
+            pattern = r"^--channel\s(\d+)$"
+            match = re.search(pattern, args)
+            # If there is a match, we have the data we need and can return
+            if match:
+                return {
+                    "args": None,
                     "channel": int(match.group(1).strip())
                 }
 
