@@ -383,9 +383,8 @@ class Play(BotPlugin):
     def play_regex(self, args):
         """
         Helper function - Regex for the .play command
-        Captures the song URL from the message
-        :param msg: The message object
-        :param channel: The --channel flag value
+        Captures the song URL from the command args
+        :param args: The args object
         :return 1: False if --channel was used without an exact URL
         :return 2: A dict with "url", "channel", and "text_search" values
         :return 3: None if no other conditions were met
