@@ -97,3 +97,12 @@ variable "AWS_ACCESS_KEY_ID" {
 variable "AWS_SECRET_ACCESS_KEY" {
   type = string
 }
+
+# Spotify
+variable "SPOTIFY_CLIENT_ID" {
+  type = string
+}
+
+variable "SPOTIFY_CLIENT_SECRET" {
+  type = string
+}
