@@ -19,6 +19,9 @@ youtube-dl==2021.6.6
 # youtube string searching
 youtube-search-python==1.5.1
 
+# spotipy
+spotipy==2.19.0
+
 # text to speech
 gTTS==2.2.3
 

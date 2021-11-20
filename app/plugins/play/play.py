@@ -5,6 +5,7 @@ import re
 import sys
 import uuid
 
+import spotipy
 import validators
 from errbot import BotPlugin, botcmd
 from lib.chat.discord import Discord
@@ -13,12 +14,24 @@ from lib.common.cooldown import CoolDown
 from lib.common.utilities import Util
 from lib.common.youtube_dl_lib import YtdlLib
 from lib.database.dynamo_tables import PlayTable
+from spotipy.oauth2 import SpotifyClientCredentials
 from youtubesearchpython import VideosSearch
 
 # cooldown = CoolDown(10, PlayTable) # uncomment to enable cooldowl
 util = Util()
 discord = Discord()
 ytdl = YtdlLib()
+
+# Try to initialize the Spotify client, if anything fails set sp -> None
+try:
+    sp = spotipy.Spotify(
+        auth_manager=SpotifyClientCredentials(
+            client_id=os.environ["SPOTIFY_CLIENT_ID"],
+            client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
+        )
+    )
+except:
+    sp = None
 
 CRON_INTERVAL = 2
 QUEUE_PATH = "plugins/play/queue"
@@ -51,6 +64,10 @@ class Play(BotPlugin):
             message = f"• **Song:** {queue_item['song']}\n"
             message += f"• **Duration:** {hms['minutes']}:{hms['seconds']}\n"
             message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
+
+            spotify_url = self.spotify_url(queue_item["song"])
+            if spotify_url:
+                message += f"• **Spotify:** {spotify_url}\n"
 
             try:
                 message += f"> **Next song:** {queue_items[1]['song']}"
@@ -202,6 +219,19 @@ class Play(BotPlugin):
             # message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`" # uncomment to enable cooldowl
             yield message
             return
+
+    def spotify_url(self, song):
+        """
+        Get the Spotify URL for a song
+        If a URL is provided, return it as a string
+        If no URL is provided, or it fails, return None
+        """
+        try:
+            results = sp.search(q=song, limit=1)
+            for track in results["tracks"]["items"]:
+                return track["external_urls"]["spotify"]
+        except:
+            return None
 
     @botcmd
     def play_queue(self, msg, args):
