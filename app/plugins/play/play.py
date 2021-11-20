@@ -33,7 +33,7 @@ try:
 except:
     sp = None
 
-CRON_INTERVAL = 2 # seconds
+CRON_INTERVAL = 2  # seconds
 QUEUE_PATH = "plugins/play/queue"
 QUEUE_ERROR_MSG = f"❌ An error occurring writing your request to the `.play` queue!"
 

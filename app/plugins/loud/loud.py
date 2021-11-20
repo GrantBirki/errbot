@@ -2,7 +2,6 @@ import os
 import random
 
 from errbot import BotPlugin, botcmd
-from errbot.backends.base import Message
 from lib.chat.discord import Discord
 from lib.chat.discord_custom import DiscordCustom
 from lib.common.cooldown import CoolDown
@@ -34,30 +33,19 @@ class Load(BotPlugin):
             # Initialize the Discord client
             dc = DiscordCustom(self._bot)
 
-            # Parse the song and channel out of the user's input
-            result = dc.voice_channel_regex(args)
-            if result is None:
-                yield f"❌ My magic regex failed to parse your command!\n`{msg}`"
+            # Use the channel_flag_helper to get the args and channel the user wants to play the sound in
+            result = dc.channel_flag_helper(args, msg)
+            if result["status"] is False:
+                yield result["msg"]
                 return
-            sound = result["args"]
-            channel = result["channel"]
+            else:
+                channel = result["channel"]
+                sound = result["args"]
 
             # Check if the requested file exists
             if not os.path.isfile(f"{PATH}/{sound}"):
                 yield f"❌ I couldn't find the requested sound file!\n`{sound}`"
                 return
-
-            # If the --channel flag was not provided, use the channel the user is in as the .loud target channel
-            if channel is None:
-                # Get the current voice channel of the user who invoked the command
-                channel_dict = dc.get_voice_channel_of_a_user(
-                    discord.guild_id(msg), discord.get_user_id(msg)
-                )
-                # If the user is not in a voice channel, return a helpful error message
-                if not channel_dict:
-                    yield "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
-                    return
-                channel = channel_dict["channel_id"]
 
             yield f"📢 LOUD Playing: `{sound}`"
             dc.play_audio_file(channel, f"{PATH}/{sound}", preserve_file=True)
@@ -100,25 +88,16 @@ class Load(BotPlugin):
             # Initialize the Discord client
             dc = DiscordCustom(self._bot)
 
-            # Parse the song and channel out of the user's input
-            result = dc.voice_channel_regex(args)
-            if result is None:
-                yield f"❌ My magic regex failed to parse your command!\n`{msg}`"
+            # Use the channel_flag_helper to get the channel the user wants to play the sound in
+            result = dc.channel_flag_helper(args, msg)
+            if result["status"] is False:
+                yield result["msg"]
                 return
-            channel = result["channel"]
-            sound = random.choice(os.listdir(PATH))
+            else:
+                channel = result["channel"]
 
-            # If the --channel flag was not provided, use the channel the user is in as the .loud target channel
-            if channel is None:
-                # Get the current voice channel of the user who invoked the command
-                channel_dict = dc.get_voice_channel_of_a_user(
-                    discord.guild_id(msg), discord.get_user_id(msg)
-                )
-                # If the user is not in a voice channel, return a helpful error message
-                if not channel_dict:
-                    yield "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
-                    return
-                channel = channel_dict["channel_id"]
+            # Get the list of files in the sounds folder
+            sound = random.choice(os.listdir(PATH))
 
             yield f"📢 LOUD Playing Random Sound: `{sound}`"
             dc.play_audio_file(channel, f"{PATH}/{sound}", preserve_file=True)
