@@ -15,7 +15,12 @@ util = Util()
 
 
 class DiscordCustom:
-    def __init__(self, bot, play_sleep_duration=1, kill_switch_path="plugins/lib/chat/dc_kill_switches"):
+    def __init__(
+        self,
+        bot,
+        play_sleep_duration=1,
+        kill_switch_path="plugins/lib/chat/dc_kill_switches",
+    ):
         self.bot = bot
         self.play_sleep_duration = play_sleep_duration
         self.kill_switch_path = kill_switch_path
@@ -88,13 +93,20 @@ class DiscordCustom:
         )
 
         # Create the kill switch path to check - a file who's name matches the plugin path of the file to play
-        kill_switch = self.kill_switch_path + "/" + file.split("plugins/")[1].split("/")[0] + ".kill"
+        kill_switch = (
+            self.kill_switch_path
+            + "/"
+            + file.split("plugins/")[1].split("/")[0]
+            + ".kill"
+        )
 
         # Get the current time, and add the file duration to it
         now = util.parse_iso_timestamp(util.iso_timestamp())
         while True:
             # look for a 'kill' file on disk and ensure the file has been playing for a couple of seconds to be properly killed
-            if os.path.isfile(kill_switch) and util.is_timestamp_older_than_n_seconds(now, 3):
+            if os.path.isfile(kill_switch) and util.is_timestamp_older_than_n_seconds(
+                now, 3
+            ):
                 # If the 'kill' file is found, cancel the future and exit the loop
                 future.cancel()
                 # Remove the kill switch file
@@ -102,7 +114,9 @@ class DiscordCustom:
                 break
 
             # If the 'kill' file is not found, check the current time
-            if util.is_timestamp_older_than_n_seconds(now, file_duration + self.play_sleep_duration):
+            if util.is_timestamp_older_than_n_seconds(
+                now, file_duration + self.play_sleep_duration
+            ):
                 # If the current time is greater than the file duration, exit the loop
                 break
 
