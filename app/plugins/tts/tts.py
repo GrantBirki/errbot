@@ -1,4 +1,4 @@
-from errbot import BotPlugin, botcmd, arg_botcmd
+from errbot import BotPlugin, botcmd
 
 from lib.chat.text_to_speech import TextToSpeech
 from lib.common.cooldown import CoolDown
@@ -11,9 +11,8 @@ cooldown = CoolDown(3, TtsTable)
 class Tts(BotPlugin):
     """TTS plugin for Errbot"""
 
-    @arg_botcmd("--text", dest="text", type=str, default=None)
-    @arg_botcmd("--channel", dest="channel", type=int, default=None)
-    def tts(self, msg, text=None, channel=None):
+    @botcmd
+    def tts(self, msg, args):
         """
         Play a TTS message from a string of text
 
@@ -25,6 +24,18 @@ class Tts(BotPlugin):
 
         if allowed:
 
+            # Initialize the Discord client
+            dc = DiscordCustom(self._bot)
+
+            # Use the channel_flag_helper to get the channel the user wants to play the sound in
+            result = dc.channel_flag_helper(args, msg)
+            if result["status"] is False:
+                yield result["msg"]
+                return
+            else:
+                channel = result["channel"]
+                text = result["args"]
+
             yield "⚙ Processing..."
 
             tts = TextToSpeech()
@@ -32,7 +43,6 @@ class Tts(BotPlugin):
 
             yield f"🎵 Playing: `{out_file}`"
 
-            dc = DiscordCustom(self._bot)
             dc.play_audio_file(channel, out_file)
 
         else:

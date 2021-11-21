@@ -2,7 +2,6 @@ import glob
 import json
 import os
 import re
-import sys
 import uuid
 
 import spotipy
@@ -33,7 +32,7 @@ try:
 except:
     sp = None
 
-CRON_INTERVAL = 2
+CRON_INTERVAL = 2  # seconds
 QUEUE_PATH = "plugins/play/queue"
 QUEUE_ERROR_MSG = f"❌ An error occurring writing your request to the `.play` queue!"
 
@@ -220,19 +219,6 @@ class Play(BotPlugin):
             yield message
             return
 
-    def spotify_url(self, song):
-        """
-        Get the Spotify URL for a song
-        If a URL is provided, return it as a string
-        If no URL is provided, or it fails, return None
-        """
-        try:
-            results = sp.search(q=song, limit=1)
-            for track in results["tracks"]["items"]:
-                return track["external_urls"]["spotify"]
-        except:
-            return None
-
     @botcmd
     def play_queue(self, msg, args):
         """
@@ -252,6 +238,19 @@ class Play(BotPlugin):
             message += f"**{place + 1}:** `{item['song']}` - `{hms['minutes']}:{hms['seconds']}` - <@{item['user_id']}>\n"
 
         return message
+
+    def spotify_url(self, song):
+        """
+        Get the Spotify URL for a song
+        If a URL is provided, return it as a string
+        If no URL is provided, or it fails, return None
+        """
+        try:
+            results = sp.search(q=song, limit=1)
+            for track in results["tracks"]["items"]:
+                return track["external_urls"]["spotify"]
+        except:
+            return None
 
     def read_queue(self, guild_id):
         """
@@ -383,9 +382,8 @@ class Play(BotPlugin):
     def play_regex(self, args):
         """
         Helper function - Regex for the .play command
-        Captures the song URL from the message
-        :param msg: The message object
-        :param channel: The --channel flag value
+        Captures the song URL from the command args
+        :param args: The args object
         :return 1: False if --channel was used without an exact URL
         :return 2: A dict with "url", "channel", and "text_search" values
         :return 3: None if no other conditions were met
