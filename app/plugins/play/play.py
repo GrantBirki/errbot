@@ -34,6 +34,7 @@ except:
 
 CRON_INTERVAL = 2  # seconds
 QUEUE_PATH = "plugins/play/queue"
+KILL_SWITCH_PATH = "plugins/lib/chat/dc_kill_switches"
 QUEUE_ERROR_MSG = f"❌ An error occurring writing your request to the `.play` queue!"
 
 
@@ -44,55 +45,58 @@ class Play(BotPlugin):
         """
         The core logic for the .play cron (aka running from the queue)
         """
+        try:
+            # Scans all the .play queue files (checks all guilds/servers)
+            for queue in self.scan_queue_dir():
+                # If a queue file is found for a guild/server, read it
+                queue_items = self.read_queue(queue)
 
-        # Scans all the .play queue files (checks all guilds/servers)
-        for queue in self.scan_queue_dir():
-            # If a queue file is found for a guild/server, read it
-            queue_items = self.read_queue(queue)
+                # If the queue is empty, return
+                if len(queue_items) == 0:
+                    # Stop the poller as well until another .play command invokes it
+                    self.stop_poller(self.play_cron)
+                    return
 
-            # If the queue is empty, return
-            if len(queue_items) == 0:
-                # Stop the poller as well until another .play command invokes it
-                self.stop_poller(self.play_cron)
-                return
+                # Load the first item in the queue since we are processing songs in FIFO order
+                queue_item = queue_items[0]
 
-            # Load the first item in the queue since we are processing songs in FIFO order
-            queue_item = queue_items[0]
+                hms = util.hours_minutes_seconds(queue_item["song_duration"])
+                message = f"• **Song:** {queue_item['song']}\n"
+                message += f"• **Duration:** {hms['minutes']}:{hms['seconds']}\n"
+                message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
 
-            hms = util.hours_minutes_seconds(queue_item["song_duration"])
-            message = f"• **Song:** {queue_item['song']}\n"
-            message += f"• **Duration:** {hms['minutes']}:{hms['seconds']}\n"
-            message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
+                spotify_url = self.spotify_url(queue_item["song"])
+                if spotify_url:
+                    message += f"• **Spotify:** {spotify_url}\n"
 
-            spotify_url = self.spotify_url(queue_item["song"])
-            if spotify_url:
-                message += f"• **Spotify:** {spotify_url}\n"
+                try:
+                    message += f"> **Next song:** {queue_items[1]['song']}"
+                except IndexError:
+                    message += "> **Next song:** None"
 
-            try:
-                message += f"> **Next song:** {queue_items[1]['song']}"
-            except IndexError:
-                message += "> **Next song:** None"
+                # Send the currently playing song into to the BOT_HOME_CHANNEL
+                self.send_card(
+                    to=self.build_identifier(
+                        f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"
+                    ),
+                    title=f"🎶 Now Playing:",
+                    body=message,
+                    color=discord.color("blue"),
+                )
 
-            # Send the currently playing song into to the BOT_HOME_CHANNEL
-            self.send_card(
-                to=self.build_identifier(
-                    f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"
-                ),
-                title=f"🎶 Now Playing:",
-                body=message,
-                color=discord.color("blue"),
-            )
+                # Play the item in the queue
+                dc = DiscordCustom(self._bot)
+                dc.play_audio_file(
+                    queue_item["discord_channel_id"],
+                    queue_item["file_path"],
+                    file_duration=queue_item["song_duration"],
+                )
 
-            # Play the item in the queue
-            dc = DiscordCustom(self._bot)
-            dc.play_audio_file(
-                queue_item["discord_channel_id"],
-                queue_item["file_path"],
-                file_duration=queue_item["song_duration"],
-            )
+                # Remove the item from the queue after it has been played
+                self.delete_from_queue(queue_item["guild_id"], queue_item["song_uuid"])
 
-            # Remove the item from the queue after it has been played
-            self.delete_from_queue(queue_item["guild_id"], queue_item["song_uuid"])
+        except Exception as e:
+            self.log.exception(f"The play_cron() failed! - Error: {e}")
 
     @botcmd
     def play(self, msg, args):
@@ -238,6 +242,78 @@ class Play(BotPlugin):
             message += f"**{place + 1}:** `{item['song']}` - `{hms['minutes']}:{hms['seconds']}` - <@{item['user_id']}>\n"
 
         return message
+
+    @botcmd
+    def stop(self, msg, args):
+        """
+        Stop the current song and removes all songs from the queue
+        Usage: .stop (triggers a command flow for confirmation)
+        Note: This command is kinda ugly but is helpful to full stop the .play queue
+        """
+        if msg.ctx.get("confirmed", None) == True:
+            stopped = False
+            yield "✅ Request confirmed\nStopping playback and removing all songs from the queue"
+
+            # Compute the queue path
+            queue_path = f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
+            # Check if the queue file exists
+            file_exists = os.path.exists(queue_path)
+
+            # Delete the entire queue file if it exists
+            if file_exists:
+                stopped = True
+                os.remove(queue_path)
+
+            # If no poller/cron is running, then Errbot is not playing a song
+            if len(self.current_pollers) == 0:
+                yield "Nothing is currently playing so no kill switch will be created"
+            else:
+                # Use the kill switch to stop the current song
+                with open(f"{KILL_SWITCH_PATH}/play.kill", "w") as _:
+                    pass
+                stopped = True
+
+            if stopped:
+                yield "✅ `.stop` command completed"
+                return
+            else:
+                yield "Nothing to `stop` - OK"
+                return
+
+        if msg.ctx.get("confirmed", None) == False:
+            yield "❌ Request failed confirmation"
+            return
+
+        message = "💡 Running this command will stop the current playback and remove ALL songs from the queue.\n"
+        message += (
+            "To run this command, you need to follow a command flow for confirmation:\n"
+        )
+        message += "1. `.stop`\n2. `.confirm yes`\n3. `.stop` - Needed once more now that you provided confirmation\n"
+        message += "> *Note: If you are looking to skip the current song, run `.skip`*"
+
+        yield message
+        return
+
+    @botcmd
+    def skip(self, msg, args):
+        """
+        Skip the current song in the .play queue
+        Usage: .skip
+        """
+        queue_items = self.read_queue(discord.guild_id(msg))
+        # If the queue is empty, return
+        if len(queue_items) == 0:
+            return "🎵 No songs in the queue - nothing to skip!"
+
+        # If no poller/cron is running, then Errbot is not playing a song
+        if len(self.current_pollers) == 0:
+            return "🎵 I'm not playing anything at the moment - nothing to skip!"
+
+        # If the queue is not empty, and there is a poller/cron - skip the current song via the kill switch file
+        with open(f"{KILL_SWITCH_PATH}/play.kill", "w") as _:
+            pass
+
+        return "⏩ Skipping the current song"
 
     def spotify_url(self, song):
         """
