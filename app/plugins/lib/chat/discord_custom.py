@@ -1,4 +1,5 @@
 import asyncio
+from asyncio.exceptions import CancelledError
 import os
 import re
 import subprocess
@@ -7,14 +8,17 @@ import time
 import discord
 
 from lib.chat.discord import Discord
+from lib.common.utilities import Util
 
 discord_custom = Discord()
+util = Util()
 
 
 class DiscordCustom:
-    def __init__(self, bot, play_sleep_duration=1):
+    def __init__(self, bot, play_sleep_duration=1, kill_switch_path="plugins/lib/chat/dc_kill_switches"):
         self.bot = bot
         self.play_sleep_duration = play_sleep_duration
+        self.kill_switch_path = kill_switch_path
 
     def get_channel(self, channel_id):
         """
@@ -75,17 +79,38 @@ class DiscordCustom:
             file_duration = self.get_audio_file_duration(file)
         # If the file_duration is not None that means it was provided to this function
         else:
-            file_duration = float(file_duration)
+            file_duration = int(file_duration)
 
         # Then we run the runner in a new thread
-        asyncio.run_coroutine_threadsafe(
+        future = asyncio.run_coroutine_threadsafe(
             self.__play_audio_file_runner(channel_id, file, file_duration),
             loop=self.bot.client.loop,
         )
 
-        # Sleep for a little longer than the duration of the audio file, then delete it
+        # Create the kill switch path to check - a file who's name matches the plugin path of the file to play
+        kill_switch = self.kill_switch_path + "/" + file.split("plugins/")[1].split("/")[0] + ".kill"
+
+        # Get the current time, and add the file duration to it
+        now = util.parse_iso_timestamp(util.iso_timestamp())
+        while True:
+            # look for a 'kill' file on disk and ensure the file has been playing for a couple of seconds to be properly killed
+            if os.path.isfile(kill_switch) and util.is_timestamp_older_than_n_seconds(now, 3):
+                # If the 'kill' file is found, cancel the future and exit the loop
+                future.cancel()
+                # Remove the kill switch file
+                os.remove(kill_switch)
+                break
+
+            # If the 'kill' file is not found, check the current time
+            if util.is_timestamp_older_than_n_seconds(now, file_duration + self.play_sleep_duration):
+                # If the current time is greater than the file duration, exit the loop
+                break
+
+            # If no 'kill' file is found, and the file duration is still 'playing', sleep check again
+            time.sleep(2)
+
+        # Delete the file after it is done playing
         if not preserve_file:
-            time.sleep(file_duration + self.play_sleep_duration)
             if os.path.exists(file):
                 os.remove(file)
 
@@ -234,16 +259,18 @@ class DiscordCustom:
         """
         A disgusting function to connect to a Discord voice channel and play an audio file. Disconnects once the file is done playing (we hope)
         """
+        try:
+            # Get the channel object from the ID
+            channel = self.bot.client.get_channel(channel_id)
+            # Connect to the channel
+            vc = await channel.connect()
 
-        # Get the channel object from the ID
-        channel = self.bot.client.get_channel(channel_id)
-        # Connect to the channel
-        vc = await channel.connect()
+            # Play the file
+            vc.play(discord.FFmpegPCMAudio(file), after=vc.stop())
 
-        # Play the file
-        vc.play(discord.FFmpegPCMAudio(file), after=vc.stop())
-
-        # Sleep and block the thread for the duration of the audio file
-        await asyncio.sleep(file_duration + 0.75)
-        # Disconnect from the channel
-        await vc.disconnect()
+            # Sleep and block the thread for the duration of the audio file
+            await asyncio.sleep(file_duration + 0.75)
+            # Disconnect from the channel
+            await vc.disconnect()
+        except CancelledError:
+            await vc.disconnect()
