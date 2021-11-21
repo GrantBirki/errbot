@@ -244,10 +244,59 @@ class Play(BotPlugin):
         return message
 
     @botcmd
-    def play_skip(self, msg, args):
+    def stop(self, msg, args):
+        """
+        Stop the current song and removes all songs from the queue
+        Usage: .stop (triggers a command flow for confirmation)
+        Note: This command is kinda ugly but is helpful to full stop the .play queue
+        """
+        if msg.ctx.get('confirmed', None) == True:
+            stopped = False
+            yield "✅ Request confirmed\nStopping playback and removing all songs from the queue"
+
+            # Compute the queue path
+            queue_path = f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
+            # Check if the queue file exists
+            file_exists = os.path.exists(queue_path)
+
+            # Delete the entire queue file if it exists
+            if file_exists:
+                stopped = True
+                os.remove(queue_path)
+
+            # If no poller/cron is running, then Errbot is not playing a song
+            if len(self.current_pollers) == 0:
+                yield "Nothing is currently playing so no kill switch will be created"
+            else:
+                # Use the kill switch to stop the current song
+                with open(f"{KILL_SWITCH_PATH}/play.kill", 'w') as _:
+                    pass
+                stopped = True
+            
+            if stopped:
+                yield "✅ `.stop` command completed"
+                return
+            else:
+                yield "Nothing to `stop` - OK"
+                return
+
+        if msg.ctx.get('confirmed', None) == False:
+            yield "❌ Request failed confirmation"
+            return
+
+        message = "💡 Running this command will stop the current playback and remove ALL songs from the queue.\n"
+        message += "To run this command, you need to follow a command flow for confirmation:\n"
+        message += "1. `.stop`\n2. `.confirm yes`\n3. `.stop` - Needed once more now that you provided confirmation\n"
+        message += "> *Note: If you are looking to skip the current song, run `.skip`*"
+
+        yield message
+        return
+
+    @botcmd
+    def skip(self, msg, args):
         """
         Skip the current song in the .play queue
-        Usage: .play skip
+        Usage: .skip
         """
         queue_items = self.read_queue(discord.guild_id(msg))
         # If the queue is empty, return
