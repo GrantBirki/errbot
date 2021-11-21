@@ -34,6 +34,7 @@ except:
 
 CRON_INTERVAL = 2  # seconds
 QUEUE_PATH = "plugins/play/queue"
+KILL_SWITCH_PATH = "plugins/lib/chat/dc_kill_switches"
 QUEUE_ERROR_MSG = f"❌ An error occurring writing your request to the `.play` queue!"
 
 
@@ -241,6 +242,27 @@ class Play(BotPlugin):
             message += f"**{place + 1}:** `{item['song']}` - `{hms['minutes']}:{hms['seconds']}` - <@{item['user_id']}>\n"
 
         return message
+
+    @botcmd
+    def play_skip(self, msg, args):
+        """
+        Skip the current song in the .play queue
+        Usage: .play skip
+        """
+        queue_items = self.read_queue(discord.guild_id(msg))
+        # If the queue is empty, return
+        if len(queue_items) == 0:
+            return "🎵 No songs in the queue - nothing to skip!"
+
+        # If no poller/cron is running, then Errbot is not playing a song
+        if len(self.current_pollers) == 0:
+            return "🎵 I'm not playing anything at the moment - nothing to skip!"
+
+        # If the queue is not empty, and there is a poller/cron - skip the current song via the kill switch file
+        with open(f"{KILL_SWITCH_PATH}/play.kill", 'w') as _:
+            pass
+
+        return "⏩ Skipping the current song"
 
     def spotify_url(self, song):
         """
