@@ -1,7 +1,7 @@
 from errbot import BotPlugin, botcmd
 
 
-class Confirm(BotPlugin):  
+class Confirm(BotPlugin):
     """Confirm plugin for Errbot"""
 
     @botcmd
@@ -13,8 +13,8 @@ class Confirm(BotPlugin):
         """
 
         if "yes" in args.lower():
-            msg.ctx['confirmed'] = True
+            msg.ctx["confirmed"] = True
             return "✅ Confirmed"
         else:
-            msg.ctx['confirmed'] = False
+            msg.ctx["confirmed"] = False
             return "❌ Not Confirmed"

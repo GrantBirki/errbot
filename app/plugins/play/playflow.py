@@ -1,5 +1,6 @@
 from errbot import botflow, FlowRoot, BotFlow
 
+
 class PlayFlow(BotFlow):
     """PlayFlow for the .play command"""
 
@@ -9,8 +10,8 @@ class PlayFlow(BotFlow):
         Used for the .stop command to stop the entire .play queue
         """
         # Start the follow automatically if the .stop command is used
-        first = flow.connect('stop', auto_trigger=True)
+        first = flow.connect("stop", auto_trigger=True)
         # Get confirmation from the user for this command
-        second = first.connect('confirm')
+        second = first.connect("confirm")
         # Make the user run the stop command again and check the confirmation via the ctx dict
-        second.connect('stop')
+        second.connect("stop")

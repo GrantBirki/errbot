@@ -250,7 +250,7 @@ class Play(BotPlugin):
         Usage: .stop (triggers a command flow for confirmation)
         Note: This command is kinda ugly but is helpful to full stop the .play queue
         """
-        if msg.ctx.get('confirmed', None) == True:
+        if msg.ctx.get("confirmed", None) == True:
             stopped = False
             yield "✅ Request confirmed\nStopping playback and removing all songs from the queue"
 
@@ -269,10 +269,10 @@ class Play(BotPlugin):
                 yield "Nothing is currently playing so no kill switch will be created"
             else:
                 # Use the kill switch to stop the current song
-                with open(f"{KILL_SWITCH_PATH}/play.kill", 'w') as _:
+                with open(f"{KILL_SWITCH_PATH}/play.kill", "w") as _:
                     pass
                 stopped = True
-            
+
             if stopped:
                 yield "✅ `.stop` command completed"
                 return
@@ -280,12 +280,14 @@ class Play(BotPlugin):
                 yield "Nothing to `stop` - OK"
                 return
 
-        if msg.ctx.get('confirmed', None) == False:
+        if msg.ctx.get("confirmed", None) == False:
             yield "❌ Request failed confirmation"
             return
 
         message = "💡 Running this command will stop the current playback and remove ALL songs from the queue.\n"
-        message += "To run this command, you need to follow a command flow for confirmation:\n"
+        message += (
+            "To run this command, you need to follow a command flow for confirmation:\n"
+        )
         message += "1. `.stop`\n2. `.confirm yes`\n3. `.stop` - Needed once more now that you provided confirmation\n"
         message += "> *Note: If you are looking to skip the current song, run `.skip`*"
 
@@ -308,7 +310,7 @@ class Play(BotPlugin):
             return "🎵 I'm not playing anything at the moment - nothing to skip!"
 
         # If the queue is not empty, and there is a poller/cron - skip the current song via the kill switch file
-        with open(f"{KILL_SWITCH_PATH}/play.kill", 'w') as _:
+        with open(f"{KILL_SWITCH_PATH}/play.kill", "w") as _:
             pass
 
         return "⏩ Skipping the current song"
