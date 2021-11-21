@@ -44,55 +44,58 @@ class Play(BotPlugin):
         """
         The core logic for the .play cron (aka running from the queue)
         """
+        try:
+            # Scans all the .play queue files (checks all guilds/servers)
+            for queue in self.scan_queue_dir():
+                # If a queue file is found for a guild/server, read it
+                queue_items = self.read_queue(queue)
 
-        # Scans all the .play queue files (checks all guilds/servers)
-        for queue in self.scan_queue_dir():
-            # If a queue file is found for a guild/server, read it
-            queue_items = self.read_queue(queue)
+                # If the queue is empty, return
+                if len(queue_items) == 0:
+                    # Stop the poller as well until another .play command invokes it
+                    self.stop_poller(self.play_cron)
+                    return
 
-            # If the queue is empty, return
-            if len(queue_items) == 0:
-                # Stop the poller as well until another .play command invokes it
-                self.stop_poller(self.play_cron)
-                return
+                # Load the first item in the queue since we are processing songs in FIFO order
+                queue_item = queue_items[0]
 
-            # Load the first item in the queue since we are processing songs in FIFO order
-            queue_item = queue_items[0]
+                hms = util.hours_minutes_seconds(queue_item["song_duration"])
+                message = f"• **Song:** {queue_item['song']}\n"
+                message += f"• **Duration:** {hms['minutes']}:{hms['seconds']}\n"
+                message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
 
-            hms = util.hours_minutes_seconds(queue_item["song_duration"])
-            message = f"• **Song:** {queue_item['song']}\n"
-            message += f"• **Duration:** {hms['minutes']}:{hms['seconds']}\n"
-            message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
+                spotify_url = self.spotify_url(queue_item["song"])
+                if spotify_url:
+                    message += f"• **Spotify:** {spotify_url}\n"
 
-            spotify_url = self.spotify_url(queue_item["song"])
-            if spotify_url:
-                message += f"• **Spotify:** {spotify_url}\n"
+                try:
+                    message += f"> **Next song:** {queue_items[1]['song']}"
+                except IndexError:
+                    message += "> **Next song:** None"
 
-            try:
-                message += f"> **Next song:** {queue_items[1]['song']}"
-            except IndexError:
-                message += "> **Next song:** None"
+                # Send the currently playing song into to the BOT_HOME_CHANNEL
+                self.send_card(
+                    to=self.build_identifier(
+                        f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"
+                    ),
+                    title=f"🎶 Now Playing:",
+                    body=message,
+                    color=discord.color("blue"),
+                )
 
-            # Send the currently playing song into to the BOT_HOME_CHANNEL
-            self.send_card(
-                to=self.build_identifier(
-                    f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"
-                ),
-                title=f"🎶 Now Playing:",
-                body=message,
-                color=discord.color("blue"),
-            )
+                # Play the item in the queue
+                dc = DiscordCustom(self._bot)
+                dc.play_audio_file(
+                    queue_item["discord_channel_id"],
+                    queue_item["file_path"],
+                    file_duration=queue_item["song_duration"],
+                )
 
-            # Play the item in the queue
-            dc = DiscordCustom(self._bot)
-            dc.play_audio_file(
-                queue_item["discord_channel_id"],
-                queue_item["file_path"],
-                file_duration=queue_item["song_duration"],
-            )
+                # Remove the item from the queue after it has been played
+                self.delete_from_queue(queue_item["guild_id"], queue_item["song_uuid"])
 
-            # Remove the item from the queue after it has been played
-            self.delete_from_queue(queue_item["guild_id"], queue_item["song_uuid"])
+        except Exception as e:
+            self.log.exception(f"The play_cron() failed! - Error: {e}")
 
     @botcmd
     def play(self, msg, args):
