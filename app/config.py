@@ -385,6 +385,16 @@ MESSAGE_SIZE_LIMIT = 10000
 # Prevent ErrBot from saying anything if the command is unrecognized.
 # SUPPRESS_CMD_NOT_FOUND = False
 
+### SENTRY.IO ###
+# Try to load sentry
+# This will load sentry globally for the errbot application
+try:
+    import sentry_sdk
+
+    sentry_sdk.init(os.environ["SENTRY"], traces_sample_rate=1.0)
+except:
+    pass
+
 ### LOCAL_TESTING ###
 
 if os.environ.get("LOCAL_TESTING", None):
