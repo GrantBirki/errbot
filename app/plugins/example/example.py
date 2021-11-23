@@ -3,6 +3,8 @@ from errbot import BotPlugin, botcmd
 from time import sleep
 import os
 
+from lib.common.sentry import Sentry
+
 discord = Discord()
 
 
@@ -174,6 +176,16 @@ class Example(BotPlugin):
             self.build_identifier(msg.frm.person),
             "Boo! Bet you weren't expecting me, were you?",
         )
+
+    @botcmd
+    def will_fail(self, msg, args):
+        """will fail test"""
+        yield "i am going to throw a divide by zero error"
+
+        Sentry().user(msg)
+
+        _ = 1 / 0
+        return
 
     @botcmd
     def version(self, msg, args):

@@ -390,10 +390,8 @@ MESSAGE_SIZE_LIMIT = 10000
 # This will load sentry globally for the errbot application
 try:
     import sentry_sdk
-    sentry_sdk.init(
-        os.environ["SENTRY"],
-        traces_sample_rate=1.0
-    )
+
+    sentry_sdk.init(os.environ["SENTRY"], traces_sample_rate=1.0)
 except:
     pass
 
