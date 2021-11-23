@@ -391,7 +391,9 @@ MESSAGE_SIZE_LIMIT = 10000
 try:
     import sentry_sdk
 
-    sentry_sdk.init(os.environ["SENTRY"], traces_sample_rate=1.0)
+    sentry_sdk.init(
+        os.environ["SENTRY"], traces_sample_rate=1.0, release=os.environ["COMMIT_SHA"]
+    )
 except:
     pass
 
