@@ -1,5 +1,6 @@
 import os
 from lib.common.utilities import Util
+from lib.common.sentry import Sentry
 from pynamodb.exceptions import DoesNotExist
 from traceback import print_exc
 from sys import stdout
@@ -28,9 +29,8 @@ class Dynamo:
             setattr(object, "updated_at", iso_timestamp)
             object.save()
             return True
-        except:
-            print_exc()
-            stdout.flush()
+        except Exception as e:
+            Sentry().capture(e)
             return False
 
     def update(self, table: object, record: object, fields_to_update: list):
@@ -50,9 +50,8 @@ class Dynamo:
             return True
         except DoesNotExist:
             return None
-        except:
-            print_exc()
-            stdout.flush()
+        except Exception as e:
+            Sentry().capture(e)
             return False
 
     def get(self, object, partition_key, sort_key):
@@ -65,9 +64,8 @@ class Dynamo:
             return result
         except DoesNotExist:
             return None
-        except:
-            print_exc()
-            stdout.flush()
+        except Exception as e:
+            Sentry().capture(e)
             return False
 
     def delete(self, object):
@@ -79,9 +77,8 @@ class Dynamo:
         try:
             object.delete()
             return True
-        except:
-            print_exc()
-            stdout.flush()
+        except Exception as e:
+            Sentry().capture(e)
             return False
 
     def scan(self, table_name, **kwargs):
@@ -105,7 +102,6 @@ class Dynamo:
                 )
                 data.extend(response["Items"])
             return data
-        except:
-            print_exc()
-            stdout.flush()
+        except Exception as e:
+            Sentry().capture(e)
             False
