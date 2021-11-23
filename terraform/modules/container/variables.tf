@@ -108,4 +108,9 @@ variable "SPOTIFY_CLIENT_ID" {
 
 variable "SPOTIFY_CLIENT_SECRET" {
   type = string
+
+# Sentry.io
+variable "SENTRY" {
+  type = string
+  sensitive = true
 }
