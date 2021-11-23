@@ -35,6 +35,7 @@ module "errbot_container" {
   AWS_SECRET_ACCESS_KEY = var.AWS_SECRET_ACCESS_KEY
   SPOTIFY_CLIENT_ID     = var.SPOTIFY_CLIENT_ID
   SPOTIFY_CLIENT_SECRET = var.SPOTIFY_CLIENT_SECRET
+  SENTRY                = var.SENTRY
 
   # Bot Config
   COMMIT_SHA            = var.COMMIT_SHA
