@@ -3,6 +3,7 @@ import json
 import os
 import re
 import uuid
+from lib.common.sentry import Sentry
 
 import spotipy
 import validators
@@ -108,6 +109,7 @@ class Play(BotPlugin):
         --channel <channel ID> - Optional: The full channel id to play the video/audio in
         Note: Use the --channel flag if you are not in a voice channel or want to play in a specific channel
         """
+        Sentry().user(msg)
 
         # Dev Notes: This command always adds files to the queue. The play_cron() is responsible for playing all songs
 
@@ -229,6 +231,8 @@ class Play(BotPlugin):
         See what is in the .play queue
         Usage: .play queue
         """
+        Sentry().user(msg)
+
         queue_items = self.read_queue(discord.guild_id(msg))
 
         # If the queue is empty, return
@@ -250,6 +254,8 @@ class Play(BotPlugin):
         Usage: .stop (triggers a command flow for confirmation)
         Note: This command is kinda ugly but is helpful to full stop the .play queue
         """
+        Sentry().user(msg)
+
         if msg.ctx.get("confirmed", None) == True:
             stopped = False
             yield "✅ Request confirmed\nStopping playback and removing all songs from the queue"
@@ -300,6 +306,8 @@ class Play(BotPlugin):
         Skip the current song in the .play queue
         Usage: .skip
         """
+        Sentry().user(msg)
+
         queue_items = self.read_queue(discord.guild_id(msg))
         # If the queue is empty, return
         if len(queue_items) == 0:

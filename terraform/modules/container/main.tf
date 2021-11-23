@@ -124,6 +124,7 @@ resource "azurerm_container_group" "container_group" {
       "AWS_SECRET_ACCESS_KEY" = var.AWS_SECRET_ACCESS_KEY
       "SPOTIFY_CLIENT_ID"     = var.SPOTIFY_CLIENT_ID
       "SPOTIFY_CLIENT_SECRET" = var.SPOTIFY_CLIENT_SECRET
+      "SENTRY"                = var.SENTRY
     }
 
     ports {

@@ -7,19 +7,23 @@ variable "COMMIT_SHA" {
 # Azure Creds
 
 variable "CLIENT_SECRET" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "CLIENT_ID" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "TENANT_ID" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "SUBSCRIPTION_ID" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 # End Azure Creds
@@ -32,7 +36,8 @@ variable "IMAGE_TAG" {
 # Bot Creds
 
 variable "CHAT_SERVICE_TOKEN" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 # Bot config
@@ -58,7 +63,8 @@ variable "BOT_EXTRA_BACKEND_DIR" {
 }
 
 variable "RIOT_TOKEN" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "RIOT_REGION" {
@@ -86,23 +92,34 @@ variable "COSMOS_CONTAINER" {
 }
 
 variable "COSMOS_ACCOUNT_KEY" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 # AWS DynamoDB
 variable "AWS_ACCESS_KEY_ID" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "AWS_SECRET_ACCESS_KEY" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 # Spotify
 variable "SPOTIFY_CLIENT_ID" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "SPOTIFY_CLIENT_SECRET" {
-  type = string
+  type      = string
+  sensitive = true
+}
+
+# Sentry.io
+variable "SENTRY" {
+  type      = string
+  sensitive = true
 }
