@@ -67,7 +67,7 @@ class Play(BotPlugin):
                 message += f"• **Duration:** {hms['minutes']}:{hms['seconds']}\n"
                 message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
 
-                spotify_url = self.spotify_url(queue_item["song"])
+                spotify_url = self.spotify_url(queue_item)
                 if spotify_url:
                     message += f"• **Spotify:** {spotify_url}\n"
 
@@ -115,25 +115,25 @@ class Play(BotPlugin):
         # Dev Notes: This command always adds files to the queue. The play_cron() is responsible for playing all songs
 
         # Parse the URL and channel out of the user's input
-        result = self.play_regex(args)
-        if result is None:
+        regex_result = self.play_regex(args)
+        if regex_result is None:
             yield f"❌ My magic regex failed to parse your command!\n`{msg}`"
             return
-        elif result is False:
+        elif regex_result is False:
             yield f"❌ You must provide the exact URL to a song if you are using the --channel flag"
             return
-        url = result["url"]
-        channel = result["channel"]
+        url = regex_result["url"]
+        channel = regex_result["channel"]
 
         # If the user provided a string instead of a raw URL, we search YouTube for the given string
-        if result["text_search"]:
-            yt_search_result = self.youtube_text_search(result["text_search"])
+        if regex_result["text_search"]:
+            yt_search_result = self.youtube_text_search(regex_result["text_search"])
             # If a result was returned, use the returned URL
             if yt_search_result:
                 url = yt_search_result
             # If a result was not returned, return an error message
             else:
-                yield f"❌ No results found for `{result['text_search']}`"
+                yield f"❌ No results found for `{regex_result['text_search']}`"
                 return
 
         # Run some validation on the URL the user is providing
@@ -201,12 +201,12 @@ class Play(BotPlugin):
             file_path = ytdl.download_audio(url, file_name=song_uuid)
 
             # If the queue file is ready, we can add the song to the queue
-            result = self.add_to_queue(
-                msg, channel, video_metadata, file_path, song_uuid
+            add_result = self.add_to_queue(
+                msg, channel, video_metadata, file_path, song_uuid, regex_result
             )
 
             # If something went wrong, we can't add the song to the queue and send an error message
-            if not result:
+            if not add_result:
                 yield QUEUE_ERROR_MSG
 
             # If we got this far, the song has been queue'd and will be picked up and played by the cron
@@ -324,19 +324,44 @@ class Play(BotPlugin):
 
         return "⏩ Skipping the current song"
 
-    def spotify_url(self, song):
+    def youtube_title_sanitizer(self, title):
+        """
+        Helper function for spotify_url to get all the YouTube title junk out
+        :param title: The title of the YouTube video (String)
+        :return: The title of the YouTube video without the YouTube junk (String)
+        """
+        # Try to strip out all the [OFFICIAL VIDEO] and (****) junk from the title
+        title = re.sub(r"\(.*\)|\[.*]", "", title)
+
+        return title.strip()
+
+    def spotify_url(self, queue_item):
         """
         Get the Spotify URL for a song
+        :param queue_item: The queue item to get the Spotify URL for (Dict)
         If a match is found, return the Spotify URL (string)
         If no matches are found, or it fails, return None
         """
         try:
+            # If the user used a text search with .play, use that to find the song in Spotify
+            # This is the most reliable way to find the song
+            if queue_item["text_search"]:
+                song = queue_item["text_search"]
+            # If the user provided a URL, then we need to parse the YouTube title
+            # This is the least reliable way to find the song as YouTube titles can be wild
+            else:
+                song = queue_item["song"]
+                # Get a cleaner version of the YouTube title/song
+                song = self.youtube_title_sanitizer(song)
+
+            # Search Spotify for the song
             results = sp.search(q=song, limit=1)
 
             # If no matches were found, return None
             if len(results["tracks"]["items"]) == 0:
                 return None
 
+            # Return the Spotify URL as a string
             return results["tracks"]["items"][0]["external_urls"]["spotify"]
         except Exception as e:
             Sentry().capture(e)
@@ -371,7 +396,7 @@ class Play(BotPlugin):
             )
         return queue_files
 
-    def add_to_queue(self, msg, channel, video_metadata, file_name, song_uuid):
+    def add_to_queue(self, msg, channel, video_metadata, file_name, song_uuid, regex_result):
         """
         Helper function - Add a song to the .play queue
         """
@@ -394,6 +419,7 @@ class Play(BotPlugin):
             "song_duration": video_metadata["duration"],
             "url": video_metadata["webpage_url"],
             "file_path": file_name,
+            "text_search": regex_result["text_search"]
         }
 
         # Check if the queue file exists
