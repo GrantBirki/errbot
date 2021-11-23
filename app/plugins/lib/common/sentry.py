@@ -1,4 +1,4 @@
-from sentry_sdk import set_user, capture_exception
+from sentry_sdk import set_user, capture_exception, capture_message
 from lib.chat.discord import Discord
 
 discord = Discord()
@@ -22,7 +22,12 @@ class Sentry:
     def capture(self, error):
         """
         Capture an exception and send it to Sentry
-        :param error: The exception to be captured
+        :param error: The exception to be captured (String or Exception)
         :return: None
         """
-        capture_exception(error)
+        # If the provided message type is a string, then we'll send it to Sentry as a message
+        if type(error) == str:
+            capture_message(error)
+        # Otherwise, we'll send it to Sentry as an exception (assumed)
+        else:
+            capture_exception(error)
