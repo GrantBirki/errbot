@@ -16,7 +16,7 @@ variable "COSMOS_CONTAINER" {
 }
 
 variable "COSMOS_ACCOUNT_KEY" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -56,7 +56,7 @@ variable "cpu" {
 # Bot creds
 
 variable "CHAT_SERVICE_TOKEN" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -83,7 +83,7 @@ variable "BOT_EXTRA_BACKEND_DIR" {
 }
 
 variable "RIOT_TOKEN" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -97,28 +97,28 @@ variable "RIOT_REGION_V5" {
 
 # AWS DynamoDB
 variable "AWS_ACCESS_KEY_ID" {
-  type = string
+  type      = string
   sensitive = true
 }
 
 variable "AWS_SECRET_ACCESS_KEY" {
-  type = string
+  type      = string
   sensitive = true
 }
 
 # Spotify
 variable "SPOTIFY_CLIENT_ID" {
-  type = string
+  type      = string
   sensitive = true
 }
 
 variable "SPOTIFY_CLIENT_SECRET" {
-  type = string
+  type      = string
   sensitive = true
 }
 
 # Sentry.io
 variable "SENTRY" {
-  type = string
+  type      = string
   sensitive = true
 }
