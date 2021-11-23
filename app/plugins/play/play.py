@@ -30,7 +30,8 @@ try:
             client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
         )
     )
-except:
+except Exception as e:
+    Sentry().capture(e)
     sp = None
 
 CRON_INTERVAL = 2  # seconds
@@ -326,14 +327,19 @@ class Play(BotPlugin):
     def spotify_url(self, song):
         """
         Get the Spotify URL for a song
-        If a URL is provided, return it as a string
-        If no URL is provided, or it fails, return None
+        If a match is found, return the Spotify URL (string)
+        If no matches are found, or it fails, return None
         """
         try:
             results = sp.search(q=song, limit=1)
-            for track in results["tracks"]["items"]:
-                return track["external_urls"]["spotify"]
-        except:
+
+            # If no matches were found, return None
+            if len(results["tracks"]["items"]) == 0:
+                return None
+
+            return results["tracks"]["items"][0]["external_urls"]["spotify"]
+        except Exception as e:
+            Sentry().capture(e)
             return None
 
     def read_queue(self, guild_id):
