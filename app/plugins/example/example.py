@@ -181,3 +181,12 @@ class Example(BotPlugin):
     def version(self, msg, args):
         """Get the version (COMMIT_SHA) that this instance of errbot is running"""
         return str(os.environ["COMMIT_SHA"])
+
+    @botcmd
+    def will_fail(self, msg, args):
+        """testing sentry"""
+        yield "should fail"
+
+        _ = 1 / 0
+
+        return
