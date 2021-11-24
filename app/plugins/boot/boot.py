@@ -1,4 +1,5 @@
 from errbot import BotPlugin, botcmd
+import os
 
 # Version of the message that's triggered after installing the plugin
 # Incrementing this ensures the message is re-triggered, even if it had
@@ -20,7 +21,11 @@ class Boot(BotPlugin):
             self.warn_admins(INSTALL_MESSAGE_TEXT)
             self["INSTALL_MESSAGE_VERSION"] = INSTALL_MESSAGE_VERSION
 
-    @botcmd
-    def botstatus(self, mess, args):
-        """Get the status of the bot"""
-        return "🟢 Systems are online"
+    @botcmd(admin_only=True)
+    def sentry(self, mess, args):
+        """Get the status of the Sentry integration"""
+        sentry_enabled = os.environ.get('SENTRY_DISABLED', False)
+        if sentry_enabled:
+            return "🟢 Sentry is enabled"
+        else:
+            return "❌ Sentry is disabled"
