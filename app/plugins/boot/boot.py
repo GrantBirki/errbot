@@ -24,8 +24,8 @@ class Boot(BotPlugin):
     @botcmd(admin_only=True)
     def sentry(self, mess, args):
         """Get the status of the Sentry integration"""
-        sentry_enabled = os.environ.get('SENTRY_DISABLED', False)
-        if sentry_enabled:
+        sentry_disabled = os.environ.get("SENTRY_DISABLED", False)
+        if sentry_disabled:
             return "🟢 Sentry is enabled"
         else:
             return "❌ Sentry is disabled"
