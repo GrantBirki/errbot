@@ -26,6 +26,6 @@ class Boot(BotPlugin):
         """Get the status of the Sentry integration"""
         sentry_disabled = os.environ.get("SENTRY_DISABLED", False)
         if sentry_disabled:
-            return "🟢 Sentry is enabled"
-        else:
             return "❌ Sentry is disabled"
+        else:
+            return "🟢 Sentry is enabled"
