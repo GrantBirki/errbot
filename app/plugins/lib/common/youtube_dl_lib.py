@@ -1,6 +1,8 @@
-from __future__ import unicode_literals
-import youtube_dl
+import time
 import uuid
+
+import youtube_dl
+from youtube_dl.utils import DownloadError
 
 
 class YtdlLib:
@@ -55,7 +57,25 @@ class YtdlLib:
             "outtmpl": output_file,
             "quiet": True,
         }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+
+        # Create a retry loop to download the video
+        downloaded = False
+        for i in range(3):
+            try:
+                self.downloader(ydl_opts, url)
+                # If the download was successful, break out of the loop
+                downloaded = True
+                break
+            except DownloadError:
+                # If the download failed, wait and try again
+                time.sleep(1 + i)
+
+        # If the download failed, raise an exception
+        if not downloaded:
+            raise DownloadError
 
         return output_file
+
+    def downloader(self, ydl_opts, url):
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])

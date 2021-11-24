@@ -18,6 +18,7 @@
 
 import logging
 import os
+import sys
 
 ##########################################################################
 # Core Errbot configuration                                              #
@@ -391,9 +392,14 @@ MESSAGE_SIZE_LIMIT = 10000
 try:
     import sentry_sdk
 
-    sentry_sdk.init(os.environ["SENTRY"], traces_sample_rate=1.0)
+    sentry_sdk.init(
+        os.environ["SENTRY"], traces_sample_rate=1.0, release=os.environ["COMMIT_SHA"]
+    )
 except:
-    pass
+    print("failed to init sentry sdk")
+    # If Sentry fails to load, we will let other libraries know with the 'SENTRY_DISABLED' variable
+    os.environ["SENTRY_DISABLED"] = "True"
+    sys.stdout.flush()
 
 ### LOCAL_TESTING ###
 

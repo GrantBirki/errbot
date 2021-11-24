@@ -178,16 +178,15 @@ class Example(BotPlugin):
         )
 
     @botcmd
-    def will_fail(self, msg, args):
-        """will fail test"""
-        yield "i am going to throw a divide by zero error"
-
-        Sentry().user(msg)
-
-        _ = 1 / 0
-        return
-
-    @botcmd
     def version(self, msg, args):
         """Get the version (COMMIT_SHA) that this instance of errbot is running"""
         return str(os.environ["COMMIT_SHA"])
+
+    @botcmd
+    def will_fail(self, msg, args):
+        """testing sentry"""
+        yield "should fail"
+
+        _ = 1 / 0
+
+        return
