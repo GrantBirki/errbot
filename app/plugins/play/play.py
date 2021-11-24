@@ -173,15 +173,6 @@ class Play(BotPlugin):
                 yield QUEUE_ERROR_MSG
                 return
 
-            # Check if there are any files in the queue
-            queue_items = self.read_queue(discord.guild_id(msg))
-            # If the queue is empty, change the response message
-            if len(queue_items) == 0:
-                response_message = f"🎵 Now playing: `{video_metadata['title']}`"
-            # If the queue is not empty, change the response message to 'added'
-            else:
-                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
-
             # If the --channel flag was not provided, use the channel the user is in as the .play target channel
             if channel is None:
                 # Get the current voice channel of the user who invoked the command
@@ -199,6 +190,15 @@ class Play(BotPlugin):
             yield f"📂 Downloading: `{video_metadata['title']}`"
             song_uuid = str(uuid.uuid4())
             file_path = ytdl.download_audio(url, file_name=song_uuid)
+
+            # Check if there are any files in the queue
+            queue_items = self.read_queue(discord.guild_id(msg))
+            # If the queue is empty, change the response message
+            if len(queue_items) == 0:
+                response_message = f"🎵 Now playing: `{video_metadata['title']}`"
+            # If the queue is not empty, change the response message to 'added'
+            else:
+                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
 
             # If the queue file is ready, we can add the song to the queue
             add_result = self.add_to_queue(
