@@ -396,7 +396,7 @@ try:
         os.environ["SENTRY"], traces_sample_rate=1.0, release=os.environ["COMMIT_SHA"]
     )
 except:
-    print('failed to init sentry sdk')
+    print("failed to init sentry sdk")
     sys.stdout.flush()
 
 ### LOCAL_TESTING ###

@@ -140,7 +140,9 @@ class League(BotPlugin):
                 ],
             )
         else:
-            Sentry().capture(f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`")
+            Sentry().capture(
+                f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`"
+            )
             self.log.error(
                 f"error processing game: {current_matches_sha256[:8]} | {item['summoner_name']}"
             )
@@ -161,7 +163,9 @@ class League(BotPlugin):
                 color=color,
             )
         else:
-            Sentry().capture(f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`")
+            Sentry().capture(
+                f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`"
+            )
             self.log.error(
                 f"error processing game: {current_matches_sha256[:8]} | {item['summoner_name']}"
             )
