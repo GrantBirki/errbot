@@ -23,3 +23,8 @@ fi
 git tag -a $new_tag -m "$new_tag Release"
 
 echo -e "${GREEN}OK${OFF} - Tagged: $new_tag"
+
+git push --tags
+
+echo -e "${GREEN}OK${OFF} - Tags pushed to remote! This will trigger a GitHub action release"
+echo -e "${GREEN}DONE${OFF}"
