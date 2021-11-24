@@ -194,3 +194,19 @@ All you need to do is the following:
 1. Request review on your pull request and obtain an approval (@grantbirki or any other member)
 1. Merge your pull request and your change will be automatically deployed! 🚀✨
 1. Run `.cat meme` in Discord to see your command in action 🐈
+
+## Tagging a Release 🏷
+
+Once you have deployed your changes via a merge, it is recommended to create a new release via a Git tag
+
+This can be easily accomplished by using the following helper script:
+
+```text
+script/release
+```
+
+This will create a tag with the following format (vX.X.X) and push it to the remote repo
+
+If you changes are minor and do not require a release, you may skip this step
+
+> Create release tags from the main branch
