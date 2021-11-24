@@ -64,7 +64,7 @@ class Play(BotPlugin):
 
                 hms = util.hours_minutes_seconds(queue_item["song_duration"])
                 message = f"• **Song:** {queue_item['song']}\n"
-                message += f"• **Duration:** {hms['minutes']}:{hms['seconds']}\n"
+                message += f"• **Duration:** {hms['minutes']:02}:{hms['seconds']:02}\n"
                 message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
 
                 spotify_url = self.spotify_url(queue_item)
@@ -244,7 +244,7 @@ class Play(BotPlugin):
         message = "🎵 Songs in the queue:\n"
         for place, item in enumerate(queue_items):
             hms = util.hours_minutes_seconds(item["song_duration"])
-            message += f"**{place + 1}:** `{item['song']}` - `{hms['minutes']}:{hms['seconds']}` - <@{item['user_id']}>\n"
+            message += f"**{place + 1}:** `{item['song']}` - `{hms['minutes']:02}:{hms['seconds']:02}` - <@{item['user_id']}>\n"
 
         return message
 
