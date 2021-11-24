@@ -6,7 +6,8 @@ from sentry_sdk import capture_exception, capture_message, set_user
 discord = Discord()
 
 # Check if Sentry is enabled
-SENTRY_DISABLED = os.environ.get('SENTRY_DISABLED', False)
+SENTRY_DISABLED = os.environ.get("SENTRY_DISABLED", False)
+
 
 class Sentry:
     """
