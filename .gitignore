@@ -7,3 +7,4 @@ terraform.auto.tfvars.json
 test.py
 test.json
 terraform/.terraform/providers
+.cache
