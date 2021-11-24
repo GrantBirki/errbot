@@ -18,7 +18,7 @@ class Sentry:
         :return: None
         """
         set_user({"username": discord.handle(msg)})
-    
+
     def capture(self, error):
         """
         Capture an exception and send it to Sentry

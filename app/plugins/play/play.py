@@ -396,7 +396,9 @@ class Play(BotPlugin):
             )
         return queue_files
 
-    def add_to_queue(self, msg, channel, video_metadata, file_name, song_uuid, regex_result):
+    def add_to_queue(
+        self, msg, channel, video_metadata, file_name, song_uuid, regex_result
+    ):
         """
         Helper function - Add a song to the .play queue
         """
@@ -419,7 +421,7 @@ class Play(BotPlugin):
             "song_duration": video_metadata["duration"],
             "url": video_metadata["webpage_url"],
             "file_path": file_name,
-            "text_search": regex_result["text_search"]
+            "text_search": regex_result["text_search"],
         }
 
         # Check if the queue file exists
