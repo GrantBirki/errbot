@@ -27,8 +27,8 @@ command:
 
 push-azure: # Builds and pushes image to azure - testing only
 	@az acr login -n errbot
-	@cd app && docker build -t errbot.azurecr.io/errbot:test .
-	@docker push errbot.azurecr.io/errbot:test
+	@cd app && docker build -t errbot.azurecr.io/errbot:ci-test .
+	@docker push errbot.azurecr.io/errbot:ci-test
 
 plan:
 	@cd terraform && terraform plan -var-file="terraform.tfvars.json"
