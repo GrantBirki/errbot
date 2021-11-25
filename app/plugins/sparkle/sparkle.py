@@ -2,12 +2,10 @@ import re
 
 from errbot import BotPlugin, botcmd
 from lib.chat.discord import Discord
-from lib.common.cooldown import CoolDown
 from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import SparkleTable
 from lib.common.utilities import Util
 
-cooldown = CoolDown(2, SparkleTable)
 discord = Discord()
 dynamo = Dynamo()
 util = Util()
@@ -28,15 +26,7 @@ class Sparkle(BotPlugin):
         Example 3: .sparkle @username because are the best
         Note: 100 characters max for the reason
         """
-
-        allowed = cooldown.check(msg)
-
-        if allowed:
-            return self.sparkle_main(msg)
-        else:
-            message = "Slow down!\n"
-            message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`"
-            return message
+        return self.sparkle_main(msg)
 
     @botcmd()
     def show_sparkles(self, msg, args):
