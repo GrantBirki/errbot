@@ -59,7 +59,7 @@ class Discord:
         """
         try:
             return int(msg.frm.__dict__["_user_id"])
-        except ValueError:
+        except (ValueError, AttributeError):
             pattern = r"^<\D+(\d+)>$"
             match = re.search(pattern, msg)
             if not match:
