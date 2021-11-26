@@ -42,6 +42,9 @@ CHAMPION_DATA = json.loads(
 # Specify the default league channel to use in discord
 LEAGUE_CHANNEL = "#league"
 
+# last_match_cron interval
+INTERVAL = 60  # seconds
+
 
 class League(BotPlugin):
     """
@@ -60,11 +63,31 @@ class League(BotPlugin):
         super().activate()
         disabled = os.environ.get("DISABLE_LEAGUE_CRON", False)
         if disabled:
-            print("League cron disabled for local testing")
-            sys.stdout.flush()
+            self.log.warn("League cron disabled for local testing")
         else:
-            interval = 60
-            self.start_poller(interval, self.last_match_cron)
+            self.start_poller(INTERVAL, self.last_match_cron)
+
+    @botcmd(admin_only=True)
+    def league_disable(self, msg, args):
+        """
+        Disable the league cron
+        """
+        if len(self.current_pollers) == 0:
+            return "⚠ League cron already disabled"
+        else:
+            self.stop_poller(self.last_match_cron)
+            return "🔴 League cron disabled"
+
+    @botcmd(admin_only=True)
+    def league_enable(self, msg, args):
+        """
+        Enable the league cron
+        """
+        if len(self.current_pollers) == 0:
+            self.start_poller(INTERVAL, self.last_match_cron)
+            return "🟢 League cron enabled"
+        else:
+            return "⚠ League cron already enabled"
 
     def last_match_cron_main(self, item):
         # Gets the last match data
