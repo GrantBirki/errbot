@@ -73,7 +73,7 @@ jobs:
           exit 1
 
   test:
-    needs: changes
+    needs: [changes, lint]
     if:
       needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform ==
       'true'
