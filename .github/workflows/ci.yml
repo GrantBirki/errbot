@@ -26,6 +26,52 @@ jobs:
             terraform:
               - 'terraform/**'
 
+  lint:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    name: runner / black
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check files using the black formatter
+        uses: rickstaa/action-black@v1
+        id: action_black
+        with:
+          black_args: "."
+      - name: Comment Black Message
+        if: steps.action_black.outputs.is_formatted == 'true'
+        uses: peter-evans/create-or-update-comment@v1.4.5
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ❌ Linting Failed ❌
+            
+            You will need to properly lint your code before CI can pass
+
+            Run the following script to lint your code:
+
+            ```bash
+            script/lint
+            ```
+
+            Or manually lint the repo from the command line:
+
+            ```console
+            $ pip install black && black .
+            ...
+            All done! ✨ 🍰 ✨
+            ```
+
+            > If you are running manually, ensure you run the command from the root of the repo
+
+            Commit your changes and try again!
+
+      - name: Linting Required
+        if: steps.action_black.outputs.is_formatted == 'true'
+        run: |
+          echo "Please lint your code with 'black' and try again! -> 'pip install black && black .'"
+          exit 1
+
   test:
     needs: changes
     if:
