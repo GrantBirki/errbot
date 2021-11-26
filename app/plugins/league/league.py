@@ -43,7 +43,8 @@ CHAMPION_DATA = json.loads(
 LEAGUE_CHANNEL = "#league"
 
 # last_match_cron interval
-INTERVAL = 60 # seconds
+INTERVAL = 60  # seconds
+
 
 class League(BotPlugin):
     """
