@@ -144,87 +144,75 @@ class Play(BotPlugin):
             yield "❌ I only accept URLs that start with `https://www.youtube.com/`"
             return
 
-        # Check the user's cooldown for the .play command
-        # allowed = cooldown.check(msg) # uncomment to enable cooldowl
-        allowed = True  # comment to enable cooldowl
+        # Get all the metadata for a given video from a URL
+        video_metadata = ytdl.video_metadata(url)
 
-        if allowed:
-            # Get all the metadata for a given video from a URL
-            video_metadata = ytdl.video_metadata(url)
-
-            length = video_metadata["duration"]
-            # If the length is 0 it is probably a live stream
-            if length == 0:
-                yield f"❌ Cannot play a live stream from YouTube"
-                return
-
-            # If the video is greater than the configured max length, don't play it
-            if length > ytdl.max_length:
-                yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
-                yield
-
-            # Check if the queue .json file is read for reads/writes
-            file_ready = util.check_file_ready(
-                f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
-            )
-
-            # If it is not ready and open by another process we have to exit
-            if not file_ready:
-                yield QUEUE_ERROR_MSG
-                return
-
-            # If the --channel flag was not provided, use the channel the user is in as the .play target channel
-            if channel is None:
-                # Get the current voice channel of the user who invoked the command
-                dc = DiscordCustom(self._bot)
-                channel_dict = dc.get_voice_channel_of_a_user(
-                    discord.guild_id(msg), discord.get_user_id(msg)
-                )
-                # If the user is not in a voice channel, return a helpful error message
-                if not channel_dict:
-                    yield "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
-                    return
-                channel = channel_dict["channel_id"]
-
-            # Pre-Download the file for the queue
-            yield f"📂 Downloading: `{video_metadata['title']}`"
-            song_uuid = str(uuid.uuid4())
-            file_path = ytdl.download_audio(url, file_name=song_uuid)
-
-            # Check if there are any files in the queue
-            queue_items = self.read_queue(discord.guild_id(msg))
-            # If the queue is empty, change the response message
-            if len(queue_items) == 0:
-                response_message = f"🎵 Now playing: `{video_metadata['title']}`"
-            # If the queue is not empty, change the response message to 'added'
-            else:
-                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
-
-            # If the queue file is ready, we can add the song to the queue
-            add_result = self.add_to_queue(
-                msg, channel, video_metadata, file_path, song_uuid, regex_result
-            )
-
-            # If something went wrong, we can't add the song to the queue and send an error message
-            if not add_result:
-                yield QUEUE_ERROR_MSG
-
-            # If we got this far, the song has been queue'd and will be picked up and played by the cron
-            yield response_message
-
-            # If a cron poller for self.play_cron is not running, start it
-            # Dev note: pollers are isolated to an errbot plugin so it can't affect other plugin cron pollers
-            if len(self.current_pollers) == 0:
-                self.start_poller(CRON_INTERVAL, self.play_cron)
-
+        length = video_metadata["duration"]
+        # If the length is 0 it is probably a live stream
+        if length == 0:
+            yield f"❌ Cannot play a live stream from YouTube"
             return
 
+        # If the video is greater than the configured max length, don't play it
+        if length > ytdl.max_length:
+            yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
+            yield
+
+        # Check if the queue .json file is read for reads/writes
+        file_ready = util.check_file_ready(
+            f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
+        )
+
+        # If it is not ready and open by another process we have to exit
+        if not file_ready:
+            yield QUEUE_ERROR_MSG
+            return
+
+        # If the --channel flag was not provided, use the channel the user is in as the .play target channel
+        if channel is None:
+            # Get the current voice channel of the user who invoked the command
+            dc = DiscordCustom(self._bot)
+            channel_dict = dc.get_voice_channel_of_a_user(
+                discord.guild_id(msg), discord.get_user_id(msg)
+            )
+            # If the user is not in a voice channel, return a helpful error message
+            if not channel_dict:
+                yield "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
+                return
+            channel = channel_dict["channel_id"]
+
+        # Pre-Download the file for the queue
+        yield f"📂 Downloading: `{video_metadata['title']}`"
+        song_uuid = str(uuid.uuid4())
+        file_path = ytdl.download_audio(url, file_name=song_uuid)
+
+        # Check if there are any files in the queue
+        queue_items = self.read_queue(discord.guild_id(msg))
+        # If the queue is empty, change the response message
+        if len(queue_items) == 0:
+            response_message = f"🎵 Now playing: `{video_metadata['title']}`"
+        # If the queue is not empty, change the response message to 'added'
         else:
-            # A user is trying to play a song too quickly
-            message = "Slow down!\n"
-            # message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`" # uncomment to enable cooldowl
-            yield message
-            return
+            response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
+
+        # If the queue file is ready, we can add the song to the queue
+        add_result = self.add_to_queue(
+            msg, channel, video_metadata, file_path, song_uuid, regex_result
+        )
+
+        # If something went wrong, we can't add the song to the queue and send an error message
+        if not add_result:
+            yield QUEUE_ERROR_MSG
+
+        # If we got this far, the song has been queue'd and will be picked up and played by the cron
+        yield response_message
+
+        # If a cron poller for self.play_cron is not running, start it
+        # Dev note: pollers are isolated to an errbot plugin so it can't affect other plugin cron pollers
+        if len(self.current_pollers) == 0:
+            self.start_poller(CRON_INTERVAL, self.play_cron)
+
+        return
 
     @botcmd
     def play_queue(self, msg, args):
