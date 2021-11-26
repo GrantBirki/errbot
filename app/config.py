@@ -398,7 +398,7 @@ try:
 except:
     print("failed to init sentry sdk")
     # If Sentry fails to load, we will let other libraries know with the 'SENTRY_DISABLED' variable
-    os.environ["SENTRY_DISABLED"] = 'True'
+    os.environ["SENTRY_DISABLED"] = "True"
     sys.stdout.flush()
 
 ### LOCAL_TESTING ###
