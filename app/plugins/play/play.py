@@ -3,21 +3,20 @@ import json
 import os
 import re
 import uuid
-from lib.common.sentry import Sentry
 
 import spotipy
 import validators
 from errbot import BotPlugin, botcmd
 from lib.chat.discord import Discord
 from lib.chat.discord_custom import DiscordCustom
-from lib.common.cooldown import CoolDown
+from lib.common.sentry import Sentry
 from lib.common.utilities import Util
 from lib.common.youtube_dl_lib import YtdlLib
 from lib.database.dynamo_tables import PlayTable
+from requests import ReadTimeout
 from spotipy.oauth2 import SpotifyClientCredentials
 from youtubesearchpython import VideosSearch
 
-# cooldown = CoolDown(10, PlayTable) # uncomment to enable cooldowl
 util = Util()
 discord = Discord()
 ytdl = YtdlLib()
@@ -351,6 +350,11 @@ class Play(BotPlugin):
 
             # Return the Spotify URL as a string
             return results["tracks"]["items"][0]["external_urls"]["spotify"]
+
+        # If the request times out, return None
+        except ReadTimeout:
+            return None
+
         except Exception as e:
             Sentry().capture(e)
             return None
