@@ -32,15 +32,15 @@ jobs:
     name: runner / black
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
       - name: Check files using the black formatter
-        uses: rickstaa/action-black@v1
+        uses: rickstaa/action-black@f7d43bb2466fca468649d6c3d548ccef7412b93f # pin@v1
         id: action_black
         with:
           black_args: "."
       - name: Comment Black Message
         if: steps.action_black.outputs.is_formatted == 'true'
-        uses: peter-evans/create-or-update-comment@v1.4.5
+        uses: peter-evans/create-or-update-comment@a35cf36e5301d70b76f316e867e7788a55a31dae # pin@v1.4.5
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
