@@ -265,13 +265,15 @@ class Play(BotPlugin):
         stats = json.loads(record.stats)
 
         # Adds general server stats the the message
-        message += f"• 🎧 Total Songs Played: **{stats['play_stats']['total_songs_played']}**\n"
+        message += (
+            f"• 🎧 Total Songs Played: **{stats['play_stats']['total_songs_played']}**\n"
+        )
         message += f"• 🕐 Total Time Played: **{self.fmt_play_time(stats['play_stats']['total_time_played'])}**\n"
         message += "\n"
 
         # Add DJ stats to the message
         djs = stats["dj_stats"]["djs"]
-        top_djs = sorted(djs, key = lambda i: i['total_songs_played'], reverse=True)
+        top_djs = sorted(djs, key=lambda i: i["total_songs_played"], reverse=True)
 
         # Try to get the top 3 DJs - IndexError for each if there are less than 3
         try:
@@ -637,7 +639,10 @@ class Play(BotPlugin):
                 record_dict = json.loads(record.stats)
 
                 # Update the play_stats dict with the new queue item
-                total_time_played = record_dict["play_stats"]["total_time_played"] + queue_item["song_duration"]
+                total_time_played = (
+                    record_dict["play_stats"]["total_time_played"]
+                    + queue_item["song_duration"]
+                )
                 total_songs_played = record_dict["play_stats"]["total_songs_played"] + 1
 
                 # Update the dj_stats dict with the new queue item
@@ -690,7 +695,9 @@ class Play(BotPlugin):
                     "dj_stats": {"djs": djs},
                 }
             )
-            dynamo.write(PlayTable(discord_server_id=queue_item["guild_id"], stats=stats))
+            dynamo.write(
+                PlayTable(discord_server_id=queue_item["guild_id"], stats=stats)
+            )
         except Exception as e:
             Sentry().capture(e)
             return False
