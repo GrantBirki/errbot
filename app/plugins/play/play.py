@@ -240,6 +240,76 @@ class Play(BotPlugin):
 
         return message
 
+    @botcmd()
+    def play_stats(self, msg, args):
+        """
+        Gets stats about the .play command for your server
+        Usage: .play stats
+        """
+        Sentry().user(msg)
+
+        # Set the default message and title for the response to be returned via chat
+        title = f"🎵 **`.play` stats for this Discord server:** 🎵"
+        message = ""
+
+        # Get the .play stats for the Discord server where the command is run
+        record = dynamo.get(PlayTable, discord.guild_id(msg))
+
+        # Pre-check the record we get from the DB
+        if record is None:
+            return "0️⃣ No stats yet for this Discord server!\nRun some `.play` commands to rack up some stats"
+        elif record is False:
+            return "❌ Error getting stats for this Discord server"
+
+        # Parse the record from json into a dict
+        stats = json.loads(record.stats)
+
+        # Adds general server stats the the message
+        message += f"• 🎧 Total Songs Played: **{stats['play_stats']['total_songs_played']}**\n"
+        message += f"• 🕐 Total Time Played: **{self.fmt_play_time(stats['play_stats']['total_time_played'])}**\n"
+        message += "\n"
+
+        # Add DJ stats to the message
+        djs = stats["dj_stats"]["djs"]
+        top_djs = sorted(djs, key = lambda i: i['total_songs_played'], reverse=True)
+
+        # Try to get the top 3 DJs - IndexError for each if there are less than 3
+        try:
+            dj_1 = top_djs[0]
+        except IndexError:
+            dj_1 = None
+        try:
+            dj_2 = top_djs[1]
+        except IndexError:
+            dj_2 = None
+        try:
+            dj_3 = top_djs[2]
+        except IndexError:
+            dj_3 = None
+
+        # Add top DJ stats to the message
+        if dj_1:
+            message += f"🥇 **Top DJ:** <@{dj_1['user_id']}>\n"
+            message += f"• Songs Played: **{dj_1['total_songs_played']}**\n"
+            message += f"• Total Play Time: **{self.fmt_play_time(dj_1['total_time_played'])}**\n\n"
+        else:
+            message += "No top DJs yet\n"
+            return self.send_stats_message(msg, title, message, discord.color("blue"))
+        if dj_2:
+            message += f"🥈 **2nd Top DJ:** <@{dj_2['user_id']}>\n"
+            message += f"• Songs Played: **{dj_2['total_songs_played']}**\n"
+            message += f"• Total Play Time: **{self.fmt_play_time(dj_2['total_time_played'])}**\n\n"
+        else:
+            return self.send_stats_message(msg, title, message, discord.color("blue"))
+        if dj_3:
+            message += f"🥉 **3rd Top DJ:** <@{dj_3['user_id']}>\n"
+            message += f"• Songs Played: **{dj_3['total_songs_played']}**\n"
+            message += f"• Total Play Time: **{self.fmt_play_time(dj_3['total_time_played'])}**\n\n"
+        else:
+            return self.send_stats_message(msg, title, message, discord.color("blue"))
+
+        return self.send_stats_message(msg, title, message, discord.color("blue"))
+
     @botcmd
     def stop(self, msg, args):
         """
@@ -624,3 +694,25 @@ class Play(BotPlugin):
         except Exception as e:
             Sentry().capture(e)
             return False
+
+    def fmt_play_time(self, play_time):
+        """
+        Gets the play time for a DJ
+        """
+        hms = util.hours_minutes_seconds(play_time)
+        return f"h{hms['hours']:02}:m{hms['minutes']:02}:s{hms['seconds']:02}"
+
+    def send_stats_message(self, msg, title, message, color):
+        """
+        Helper function for sending a message card for the stats command
+        :param msg: The message to reply to
+        :param title: The title of the card
+        :param message: The message to send
+        :param color: The color of the card
+        """
+        self.send_card(
+            title=title,
+            body=message,
+            color=color,
+            in_reply_to=msg,
+        )
