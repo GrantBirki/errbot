@@ -3,24 +3,25 @@ import json
 import os
 import re
 import uuid
-from lib.common.sentry import Sentry
 
 import spotipy
 import validators
 from errbot import BotPlugin, botcmd
 from lib.chat.discord import Discord
 from lib.chat.discord_custom import DiscordCustom
-from lib.common.cooldown import CoolDown
+from lib.common.sentry import Sentry
 from lib.common.utilities import Util
 from lib.common.youtube_dl_lib import YtdlLib
 from lib.database.dynamo_tables import PlayTable
+from lib.database.dynamo import Dynamo
+from requests import ReadTimeout
 from spotipy.oauth2 import SpotifyClientCredentials
 from youtubesearchpython import VideosSearch
 
-# cooldown = CoolDown(10, PlayTable) # uncomment to enable cooldowl
 util = Util()
 discord = Discord()
 ytdl = YtdlLib()
+dynamo = Dynamo()
 
 # Try to initialize the Spotify client, if anything fails set sp -> None
 try:
@@ -97,6 +98,9 @@ class Play(BotPlugin):
                 # Remove the item from the queue after it has been played
                 self.delete_from_queue(queue_item["guild_id"], queue_item["song_uuid"])
 
+                # Update the play stats with the current song data
+                self.update_play_stats(queue_item)
+
         except Exception as e:
             self.log.exception(f"The play_cron() failed! - Error: {e}")
 
@@ -144,87 +148,75 @@ class Play(BotPlugin):
             yield "❌ I only accept URLs that start with `https://www.youtube.com/`"
             return
 
-        # Check the user's cooldown for the .play command
-        # allowed = cooldown.check(msg) # uncomment to enable cooldowl
-        allowed = True  # comment to enable cooldowl
+        # Get all the metadata for a given video from a URL
+        video_metadata = ytdl.video_metadata(url)
 
-        if allowed:
-            # Get all the metadata for a given video from a URL
-            video_metadata = ytdl.video_metadata(url)
-
-            length = video_metadata["duration"]
-            # If the length is 0 it is probably a live stream
-            if length == 0:
-                yield f"❌ Cannot play a live stream from YouTube"
-                return
-
-            # If the video is greater than the configured max length, don't play it
-            if length > ytdl.max_length:
-                yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
-                yield
-
-            # Check if the queue .json file is read for reads/writes
-            file_ready = util.check_file_ready(
-                f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
-            )
-
-            # If it is not ready and open by another process we have to exit
-            if not file_ready:
-                yield QUEUE_ERROR_MSG
-                return
-
-            # If the --channel flag was not provided, use the channel the user is in as the .play target channel
-            if channel is None:
-                # Get the current voice channel of the user who invoked the command
-                dc = DiscordCustom(self._bot)
-                channel_dict = dc.get_voice_channel_of_a_user(
-                    discord.guild_id(msg), discord.get_user_id(msg)
-                )
-                # If the user is not in a voice channel, return a helpful error message
-                if not channel_dict:
-                    yield "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
-                    return
-                channel = channel_dict["channel_id"]
-
-            # Pre-Download the file for the queue
-            yield f"📂 Downloading: `{video_metadata['title']}`"
-            song_uuid = str(uuid.uuid4())
-            file_path = ytdl.download_audio(url, file_name=song_uuid)
-
-            # Check if there are any files in the queue
-            queue_items = self.read_queue(discord.guild_id(msg))
-            # If the queue is empty, change the response message
-            if len(queue_items) == 0:
-                response_message = f"🎵 Now playing: `{video_metadata['title']}`"
-            # If the queue is not empty, change the response message to 'added'
-            else:
-                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
-
-            # If the queue file is ready, we can add the song to the queue
-            add_result = self.add_to_queue(
-                msg, channel, video_metadata, file_path, song_uuid, regex_result
-            )
-
-            # If something went wrong, we can't add the song to the queue and send an error message
-            if not add_result:
-                yield QUEUE_ERROR_MSG
-
-            # If we got this far, the song has been queue'd and will be picked up and played by the cron
-            yield response_message
-
-            # If a cron poller for self.play_cron is not running, start it
-            # Dev note: pollers are isolated to an errbot plugin so it can't affect other plugin cron pollers
-            if len(self.current_pollers) == 0:
-                self.start_poller(CRON_INTERVAL, self.play_cron)
-
+        length = video_metadata["duration"]
+        # If the length is 0 it is probably a live stream
+        if length == 0:
+            yield f"❌ Cannot play a live stream from YouTube"
             return
 
+        # If the video is greater than the configured max length, don't play it
+        if length > ytdl.max_length:
+            yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
+            yield
+
+        # Check if the queue .json file is read for reads/writes
+        file_ready = util.check_file_ready(
+            f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
+        )
+
+        # If it is not ready and open by another process we have to exit
+        if not file_ready:
+            yield QUEUE_ERROR_MSG
+            return
+
+        # If the --channel flag was not provided, use the channel the user is in as the .play target channel
+        if channel is None:
+            # Get the current voice channel of the user who invoked the command
+            dc = DiscordCustom(self._bot)
+            channel_dict = dc.get_voice_channel_of_a_user(
+                discord.guild_id(msg), discord.get_user_id(msg)
+            )
+            # If the user is not in a voice channel, return a helpful error message
+            if not channel_dict:
+                yield "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
+                return
+            channel = channel_dict["channel_id"]
+
+        # Pre-Download the file for the queue
+        yield f"📂 Downloading: `{video_metadata['title']}`"
+        song_uuid = str(uuid.uuid4())
+        file_path = ytdl.download_audio(url, file_name=song_uuid)
+
+        # Check if there are any files in the queue
+        queue_items = self.read_queue(discord.guild_id(msg))
+        # If the queue is empty, change the response message
+        if len(queue_items) == 0:
+            response_message = f"🎵 Now playing: `{video_metadata['title']}`"
+        # If the queue is not empty, change the response message to 'added'
         else:
-            # A user is trying to play a song too quickly
-            message = "Slow down!\n"
-            # message += f"⏲️ Cooldown expires in `{cooldown.remaining()}`" # uncomment to enable cooldowl
-            yield message
-            return
+            response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
+
+        # If the queue file is ready, we can add the song to the queue
+        add_result = self.add_to_queue(
+            msg, channel, video_metadata, file_path, song_uuid, regex_result
+        )
+
+        # If something went wrong, we can't add the song to the queue and send an error message
+        if not add_result:
+            yield QUEUE_ERROR_MSG
+
+        # If we got this far, the song has been queue'd and will be picked up and played by the cron
+        yield response_message
+
+        # If a cron poller for self.play_cron is not running, start it
+        # Dev note: pollers are isolated to an errbot plugin so it can't affect other plugin cron pollers
+        if len(self.current_pollers) == 0:
+            self.start_poller(CRON_INTERVAL, self.play_cron)
+
+        return
 
     @botcmd
     def play_queue(self, msg, args):
@@ -247,6 +239,78 @@ class Play(BotPlugin):
             message += f"**{place + 1}:** `{item['song']}` - `{hms['minutes']:02}:{hms['seconds']:02}` - <@{item['user_id']}>\n"
 
         return message
+
+    @botcmd()
+    def play_stats(self, msg, args):
+        """
+        Gets stats about the .play command for your server
+        Usage: .play stats
+        """
+        Sentry().user(msg)
+
+        # Set the default message and title for the response to be returned via chat
+        title = f"🎵 **`.play` stats for this Discord server:** 🎵"
+        message = ""
+
+        # Get the .play stats for the Discord server where the command is run
+        record = dynamo.get(PlayTable, discord.guild_id(msg))
+
+        # Pre-check the record we get from the DB
+        if record is None:
+            return "0️⃣ No stats yet for this Discord server!\nRun some `.play` commands to rack up some stats"
+        elif record is False:
+            return "❌ Error getting stats for this Discord server"
+
+        # Parse the record from json into a dict
+        stats = json.loads(record.stats)
+
+        # Adds general server stats the the message
+        message += (
+            f"• 🎧 Total Songs Played: **{stats['play_stats']['total_songs_played']}**\n"
+        )
+        message += f"• 🕐 Total Time Played: **{self.fmt_play_time(stats['play_stats']['total_time_played'])}**\n"
+        message += "\n"
+
+        # Add DJ stats to the message
+        djs = stats["dj_stats"]["djs"]
+        top_djs = sorted(djs, key=lambda i: i["total_songs_played"], reverse=True)
+
+        # Try to get the top 3 DJs - IndexError for each if there are less than 3
+        try:
+            dj_1 = top_djs[0]
+        except IndexError:
+            dj_1 = None
+        try:
+            dj_2 = top_djs[1]
+        except IndexError:
+            dj_2 = None
+        try:
+            dj_3 = top_djs[2]
+        except IndexError:
+            dj_3 = None
+
+        # Add top DJ stats to the message
+        if dj_1:
+            message += f"🥇 **Top DJ:** <@{dj_1['user_id']}>\n"
+            message += f"• Songs Played: **{dj_1['total_songs_played']}**\n"
+            message += f"• Total Play Time: **{self.fmt_play_time(dj_1['total_time_played'])}**\n\n"
+        else:
+            message += "No top DJs yet\n"
+            return self.send_stats_message(msg, title, message, discord.color("blue"))
+        if dj_2:
+            message += f"🥈 **2nd Top DJ:** <@{dj_2['user_id']}>\n"
+            message += f"• Songs Played: **{dj_2['total_songs_played']}**\n"
+            message += f"• Total Play Time: **{self.fmt_play_time(dj_2['total_time_played'])}**\n\n"
+        else:
+            return self.send_stats_message(msg, title, message, discord.color("blue"))
+        if dj_3:
+            message += f"🥉 **3rd Top DJ:** <@{dj_3['user_id']}>\n"
+            message += f"• Songs Played: **{dj_3['total_songs_played']}**\n"
+            message += f"• Total Play Time: **{self.fmt_play_time(dj_3['total_time_played'])}**\n\n"
+        else:
+            return self.send_stats_message(msg, title, message, discord.color("blue"))
+
+        return self.send_stats_message(msg, title, message, discord.color("blue"))
 
     @botcmd
     def stop(self, msg, args):
@@ -363,6 +427,11 @@ class Play(BotPlugin):
 
             # Return the Spotify URL as a string
             return results["tracks"]["items"][0]["external_urls"]["spotify"]
+
+        # If the request times out, return None
+        except ReadTimeout:
+            return None
+
         except Exception as e:
             Sentry().capture(e)
             return None
@@ -553,3 +622,104 @@ class Play(BotPlugin):
 
         # If there is still no match, return None
         return None
+
+    def update_play_stats(self, queue_item):
+        """
+        Update the play stats with the given queue item for a guild
+        :param queue_item: The queue item to update
+        :return: None (False if it fails)
+        """
+        try:
+            record = dynamo.get(PlayTable, queue_item["guild_id"])
+
+            # Dev note: both method below will 'write' to the table (not update)
+            # If the record exists, update values in memory and re-write the record
+            if record:
+                # Parse the record's json data into a dict
+                record_dict = json.loads(record.stats)
+
+                # Update the play_stats dict with the new queue item
+                total_time_played = (
+                    record_dict["play_stats"]["total_time_played"]
+                    + queue_item["song_duration"]
+                )
+                total_songs_played = record_dict["play_stats"]["total_songs_played"] + 1
+
+                # Update the dj_stats dict with the new queue item
+                dj_updated = False
+                djs = record_dict["dj_stats"]["djs"]
+                # Check to see if a DJ already has a stats record
+                for i, dj in enumerate(djs):
+                    # If the DJ has a stats record, update it with the new queue item
+                    if dj["user_id"] == queue_item["user_id"]:
+                        dj_updated = True
+                        djs[i].update(
+                            {
+                                "total_time_played": dj["total_time_played"]
+                                + queue_item["song_duration"],
+                                "total_songs_played": dj["total_songs_played"] + 1,
+                            }
+                        )
+                        break
+                # If the DJ does not have a stats record, create one and append it to the djs list
+                if not dj_updated:
+                    djs.append(
+                        {
+                            "user_id": queue_item["user_id"],
+                            "total_time_played": queue_item["song_duration"],
+                            "total_songs_played": 1,
+                        }
+                    )
+            # If the record doesn't exist, 'create' it
+            elif record is None:
+                total_time_played = queue_item["song_duration"]
+                total_songs_played = 1
+                djs = [
+                    {
+                        "user_id": queue_item["user_id"],
+                        "total_time_played": queue_item["song_duration"],
+                        "total_songs_played": 1,
+                    }
+                ]
+            # If we fail to get the record, exit to avoid overwriting our data (results in wiping a servers stats)
+            elif record is False:
+                return
+
+            # Write to the DB with the updated (or newly created) values
+            stats = json.dumps(
+                {
+                    "play_stats": {
+                        "total_time_played": total_time_played,
+                        "total_songs_played": total_songs_played,
+                    },
+                    "dj_stats": {"djs": djs},
+                }
+            )
+            dynamo.write(
+                PlayTable(discord_server_id=queue_item["guild_id"], stats=stats)
+            )
+        except Exception as e:
+            Sentry().capture(e)
+            return False
+
+    def fmt_play_time(self, play_time):
+        """
+        Gets the play time for a DJ
+        """
+        hms = util.hours_minutes_seconds(play_time)
+        return f"h{hms['hours']:02}:m{hms['minutes']:02}:s{hms['seconds']:02}"
+
+    def send_stats_message(self, msg, title, message, color):
+        """
+        Helper function for sending a message card for the stats command
+        :param msg: The message to reply to
+        :param title: The title of the card
+        :param message: The message to send
+        :param color: The color of the card
+        """
+        self.send_card(
+            title=title,
+            body=message,
+            color=color,
+            in_reply_to=msg,
+        )
