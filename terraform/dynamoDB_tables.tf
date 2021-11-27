@@ -1,3 +1,6 @@
+# To apply just one table use the following:
+# terraform plan/apply -target=module.dynamodb_table_play (example)
+
 # For the rem feature
 module "dynamodb_table" {
   source  = "terraform-aws-modules/dynamodb-table/aws"
@@ -59,7 +62,6 @@ module "dynamodb_table_play" {
 
   name                           = "play"
   hash_key                       = "discord_server_id"
-  range_key                      = "discord_handle"
   billing_mode                   = "PAY_PER_REQUEST"
   point_in_time_recovery_enabled = true
 
@@ -67,10 +69,6 @@ module "dynamodb_table_play" {
     {
       name = "discord_server_id"
       type = "N"
-    },
-    {
-      name = "discord_handle"
-      type = "S"
     },
   ]
 
