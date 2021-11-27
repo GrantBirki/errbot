@@ -54,14 +54,18 @@ class Dynamo:
             Sentry().capture(e)
             return False
 
-    def get(self, object, partition_key, sort_key):
+    def get(self, object, partition_key, sort_key=None):
         """
         Get an existing database object
         Note: Useful for passing this object into the update method
         """
         try:
-            result = object.get(partition_key, sort_key)
-            return result
+            if sort_key:
+                result = object.get(partition_key, sort_key)
+                return result
+            else:
+                result = object.get(partition_key)
+                return result
         except DoesNotExist:
             return None
         except Exception as e:
