@@ -60,7 +60,7 @@ class PlayTable(Model):
         aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
 
     discord_server_id = NumberAttribute(hash_key=True)
-    discord_handle = UnicodeAttribute(range_key=True)
+    stats = UnicodeAttribute()
     updated_at = UnicodeAttribute()
 
 
