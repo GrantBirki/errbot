@@ -13,6 +13,7 @@ from lib.common.sentry import Sentry
 from lib.common.utilities import Util
 from lib.common.youtube_dl_lib import YtdlLib
 from lib.database.dynamo_tables import PlayTable
+from lib.database.dynamo import Dynamo
 from requests import ReadTimeout
 from spotipy.oauth2 import SpotifyClientCredentials
 from youtubesearchpython import VideosSearch
@@ -20,6 +21,7 @@ from youtubesearchpython import VideosSearch
 util = Util()
 discord = Discord()
 ytdl = YtdlLib()
+dynamo = Dynamo()
 
 # Try to initialize the Spotify client, if anything fails set sp -> None
 try:
@@ -95,6 +97,9 @@ class Play(BotPlugin):
 
                 # Remove the item from the queue after it has been played
                 self.delete_from_queue(queue_item["guild_id"], queue_item["song_uuid"])
+
+                # Update the play stats with the current song data
+                self.update_play_stats(queue_item)
 
         except Exception as e:
             self.log.exception(f"The play_cron() failed! - Error: {e}")
@@ -545,3 +550,77 @@ class Play(BotPlugin):
 
         # If there is still no match, return None
         return None
+
+    def update_play_stats(self, queue_item):
+        """
+        Update the play stats with the given queue item for a guild
+        :param queue_item: The queue item to update
+        :return: None (False if it fails)
+        """
+        try:
+            record = dynamo.get(PlayTable, queue_item["guild_id"])
+
+            # Dev note: both method below will 'write' to the table (not update)
+            # If the record exists, update values in memory and re-write the record
+            if record:
+                # Parse the record's json data into a dict
+                record_dict = json.loads(record.stats)
+
+                # Update the play_stats dict with the new queue item
+                total_time_played = record_dict["play_stats"]["total_time_played"] + queue_item["song_duration"]
+                total_songs_played = record_dict["play_stats"]["total_songs_played"] + 1
+
+                # Update the dj_stats dict with the new queue item
+                dj_updated = False
+                djs = record_dict["dj_stats"]["djs"]
+                # Check to see if a DJ already has a stats record
+                for i, dj in enumerate(djs):
+                    # If the DJ has a stats record, update it with the new queue item
+                    if dj["user_id"] == queue_item["user_id"]:
+                        dj_updated = True
+                        djs[i].update(
+                            {
+                                "total_time_played": dj["total_time_played"]
+                                + queue_item["song_duration"],
+                                "total_songs_played": dj["total_songs_played"] + 1,
+                            }
+                        )
+                        break
+                # If the DJ does not have a stats record, create one and append it to the djs list
+                if not dj_updated:
+                    djs.append(
+                        {
+                            "user_id": queue_item["user_id"],
+                            "total_time_played": queue_item["song_duration"],
+                            "total_songs_played": 1,
+                        }
+                    )
+            # If the record doesn't exist, 'create' it
+            elif record is None:
+                total_time_played = queue_item["song_duration"]
+                total_songs_played = 1
+                djs = [
+                    {
+                        "user_id": queue_item["user_id"],
+                        "total_time_played": queue_item["song_duration"],
+                        "total_songs_played": 1,
+                    }
+                ]
+            # If we fail to get the record, exit to avoid overwriting our data (results in wiping a servers stats)
+            elif record is False:
+                return
+
+            # Write to the DB with the updated (or newly created) values
+            stats = json.dumps(
+                {
+                    "play_stats": {
+                        "total_time_played": total_time_played,
+                        "total_songs_played": total_songs_played,
+                    },
+                    "dj_stats": {"djs": djs},
+                }
+            )
+            dynamo.write(PlayTable(discord_server_id=queue_item["guild_id"], stats=stats))
+        except Exception as e:
+            Sentry().capture(e)
+            return False
