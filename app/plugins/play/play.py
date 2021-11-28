@@ -102,6 +102,7 @@ class Play(BotPlugin):
                 self.update_play_stats(queue_item)
 
         except Exception as e:
+            Sentry().capture(e)
             self.log.exception(f"The play_cron() failed! - Error: {e}")
 
     @botcmd
