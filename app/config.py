@@ -45,6 +45,22 @@ import sys
 # 'Telegram' - cloud-based mobile and desktop messaging app with a focus
 #              on security and speed. (https://telegram.org/)
 
+### SENTRY.IO ###
+# Try to load sentry
+# This will load sentry globally for the errbot application
+try:
+    import sentry_sdk
+
+    sentry_sdk.init(
+        os.environ["SENTRY"], traces_sample_rate=1.0, release=os.environ["COMMIT_SHA"]
+    )
+except:
+    print("[!] Failed to init sentry sdk")
+    # If Sentry fails to load, we will let other libraries know with the 'SENTRY_DISABLED' variable
+    os.environ["SENTRY_DISABLED"] = "True"
+    print("[!] Sentry disabled:", os.environ["SENTRY_DISABLED"])
+    sys.stdout.flush()
+
 # BACKEND = 'Slack'  # defaults to XMPP
 BACKEND = os.environ.get("BACKEND", "Text")
 
@@ -385,21 +401,6 @@ MESSAGE_SIZE_LIMIT = 10000
 
 # Prevent ErrBot from saying anything if the command is unrecognized.
 # SUPPRESS_CMD_NOT_FOUND = False
-
-### SENTRY.IO ###
-# Try to load sentry
-# This will load sentry globally for the errbot application
-try:
-    import sentry_sdk
-
-    sentry_sdk.init(
-        os.environ["SENTRY"], traces_sample_rate=1.0, release=os.environ["COMMIT_SHA"]
-    )
-except:
-    print("failed to init sentry sdk")
-    # If Sentry fails to load, we will let other libraries know with the 'SENTRY_DISABLED' variable
-    os.environ["SENTRY_DISABLED"] = "True"
-    sys.stdout.flush()
 
 ### LOCAL_TESTING ###
 
