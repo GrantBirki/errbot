@@ -434,7 +434,9 @@ class Play(BotPlugin):
                 song = self.youtube_title_sanitizer(song)
 
             # Search Spotify for the song
+            self.log.info(f"3.1: searching Spotify for {song}")
             results = sp.search(q=song, limit=1)
+            self.log.info(f"3.2: search results {results}")
 
             # If no matches were found, return None
             if len(results["tracks"]["items"]) == 0:
