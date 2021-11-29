@@ -728,7 +728,7 @@ class Play(BotPlugin):
         hms = util.hours_minutes_seconds(play_time)
         return f"h{hms['hours']:02}:m{hms['minutes']:02}:s{hms['seconds']:02}"
 
-    def send_card_helper(self, to, title, message, color, in_reply_to=None):
+    def send_card_helper(self, to, title, message, color, in_reply_to=None, retries=3):
         """
         Helper function for sending a message card for the stats command
         :param to: The message to reply to (either a string or a discord.Message object)
@@ -736,17 +736,23 @@ class Play(BotPlugin):
         :param message: The message to send
         :param color: The color of the card
         """
-        if in_reply_to is None:
-            self.send_card(
-                to=to,
-                title=title,
-                body=message,
-                color=color,
-            )
-        else:
-            self.send_card(
-                title=title,
-                body=message,
-                color=color,
-                in_reply_to=to,
-            )
+        for i in range(retries):
+            try:
+                if in_reply_to is None:
+                    self.send_card(
+                        to=to,
+                        title=title,
+                        body=message,
+                        color=color,
+                    )
+                else:
+                    self.send_card(
+                        title=title,
+                        body=message,
+                        color=color,
+                        in_reply_to=to,
+                    )
+                return
+            except TimeoutError:
+                if i == retries - 1:
+                    raise
