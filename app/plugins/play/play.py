@@ -60,7 +60,9 @@ class Play(BotPlugin):
 
                 # If the queue file is not ready for reads, exit the function
                 if queue_items is False:
-                    self.log.warn(f"play_cron() blocked due to a failed read on the queue: {queue}")
+                    self.log.warn(
+                        f"play_cron() blocked due to a failed read on the queue: {queue}"
+                    )
                     return
 
                 # If the queue is empty, return
@@ -497,9 +499,7 @@ class Play(BotPlugin):
         :return: A list of queue items - each item is a dictionary if successful, False if not ready for reads
         """
         # Check if the queue .json file is read for reads/writes
-        file_ready = util.check_file_ready(
-            f"{QUEUE_PATH}/{guild_id}_queue.json"
-        )
+        file_ready = util.check_file_ready(f"{QUEUE_PATH}/{guild_id}_queue.json")
         # If it is not ready and open by another process we have to exit
         if not file_ready:
             return False
