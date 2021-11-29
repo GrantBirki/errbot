@@ -29,7 +29,11 @@ try:
         auth_manager=SpotifyClientCredentials(
             client_id=os.environ["SPOTIFY_CLIENT_ID"],
             client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
-        )
+        ),
+        requests_session=False,
+        requests_timeout=3,
+        backoff_factor=0.1,
+        retries=3,
     )
 except Exception as e:
     Sentry().capture(e)
@@ -174,7 +178,7 @@ class Play(BotPlugin):
         # If the video is greater than the configured max length, don't play it
         if length > ytdl.max_length:
             yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
-            yield
+            return
 
         # Check if the queue .json file is read for reads/writes
         file_ready = util.check_file_ready(
@@ -436,7 +440,7 @@ class Play(BotPlugin):
             # Search Spotify for the song
             self.log.info(f"3.1: searching Spotify for {song}")
             results = sp.search(q=song, limit=1)
-            self.log.info(f"3.2: search results {results}")
+            self.log.info(f"3.2: search results complete")
 
             # If no matches were found, return None
             if len(results["tracks"]["items"]) == 0:
