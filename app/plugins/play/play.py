@@ -174,7 +174,7 @@ class Play(BotPlugin):
         # If the video is greater than the configured max length, don't play it
         if length > ytdl.max_length:
             yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
-            yield
+            return
 
         # Check if the queue .json file is read for reads/writes
         file_ready = util.check_file_ready(
