@@ -179,7 +179,8 @@ class League(BotPlugin):
             else:
                 color = discord.color("red")
 
-            self.send_card(
+            discord.send_card_helper(
+                bot_self=self,
                 to=self.build_identifier(f"{LEAGUE_CHANNEL}@{guild_id}"),
                 title=f"Last Match For: `{item['summoner_name']}`",
                 body=message_data["message"],
@@ -438,11 +439,13 @@ class League(BotPlugin):
                 color = discord.color("green")
             else:
                 color = discord.color("red")
-            self.send_card(
+
+            discord.send_card_helper(
+                bot_self=self,
                 title=f"Last Match For: `{message['summoner']}`",
                 body=message["message"],
                 color=color,
-                in_reply_to=msg,
+                in_reply_to=msg
             )
 
     @arg_botcmd("summoner_name", type=str)
@@ -459,11 +462,12 @@ class League(BotPlugin):
                 color = discord.color("green")
             else:
                 color = discord.color("red")
-            self.send_card(
+            discord.send_card_helper(
+                bot_self=self,
                 title=f"Last Match For: `{message['summoner']}`",
                 body=message["message"],
                 color=color,
-                in_reply_to=msg,
+                in_reply_to=msg
             )
 
     def last_match_main(self, summoner_list):

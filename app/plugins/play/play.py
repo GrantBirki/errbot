@@ -91,11 +91,13 @@ class Play(BotPlugin):
                 self.log.info("5: send card to #errbot channel")  # DEBUG
                 # Send the currently playing song into to the BOT_HOME_CHANNEL
                 discord.send_card_helper(
-                    self,
-                    self.build_identifier(f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"),
-                    "🎶 Now Playing:",
-                    message,
-                    discord.color("blue")
+                    bot_self=self,
+                    to=self.build_identifier(
+                        f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"
+                    ),
+                    title="🎶 Now Playing:",
+                    body=message,
+                    color=discord.color("blue"),
                 )
 
                 self.log.info("6: init DiscordCustom lib")  # DEBUG
@@ -314,21 +316,45 @@ class Play(BotPlugin):
             message += f"• Total Play Time: **{self.fmt_play_time(dj_1['total_time_played'])}**\n\n"
         else:
             message += "No top DJs yet\n"
-            return discord.send_card_helper(self, msg, title, message, discord.color("blue"), in_reply_to=True)
+            return discord.send_card_helper(
+                bot_self=self,
+                title=title,
+                body=message,
+                color=discord.color("blue"),
+                in_reply_to=msg,
+            )
         if dj_2:
             message += f"🥈 **2nd Top DJ:** <@{dj_2['user_id']}>\n"
             message += f"• Songs Played: **{dj_2['total_songs_played']}**\n"
             message += f"• Total Play Time: **{self.fmt_play_time(dj_2['total_time_played'])}**\n\n"
         else:
-            return discord.send_card_helper(self, msg, title, message, discord.color("blue"), in_reply_to=True)
+            return discord.send_card_helper(
+                bot_self=self,
+                title=title,
+                body=message,
+                color=discord.color("blue"),
+                in_reply_to=msg,
+            )
         if dj_3:
             message += f"🥉 **3rd Top DJ:** <@{dj_3['user_id']}>\n"
             message += f"• Songs Played: **{dj_3['total_songs_played']}**\n"
             message += f"• Total Play Time: **{self.fmt_play_time(dj_3['total_time_played'])}**\n\n"
         else:
-            return discord.send_card_helper(self, msg, title, message, discord.color("blue"), in_reply_to=True)
+            return discord.send_card_helper(
+                bot_self=self,
+                title=title,
+                body=message,
+                color=discord.color("blue"),
+                in_reply_to=msg,
+            )
 
-        return discord.send_card_helper(self, msg, title, message, discord.color("blue"), in_reply_to=True)
+        return discord.send_card_helper(
+            bot_self=self,
+            title=title,
+            body=message,
+            color=discord.color("blue"),
+            in_reply_to=msg,
+        )
 
     @botcmd
     def stop(self, msg, args):
