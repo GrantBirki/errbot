@@ -42,7 +42,7 @@ except Exception as e:
 CRON_INTERVAL = 2  # seconds
 QUEUE_PATH = "plugins/play/queue"
 KILL_SWITCH_PATH = "plugins/lib/chat/dc_kill_switches"
-QUEUE_ERROR_MSG = f"❌ An error occurring writing your request to the `.play` queue!"
+QUEUE_ERROR_MSG_READ = f"❌ An error occurring reading the .play queue!"
 
 
 class Play(BotPlugin):
@@ -57,6 +57,11 @@ class Play(BotPlugin):
             for queue in self.scan_queue_dir():
                 # If a queue file is found for a guild/server, read it
                 queue_items = self.read_queue(queue)
+
+                # If the queue file is not ready for reads, exit the function
+                if queue_item is False:
+                    self.log.warn(f"play_cron() blocked due to a failed read on the queue: {queue}")
+                    return
 
                 # If the queue is empty, return
                 if len(queue_items) == 0:
@@ -181,16 +186,6 @@ class Play(BotPlugin):
             yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
             return
 
-        # Check if the queue .json file is read for reads/writes
-        file_ready = util.check_file_ready(
-            f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
-        )
-
-        # If it is not ready and open by another process we have to exit
-        if not file_ready:
-            yield QUEUE_ERROR_MSG
-            return
-
         # If the --channel flag was not provided, use the channel the user is in as the .play target channel
         if channel is None:
             # Get the current voice channel of the user who invoked the command
@@ -211,6 +206,11 @@ class Play(BotPlugin):
 
         # Check if there are any files in the queue
         queue_items = self.read_queue(discord.guild_id(msg))
+        # If it is not ready and open by another process we have to exit
+        if queue_items is False:
+            yield QUEUE_ERROR_MSG_READ
+            return
+
         # If the queue is empty, change the response message
         if len(queue_items) == 0:
             response_message = f"🎵 Now playing: `{video_metadata['title']}`"
@@ -225,7 +225,8 @@ class Play(BotPlugin):
 
         # If something went wrong, we can't add the song to the queue and send an error message
         if not add_result:
-            yield QUEUE_ERROR_MSG
+            yield "❌ An error occuring writing your request to the `.play` queue!"
+            return
 
         # If we got this far, the song has been queue'd and will be picked up and played by the cron
         yield response_message
@@ -247,6 +248,9 @@ class Play(BotPlugin):
         Sentry().user(msg)
 
         queue_items = self.read_queue(discord.guild_id(msg))
+        # If it is not ready and open by another process we have to exit
+        if queue_items is False:
+            return QUEUE_ERROR_MSG_READ
 
         # If the queue is empty, return
         if len(queue_items) == 0:
@@ -418,6 +422,10 @@ class Play(BotPlugin):
         Sentry().user(msg)
 
         queue_items = self.read_queue(discord.guild_id(msg))
+        # If it is not ready and open by another process we have to exit
+        if queue_items is False:
+            return QUEUE_ERROR_MSG_READ
+
         # If the queue is empty, return
         if len(queue_items) == 0:
             return "🎵 No songs in the queue - nothing to skip!"
@@ -486,8 +494,17 @@ class Play(BotPlugin):
         """
         Helper function - Read the .play queue for a given guild/server
         :param guild_id: The guild/server ID
-        :return: A list of queue items - each item is a dictionary
+        :return: A list of queue items - each item is a dictionary if successful, False if not ready for reads
         """
+        # Check if the queue .json file is read for reads/writes
+        file_ready = util.check_file_ready(
+            f"{QUEUE_PATH}/{guild_id}_queue.json"
+        )
+        # If it is not ready and open by another process we have to exit
+        if not file_ready:
+            return False
+
+        # Attempt to read the queue file
         try:
             with open(f"{QUEUE_PATH}/{guild_id}_queue.json", "r") as queue_file:
                 queue_items = json.loads(queue_file.read())
