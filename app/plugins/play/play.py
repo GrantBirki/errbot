@@ -227,7 +227,7 @@ class Play(BotPlugin):
 
         # If something went wrong, we can't add the song to the queue and send an error message
         if not add_result:
-            yield "❌ An error occuring writing your request to the `.play` queue!"
+            yield "❌ An error occurred writing your request to the `.play` queue!"
             return
 
         # If we got this far, the song has been queue'd and will be picked up and played by the cron
