@@ -13,8 +13,8 @@ pynamodb==5.1.0
 # AWS
 boto3==1.18.29
 
-# youtube-dl
-youtube-dl==2021.6.6
+# yt-dlp / youtube-dl
+yt-dlp==2021.11.10.1
 
 # youtube string searching
 youtube-search-python==1.5.1
