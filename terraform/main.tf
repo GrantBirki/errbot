@@ -60,7 +60,7 @@ module "errbot_container" {
   commands = []
 
   # Container Resources
-  cpu         = 2
+  cpu         = 4
   memory      = 2
   project_env = "prod"
   image_tag   = var.IMAGE_TAG
