@@ -445,7 +445,7 @@ class League(BotPlugin):
                 title=f"Last Match For: `{message['summoner']}`",
                 body=message["message"],
                 color=color,
-                in_reply_to=msg
+                in_reply_to=msg,
             )
 
     @arg_botcmd("summoner_name", type=str)
@@ -467,7 +467,7 @@ class League(BotPlugin):
                 title=f"Last Match For: `{message['summoner']}`",
                 body=message["message"],
                 color=color,
-                in_reply_to=msg
+                in_reply_to=msg,
             )
 
     def last_match_main(self, summoner_list):
