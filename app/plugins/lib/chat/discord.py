@@ -65,3 +65,32 @@ class Discord:
             if not match:
                 raise ValueError("Could not find user ID")
             return int(match.group(1).strip())
+
+    def send_card_helper(self, bot_self, to, title, message, color, in_reply_to=None, retries=3):
+        """
+        Helper function for sending a message card for the stats command
+        :param to: The message to reply to (either a string or a discord.Message object)
+        :param title: The title of the card
+        :param message: The message to send
+        :param color: The color of the card
+        """
+        for i in range(retries):
+            try:
+                if in_reply_to is None:
+                    bot_self.send_card(
+                        to=to,
+                        title=title,
+                        body=message,
+                        color=color,
+                    )
+                else:
+                    bot_self.send_card(
+                        title=title,
+                        body=message,
+                        color=color,
+                        in_reply_to=to,
+                    )
+                return
+            except TimeoutError:
+                if i == retries - 1:
+                    raise
