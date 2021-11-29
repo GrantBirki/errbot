@@ -42,7 +42,7 @@ except Exception as e:
 CRON_INTERVAL = 2  # seconds
 QUEUE_PATH = "plugins/play/queue"
 KILL_SWITCH_PATH = "plugins/lib/chat/dc_kill_switches"
-QUEUE_ERROR_MSG = f"❌ An error occurring writing your request to the `.play` queue!"
+QUEUE_ERROR_MSG_READ = f"❌ An error occurring reading the .play queue!"
 
 
 class Play(BotPlugin):
@@ -57,6 +57,13 @@ class Play(BotPlugin):
             for queue in self.scan_queue_dir():
                 # If a queue file is found for a guild/server, read it
                 queue_items = self.read_queue(queue)
+
+                # If the queue file is not ready for reads, exit the function
+                if queue_items is False:
+                    self.log.warn(
+                        f"play_cron() blocked due to a failed read on the queue: {queue}"
+                    )
+                    return
 
                 # If the queue is empty, return
                 if len(queue_items) == 0:
@@ -90,11 +97,12 @@ class Play(BotPlugin):
 
                 self.log.info("5: send card to #errbot channel")  # DEBUG
                 # Send the currently playing song into to the BOT_HOME_CHANNEL
-                self.send_card(
+                discord.send_card_helper(
+                    bot_self=self,
                     to=self.build_identifier(
                         f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"
                     ),
-                    title=f"🎶 Now Playing:",
+                    title="🎶 Now Playing:",
                     body=message,
                     color=discord.color("blue"),
                 )
@@ -180,16 +188,6 @@ class Play(BotPlugin):
             yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
             return
 
-        # Check if the queue .json file is read for reads/writes
-        file_ready = util.check_file_ready(
-            f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
-        )
-
-        # If it is not ready and open by another process we have to exit
-        if not file_ready:
-            yield QUEUE_ERROR_MSG
-            return
-
         # If the --channel flag was not provided, use the channel the user is in as the .play target channel
         if channel is None:
             # Get the current voice channel of the user who invoked the command
@@ -210,6 +208,11 @@ class Play(BotPlugin):
 
         # Check if there are any files in the queue
         queue_items = self.read_queue(discord.guild_id(msg))
+        # If it is not ready and open by another process we have to exit
+        if queue_items is False:
+            yield QUEUE_ERROR_MSG_READ
+            return
+
         # If the queue is empty, change the response message
         if len(queue_items) == 0:
             response_message = f"🎵 Now playing: `{video_metadata['title']}`"
@@ -224,7 +227,8 @@ class Play(BotPlugin):
 
         # If something went wrong, we can't add the song to the queue and send an error message
         if not add_result:
-            yield QUEUE_ERROR_MSG
+            yield "❌ An error occurred writing your request to the `.play` queue!"
+            return
 
         # If we got this far, the song has been queue'd and will be picked up and played by the cron
         yield response_message
@@ -246,6 +250,9 @@ class Play(BotPlugin):
         Sentry().user(msg)
 
         queue_items = self.read_queue(discord.guild_id(msg))
+        # If it is not ready and open by another process we have to exit
+        if queue_items is False:
+            return QUEUE_ERROR_MSG_READ
 
         # If the queue is empty, return
         if len(queue_items) == 0:
@@ -315,21 +322,45 @@ class Play(BotPlugin):
             message += f"• Total Play Time: **{self.fmt_play_time(dj_1['total_time_played'])}**\n\n"
         else:
             message += "No top DJs yet\n"
-            return self.send_stats_message(msg, title, message, discord.color("blue"))
+            return discord.send_card_helper(
+                bot_self=self,
+                title=title,
+                body=message,
+                color=discord.color("blue"),
+                in_reply_to=msg,
+            )
         if dj_2:
             message += f"🥈 **2nd Top DJ:** <@{dj_2['user_id']}>\n"
             message += f"• Songs Played: **{dj_2['total_songs_played']}**\n"
             message += f"• Total Play Time: **{self.fmt_play_time(dj_2['total_time_played'])}**\n\n"
         else:
-            return self.send_stats_message(msg, title, message, discord.color("blue"))
+            return discord.send_card_helper(
+                bot_self=self,
+                title=title,
+                body=message,
+                color=discord.color("blue"),
+                in_reply_to=msg,
+            )
         if dj_3:
             message += f"🥉 **3rd Top DJ:** <@{dj_3['user_id']}>\n"
             message += f"• Songs Played: **{dj_3['total_songs_played']}**\n"
             message += f"• Total Play Time: **{self.fmt_play_time(dj_3['total_time_played'])}**\n\n"
         else:
-            return self.send_stats_message(msg, title, message, discord.color("blue"))
+            return discord.send_card_helper(
+                bot_self=self,
+                title=title,
+                body=message,
+                color=discord.color("blue"),
+                in_reply_to=msg,
+            )
 
-        return self.send_stats_message(msg, title, message, discord.color("blue"))
+        return discord.send_card_helper(
+            bot_self=self,
+            title=title,
+            body=message,
+            color=discord.color("blue"),
+            in_reply_to=msg,
+        )
 
     @botcmd
     def stop(self, msg, args):
@@ -393,6 +424,10 @@ class Play(BotPlugin):
         Sentry().user(msg)
 
         queue_items = self.read_queue(discord.guild_id(msg))
+        # If it is not ready and open by another process we have to exit
+        if queue_items is False:
+            return QUEUE_ERROR_MSG_READ
+
         # If the queue is empty, return
         if len(queue_items) == 0:
             return "🎵 No songs in the queue - nothing to skip!"
@@ -461,8 +496,15 @@ class Play(BotPlugin):
         """
         Helper function - Read the .play queue for a given guild/server
         :param guild_id: The guild/server ID
-        :return: A list of queue items - each item is a dictionary
+        :return: A list of queue items - each item is a dictionary if successful, False if not ready for reads
         """
+        # Check if the queue .json file is read for reads/writes
+        file_ready = util.check_file_ready(f"{QUEUE_PATH}/{guild_id}_queue.json")
+        # If it is not ready and open by another process we have to exit
+        if not file_ready:
+            return False
+
+        # Attempt to read the queue file
         try:
             with open(f"{QUEUE_PATH}/{guild_id}_queue.json", "r") as queue_file:
                 queue_items = json.loads(queue_file.read())
@@ -729,18 +771,3 @@ class Play(BotPlugin):
         """
         hms = util.hours_minutes_seconds(play_time)
         return f"h{hms['hours']:02}:m{hms['minutes']:02}:s{hms['seconds']:02}"
-
-    def send_stats_message(self, msg, title, message, color):
-        """
-        Helper function for sending a message card for the stats command
-        :param msg: The message to reply to
-        :param title: The title of the card
-        :param message: The message to send
-        :param color: The color of the card
-        """
-        self.send_card(
-            title=title,
-            body=message,
-            color=color,
-            in_reply_to=msg,
-        )
