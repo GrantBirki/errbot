@@ -1,8 +1,8 @@
 import time
 import uuid
 
-import youtube_dl
-from youtube_dl.utils import DownloadError
+from yt_dlp import YoutubeDL
+from yt_dlp.utils import DownloadError
 
 
 class YtdlLib:
@@ -27,7 +27,7 @@ class YtdlLib:
             "prefer_ffmpeg": True,
             "audioformat": "wav",
         }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        with YoutubeDL(ydl_opts) as ydl:
             dictMeta = ydl.extract_info(url, download=False)
             return dictMeta
 
@@ -77,5 +77,5 @@ class YtdlLib:
         return output_file
 
     def downloader(self, ydl_opts, url):
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        with YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
