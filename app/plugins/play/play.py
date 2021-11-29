@@ -59,7 +59,7 @@ class Play(BotPlugin):
                 queue_items = self.read_queue(queue)
 
                 # If the queue file is not ready for reads, exit the function
-                if queue_item is False:
+                if queue_items is False:
                     self.log.warn(f"play_cron() blocked due to a failed read on the queue: {queue}")
                     return
 
