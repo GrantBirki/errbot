@@ -90,13 +90,11 @@ class Play(BotPlugin):
 
                 self.log.info("5: send card to #errbot channel")  # DEBUG
                 # Send the currently playing song into to the BOT_HOME_CHANNEL
-                self.send_card(
-                    to=self.build_identifier(
-                        f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"
-                    ),
-                    title=f"🎶 Now Playing:",
-                    body=message,
-                    color=discord.color("blue"),
+                self.send_card_helper(
+                    self.build_identifier(f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"),
+                    "🎶 Now Playing:",
+                    message,
+                    discord.color("blue")
                 )
 
                 self.log.info("6: init DiscordCustom lib")  # DEBUG
@@ -315,21 +313,21 @@ class Play(BotPlugin):
             message += f"• Total Play Time: **{self.fmt_play_time(dj_1['total_time_played'])}**\n\n"
         else:
             message += "No top DJs yet\n"
-            return self.send_stats_message(msg, title, message, discord.color("blue"))
+            return self.send_card_helper(msg, title, message, discord.color("blue"), in_reply_to=True)
         if dj_2:
             message += f"🥈 **2nd Top DJ:** <@{dj_2['user_id']}>\n"
             message += f"• Songs Played: **{dj_2['total_songs_played']}**\n"
             message += f"• Total Play Time: **{self.fmt_play_time(dj_2['total_time_played'])}**\n\n"
         else:
-            return self.send_stats_message(msg, title, message, discord.color("blue"))
+            return self.send_card_helper(msg, title, message, discord.color("blue"), in_reply_to=True)
         if dj_3:
             message += f"🥉 **3rd Top DJ:** <@{dj_3['user_id']}>\n"
             message += f"• Songs Played: **{dj_3['total_songs_played']}**\n"
             message += f"• Total Play Time: **{self.fmt_play_time(dj_3['total_time_played'])}**\n\n"
         else:
-            return self.send_stats_message(msg, title, message, discord.color("blue"))
+            return self.send_card_helper(msg, title, message, discord.color("blue"), in_reply_to=True)
 
-        return self.send_stats_message(msg, title, message, discord.color("blue"))
+        return self.send_card_helper(msg, title, message, discord.color("blue"), in_reply_to=True)
 
     @botcmd
     def stop(self, msg, args):
@@ -730,17 +728,25 @@ class Play(BotPlugin):
         hms = util.hours_minutes_seconds(play_time)
         return f"h{hms['hours']:02}:m{hms['minutes']:02}:s{hms['seconds']:02}"
 
-    def send_stats_message(self, msg, title, message, color):
+    def send_card_helper(self, to, title, message, color, in_reply_to=None):
         """
         Helper function for sending a message card for the stats command
-        :param msg: The message to reply to
+        :param to: The message to reply to (either a string or a discord.Message object)
         :param title: The title of the card
         :param message: The message to send
         :param color: The color of the card
         """
-        self.send_card(
-            title=title,
-            body=message,
-            color=color,
-            in_reply_to=msg,
-        )
+        if in_reply_to is None:
+            self.send_card(
+                to=to,
+                title=title,
+                body=message,
+                color=color,
+            )
+        else:
+            self.send_card(
+                title=title,
+                body=message,
+                color=color,
+                in_reply_to=to,
+            )
