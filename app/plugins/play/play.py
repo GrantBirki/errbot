@@ -23,22 +23,6 @@ discord = Discord()
 ytdl = YtdlLib()
 dynamo = Dynamo()
 
-# Try to initialize the Spotify client, if anything fails set sp -> None
-try:
-    sp = spotipy.Spotify(
-        auth_manager=SpotifyClientCredentials(
-            client_id=os.environ["SPOTIFY_CLIENT_ID"],
-            client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
-        ),
-        requests_session=False,
-        requests_timeout=3,
-        backoff_factor=0.1,
-        retries=3,
-    )
-except Exception as e:
-    Sentry().capture(e)
-    sp = None
-
 CRON_INTERVAL = 2  # seconds
 QUEUE_PATH = "plugins/play/queue"
 KILL_SWITCH_PATH = "plugins/lib/chat/dc_kill_switches"
@@ -471,6 +455,22 @@ class Play(BotPlugin):
                 song = queue_item["song"]
                 # Get a cleaner version of the YouTube title/song
                 song = self.youtube_title_sanitizer(song)
+
+            # Init Spotify
+            try:
+                sp = spotipy.Spotify(
+                    auth_manager=SpotifyClientCredentials(
+                        client_id=os.environ["SPOTIFY_CLIENT_ID"],
+                        client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
+                    ),
+                    requests_session=False,
+                    requests_timeout=3,
+                    backoff_factor=0.1,
+                    retries=3,
+                )
+            except Exception as e:
+                Sentry().capture(e)
+                return None
 
             # Search Spotify for the song
             self.log.info(f"3.1: searching Spotify for {song}")
