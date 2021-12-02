@@ -78,7 +78,7 @@ class DiscordCustom:
         :return: False if the file size is too large
         """
         # Check the file size
-        max_file_size = 5242880 # 5MB
+        max_file_size = 5242880  # 5MB
         file_size = os.path.getsize(file)
         if file_size > max_file_size:
             return False
