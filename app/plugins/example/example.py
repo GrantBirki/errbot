@@ -188,7 +188,7 @@ class Example(BotPlugin):
     def bean(self, msg, args):
         """Example of sending a file"""
         filename = "plugins/example/bean.gif"
-        
+
         # Init the DiscordCustom object
         dc = DiscordCustom(self._bot)
 
