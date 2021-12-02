@@ -69,6 +69,26 @@ class DiscordCustom:
         member_ids = channel.voice_states.keys()
         return list(member_ids)
 
+    def send_file(self, channel_id, file, content=None):
+        """
+        Send a file to a Discord channel
+        :param channel_id: the channel to send the file to (int)
+        :param file: the file to send (path)
+        :param content: the content/message to send with the file (str) - (optional)
+        :return: False if the file size is too large
+        """
+        # Check the file size
+        max_file_size = 5242880  # 5MB
+        file_size = os.path.getsize(file)
+        if file_size > max_file_size:
+            return False
+
+        # Run the __send_file_runner in a new thread
+        asyncio.run_coroutine_threadsafe(
+            self.__send_file_runner(channel_id, file, content),
+            loop=self.bot.client.loop,
+        )
+
     def play_audio_file(
         self, channel_id, file, preserve_file=False, file_duration=None
     ):
@@ -288,3 +308,23 @@ class DiscordCustom:
             await vc.disconnect()
         except CancelledError:
             await vc.disconnect()
+
+    async def __send_file_runner(self, channel_id, file, content=None):
+        """
+        The runner for sending a file to a Discord channel
+        """
+        # Get the channel object from the ID
+        channel = self.bot.client.get_channel(channel_id)
+
+        # If the content is not None, send it as a message attached with the file
+        if content:
+            result = await channel.send(content, file=discord.File(file))
+        # Otherwise, just send the file
+        else:
+            result = await channel.send(file=discord.File(file))
+
+        # TEMP testing if a message was properly sent
+        if len(result.attachments) > 0:
+            return True
+        else:
+            raise Exception("Failed to send file")

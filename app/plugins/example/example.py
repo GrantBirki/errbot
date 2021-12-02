@@ -2,6 +2,8 @@ from lib.chat.discord import Discord
 from errbot import BotPlugin, botcmd
 from time import sleep
 import os
+from lib.chat.discord_custom import DiscordCustom
+from lib.chat.discord import Discord
 
 from lib.common.sentry import Sentry
 
@@ -181,3 +183,17 @@ class Example(BotPlugin):
     def version(self, msg, args):
         """Get the version (COMMIT_SHA) that this instance of errbot is running"""
         return str(os.environ["COMMIT_SHA"])
+
+    @botcmd
+    def bean(self, msg, args):
+        """Example of sending a file"""
+        filename = "plugins/example/bean.gif"
+
+        # Init the DiscordCustom object
+        dc = DiscordCustom(self._bot)
+
+        # Get the channel ID from the message to send the file to
+        channel_id = discord.channel_id(msg)
+
+        # Send the file
+        dc.send_file(channel_id, filename)
