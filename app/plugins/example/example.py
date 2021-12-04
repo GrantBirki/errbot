@@ -1,11 +1,9 @@
-from lib.chat.discord import Discord
-from errbot import BotPlugin, botcmd
-from time import sleep
 import os
-from lib.chat.discord_custom import DiscordCustom
-from lib.chat.discord import Discord
 
-from lib.common.sentry import Sentry
+import psutil
+from errbot import BotPlugin, botcmd
+from lib.chat.discord import Discord
+from lib.chat.discord_custom import DiscordCustom
 
 discord = Discord()
 
@@ -14,13 +12,9 @@ class Example(BotPlugin):
     """Example 'Hello, world!' plugin for Errbot"""
 
     @botcmd
-    def example(self, msg, args):
-        """The most basic example of a chatbot command/function"""
-
-        # Add code here
-
-        # Return a message / output below
-        return "Hello, World!"
+    def hello(self, msg, args):
+        """Say hello to the world"""
+        return "hello world!"
 
     @botcmd
     def show_args(self, msg, args):
@@ -31,7 +25,7 @@ class Example(BotPlugin):
     @botcmd
     def show_msg(self, msg, args):
         """
-        Used for showing message attributes from Discord
+        Used for showing message attributes from Discord (gross)
         """
         # Displays msg attributes
         message = []
@@ -103,79 +97,11 @@ class Example(BotPlugin):
         )
 
     @botcmd
-    def hello(self, msg, args):
-        """Say hello to the world"""
-
-        # Slack
-        # self.send_card(
-        #     title='Hey!',
-        #     body='body',
-        #     # image='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
-        #     # link='http://www.google.com',
-        #     color='red',
-        #     in_reply_to=msg
-        # )
-
-        return "hello world!"
-
-    # @botcmd
-    # def longcompute(self, msg, args):
-    #     """Slowly return responses over time with Python Yield"""
-
-    #     # Slack
-    #     # yield self.send_card(
-    #     #     title='Sleep',
-    #     #     color='red',
-    #     #     in_reply_to=msg
-    #     # )
-
-    #     yield 'Sleep'
-
-    #     sleep(5)
-
-    #     # Slack
-    #     # yield self.send_card(
-    #     #     title='Wake',
-    #     #     color='green',
-    #     #     in_reply_to=msg
-    #     # )
-
-    #     yield 'Wake'
-
-    # @botcmd
-    # def yield_test(self, msg, args):
-    #     """Returns messages in a yield"""
-
-    #     messages = ["hey1", "hey2", "hey3"]
-
-    #     # Slack
-    #     # for hey in messages:
-    #     #     yield self.send_card(
-    #     #     title="Incoming Hey!",
-    #     #     color='blue',
-    #     #     in_reply_to=msg
-    #     # )
-
-    #     # Standard
-    #     for hey in messages:
-    #         yield hey
-
-    @botcmd
     def usertest(self, msg, args):
         """Send a message directly to a user"""
-
-        # Slack
-        # self.send_card(
-        #     title='Sending private message',
-        #     body=f'Recipient {msg.frm.person}',
-        #     color='green',
-        #     in_reply_to=msg
-        # )
-
         yield f"Sending private message to: {msg.frm.person}"
-
         self.send(
-            self.build_identifier(msg.frm.person),
+            self.build_identifier(discord.handle(msg)),
             "Boo! Bet you weren't expecting me, were you?",
         )
 
@@ -197,3 +123,11 @@ class Example(BotPlugin):
 
         # Send the file
         dc.send_file(channel_id, filename)
+
+    @botcmd
+    def load(self, msg, args):
+        """Get the system load"""
+        message = "**System load:**\n"
+        cpu = f"CPU usage: {psutil.cpu_percent(4)}%\n"
+        memory = f"Memory usage: {psutil.virtual_memory()[2]}%"
+        return message + cpu + memory
