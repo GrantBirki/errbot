@@ -1,10 +1,10 @@
-from lib.chat.discord import Discord
-from errbot import BotPlugin, botcmd
-from time import sleep
 import os
-from lib.chat.discord_custom import DiscordCustom
-from lib.chat.discord import Discord
+from time import sleep
 
+import psutil
+from errbot import BotPlugin, botcmd
+from lib.chat.discord import Discord
+from lib.chat.discord_custom import DiscordCustom
 from lib.common.sentry import Sentry
 
 discord = Discord()
@@ -197,3 +197,11 @@ class Example(BotPlugin):
 
         # Send the file
         dc.send_file(channel_id, filename)
+
+    @botcmd
+    def load(self, msg, args):
+        """Get the system load"""
+        message = "**System load:**\n"
+        cpu = f"CPU usage: {psutil.cpu_percent(4)}%\n"
+        memory = f"Memory usage: {psutil.virtual_memory()[2]}%"
+        return message + cpu + memory
