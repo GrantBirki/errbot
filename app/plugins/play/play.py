@@ -110,11 +110,11 @@ class Play(BotPlugin):
         Note: This command uses the exact same syntax as the .play command
         """
         Sentry().user(msg)
-        
+
         # Run the play_main() function with the queue_postition set to 1 (next song)
         for message in self.play_main(msg, args, queue_position=1):
             yield message
-        return   
+        return
 
     @botcmd
     def play(self, msg, args):
@@ -127,10 +127,10 @@ class Play(BotPlugin):
         Note: Use the --channel flag if you are not in a voice channel or want to play in a specific channel
         """
         Sentry().user(msg)
-        
+
         for message in self.play_main(msg, args):
             yield message
-        return        
+        return
 
     @botcmd
     def play_queue(self, msg, args):
@@ -426,10 +426,12 @@ class Play(BotPlugin):
             response_message = f"🎵 Now playing: `{video_metadata['title']}`"
         # If the queue is 1 item, let the user know their song is up next
         elif len(queue_items) == 1:
-            response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}` - Up next!"
+            response_message = (
+                f"💃🕺💃 Added to queue: `{video_metadata['title']}` - Up next!"
+            )
         # If the queue is not empty, change the response message to 'added'
         else:
-             # If there is no queue position provided, add the song to the end of the queue
+            # If there is no queue position provided, add the song to the end of the queue
             if queue_position is None:
                 response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
             # If the user provided a queue position, give details about its position
@@ -440,7 +442,13 @@ class Play(BotPlugin):
 
         # If the queue file is ready, we can add the song to the queue
         add_result = self.add_to_queue(
-            msg, channel, video_metadata, file_path, song_uuid, regex_result, queue_position=queue_position
+            msg,
+            channel,
+            video_metadata,
+            file_path,
+            song_uuid,
+            regex_result,
+            queue_position=queue_position,
         )
 
         # If something went wrong, we can't add the song to the queue and send an error message
@@ -558,7 +566,14 @@ class Play(BotPlugin):
         return queue_files
 
     def add_to_queue(
-        self, msg, channel, video_metadata, file_name, song_uuid, regex_result, queue_position=None
+        self,
+        msg,
+        channel,
+        video_metadata,
+        file_name,
+        song_uuid,
+        regex_result,
+        queue_position=None,
     ):
         """
         Helper function - Add a song to the .play queue
@@ -606,7 +621,7 @@ class Play(BotPlugin):
                 else:
                     queue = json.loads(queue_file.read())
                     queue.insert(queue_position, queue_item)
-                
+
                 # Seek to the start of the file and nuke the contents
                 queue_file.seek(0)
                 queue_file.truncate(0)
@@ -707,7 +722,9 @@ class Play(BotPlugin):
                     # The queue_position is a list starting at 0 but humans start counting at 1 so we subtract 1 so they line up
                     regex_result["queue_position"] = int(match.group(2).strip()) - 1
                     # Replace the 'args' with the original value of 'args' without the --queue flag and its value
-                    args = args.replace(f"--queue {regex_result['queue_position'] + 1}", "")
+                    args = args.replace(
+                        f"--queue {regex_result['queue_position'] + 1}", ""
+                    )
                 # If queue is present and we still cannot get its value, return None (failed)
                 else:
                     return None
