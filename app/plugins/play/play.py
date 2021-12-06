@@ -52,34 +52,26 @@ class Play(BotPlugin):
                 # If the queue is empty, return
                 if len(queue_items) == 0:
                     # Stop the poller and wait until another .play command invokes it
-                    self.log.info(
-                        "0.1: Queue is empty, stopping the play_cron() poller"
-                    )  # DEBUG
                     self.stop_poller(self.play_cron)
                     return
 
                 # Load the first item in the queue since we are processing songs in FIFO order
-                self.log.info("1: Loading the first item in the queue")  # DEBUG
                 queue_item = queue_items[0]
 
-                self.log.info("2: calculating song hms")  # DEBUG
                 hms = util.hours_minutes_seconds(queue_item["song_duration"])
                 message = f"• **Song:** {queue_item['song']}\n"
                 message += f"• **Duration:** {hms['minutes']:02}:{hms['seconds']:02}\n"
                 message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
 
-                self.log.info("3: trying to get spotify URL")  # DEBUG
                 spotify_url = self.spotify_url(queue_item)
                 if spotify_url:
                     message += f"• **Spotify:** {spotify_url}\n"
 
-                self.log.info("4: get next song info")  # DEBUG
                 try:
                     message += f"> **Next song:** {queue_items[1]['song']}"
                 except IndexError:
                     message += "> **Next song:** None"
 
-                self.log.info("5: send card to #errbot channel")  # DEBUG
                 # Send the currently playing song into to the BOT_HOME_CHANNEL
                 discord.send_card_helper(
                     bot_self=self,
@@ -91,28 +83,80 @@ class Play(BotPlugin):
                     color=discord.color("blue"),
                 )
 
-                self.log.info("6: init DiscordCustom lib")  # DEBUG
                 # Play the item in the queue
                 dc = DiscordCustom(self._bot)
-                self.log.info("7: play the audio file")  # DEBUG
                 dc.play_audio_file(
                     queue_item["discord_channel_id"],
                     queue_item["file_path"],
                     file_duration=queue_item["song_duration"],
                 )
 
-                self.log.info("8: remove the item from the queue")  # DEBUG
                 # Remove the item from the queue after it has been played
                 self.delete_from_queue(queue_item["guild_id"], queue_item["song_uuid"])
 
-                self.log.info("9: update the play stats")  # DEBUG
                 # Update the play stats with the current song data
                 self.update_play_stats(queue_item)
-                self.log.info("10: play_cron() logic done - OK")  # DEBUG
 
         except Exception as e:
             Sentry().capture(e)
             self.log.exception(f"The play_cron() failed! - Error: {e}")
+
+    @botcmd
+    def play_help(self, msg, args):
+        """
+        The help command for .play
+        View all the different ways you can use the .play functions
+        """
+
+        message = ""
+        # .play
+        message += "**`.play`** - Play a song!\n"
+        message += (
+            "• Option: `--queue <number>` - The position in the queue to add the song\n"
+        )
+        message += "• Example: `.play never gonna give you up`\n"
+        message += "• Example: `.play https://www.youtube.com/watch?v=dQw4w9WgXcQ`\n\n"
+
+        # .play next
+        message += "**`.play next`** - Add a song to the queue and play it 'next'\n"
+        message += "• Example: `.play next never gonna give you up`\n\n"
+
+        # .play queue
+        message += "**`.play queue`** - View the current queue\n\n"
+
+        # .skip
+        message += "**`.skip`** - Skip the current song\n\n"
+
+        # .stop
+        message += "**`.stop`** - Stop and clear all the songs in the queue\n\n"
+
+        # .play stats
+        message += (
+            "**`.play stats`** - View the `.play` stats for the Discord server\n\n"
+        )
+
+        return discord.send_card_helper(
+            bot_self=self,
+            title="🎧 **.play help** 🎧",
+            body=message,
+            color=discord.color("blue"),
+            in_reply_to=msg,
+        )
+
+    @botcmd
+    def play_next(self, msg, args):
+        """
+        The .play next command
+        Plays a song and adds it to the queue as the 'next' song
+        AKA skip the queue and play your tunes 'next'
+        Note: This command uses the exact same syntax as the .play command
+        """
+        Sentry().user(msg)
+
+        # Run the play_main() function with the queue_postition set to 1 (next song)
+        for message in self.play_main(msg, args, queue_position=1):
+            yield message
+        return
 
     @botcmd
     def play(self, msg, args):
@@ -126,103 +170,8 @@ class Play(BotPlugin):
         """
         Sentry().user(msg)
 
-        # Dev Notes: This command always adds files to the queue. The play_cron() is responsible for playing all songs
-
-        # Parse the URL and channel out of the user's input
-        regex_result = self.play_regex(args)
-        if regex_result is None:
-            yield f"❌ My magic regex failed to parse your command!\n`{msg}`"
-            return
-        elif regex_result is False:
-            yield f"❌ You must provide the exact URL to a song if you are using the --channel flag"
-            return
-        url = regex_result["url"]
-        channel = regex_result["channel"]
-
-        # If the user provided a string instead of a raw URL, we search YouTube for the given string
-        if regex_result["text_search"]:
-            yt_search_result = self.youtube_text_search(regex_result["text_search"])
-            # If a result was returned, use the returned URL
-            if yt_search_result:
-                url = yt_search_result
-            # If a result was not returned, return an error message
-            else:
-                yield f"❌ No results found for `{regex_result['text_search']}`"
-                return
-
-        # Run some validation on the URL the user is providing
-        if not validators.url(url):
-            yield f"❌ Invalid URL\n{url}"
-            return
-        if not url.startswith("https://www.youtube.com/"):
-            yield "❌ I only accept URLs that start with `https://www.youtube.com/`"
-            return
-
-        # Get all the metadata for a given video from a URL
-        video_metadata = ytdl.video_metadata(url)
-
-        length = video_metadata["duration"]
-        # If the length is 0 it is probably a live stream
-        if length == 0:
-            yield f"❌ Cannot play a live stream from YouTube"
-            return
-
-        # If the video is greater than the configured max length, don't play it
-        if length > ytdl.max_length:
-            yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
-            return
-
-        # If the --channel flag was not provided, use the channel the user is in as the .play target channel
-        if channel is None:
-            # Get the current voice channel of the user who invoked the command
-            dc = DiscordCustom(self._bot)
-            channel_dict = dc.get_voice_channel_of_a_user(
-                discord.guild_id(msg), discord.get_user_id(msg)
-            )
-            # If the user is not in a voice channel, return a helpful error message
-            if not channel_dict:
-                yield "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
-                return
-            channel = channel_dict["channel_id"]
-
-        # Pre-Download the file for the queue
-        yield f"📂 Downloading: `{video_metadata['title']}`"
-        song_uuid = str(uuid.uuid4())
-        file_path = ytdl.download_audio(url, file_name=song_uuid)
-
-        # Check if there are any files in the queue
-        queue_items = self.read_queue(discord.guild_id(msg))
-        # If it is not ready and open by another process we have to exit
-        if queue_items is False:
-            yield QUEUE_ERROR_MSG_READ
-            return
-
-        # If the queue is empty, change the response message
-        if len(queue_items) == 0:
-            response_message = f"🎵 Now playing: `{video_metadata['title']}`"
-        # If the queue is not empty, change the response message to 'added'
-        else:
-            response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
-
-        # If the queue file is ready, we can add the song to the queue
-        add_result = self.add_to_queue(
-            msg, channel, video_metadata, file_path, song_uuid, regex_result
-        )
-
-        # If something went wrong, we can't add the song to the queue and send an error message
-        if not add_result:
-            yield "❌ An error occurred writing your request to the `.play` queue!"
-            return
-
-        # If we got this far, the song has been queue'd and will be picked up and played by the cron
-        yield response_message
-
-        # If a cron poller for self.play_cron is not running, start it
-        # Dev note: pollers are isolated to an errbot plugin so it can't affect other plugin cron pollers
-        if len(self.current_pollers) == 0:
-            self.log.info("0: Starting the play_cron() poller")  # DEBUG
-            self.start_poller(CRON_INTERVAL, self.play_cron)
-
+        for message in self.play_main(msg, args):
+            yield message
         return
 
     @botcmd
@@ -426,6 +375,138 @@ class Play(BotPlugin):
 
         return "⏩ Skipping the current song"
 
+    def play_main(self, msg, args, queue_position=None):
+        """
+        The main logic for all .play commands which summon the bot to play a song
+        :param msg: The message object
+        :param args: The arguments passed to the .play command
+        :param queue_position: The position in the queue to play the song (defaults to None) - int
+        Dev Notes: This command always adds files to the queue. The play_cron() is responsible for playing all songs
+        Dev Notes: This function is a generator using 'yield' statements
+        """
+        # Parse the URL and channel out of the user's input
+        regex_result = self.play_regex(args)
+        if regex_result is None:
+            yield f"❌ My magic regex failed to parse your command!\n`{msg}`"
+            return
+        elif regex_result is False:
+            yield f"❌ You must provide the exact URL to a song if you are using the --channel flag"
+            return
+        url = regex_result["url"]
+        channel = regex_result["channel"]
+
+        # If a queue_postition is not provided from the function call, then we check if the user added one with the --queue flag
+        if queue_position is None:
+            queue_position = regex_result["queue_position"]
+
+        # If the queue_postition is provided, then we need to check if it is valid
+        if queue_position is not None:
+            if queue_position <= 0:
+                yield f"❌ You must provide a --queue position greater than or equal to `2`. You cannot override the currently playing song!"
+                return
+
+        # If the user provided a string instead of a raw URL, we search YouTube for the given string
+        if regex_result["text_search"]:
+            yt_search_result = self.youtube_text_search(regex_result["text_search"])
+            # If a result was returned, use the returned URL
+            if yt_search_result:
+                url = yt_search_result
+            # If a result was not returned, return an error message
+            else:
+                yield f"❌ No results found for `{regex_result['text_search']}`"
+                return
+
+        # Run some validation on the URL the user is providing
+        if not validators.url(url):
+            yield f"❌ Invalid URL\n{url}"
+            return
+        if not url.startswith("https://www.youtube.com/"):
+            yield "❌ I only accept URLs that start with `https://www.youtube.com/`"
+            return
+
+        # Get all the metadata for a given video from a URL
+        video_metadata = ytdl.video_metadata(url)
+
+        length = video_metadata["duration"]
+        # If the length is 0 it is probably a live stream
+        if length == 0:
+            yield f"❌ Cannot play a live stream from YouTube"
+            return
+
+        # If the video is greater than the configured max length, don't play it
+        if length > ytdl.max_length:
+            yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
+            return
+
+        # If the --channel flag was not provided, use the channel the user is in as the .play target channel
+        if channel is None:
+            # Get the current voice channel of the user who invoked the command
+            dc = DiscordCustom(self._bot)
+            channel_dict = dc.get_voice_channel_of_a_user(
+                discord.guild_id(msg), discord.get_user_id(msg)
+            )
+            # If the user is not in a voice channel, return a helpful error message
+            if not channel_dict:
+                yield "❌ You are not in a voice channel. Use the --channel <id> flag or join a voice channel to use this command"
+                return
+            channel = channel_dict["channel_id"]
+
+        # Pre-Download the file for the queue
+        yield f"📂 Downloading: `{video_metadata['title']}`"
+        song_uuid = str(uuid.uuid4())
+        file_path = ytdl.download_audio(url, file_name=song_uuid)
+
+        # Check if there are any files in the queue
+        queue_items = self.read_queue(discord.guild_id(msg))
+        # If it is not ready and open by another process we have to exit
+        if queue_items is False:
+            yield QUEUE_ERROR_MSG_READ
+            return
+
+        # If the queue is empty, change the response message
+        if len(queue_items) == 0:
+            response_message = f"🎵 Now playing: `{video_metadata['title']}`"
+        # If the queue is 1 item, let the user know their song is up next
+        elif len(queue_items) == 1:
+            response_message = (
+                f"💃🕺💃 Added to queue: `{video_metadata['title']}` - Up next!"
+            )
+        # If the queue is not empty, change the response message to 'added'
+        else:
+            # If there is no queue position provided, add the song to the end of the queue
+            if queue_position is None:
+                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
+            # If the user provided a queue position, give details about its position
+            else:
+                # Lists start at 0, so we add one to make it more human readable
+                queue_number = queue_position + 1
+                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}` - Queue #: `{queue_number}`"
+
+        # If the queue file is ready, we can add the song to the queue
+        add_result = self.add_to_queue(
+            msg,
+            channel,
+            video_metadata,
+            file_path,
+            song_uuid,
+            regex_result,
+            queue_position=queue_position,
+        )
+
+        # If something went wrong, we can't add the song to the queue and send an error message
+        if not add_result:
+            yield "❌ An error occurred writing your request to the `.play` queue!"
+            return
+
+        # If a cron poller for self.play_cron is not running, start it
+        # Dev note: pollers are isolated to an errbot plugin so it can't affect other plugin cron pollers
+        if len(self.current_pollers) == 0:
+            self.start_poller(CRON_INTERVAL, self.play_cron)
+
+        # If we got this far, the song has been queue'd and will be picked up and played by the cron
+        yield response_message
+        return
+
     def youtube_title_sanitizer(self, title):
         """
         Helper function for spotify_url to get all the YouTube title junk out
@@ -473,9 +554,7 @@ class Play(BotPlugin):
                 return None
 
             # Search Spotify for the song
-            self.log.info(f"3.1: searching Spotify for {song}")
             results = sp.search(q=song, limit=1)
-            self.log.info(f"3.2: search results complete")
 
             # If no matches were found, return None
             if len(results["tracks"]["items"]) == 0:
@@ -529,10 +608,24 @@ class Play(BotPlugin):
         return queue_files
 
     def add_to_queue(
-        self, msg, channel, video_metadata, file_name, song_uuid, regex_result
+        self,
+        msg,
+        channel,
+        video_metadata,
+        file_name,
+        song_uuid,
+        regex_result,
+        queue_position=None,
     ):
         """
         Helper function - Add a song to the .play queue
+        :param msg: The message object (discord.Message)
+        :param channel: The channel (int)
+        :param video_metadata: The video metadata (dict)
+        :param file_name: The file name of the song (string)
+        :param song_uuid: The song UUID (string)
+        :param regex_result: The regex result (dict)
+        :param queue_position: The queue position (int) - Defaults to None
         """
 
         queue_path = f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
@@ -562,8 +655,15 @@ class Play(BotPlugin):
         # The the file exists, we read the queue data
         if file_exists:
             with open(queue_path, "r+") as queue_file:
-                # Append to the queue with the new queue item
-                queue = json.loads(queue_file.read()) + [queue_item]
+                # If there is no queue_position provided, add the song to the end of the queue
+                if queue_position is None:
+                    # Append to the queue with the new queue item
+                    queue = json.loads(queue_file.read()) + [queue_item]
+                # If a queue_position is provided, insert the song at the given position
+                else:
+                    queue = json.loads(queue_file.read())
+                    queue.insert(queue_position, queue_item)
+
                 # Seek to the start of the file and nuke the contents
                 queue_file.seek(0)
                 queue_file.truncate(0)
@@ -639,6 +739,38 @@ class Play(BotPlugin):
         :return 3: None if no other conditions were met
         """
 
+        regex_result = {
+            "url": None,
+            "channel": None,
+            "text_search": None,
+            "queue_position": None,
+        }
+
+        # If the --queue flag was used, check for its value
+        if "--queue" in args:
+            # First, attempt to get the value of the --queue flag if it is at the start of the string
+            pattern = r"^(.*)(--queue)\s(\d+)$"
+            match = re.search(pattern, args)
+            if match:
+                # The queue_position is a list starting at 0 but humans start counting at 1 so we subtract 1 so they line up
+                regex_result["queue_position"] = int(match.group(3).strip()) - 1
+                # Replace the 'args' with the original value of 'args' without the --queue flag and its value
+                args = args.replace(f"--queue {regex_result['queue_position'] + 1}", "")
+            else:
+                # Second, attempt to get the value of the --queue flag if it is at the end of the string
+                pattern = r"^(--queue)\s(\d+)(.*)$"
+                match = re.search(pattern, args)
+                if match:
+                    # The queue_position is a list starting at 0 but humans start counting at 1 so we subtract 1 so they line up
+                    regex_result["queue_position"] = int(match.group(2).strip()) - 1
+                    # Replace the 'args' with the original value of 'args' without the --queue flag and its value
+                    args = args.replace(
+                        f"--queue {regex_result['queue_position'] + 1}", ""
+                    )
+                # If queue is present and we still cannot get its value, return None (failed)
+                else:
+                    return None
+
         # Check if the user is attempting a text search with --channel
         # This could lead to a random song playing so we actively prevent it
         if "--channel" in args and not "https://www.youtube.com" in args:
@@ -651,22 +783,20 @@ class Play(BotPlugin):
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
-                return {
-                    "url": match.group(1),
-                    "channel": int(match.group(2).strip()),
-                    "text_search": None,
-                }
+                regex_result["url"] = match.group(1)
+                regex_result["channel"] = int(match.group(2).strip())
+                regex_result["text_search"] = None
+                return regex_result
 
             # Second, check if the --channel flag is present at the beginning of the string
             pattern = r"^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*)$"
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
-                return {
-                    "url": match.group(2),
-                    "channel": int(match.group(1).strip()),
-                    "text_search": None,
-                }
+                regex_result["url"] = match.group(2)
+                regex_result["channel"] = int(match.group(1).strip())
+                regex_result["text_search"] = None
+                return regex_result
 
         # If the --channel flag was not used, we first look for the URL
         else:
@@ -674,14 +804,16 @@ class Play(BotPlugin):
             match = re.search(pattern, args)
             # If a match was found, return the URL
             if match:
-                return {
-                    "url": match.group(1).strip(),
-                    "channel": None,
-                    "text_search": None,
-                }
+                regex_result["url"] = match.group(1).strip()
+                regex_result["channel"] = None
+                regex_result["text_search"] = None
+                return regex_result
             # If no match was found then we assume a text search is taking place
             else:
-                return {"url": None, "channel": None, "text_search": args}
+                regex_result["url"] = None
+                regex_result["channel"] = None
+                regex_result["text_search"] = args
+                return regex_result
 
         # If there is still no match, return None
         return None
