@@ -353,6 +353,16 @@ class Play(BotPlugin):
         url = regex_result["url"]
         channel = regex_result["channel"]
 
+        # If a queue_postition is not provided from the function call, then we check if the user added one with the --queue flag
+        if queue_position is None:
+            queue_position = regex_result["queue_position"]
+
+        # If the queue_postition is provided, then we need to check if it is valid
+        if queue_position is not None:
+            if queue_position <= 0:
+                yield f"❌ You must provide a --queue position greater than or equal to `2`. You cannot override the currently playing song!"
+                return
+
         # If the user provided a string instead of a raw URL, we search YouTube for the given string
         if regex_result["text_search"]:
             yt_search_result = self.youtube_text_search(regex_result["text_search"])
@@ -672,6 +682,36 @@ class Play(BotPlugin):
         :return 3: None if no other conditions were met
         """
 
+        regex_result = {
+            "url": None,
+            "channel": None,
+            "text_search": None,
+            "queue_position": None,
+        }
+
+        # If the --queue flag was used, check for its value
+        if "--queue" in args:
+            # First, attempt to get the value of the --queue flag if it is at the start of the string
+            pattern = r"^(.*)(--queue)\s(\d+)$"
+            match = re.search(pattern, args)
+            if match:
+                # The queue_position is a list starting at 0 but humans start counting at 1 so we subtract 1 so they line up
+                regex_result["queue_position"] = int(match.group(3).strip()) - 1
+                # Replace the 'args' with the original value of 'args' without the --queue flag and its value
+                args = args.replace(f"--queue {regex_result['queue_position'] + 1}", "")
+            else:
+                # Second, attempt to get the value of the --queue flag if it is at the end of the string
+                pattern = r"^(--queue)\s(\d+)(.*)$"
+                match = re.search(pattern, args)
+                if match:
+                    # The queue_position is a list starting at 0 but humans start counting at 1 so we subtract 1 so they line up
+                    regex_result["queue_position"] = int(match.group(2).strip()) - 1
+                    # Replace the 'args' with the original value of 'args' without the --queue flag and its value
+                    args = args.replace(f"--queue {regex_result['queue_position'] + 1}", "")
+                # If queue is present and we still cannot get its value, return None (failed)
+                else:
+                    return None
+
         # Check if the user is attempting a text search with --channel
         # This could lead to a random song playing so we actively prevent it
         if "--channel" in args and not "https://www.youtube.com" in args:
@@ -684,22 +724,20 @@ class Play(BotPlugin):
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
-                return {
-                    "url": match.group(1),
-                    "channel": int(match.group(2).strip()),
-                    "text_search": None,
-                }
+                regex_result["url"] = match.group(1)
+                regex_result["channel"] = int(match.group(2).strip())
+                regex_result["text_search"] = None
+                return regex_result
 
             # Second, check if the --channel flag is present at the beginning of the string
             pattern = r"^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*)$"
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
-                return {
-                    "url": match.group(2),
-                    "channel": int(match.group(1).strip()),
-                    "text_search": None,
-                }
+                regex_result["url"] = match.group(2)
+                regex_result["channel"] = int(match.group(1).strip())
+                regex_result["text_search"] = None
+                return regex_result
 
         # If the --channel flag was not used, we first look for the URL
         else:
@@ -707,14 +745,16 @@ class Play(BotPlugin):
             match = re.search(pattern, args)
             # If a match was found, return the URL
             if match:
-                return {
-                    "url": match.group(1).strip(),
-                    "channel": None,
-                    "text_search": None,
-                }
+                regex_result["url"] = match.group(1).strip()
+                regex_result["channel"] = None
+                regex_result["text_search"] = None
+                return regex_result
             # If no match was found then we assume a text search is taking place
             else:
-                return {"url": None, "channel": None, "text_search": args}
+                regex_result["url"] = None
+                regex_result["channel"] = None
+                regex_result["text_search"] = args
+                return regex_result
 
         # If there is still no match, return None
         return None
