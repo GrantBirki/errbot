@@ -102,6 +102,48 @@ class Play(BotPlugin):
             self.log.exception(f"The play_cron() failed! - Error: {e}")
 
     @botcmd
+    def play_help(self, msg, args):
+        """
+        The help command for .play
+        View all the different ways you can use the .play functions
+        """
+
+        message = ""
+        # .play
+        message += "**`.play`** - Play a song!\n"
+        message += (
+            "• Option: `--queue <number>` - The position in the queue to add the song\n"
+        )
+        message += "• Example: `.play never gonna give you up`\n"
+        message += "• Example: `.play https://www.youtube.com/watch?v=dQw4w9WgXcQ`\n\n"
+
+        # .play next
+        message += "**`.play next`** - Add a song to the queue and play it 'next'\n"
+        message += "• Example: `.play next never gonna give you up`\n\n"
+
+        # .play queue
+        message += "**`.play queue`** - View the current queue\n\n"
+
+        # .skip
+        message += "**`.skip`** - Skip the current song\n\n"
+
+        # .stop
+        message += "**`.stop`** - Stop and clear all the songs in the queue\n\n"
+
+        # .play stats
+        message += (
+            "**`.play stats`** - View the `.play` stats for the Discord server\n\n"
+        )
+
+        return discord.send_card_helper(
+            bot_self=self,
+            title="🎧 **.play help** 🎧",
+            body=message,
+            color=discord.color("blue"),
+            in_reply_to=msg,
+        )
+
+    @botcmd
     def play_next(self, msg, args):
         """
         The .play next command
