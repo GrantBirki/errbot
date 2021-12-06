@@ -52,34 +52,26 @@ class Play(BotPlugin):
                 # If the queue is empty, return
                 if len(queue_items) == 0:
                     # Stop the poller and wait until another .play command invokes it
-                    self.log.info(
-                        "0.1: Queue is empty, stopping the play_cron() poller"
-                    )  # DEBUG
                     self.stop_poller(self.play_cron)
                     return
 
                 # Load the first item in the queue since we are processing songs in FIFO order
-                self.log.info("1: Loading the first item in the queue")  # DEBUG
                 queue_item = queue_items[0]
 
-                self.log.info("2: calculating song hms")  # DEBUG
                 hms = util.hours_minutes_seconds(queue_item["song_duration"])
                 message = f"• **Song:** {queue_item['song']}\n"
                 message += f"• **Duration:** {hms['minutes']:02}:{hms['seconds']:02}\n"
                 message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
 
-                self.log.info("3: trying to get spotify URL")  # DEBUG
                 spotify_url = self.spotify_url(queue_item)
                 if spotify_url:
                     message += f"• **Spotify:** {spotify_url}\n"
 
-                self.log.info("4: get next song info")  # DEBUG
                 try:
                     message += f"> **Next song:** {queue_items[1]['song']}"
                 except IndexError:
                     message += "> **Next song:** None"
 
-                self.log.info("5: send card to #errbot channel")  # DEBUG
                 # Send the currently playing song into to the BOT_HOME_CHANNEL
                 discord.send_card_helper(
                     bot_self=self,
@@ -91,24 +83,19 @@ class Play(BotPlugin):
                     color=discord.color("blue"),
                 )
 
-                self.log.info("6: init DiscordCustom lib")  # DEBUG
                 # Play the item in the queue
                 dc = DiscordCustom(self._bot)
-                self.log.info("7: play the audio file")  # DEBUG
                 dc.play_audio_file(
                     queue_item["discord_channel_id"],
                     queue_item["file_path"],
                     file_duration=queue_item["song_duration"],
                 )
 
-                self.log.info("8: remove the item from the queue")  # DEBUG
                 # Remove the item from the queue after it has been played
                 self.delete_from_queue(queue_item["guild_id"], queue_item["song_uuid"])
 
-                self.log.info("9: update the play stats")  # DEBUG
                 # Update the play stats with the current song data
                 self.update_play_stats(queue_item)
-                self.log.info("10: play_cron() logic done - OK")  # DEBUG
 
         except Exception as e:
             Sentry().capture(e)
