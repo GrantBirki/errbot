@@ -384,6 +384,12 @@ class Play(BotPlugin):
         Dev Notes: This command always adds files to the queue. The play_cron() is responsible for playing all songs
         Dev Notes: This function is a generator using 'yield' statements
         """
+
+        # Check to ensure the user provided some form of arguments
+        if len(args) == 0:
+            yield "⚠ No arguments provided! - Use the `.play help` command for examples"
+            return
+
         # Parse the URL and channel out of the user's input
         regex_result = self.play_regex(args)
         if regex_result is None:
