@@ -11,7 +11,7 @@ SENTRY_DISABLED = os.environ.get("SENTRY_DISABLED", False)
 
 class Sentry:
     """
-    Sentry helper class for dealing with exceptions and tracing
+    Error handling helper class for dealing with exceptions and tracing
     """
 
     def user(self, msg):
