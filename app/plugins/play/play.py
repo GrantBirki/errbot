@@ -30,7 +30,11 @@ QUEUE_ERROR_MSG_READ = f"❌ An error occurring reading the .play queue!"
 
 
 class Play(BotPlugin):
-    """Play plugin for Errbot"""
+    """
+    🎵 Play Plugin 🎵
+    Play your favorite music through Errbot into your voice channel!
+    Run `.play help` to view a more detailed help menu
+    """
 
     def play_cron(self):
         """
