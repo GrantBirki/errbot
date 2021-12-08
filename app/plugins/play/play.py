@@ -758,8 +758,12 @@ class Play(BotPlugin):
             pattern = r"^(.*)(--queue)\s(\d+)$"
             match = re.search(pattern, args)
             if match:
+                # Sanity check the length provided
+                queue_position_raw = match.group(3).strip()
+                if len(queue_position_raw) >= 7:
+                    return None
                 # The queue_position is a list starting at 0 but humans start counting at 1 so we subtract 1 so they line up
-                regex_result["queue_position"] = int(match.group(3).strip()) - 1
+                regex_result["queue_position"] = int(queue_position_raw) - 1
                 # Replace the 'args' with the original value of 'args' without the --queue flag and its value
                 args = args.replace(f"--queue {regex_result['queue_position'] + 1}", "")
             else:
@@ -767,8 +771,12 @@ class Play(BotPlugin):
                 pattern = r"^(--queue)\s(\d+)(.*)$"
                 match = re.search(pattern, args)
                 if match:
+                    # Sanity check the length provided
+                    queue_position_raw = match.group(2).strip()
+                    if len(queue_position_raw) >= 7:
+                        return None
                     # The queue_position is a list starting at 0 but humans start counting at 1 so we subtract 1 so they line up
-                    regex_result["queue_position"] = int(match.group(2).strip()) - 1
+                    regex_result["queue_position"] = int(queue_position_raw) - 1
                     # Replace the 'args' with the original value of 'args' without the --queue flag and its value
                     args = args.replace(
                         f"--queue {regex_result['queue_position'] + 1}", ""
