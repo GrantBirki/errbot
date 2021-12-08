@@ -30,7 +30,11 @@ QUEUE_ERROR_MSG_READ = f"❌ An error occurring reading the .play queue!"
 
 
 class Play(BotPlugin):
-    """Play plugin for Errbot"""
+    """
+    🎵 Play Plugin 🎵
+    Play your favorite music through Errbot into your voice channel!
+    Run `.play help` to view a more detailed help menu
+    """
 
     def play_cron(self):
         """
@@ -384,6 +388,12 @@ class Play(BotPlugin):
         Dev Notes: This command always adds files to the queue. The play_cron() is responsible for playing all songs
         Dev Notes: This function is a generator using 'yield' statements
         """
+
+        # Check to ensure the user provided some form of arguments
+        if len(args) == 0:
+            yield "⚠ No arguments provided! - Use the `.play help` command for examples"
+            return
+
         # Parse the URL and channel out of the user's input
         regex_result = self.play_regex(args)
         if regex_result is None:
@@ -752,8 +762,12 @@ class Play(BotPlugin):
             pattern = r"^(.*)(--queue)\s(\d+)$"
             match = re.search(pattern, args)
             if match:
+                # Sanity check the length provided
+                queue_position_raw = match.group(3).strip()
+                if len(queue_position_raw) >= 7:
+                    return None
                 # The queue_position is a list starting at 0 but humans start counting at 1 so we subtract 1 so they line up
-                regex_result["queue_position"] = int(match.group(3).strip()) - 1
+                regex_result["queue_position"] = int(queue_position_raw) - 1
                 # Replace the 'args' with the original value of 'args' without the --queue flag and its value
                 args = args.replace(f"--queue {regex_result['queue_position'] + 1}", "")
             else:
@@ -761,8 +775,12 @@ class Play(BotPlugin):
                 pattern = r"^(--queue)\s(\d+)(.*)$"
                 match = re.search(pattern, args)
                 if match:
+                    # Sanity check the length provided
+                    queue_position_raw = match.group(2).strip()
+                    if len(queue_position_raw) >= 7:
+                        return None
                     # The queue_position is a list starting at 0 but humans start counting at 1 so we subtract 1 so they line up
-                    regex_result["queue_position"] = int(match.group(2).strip()) - 1
+                    regex_result["queue_position"] = int(queue_position_raw) - 1
                     # Replace the 'args' with the original value of 'args' without the --queue flag and its value
                     args = args.replace(
                         f"--queue {regex_result['queue_position'] + 1}", ""
