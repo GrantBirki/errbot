@@ -1,0 +1,7 @@
+# I am just an example! Rename this file to terraform.auto.tfvars.json and add actual Azure credentials below. Then remove this comment.
+{
+  "CLIENT_ID": "aaaaaa-aaaa-aaaa-aaaa-aaaaaaaa",
+  "CLIENT_SECRET": "bbbbbb-bbbb-bbbb-bbbb-bbbbbbbb",
+  "SUBSCRIPTION_ID": "cccccc-cccc-cccc-cccc-ccccccc",
+  "TENANT_ID": "dddddd-dddd-dddd-dddd-ddddddd"
+}

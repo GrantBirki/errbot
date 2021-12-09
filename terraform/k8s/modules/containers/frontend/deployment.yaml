@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: frontend
+  name: frontend
+  labels:
+    name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: frontend
+  template:
+    metadata:
+      labels:
+        name: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ${ACR_NAME}.azurecr.io/frontend:${IMAGE_TAG}
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: "0.5"
+              memory: "500Mi"
+            requests:
+              cpu: "0.25"
+              memory: "50Mi"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ENVIRONMENT_CONTEXT
+              value: "${ENVIRONMENT_CONTEXT}"
