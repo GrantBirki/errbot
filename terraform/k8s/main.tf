@@ -10,21 +10,20 @@ module "monitoring" {
   source = "./modules/monitoring"
 }
 
-module "frontend" {
-  source = "./modules/containers/frontend"
-  # Environment variables
-  IMAGE_TAG   = var.FRONTEND_IMAGE_TAG
-  ENVIRONMENT = var.ENVIRONMENT
+module "status_page" {
+  source = "./modules/containers/status_page"
 
   # Config
   ACR_NAME = data.azurerm_container_registry.acr.name
+
+  # Environment variables
+  IMAGE_TAG = var.STATUS_PAGE_IMAGE_TAG
 }
 
-module "backend" {
-  source = "./modules/containers/backend"
+module "errbot" {
+  source = "./modules/containers/errbot"
   # Environment variables
-  IMAGE_TAG   = var.BACKEND_IMAGE_TAG
-  ENVIRONMENT = var.ENVIRONMENT
+  IMAGE_TAG   = var.ERRBOT_IMAGE_TAG
 
   # Config
   ACR_NAME = data.azurerm_container_registry.acr.name

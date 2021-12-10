@@ -3,7 +3,7 @@
 
 variable "PROJECT_NAME" {
   description = "The name of your project"
-  default     = "birki" # Change the name here to something unique for your own cluster (CHANGE ME)
+  default     = "errbot" # Change the name here to something unique for your own cluster (CHANGE ME)
   type        = string
 }
 
@@ -15,13 +15,13 @@ variable "ENVIRONMENT" {
 
 variable "NODE_COUNT" {
   description = "Number of Nodes in your K8s cluster"
-  default     = 2
+  default     = 1
   type        = number
 }
 
 variable "VM_SIZE" {
   description = "Size of the VM to create"
-  default     = "Standard_B2s"
+  default     = "Standard_B4ms"
   type        = string
 }
 

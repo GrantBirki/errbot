@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: errbot
+  name: errbot
+  labels:
+    name: errbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: errbot
+  template:
+    metadata:
+      labels:
+        name: errbot
+    spec:
+      containers:
+        - name: errbot
+          image: ${ACR_NAME}.azurecr.io/errbot:${IMAGE_TAG}
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: "3.0"
+              memory: "8Gi"
+            requests:
+              cpu: "0.5"
+              memory: "50Mi"
+          env:
+            # General ENV Vars
+            - name: BACKEND
+              value: "Discord"
+            - name: BOT_PREFIX
+              value: "."
+            - name: BOT_HOME_CHANNEL
+              value: "errbot"
+            - name: BOT_ADMINS
+              value: "Birki#0001"
+            - name: BOT_EXTRA_BACKEND_DIR
+              value: "/app/backend/err-backend-discord"
+            - name: RIOT_REGION
+              value: "na1"
+            - name: RIOT_REGION_V5
+              value: "AMERICAS"
+            - name: IMAGE_TAG
+              value: "${IMAGE_TAG}"
+            # Secret ENV Vars
+            - name: CHAT_SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: errbot-secret
+                  key: CHAT_SERVICE_TOKEN
+            - name: RIOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: errbot-secret
+                  key: RIOT_TOKEN
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: errbot-secret
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: errbot-secret
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: SPOTIFY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: errbot-secret
+                  key: SPOTIFY_CLIENT_ID
+            - name: SPOTIFY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: errbot-secret
+                  key: SPOTIFY_CLIENT_SECRET
+            - name: SENTRY
+              valueFrom:
+                secretKeyRef:
+                  name: errbot-secret
+                  key: SENTR

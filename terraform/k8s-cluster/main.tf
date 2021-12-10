@@ -10,6 +10,33 @@ provider "azurerm" {
   subscription_id = var.SUBSCRIPTION_ID
 }
 
+# The Azure Subnet for the AKS cluster
+resource "azurerm_virtual_network" "vnet" {
+  name                = "${var.PROJECT_NAME}_${var.ENVIRONMENT}_containers"
+  location            = var.CLOUD_LOCATION
+  resource_group_name = azurerm_resource_group.default.name
+  address_space       = ["10.2.0.0/16"]
+  tags = {
+    created_by = "terraform"
+  }
+}
+resource "azurerm_subnet" "subnet" {
+  address_prefixes     = ["10.2.0.0/24"]
+  name                 = "${var.PROJECT_NAME}_${var.ENVIRONMENT}_default_subnet"
+  resource_group_name  = azurerm_resource_group.default.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+
+  # delegation {
+
+  #   name = "${var.PROJECT_NAME}_${var.ENVIRONMENT}_subnet_delegation"
+  #   service_delegation {
+  #     name    = "Microsoft.ContainerInstance/containerGroups"
+  #     actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+  #   }
+
+  # }
+}
+
 resource "azurerm_resource_group" "default" {
   name     = "${var.PROJECT_NAME}-k8s-rg-${var.ENVIRONMENT}"
   location = var.CLOUD_LOCATION
@@ -24,12 +51,19 @@ resource "azurerm_kubernetes_cluster" "default" {
   location            = azurerm_resource_group.default.location
   resource_group_name = azurerm_resource_group.default.name
   dns_prefix          = "${var.PROJECT_NAME}-k8s-${var.ENVIRONMENT}"
+  sku_tier            = "Free"
+
+  network_profile {
+    network_plugin = "azure"
+    network_policy = "calico"
+  }
 
   default_node_pool {
     name            = "default"
     node_count      = var.NODE_COUNT
     vm_size         = var.VM_SIZE
     os_disk_size_gb = var.NODE_DISK_SIZE_GB
+    vnet_subnet_id  = azurerm_subnet.subnet.id
   }
 
   service_principal {

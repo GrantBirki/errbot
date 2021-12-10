@@ -1,31 +1,31 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: frontend
-  namespace: frontend
+  name: uptime-kuma-route
+  namespace: uptime-kuma
   annotations:
     konghq.com/strip-path: "true"
-    # kubernetes.io/tls-acme: "true" # Uncomment to enable TLS
-    # cert-manager.io/cluster-issuer: "letsencrypt-prod" # Uncomment to enable TLS
+    kubernetes.io/tls-acme: "true" # Uncomment to enable TLS
+    cert-manager.io/cluster-issuer: "letsencrypt-prod" # Uncomment to enable TLS
     # konghq.com/plugins: ip-allowlist # Uncomment to enable IP allowlist plugin
 spec:
-  # tls: # Uncomment to enable TLS
-  #   - secretName: "letsencrypt-prod-issuer-account-key" # Uncomment to enable TLS
-  #     hosts: # Uncomment to enable TLS
-  #       - "<www.example.com>" # Uncomment to enable TLS
+  tls: # Uncomment to enable TLS
+    - secretName: "letsencrypt-prod-issuer-account-key" # Uncomment to enable TLS
+      hosts: # Uncomment to enable TLS
+        - "errbot-status.birki.io" # Uncomment to enable TLS
 
   ingressClassName: "kong"
   rules:
-    # - host: <www.example.com> # Uncomment to enable hostname (needed if you enable the external Grafana section below) and indent your YAML
-      - http:
-          paths:
-            - pathType: Prefix
-              path: /
-              backend:
-                service:
-                  name: frontend
-                  port:
-                    number: 8080
+    - host: errbot-status.birki.io # Uncomment to enable hostname (needed if you enable the external Grafana section below) and indent your YAML
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: uptime-kuma-service
+                port:
+                  number: 3001
 ---
 # Un comment the block below to expose your Grafana dashboard publically
 # Note: It is highly recommended to use the IP allowlist plugin to limit access to the dashboard

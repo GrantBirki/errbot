@@ -1,3 +1,3 @@
-output "image_tag" {
+output "IMAGE_TAG" {
   value = var.IMAGE_TAG
 } 

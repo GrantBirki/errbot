@@ -1,9 +1,9 @@
 terraform {
   backend "remote" {
-    organization = "birki-io" # Change this to your own organization (CHANGE ME)
+    organization = "errbot" # Change this to your own organization (CHANGE ME)
 
     workspaces {
-      name = "k8s-cluster-testing" # Change this to your own workspace name (CHANGE ME)
+      name = "errbot-k8s-cluster" # Change this to your own workspace name (CHANGE ME)
     }
   }
 
@@ -14,5 +14,5 @@ terraform {
     }
   }
 
-  required_version = "=1.0.6" # Change this to a different version if you want
+  required_version = "=1.1.0" # Change this to a different version if you want
 }
