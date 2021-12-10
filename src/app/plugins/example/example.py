@@ -107,8 +107,8 @@ class Example(BotPlugin):
 
     @botcmd
     def version(self, msg, args):
-        """Get the version (COMMIT_SHA) that this instance of errbot is running"""
-        return str(os.environ["COMMIT_SHA"])
+        """Get the version (IMAGE_TAG) that this instance of errbot is running"""
+        return str(os.environ["IMAGE_TAG"])
 
     @botcmd
     def bean(self, msg, args):
