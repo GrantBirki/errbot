@@ -79,4 +79,4 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: errbot-secret
-                  key: SENTR
+                  key: SENTRY
