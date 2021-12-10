@@ -7,7 +7,7 @@ metadata:
     konghq.com/strip-path: "true"
     kubernetes.io/tls-acme: "true" # Uncomment to enable TLS
     cert-manager.io/cluster-issuer: "letsencrypt-prod" # Uncomment to enable TLS
-    konghq.com/plugins: ip-allowlist # Uncomment to enable IP allowlist plugin
+    # konghq.com/plugins: ip-allowlist # Uncomment to enable IP allowlist plugin
 spec:
   tls: # Uncomment to enable TLS
     - secretName: "letsencrypt-prod-issuer-account-key" # Uncomment to enable TLS
@@ -25,7 +25,7 @@ spec:
               service:
                 name: uptime-kuma-service
                 port:
-                  number: 3001
+                  number: 3002 # disabled by sending to the wrong port. To re-enable, change to 3001
 ---
 # Un comment the block below to expose your Grafana dashboard publically
 # Note: It is highly recommended to use the IP allowlist plugin to limit access to the dashboard
