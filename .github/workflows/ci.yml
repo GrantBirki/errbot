@@ -127,7 +127,7 @@ jobs:
           python -mjson.tool plugins/league/responses.json > /dev/null
 
   build:
-    needs: [changes, test, vars]
+    needs: [changes, test]
     if:
       needs.changes.outputs.src == 'true' || needs.changes.outputs.terraform ==
       'true'
@@ -155,36 +155,20 @@ jobs:
         # Ignore the failure of a step and avoid terminating the job.
         continue-on-error: true
 
-      # Builds and pushes images on pull request workflows
+      # Builds images on pull request workflows
       - name: "Build image - On Pull Request"
         if: github.event_name == 'pull_request'
-        env:
-          BACKEND_TAG: ${{ needs.vars-dev.outputs.backend_tag  }}
-          FRONTEND_TAG: ${{ needs.vars-dev.outputs.frontend_tag  }}
-          STATUS_PAGE_TAG: ${{ needs.vars-dev.outputs.status_page_tag }}
         run: |
-          script/ci-build -r="${{ secrets.REGISTRY_LOGIN_SERVER }}" -e="$ERRBOT_TAG" -s="$STATUS_PAGE_TAG"
-          docker run --rm --env-file ../config.env --env-file ../.github/ci-helpers/creds-mock.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
+          script/ci-build --tag ${{ github.sha }}
 
-      - name: "Build image - ci-test"
-        if: github.event_name == 'pull_request'
-        working-directory: app
-        # run: |
-        #   docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
-        #   docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:${{ github.sha }}
-        run: |
-          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
-          docker run --rm --env-file ../config.env --env-file ../.github/ci-helpers/creds-mock.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:ci-test
-
+      # Builds and pushes images on push workflow
       - name: "Build and Push image - latest"
         if: github.event_name == 'push'
         working-directory: app
         run: |
-          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
-          docker run --rm --env-file ../config.env --env-file ../.github/ci-helpers/creds-mock.env -e LOCAL_TESTING=True ${{ secrets.REGISTRY_LOGIN_SERVER }}/errbot:latest
+          script/ci-build --tag=${{ github.sha }} --push=true
   terraform:
-    needs: [changes, build, vars]
+    needs: [changes, build]
     if:
       needs.changes.outputs.src == 'true' || needs.changes.outputs.terraform == 'true'
 
