@@ -38,3 +38,9 @@ apply:
 
 init:
 	@cd terraform && terraform init
+
+build:
+	@script/build
+
+destroy:
+	@script/destroy
