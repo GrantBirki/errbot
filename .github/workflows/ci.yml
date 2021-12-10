@@ -242,6 +242,33 @@ jobs:
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
         id: setcontext
 
+      # Terraform aws
+      - name: Terraform fmt (aws)
+        working-directory: terraform/aws
+        id: fmt_aws_tf
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform init (aws)
+        working-directory: terraform/aws
+        id: init_aws_tf
+        run: terraform init
+
+      - name: Terraform validate (aws)
+        working-directory: terraform/aws
+        id: validate_aws_tf
+        run: terraform validate -no-color
+
+      - name: Terraform plan (aws)
+        if: github.event_name == 'pull_request'
+        working-directory: terraform/aws
+        id: plan_aws_tf
+        env:
+          TF_VAR_AWS_ACCESS_KEY_ID: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
+          TF_VAR_AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY }}
+        run: terraform plan -no-color
+        continue-on-error: true
+
       # Terraform k8s-cluster
       - name: Terraform fmt (k8s-cluster)
         working-directory: terraform/k8s-cluster
@@ -322,6 +349,20 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const output = `### Terraform Plan - \`k8s-cluster\` - Production 🪐
+            - Terraform Format and Style 🖌: \`${{ steps.fmt_aws_tf.outcome }}\`
+            - Terraform Initialization ⚙️: \`${{ steps.init_aws_tf.outcome }}\`
+            - Terraform Validation 🤖: \`${{ steps.validate_aws_tf.outcome }}\`
+            - Terraform Plan 📖: \`${{ steps.plan_aws_tf.outcome }}\`
+
+            <details><summary><b>Show Plan</b></summary>
+
+            \`\`\`${process.env.PLAN_AWS_TF}\`\`\`
+
+            </details>
+
+            > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform/aws\`, Workflow: \`${{ github.workflow }}\`
+
             const output = `### Terraform Plan - \`k8s-cluster\` - Production 🪐
             - Terraform Format and Style 🖌: \`${{ steps.fmt_k8s_cluster.outcome }}\`
             - Terraform Initialization ⚙️: \`${{ steps.init_k8s_cluster.outcome }}\`
