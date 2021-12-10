@@ -398,6 +398,20 @@ jobs:
               body: output
             })
 
+      # Apply (aws)
+      - name: Terraform init (aws)
+        if: github.event_name == 'push'
+        working-directory: terraform/aws
+        run: terraform init
+
+      - name: Terraform apply (aws)
+        if: github.event_name == 'push'
+        working-directory: terraform/aws
+        env:
+          TF_VAR_AWS_ACCESS_KEY_ID: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
+          TF_VAR_AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_VAR_AWS_SECRET_ACCESS_KEY }}
+        run: terraform apply -auto-approve
+
       # Apply (k8s-cluster)
       - name: Terraform init (k8s-cluster)
         working-directory: terraform/k8s-cluster
