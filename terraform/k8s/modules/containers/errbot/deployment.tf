@@ -5,7 +5,7 @@ data "kubectl_path_documents" "errbot_deployment_manifest" {
   ]
 
   vars = {
-    COMMIT_SHA            = "${var.COMMIT_SHA}"
+    IMAGE_TAG            = "${var.IMAGE_TAG}"
     ACR_NAME              = "${var.ACR_NAME}"
   }
   pattern = "modules/containers/errbot/deployment.yaml"

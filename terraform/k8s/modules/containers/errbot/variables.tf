@@ -1,3 +1,8 @@
+# ACR configuration
+variable "ACR_NAME" {
+  type = string
+}
+
 # Bot Config
 
 variable "IMAGE_TAG" {

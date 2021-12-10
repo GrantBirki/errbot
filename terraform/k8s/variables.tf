@@ -80,4 +80,5 @@ variable "SENTRY" {
 variable "STATUS_PAGE_IMAGE_TAG" {
   description = "The image tag to use for status_page deployments"
   type        = string
+  default     = "test"
 }

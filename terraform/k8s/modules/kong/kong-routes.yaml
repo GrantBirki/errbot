@@ -7,7 +7,7 @@ metadata:
     konghq.com/strip-path: "true"
     kubernetes.io/tls-acme: "true" # Uncomment to enable TLS
     cert-manager.io/cluster-issuer: "letsencrypt-prod" # Uncomment to enable TLS
-    # konghq.com/plugins: ip-allowlist # Uncomment to enable IP allowlist plugin
+    konghq.com/plugins: ip-allowlist # Uncomment to enable IP allowlist plugin
 spec:
   tls: # Uncomment to enable TLS
     - secretName: "letsencrypt-prod-issuer-account-key" # Uncomment to enable TLS
