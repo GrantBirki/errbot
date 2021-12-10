@@ -4,7 +4,7 @@ services:
   chatbot:
     container_name: chatbot
     restart: always
-    build: ./app
+    build: ./src/app
     env_file: 
-      - config.env
-      - creds.env
+      - ./src/config.env
+      - ./src/creds.env
