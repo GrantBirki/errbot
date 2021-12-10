@@ -106,9 +106,6 @@ resource "azurerm_container_group" "container_group" {
       "BOT_PREFIX"            = var.BOT_PREFIX
       "BOT_HOME_CHANNEL"      = var.BOT_HOME_CHANNEL
       "BACKEND"               = var.BACKEND
-      "COSMOS_ACCOUNT_HOST"   = var.COSMOS_ACCOUNT_HOST
-      "COSMOS_DATABASE"       = var.COSMOS_DATABASE
-      "COSMOS_CONTAINER"      = var.COSMOS_CONTAINER
     }
     # image  = "${var.project_name}.azurecr.io/${var.project_name}:${var.project_env}-${var.image_tag}"
     image  = "${var.project_name}.azurecr.io/${var.project_name}:${var.image_tag}"
@@ -118,7 +115,6 @@ resource "azurerm_container_group" "container_group" {
       "CHAT_SERVICE_TOKEN"    = var.CHAT_SERVICE_TOKEN
       "BOT_ADMINS"            = var.BOT_ADMINS
       "RIOT_TOKEN"            = var.RIOT_TOKEN
-      "COSMOS_ACCOUNT_KEY"    = var.COSMOS_ACCOUNT_KEY
       "AWS_ACCESS_KEY_ID"     = var.AWS_ACCESS_KEY_ID
       "AWS_SECRET_ACCESS_KEY" = var.AWS_SECRET_ACCESS_KEY
       "SPOTIFY_CLIENT_ID"     = var.SPOTIFY_CLIENT_ID
