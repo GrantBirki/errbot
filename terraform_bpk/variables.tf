@@ -75,27 +75,6 @@ variable "RIOT_REGION_V5" {
   type = string
 }
 
-# Azure Cosmos DB
-variable "COSMOS_ACCOUNT_HOST" {
-  type    = string
-  default = "https://errbot-nosql-db.documents.azure.com:443/"
-}
-
-variable "COSMOS_DATABASE" {
-  type    = string
-  default = "errbot"
-}
-
-variable "COSMOS_CONTAINER" {
-  type    = string
-  default = "discord"
-}
-
-variable "COSMOS_ACCOUNT_KEY" {
-  type      = string
-  sensitive = true
-}
-
 # AWS DynamoDB
 variable "AWS_ACCESS_KEY_ID" {
   type      = string
