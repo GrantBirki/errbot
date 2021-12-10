@@ -414,15 +414,14 @@ jobs:
 
       # Apply (k8s-cluster)
       - name: Terraform init (k8s-cluster)
+        if: github.event_name == 'push'
         working-directory: terraform/k8s-cluster
-        id: init_k8s_cluster
         run: terraform init
 
       - name: Terraform apply (k8s-cluster)
         if: github.event_name == 'push'
         working-directory: terraform/k8s-cluster
         env:
-          TF_VAR_ENVIRONMENT: dev
           # Azure Auth
           TF_VAR_CLIENT_ID: ${{ secrets.CLIENT_ID }}
           TF_VAR_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
@@ -432,8 +431,8 @@ jobs:
 
       # Apply (k8s)
       - name: Terraform init (k8s)
+        if: github.event_name == 'push'
         working-directory: terraform/k8s
-        id: init_k8s
         run: terraform init
 
       - name: Terraform apply (k8s)
