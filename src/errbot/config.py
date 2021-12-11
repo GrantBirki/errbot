@@ -24,7 +24,7 @@ import sys
 # Core Errbot configuration                                              #
 ##########################################################################
 
-# BACKEND selection
+# BACKEND selection.
 # This configures the type of chat server you wish to use Errbot with.
 #
 # The current choices:
