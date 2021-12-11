@@ -10,6 +10,12 @@ module "monitoring" {
   source = "./modules/monitoring"
 }
 
+module "nginx" {
+  source    = "./modules/containers/nginx"
+  IMAGE_TAG = var.IMAGE_TAG
+  ACR_NAME  = data.azurerm_container_registry.acr.name
+}
+
 module "status_page" {
   source = "./modules/containers/status_page"
 
