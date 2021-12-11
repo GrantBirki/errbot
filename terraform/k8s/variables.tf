@@ -31,7 +31,7 @@ variable "ENVIRONMENT" {
 # Bot Config
 
 variable "IMAGE_TAG" {
-  type = string
+  type    = string
   default = "test"
 }
 
