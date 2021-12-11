@@ -296,6 +296,7 @@ jobs:
         env:
           PLAN_K8S_CLUSTER: "terraform ${{ steps.plan_k8s_cluster.outputs.stdout }}"
           PLAN_K8S: "terraform ${{ steps.plan_k8s.outputs.stdout }}"
+          PLAN_AWS_TF: "terraform ${{ steps.plan_aws_tf.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
