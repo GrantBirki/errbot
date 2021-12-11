@@ -1,0 +1,10 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: errbot-network-policy
+  namespace: errbot
+spec:
+  podSelector:
+    matchLabels:
+      name: errbot
+  ingress: []
