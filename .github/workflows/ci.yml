@@ -271,8 +271,7 @@ jobs:
         id: plan_k8s
         env:
           # Config
-          TF_VAR_ERRBOT_IMAGE_TAG: ${{ needs.vars.outputs.errbot_tag  }}
-          TF_VAR_STATUS_PAGE_IMAGE_TAG: ${{ needs.vars.outputs.status_page_tag  }}
+          TF_VAR_IMAGE_TAG: ${{ github.sha }}
           # Creds
           TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
           TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
