@@ -237,10 +237,10 @@ jobs:
         working-directory: terraform/k8s-cluster
         id: plan_k8s_cluster
         env:
-          TF_VAR_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          TF_VAR_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          TF_VAR_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
-          TF_VAR_TENANT_ID: ${{ secrets.TENANT_ID }}
+          TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
+          TF_VAR_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}
+          TF_VAR_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
+          TF_VAR_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
         run: terraform plan -no-color
         continue-on-error: true
 
@@ -374,10 +374,10 @@ jobs:
         working-directory: terraform/k8s-cluster
         env:
           # Azure Auth
-          TF_VAR_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          TF_VAR_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          TF_VAR_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
-          TF_VAR_TENANT_ID: ${{ secrets.TENANT_ID }}
+          TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
+          TF_VAR_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}
+          TF_VAR_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
+          TF_VAR_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
         run: terraform apply -auto-approve
 
       # Apply (k8s)
