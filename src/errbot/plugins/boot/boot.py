@@ -9,7 +9,7 @@ INSTALL_MESSAGE_VERSION = 1
 # Message text to send to bot admins upon installing/updating plugin
 INSTALL_MESSAGE_TEXT = "🟢 Systems are now online"
 # Interval for pushing health checks to the status_page endpoint
-INTERVAL = 25
+INTERVAL = 15
 STATUS_PUSH_ENDPOINT = os.environ.get("STATUS_PUSH_ENDPOINT", False)
 
 class Boot(BotPlugin):
