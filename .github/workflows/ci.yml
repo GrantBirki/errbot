@@ -300,7 +300,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `### Terraform Plan - \`k8s-cluster\` - Production 🪐
+            const output = `### Terraform Plan - \`aws\` - Production 🪐
             - Terraform Format and Style 🖌: \`${{ steps.fmt_aws_tf.outcome }}\`
             - Terraform Initialization ⚙️: \`${{ steps.init_aws_tf.outcome }}\`
             - Terraform Validation 🤖: \`${{ steps.validate_aws_tf.outcome }}\`
@@ -314,7 +314,7 @@ jobs:
 
             > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform/aws\`, Workflow: \`${{ github.workflow }}\`
 
-            const output = `### Terraform Plan - \`k8s-cluster\` - Production 🪐
+            ### Terraform Plan - \`k8s-cluster\` - Production 🪐
             - Terraform Format and Style 🖌: \`${{ steps.fmt_k8s_cluster.outcome }}\`
             - Terraform Initialization ⚙️: \`${{ steps.init_k8s_cluster.outcome }}\`
             - Terraform Validation 🤖: \`${{ steps.validate_k8s_cluster.outcome }}\`
