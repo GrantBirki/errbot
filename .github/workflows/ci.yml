@@ -149,13 +149,13 @@ jobs:
       - name: "Build image - On Pull Request"
         if: github.event_name == 'pull_request'
         run: |
-          script/ci-build --t=${{ github.sha }}
+          script/ci-build -t=${{ github.sha }}
 
       # Builds and pushes images on push workflow
       - name: "Build and Push image - latest"
         if: github.event_name == 'push'
         run: |
-          script/ci-build --t=${{ github.sha }} -p=true -r="${{ secrets.DEV_REGISTRY_LOGIN_SERVER }}"
+          script/ci-build -t=${{ github.sha }} -p=true -r="${{ secrets.DEV_REGISTRY_LOGIN_SERVER }}"
   terraform:
     needs: [changes, build]
     if:
