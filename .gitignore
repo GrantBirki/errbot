@@ -1,7 +1,8 @@
 .vscode
 terraform.tfstate
 creds.env
-app/plugins/test
+src/errbot/plugins/test_bpk
+src/errbot/plugins/test
 test_files
 terraform.auto.tfvars.json
 test.py

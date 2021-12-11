@@ -240,9 +240,9 @@ What is in each folder?
 - `terraform/` - Terraform code for deploying `errbot` resources
 - `app/` - All the files, data, and configuration for `errbot`
 
-  - `app/backend/` - Folder containing extra backend modules (Discord)
-  - `app/plugins/` - Folder containing all the extra / custom plugins for our chatop commands
-  - `app/plugins/lib/` - Folder containing shared libraries for plugins
+  - `src/errbot/backend/` - Folder containing extra backend modules (Discord)
+  - `src/errbot/` - Folder containing all the extra / custom plugins for our chatop commands
+  - `src/errbot/lib/` - Folder containing shared libraries for plugins
 
 What are these files?
 

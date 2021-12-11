@@ -82,19 +82,19 @@ The last command listed above (`.example`) is a **plugin** command. This means t
 
 <summary>Where are chatop commands stored?</summary>
 
-They are stored in the `app/plugins` folder. Each chatop command is then stored in its own subfolder:
+They are stored in the `src/errbot/plugins` folder. Each chatop command is then stored in its own subfolder:
 
-`app/plugins/example`
+`src/errbot/example`
 
 </details>
 
 <details>
 
-<summary>What is the <b>app/plugins/lib</b> folder?</summary>
+<summary>What is the <b>src/errbot/lib</b> folder?</summary>
 
 Good thing you asked! This is a special folder for storing shared/common libraries between chatop commands.
 
-For example, let's say you had two chatop functions `.send cat meme` and `.send dog meme`. People were spamming memes too fast so you needed to rate limit both commands. You could add a shared `rate_limit_memes()` function in `app/plugins/lib/common` and then import that function into both your **cat** and **dog** chatops. Check out the `app/plugins/lib` folder to see examples in action
+For example, let's say you had two chatop functions `.send cat meme` and `.send dog meme`. People were spamming memes too fast so you needed to rate limit both commands. You could add a shared `rate_limit_memes()` function in `src/errbot/lib/common` and then import that function into both your **cat** and **dog** chatops. Check out the `src/errbot/lib` folder to see examples in action
 
 </details>
 
@@ -102,7 +102,7 @@ Okay cool beans, now that we know a bit more about chatops commands, let's creat
 
 ### Creating a command
 
-At the root of this repo you will notice a `template` folder. This folder contains the bare minimum code to create a brand new chatop command. Since copying this file from the `template` folder to the `app/plugins/template` folder takes about 1 brain cell too many, there is a script to do it for you.
+At the root of this repo you will notice a `template` folder. This folder contains the bare minimum code to create a brand new chatop command. Since copying this file from the `template` folder to the `src/errbot/template` folder takes about 1 brain cell too many, there is a script to do it for you.
 
 Run the following command to copy the `template` folder into the plugin directory:
 
@@ -110,25 +110,25 @@ Run the following command to copy the `template` folder into the plugin director
 make command
 ```
 
-Now enter the `app/plugins/template` folder and poke around the two files you see in there for a bit.
+Now enter the `src/errbot/template` folder and poke around the two files you see in there for a bit.
 
 In order to make a new chatop command you just need to change a few lines to the new name of you function / functions.
 
 Let's say we want to make a new chatop command that displays a cat meme and it is invoked by typing `.cat meme`. To do so, make the following changes:
 
-1. Change the name of the `app/plugins/template` folder:
+1. Change the name of the `src/errbot/template` folder:
 
-    `app/plugins/template` -> `app/plugins/catmeme`
+    `src/errbot/template` -> `src/errbot/catmeme`
 
-1. Change the name of the `app/plugins/template/template.plug` file:
+1. Change the name of the `src/errbot/template/template.plug` file:
 
-    `app/plugins/template/template.plug` -> `app/plugins/template/catmeme.plug`
+    `src/errbot/template/template.plug` -> `src/errbot/template/catmeme.plug`
 
-1. Change the name of the `app/plugins/template/template.py` file:
+1. Change the name of the `src/errbot/template/template.py` file:
 
-    `app/plugins/template/template.py` -> `app/plugins/template/catmeme.py`
+    `src/errbot/template/template.py` -> `src/errbot/template/catmeme.py`
 
-1. Inside of the `app/plugins/template/template.plug` file change all occurrences of `Template` or `template` to `Catmeme` or `catmeme`:
+1. Inside of the `src/errbot/template/template.plug` file change all occurrences of `Template` or `template` to `Catmeme` or `catmeme`:
 
     Example: `Name = Template # Change me!` -> `Name = Catmeme`
 
@@ -136,11 +136,11 @@ Let's say we want to make a new chatop command that displays a cat meme and it i
 
     > Note the cases of T/t and C/c above
 
-1. Inside of the `app/plugins/template/template.py` file change the class name:
+1. Inside of the `src/errbot/template/template.py` file change the class name:
 
     `class Template(BotPlugin): # Change me!` -> `class Catmeme(BotPlugin):`
 
-1. Inside of the `app/plugins/template/template.py` file change the function name:
+1. Inside of the `src/errbot/template/template.py` file change the function name:
 
     `def template(self, msg, args): # Change me! (function name)` -> `def cat_meme(self, msg, args):`
 

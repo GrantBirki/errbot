@@ -1,9 +1,0 @@
-[Core]
-Name = test
-Module = test
-
-[Python]
-Version = 2+
-
-[Documentation]
-Description = test

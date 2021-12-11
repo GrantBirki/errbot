@@ -6,5 +6,5 @@ services:
     restart: always
     build: ./src/errbot
     env_file: 
-      - ./src/config.env
-      - ./src/creds.env
+      - ./config.env
+      - ./creds.env
