@@ -14,5 +14,5 @@ spec:
         matchLabels:
           name: nginx
     - podSelector:
-      matchLabels:
-        name: errbot
+        matchLabels:
+          name: errbot
