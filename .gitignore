@@ -1,10 +1,23 @@
 .vscode
 terraform.tfstate
 creds.env
-app/plugins/test
+src/errbot/plugins/test_bpk
+src/errbot/plugins/test
 test_files
 terraform.auto.tfvars.json
 test.py
 test.json
 terraform/.terraform/providers
 .cache
+
+# Local .terraform directories
+**/.terraform/*
+# .tfstate files
+*.tfstate
+*.tfstate.*
+# Ignore override files as they are usually used to override resources locally and so
+# are not checked in
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

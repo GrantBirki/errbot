@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# This is a local test script to build and push to the Azure container registry
+
+set -e
+
+# Global Directory Variables
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # The directory of this script
+REPO_DIR="$(dirname "$SCRIPT_DIR")" # The root directory of this repository
+
+# Get the ACR_NAME from the Terraform state
+cd $REPO_DIR/terraform/k8s-cluster
+ACR_NAME=$(terraform show -json | jq -r ".values.outputs.acr_name.value")
+cd $REPO_DIR
+
+echo "🔨 Let's build some images and push them"
+
+echo "🔃 Logging into Azure ACR: $ACR_NAME"
+
+az acr login -n $ACR_NAME
+
+echo "✅ Successfully logged into ACR"
+
+docker build -t $ACR_NAME.azurecr.io/errbot:test $REPO_DIR/src/errbot
+docker push $ACR_NAME.azurecr.io/errbot:test
+echo "✅ Successfully pushed the errbot image"
+
+cd $REPO_DIR
+$REPO_DIR/script/status-page --build-and-tag-only --tag="$ACR_NAME.azurecr.io/status_page:test"
+docker push $ACR_NAME.azurecr.io/status_page:test
+echo "✅ Successfully pushed the status_page image"

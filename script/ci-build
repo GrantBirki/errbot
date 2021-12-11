@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# This is a script builds, tags, and pushes images to ACR
+# For use in CI only
+
+set -e
+
+# Global Directory Variables
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # The directory of this script
+REPO_DIR="$(dirname "$SCRIPT_DIR")" # The root directory of this repository
+
+function usage()
+{
+  echo -e "\t ========================== script/ci-build usage =========================="
+  echo -e "\t-h --help                      : displays help message"
+  echo -e "\t-r --registry                  : the ACR registry"
+  echo -e "\f-t --tag                       : the tag to use for images"
+  echo -e "\t-p --push                      : if images should be pushed"
+  echo -e "\t Example: script/ci-build -r=<registry> -t=deadbeef -p=true"
+}
+
+while [ "$1" != "" ]; do
+    PARAM=`echo $1 | awk -F= '{print $1}'`
+    VALUE=`echo $1 | awk -F= '{print $2}'`
+    case $PARAM in
+      -h | --help)
+        usage
+        exit
+        ;;
+      -r | --registry)
+        registry=$VALUE
+        ;;
+      -t | --tag)
+        tag=$VALUE
+        ;;
+      -p | --push)
+        push=$VALUE
+        ;;
+      *)
+      echo "ERROR: unknown parameter \"$PARAM\""
+      usage
+      exit 1
+      ;;
+    esac
+    shift
+done
+
+# Loop through all the folders in the src/ directory and build their images
+dirs=$(find ./src -mindepth 1 -maxdepth 1 -type d)
+for src_folder in $dirs; do
+  src_folder_name=$(basename "$src_folder")
+  if [[ -z "$push" ]]; then
+    echo "Building image for $src_folder_name"
+  else
+    echo "Building AND Pushing image for $src_folder_name"
+  fi
+
+  cd "$REPO_DIR/src/$src_folder_name"
+  docker build -t $registry/$src_folder_name:$tag .
+  if [[ -n "$push" ]]; then
+    echo "Pushing image for $src_folder_name"
+    docker push $registry/$src_folder_name:$tag
+  fi
+
+  # Custom code for testing the health of the errbot container
+  if [[ $src_folder_name == "errbot" ]]; then
+    echo "Running the errbot image to ensure proper startup"
+    docker run --rm --env-file "$REPO_DIR/config.env" --env-file "$REPO_DIR/.github/ci-helpers/creds-mock.env" -e LOCAL_TESTING=True $registry/$src_folder_name:$tag
+  fi
+done

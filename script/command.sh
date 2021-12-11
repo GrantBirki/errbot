@@ -15,7 +15,7 @@ command_name="${command_name,,}"
 
 # Dirs to copy from and to
 TEMPLATE_DIR_SRC="template"
-TEMPLATE_DIR_DST="app/plugins/$command_name"
+TEMPLATE_DIR_DST="src/errbot/plugins/$command_name"
 
 # Check if the directory already exists
 if [[ -d "$TEMPLATE_DIR_DST" ]]
