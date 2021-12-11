@@ -46,12 +46,12 @@ done
 # Global Directory Variables
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # The directory of this script
 REPO_DIR="$(dirname "$SCRIPT_DIR")" # The root directory of this repository
-cd $REPO_DIR/src/status_page
+cd $REPO_DIR/src/status_page/docker
 
 # Just bring the stack up, don't build
 if [[ "$up_no_create" == "1" ]]; then
   echo "Starting the docker stack locally"
-  docker-compose up --build -d
+  docker-compose up -d
   exit 0
 fi
 
@@ -64,7 +64,7 @@ else
 fi
 
 # Build the base image
-docker build -t status_page:base-alpine -f docker/alpine-base.dockerfile .
+docker build -t status_page:base-alpine -f alpine-base.dockerfile .
 
 # Build the image
 docker build -t "$DOCKER_IMAGE_TAG" -f dockerfile-alpine .

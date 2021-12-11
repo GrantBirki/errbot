@@ -8,3 +8,13 @@ services:
     env_file: 
       - ./config.env
       - ./creds.env
+  uptime-kuma:
+    image: louislam/uptime-kuma
+    container_name: uptime-kuma
+    volumes:
+      - ./src/status_page/data:/app/data
+    ports:
+      - 3001:3001
+    build:
+      context: ./src/status_page
+      dockerfile: ./docker/dockerfile-alpine
