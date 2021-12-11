@@ -3,8 +3,7 @@ node_modules
 dist-ssr
 *.local
 .idea
-
-!/data/.gitkeep
+!data/.gitkeep
 .vscode
 
 /private
