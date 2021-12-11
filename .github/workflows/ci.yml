@@ -13,11 +13,7 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      app-src: ${{ steps.filter.outputs.app-src }} # changes to the errbot source code
-      status-page-src: ${{ steps.filter.outputs.status-page-src }} # changes to the status page source code
       src: ${{ steps.filter.outputs.src }} # Used to calculate general changes to source code
-      terraform-k8s-cluster: ${{ steps.filter.outputs.terraform-k8s-cluster }} # changes to the k8s cluster
-      terraform-k8s: ${{ steps.filter.outputs.terraform-k8s }} # changes to k8s workloads
       terraform: ${{ steps.filter.outputs.terraform }} # Used to calculate general changes to terraform
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
@@ -25,16 +21,10 @@ jobs:
         id: filter
         with:
           filters: |
-            terraform-k8s-cluster:
-              - 'terraform/k8s-cluster/**'
-            terraform-k8s:
-              - 'terraform/k8s/**'
             terraform:
               - 'terraform/**'
-            app:
-              - 'src/app/**'
-            status-page-src:
-              - 'src/status_page/**'
+            src:
+              - 'src/**'
 
   lint:
     needs: changes
@@ -85,7 +75,7 @@ jobs:
   test:
     needs: [changes, lint]
     if:
-      needs.changes.outputs.app == 'true' || needs.changes.outputs.terraform ==
+      needs.changes.outputs.src == 'true' || needs.changes.outputs.terraform ==
       'true'
 
     runs-on: ubuntu-latest
@@ -107,7 +97,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
-        working-directory: app
+        working-directory: src/errbot
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           echo "cache miss - installing dependencies"
@@ -115,14 +105,14 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       # - name: Test with pylint
-      #   working-directory: app
+      #   working-directory: src/errbot
       #   run: |
       #     sudo apt install pylint -y
       #     pylint -E app.py -d E0401 || { echo "Failure! - Python Error Checks Failed - $?" ; exit 1; }
       #     echo "Success! - Python Error Checks Passed"
 
       - name: JSON Validation
-        working-directory: app
+        working-directory: src/errbot
         run: |
           python -mjson.tool plugins/league/responses.json > /dev/null
 
@@ -159,14 +149,13 @@ jobs:
       - name: "Build image - On Pull Request"
         if: github.event_name == 'pull_request'
         run: |
-          script/ci-build --tag ${{ github.sha }}
+          script/ci-build --t=${{ github.sha }}
 
       # Builds and pushes images on push workflow
       - name: "Build and Push image - latest"
         if: github.event_name == 'push'
-        working-directory: app
         run: |
-          script/ci-build --tag=${{ github.sha }} --push=true
+          script/ci-build --t=${{ github.sha }} -p=true -r="${{ secrets.DEV_REGISTRY_LOGIN_SERVER }}"
   terraform:
     needs: [changes, build]
     if:
@@ -195,17 +184,20 @@ jobs:
 
       # Terraform aws
       - name: Terraform fmt (aws)
+        if: github.event_name == 'pull_request'
         working-directory: terraform/aws
         id: fmt_aws_tf
         run: terraform fmt -check
         continue-on-error: true
 
       - name: Terraform init (aws)
+        if: github.event_name == 'pull_request'
         working-directory: terraform/aws
         id: init_aws_tf
         run: terraform init
 
       - name: Terraform validate (aws)
+        if: github.event_name == 'pull_request'
         working-directory: terraform/aws
         id: validate_aws_tf
         run: terraform validate -no-color
@@ -222,17 +214,20 @@ jobs:
 
       # Terraform k8s-cluster
       - name: Terraform fmt (k8s-cluster)
+        if: github.event_name == 'pull_request'
         working-directory: terraform/k8s-cluster
         id: fmt_k8s_cluster
         run: terraform fmt -check
         continue-on-error: true
 
       - name: Terraform init (k8s-cluster)
+        if: github.event_name == 'pull_request'
         working-directory: terraform/k8s-cluster
         id: init_k8s_cluster
         run: terraform init
 
       - name: Terraform validate (k8s-cluster)
+        if: github.event_name == 'pull_request'
         working-directory: terraform/k8s-cluster
         id: validate_k8s_cluster
         run: terraform validate -no-color
@@ -251,17 +246,20 @@ jobs:
 
       # Terraform k8s (resources / workloads)
       - name: Terraform fmt (k8s)
+        if: github.event_name == 'pull_request'
         working-directory: terraform/k8s
         id: fmt_k8s
         run: terraform fmt -check
         continue-on-error: true
 
       - name: Terraform init (k8s)
+        if: github.event_name == 'pull_request'
         working-directory: terraform/k8s
         id: init_k8s
         run: terraform init
 
       - name: Terraform validate (k8s)
+        if: github.event_name == 'pull_request'
         working-directory: terraform/k8s
         id: validate_k8s
         run: terraform validate -no-color

@@ -14,9 +14,9 @@ function usage()
   echo -e "\t ========================== script/ci-build usage =========================="
   echo -e "\t-h --help                      : displays help message"
   echo -e "\t-r --registry                  : the ACR registry"
-  echo -e "\f-f --frontend                  : the frontend container tag"
-  echo -e "\t-b --backend                   : the backend container tag"
-  echo -e "\t-s --status-page               : the status_page container tag"
+  echo -e "\f-t --tag                       : the tag to use for images"
+  echo -e "\t-p --push                      : if images should be pushed"
+  echo -e "\t Example: script/ci-build -r=<registry> -t=deadbeef -p=true"
 }
 
 while [ "$1" != "" ]; do
@@ -30,11 +30,11 @@ while [ "$1" != "" ]; do
       -r | --registry)
         registry=$VALUE
         ;;
-      -e | --errbot)
-        errbot=$VALUE
+      -t | --tag)
+        tag=$VALUE
         ;;
-      -s | --status)
-        status_page=$VALUE
+      -p | --push)
+        push=$VALUE
         ;;
       *)
       echo "ERROR: unknown parameter \"$PARAM\""
@@ -45,20 +45,26 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [[ "$errbot" == "" ]]; then
-  echo "errbot:      no changes detected, skipping build + push"
-else
-  echo "errbot:      changes detected, building + push starting"
-  docker build -t $registry/errbot:$errbot errbot
-  docker push $registry/errbot:$errbot
-fi
+# Loop through all the folders in the src/ directory and build their images
+dirs=$(find ./src -mindepth 1 -maxdepth 1 -type d)
+for src_folder in $dirs; do
+  src_folder_name=$(basename "$src_folder")
+  if [[ -z "$push" ]]; then
+    echo "Building image for $src_folder_name"
+  else
+    echo "Building AND Pushing image for $src_folder_name"
+  fi
 
-# Build the status_page image
-cd $REPO_DIR
-if [[ "$status_page" == "" ]]; then
-  echo "status_page:  no changes detected, skipping build + push"
-else
-  echo "status_page:  changes detected, building + push starting"
-  script/status-page -b -t="$registry/status_page:$STATUS_PAGE_TAG"
-  docker push $registry/status_page:$STATUS_PAGE_TAG
-fi
+  cd "$REPO_DIR/src/$src_folder_name"
+  docker build -t $registry/$src_folder_name:$tag .
+  if [[ -n "$push" ]]; then
+    echo "Pushing image for $src_folder_name"
+    docker push $registry/$src_folder_name:$tag
+  fi
+
+  # Custom code for testing the health of the errbot container
+  if [[ $src_folder_name == "errbot" ]]; then
+    echo "Running the errbot image to ensure proper startup"
+    docker run --rm --env-file "$REPO_DIR/config.env" --env-file "$REPO_DIR/.github/ci-helpers/creds-mock.env" -e LOCAL_TESTING=True $registry/$src_folder_name:$tag
+  fi
+done
