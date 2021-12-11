@@ -1,51 +1,28 @@
-FROM louislam/uptime-kuma:base-debian AS build
+# DON'T UPDATE TO alpine3.13, 1.14, see #41.
+FROM node:14-alpine3.12 as base
+WORKDIR /app
+
+# Install apprise, iputils for non-root ping, setpriv
+RUN apk add --no-cache iputils setpriv dumb-init python3 py3-cryptography py3-pip py3-six py3-yaml py3-click py3-markdown py3-requests py3-requests-oauthlib && \
+    pip3 --no-cache-dir install apprise==0.9.6 && \
+    rm -rf /root/.cache
+
+FROM base AS build
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
 
 COPY . .
-RUN npm ci && \
-    npm run build && \
-    npm ci --production && \
+RUN export NODE_ENV=production
+RUN npm install && \
     chmod +x /app/extra/entrypoint.sh
 
 
-FROM louislam/uptime-kuma:base-debian AS release
+FROM build AS release
 WORKDIR /app
-
-# Copy app files from build layer
-COPY --from=build /app /app
 
 EXPOSE 3001
 VOLUME ["/app/data"]
 HEALTHCHECK --interval=60s --timeout=30s --start-period=180s --retries=5 CMD node extra/healthcheck.js
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "extra/entrypoint.sh"]
 CMD ["node", "server/server.js"]
-
-FROM release AS nightly
-RUN npm run mark-as-nightly
-
-# Upload the artifact to Github
-FROM louislam/uptime-kuma:base-debian AS upload-artifact
-WORKDIR /
-RUN apt update && \
-    apt --yes install curl file
-
-ARG GITHUB_TOKEN
-ARG TARGETARCH
-ARG PLATFORM=debian
-ARG VERSION
-ARG FILE=$PLATFORM-$TARGETARCH-$VERSION.tar.gz
-ARG DIST=dist.tar.gz
-
-COPY --from=build /app /app
-RUN chmod +x /app/extra/upload-github-release-asset.sh
-
-# Full Build
-# RUN tar -zcvf $FILE app
-# RUN /app/extra/upload-github-release-asset.sh github_api_token=$GITHUB_TOKEN owner=louislam repo=uptime-kuma tag=$VERSION filename=$FILE
-
-# Dist only
-RUN cd /app && tar -zcvf $DIST dist
-# RUN /app/extra/upload-github-release-asset.sh github_api_token=$GITHUB_TOKEN owner=louislam repo=uptime-kuma tag=$VERSION filename=$DIST
-

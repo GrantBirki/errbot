@@ -8,3 +8,14 @@ services:
     env_file: 
       - ./config.env
       - ./creds.env
+    depends_on:
+      - status_page
+  status_page:
+    container_name: status_page
+    volumes:
+      - ./src/status_page/data:/app/data
+    ports:
+      - 3001:3001
+    build:
+      context: ./src/status_page
+      dockerfile: ./dockerfile
