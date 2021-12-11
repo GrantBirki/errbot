@@ -7,6 +7,7 @@ RUN apk add --no-cache iputils setpriv dumb-init python3 py3-cryptography py3-pi
     pip3 --no-cache-dir install apprise==0.9.6 && \
     rm -rf /root/.cache
 
+
 FROM base AS build
 WORKDIR /app
 
