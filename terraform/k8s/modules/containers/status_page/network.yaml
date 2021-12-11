@@ -10,6 +10,9 @@ spec:
   ingress:
   - from:
     - namespaceSelector: {}
-      podSelector:
+    - podSelector:
         matchLabels:
           name: nginx
+    - podSelector:
+        matchLabels:
+          name: errbot
