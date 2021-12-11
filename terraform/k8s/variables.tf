@@ -58,6 +58,16 @@ variable "AWS_SECRET_ACCESS_KEY" {
   sensitive = true
 }
 
+variable "AWS_ACCESS_KEY_ID_ENCODED" {
+  type      = string
+  sensitive = true
+}
+
+variable "AWS_SECRET_ACCESS_KEY_ENCODED" {
+  type      = string
+  sensitive = true
+}
+
 # Spotify
 variable "SPOTIFY_CLIENT_ID" {
   type      = string
