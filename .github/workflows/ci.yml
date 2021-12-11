@@ -152,10 +152,10 @@ jobs:
           script/ci-build -t=${{ github.sha }} -r="${{ secrets.REGISTRY_LOGIN_SERVER }}"
 
       # Builds and pushes images on push workflow
-      - name: "Build and Push image - latest"
+      - name: "Build and Push image - On Push"
         if: github.event_name == 'push'
         run: |
-          script/ci-build -t=${{ github.sha }} -p=true -r="${{ secrets.REGISTRY_LOGIN_SERVER }}"
+          script/ci-build -t=${{ github.sha }} -r="${{ secrets.REGISTRY_LOGIN_SERVER }}" -p=true
   terraform:
     needs: [changes, build]
     if:
