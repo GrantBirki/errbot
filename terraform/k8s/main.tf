@@ -17,13 +17,13 @@ module "status_page" {
   ACR_NAME = data.azurerm_container_registry.acr.name
 
   # Environment variables
-  IMAGE_TAG = var.STATUS_PAGE_IMAGE_TAG
+  IMAGE_TAG = var.IMAGE_TAG
 }
 
 module "errbot" {
   source = "./modules/containers/errbot"
   # Environment variables
-  IMAGE_TAG = var.ERRBOT_IMAGE_TAG
+  IMAGE_TAG = var.IMAGE_TAG
   # Bot Creds
   CHAT_SERVICE_TOKEN    = var.CHAT_SERVICE_TOKEN
   AWS_ACCESS_KEY_ID     = var.AWS_ACCESS_KEY_ID_ENCODED

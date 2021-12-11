@@ -30,7 +30,7 @@ variable "ENVIRONMENT" {
 
 # Bot Config
 
-variable "ERRBOT_IMAGE_TAG" {
+variable "IMAGE_TAG" {
   type = string
   default = "test"
 }
@@ -83,12 +83,4 @@ variable "SPOTIFY_CLIENT_SECRET" {
 variable "SENTRY" {
   type      = string
   sensitive = true
-}
-
-# Status page
-
-variable "STATUS_PAGE_IMAGE_TAG" {
-  description = "The image tag to use for status_page deployments"
-  type        = string
-  default     = "test"
 }
