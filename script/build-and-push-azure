@@ -21,7 +21,7 @@ az acr login -n $ACR_NAME
 
 echo "✅ Successfully logged into ACR"
 
-docker build -t $ACR_NAME.azurecr.io/errbot:test $REPO_DIR/src/app
+docker build -t $ACR_NAME.azurecr.io/errbot:test $REPO_DIR/src/errbot
 docker push $ACR_NAME.azurecr.io/errbot:test
 echo "✅ Successfully pushed the errbot image"
 
