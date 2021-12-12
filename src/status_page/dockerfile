@@ -3,6 +3,7 @@ FROM louislam/uptime-kuma:1.11.1-alpine
 # Here we load a custom StatusPage image. If this ever updates a new one will need to be pulled from the source
 # source: https://github.com/louislam/uptime-kuma
 COPY dist/assets/StatusPage.80b9401b.js dist/assets/StatusPage.80b9401b.js
+COPY index.html index.html
 
 EXPOSE 3001
 VOLUME ["/app/data"]
