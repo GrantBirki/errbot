@@ -6,5 +6,5 @@ These files are just used for local testing to have a persistent dev env. These 
 
 Test credentials:
 
-- username: test
-- password: testpw1
+- username: `test`
+- password: `testpw1`
