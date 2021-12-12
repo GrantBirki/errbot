@@ -1,6 +1,6 @@
 FROM louislam/uptime-kuma:1.11.1-alpine
 
-COPY . .
+COPY dist/assets/StatusPage.80b9401b.js dist/assets/StatusPage.80b9401b.js
 RUN chmod +x /app/extra/entrypoint.sh
 
 WORKDIR /app
