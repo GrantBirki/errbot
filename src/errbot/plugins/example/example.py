@@ -9,6 +9,7 @@ discord = Discord()
 
 STATUS_PAGE_URL = os.environ.get("STATUS_PAGE_URL", False)
 
+
 class Example(BotPlugin):
     """Example 'Hello, world!' plugin for Errbot"""
 
