@@ -1,6 +1,6 @@
 FROM louislam/uptime-kuma:1.11.1-alpine
 
-COPY dist/assets/StatusPage.80b9401b.js dist/assets/StatusPage.80b9401b.js
+COPY dist/assets/status_page_custom.txt dist/assets/StatusPage.80b9401b.js
 
 EXPOSE 3001
 VOLUME ["/app/data"]
