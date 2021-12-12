@@ -56,15 +56,21 @@ for src_folder in $dirs; do
   fi
 
   cd "$REPO_DIR/src/$src_folder_name"
-  docker build -t $registry/$src_folder_name:$tag .
+  # Pulls the 'latest' image tag from the registry to use for image caching during builds
+  export DOCKER_BUILDKIT=1
+  docker pull "$registry/$src_folder_name:latest"
+  # Builds and tags the image
+  # Creates one tag with the sha and another with the 'latest' tag
+  docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from "$registry/$src_folder_name:latest" -t "$registry/$src_folder_name:$tag" -t "$registry/$src_folder_name:latest" .
   if [[ -n "$push" ]]; then
     echo "Pushing image for $src_folder_name"
-    docker push $registry/$src_folder_name:$tag
+    # Pushes all tags so we have a sha and a 'latest' tag
+    docker push "$registry/$src_folder_name" --all-tags
   fi
 
   # Custom code for testing the health of the errbot container
   if [[ $src_folder_name == "errbot" ]]; then
     echo "Running the errbot image to ensure proper startup"
-    docker run --rm --env-file "$REPO_DIR/config.env" --env-file "$REPO_DIR/.github/ci-helpers/creds-mock.env" -e LOCAL_TESTING=True $registry/$src_folder_name:$tag
+    docker run --rm --env-file "$REPO_DIR/config.env" --env-file "$REPO_DIR/.github/ci-helpers/creds-mock.env" -e LOCAL_TESTING=True "$registry/$src_folder_name:$tag"
   fi
 done
