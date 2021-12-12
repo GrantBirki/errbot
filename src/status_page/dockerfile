@@ -1,28 +1,8 @@
-# DON'T UPDATE TO alpine3.13, 1.14, see #41.
-FROM node:14-alpine3.12 as base
-WORKDIR /app
+FROM louislam/uptime-kuma:1.11.1-alpine
 
-# Install apprise, iputils for non-root ping, setpriv
-RUN apk add --no-cache iputils setpriv dumb-init python3 py3-cryptography py3-pip py3-six py3-yaml py3-click py3-markdown py3-requests py3-requests-oauthlib && \
-    pip3 --no-cache-dir install apprise==0.9.6 && \
-    rm -rf /root/.cache
-
-
-FROM base AS build
-WORKDIR /app
-
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
-
-COPY package.json /app/package.json
-RUN export NODE_ENV=production
-RUN npm install
-
-COPY . .
-RUN chmod +x /app/extra/entrypoint.sh
-
-
-FROM build AS release
-WORKDIR /app
+# Here we load a custom StatusPage image. If this ever updates a new one will need to be pulled from the source
+# source: https://github.com/louislam/uptime-kuma
+COPY dist/assets/StatusPage.80b9401b.js dist/assets/StatusPage.80b9401b.js
 
 EXPOSE 3001
 VOLUME ["/app/data"]

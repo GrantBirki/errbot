@@ -1,19 +1,16 @@
-FROM python:3.9-slim
+FROM python:3.9-alpine
 
 WORKDIR /app
 
-# install dependencies
-RUN apt update -y && apt upgrade -y
-RUN apt install gcc -y
-RUN apt install ffmpeg -y
-RUN apt autoremove -y && apt clean -y
+# install alpine dependencies
+RUN apk add gcc musl-dev libffi-dev make libffi-dev libsodium-dev opus-dev ffmpeg
 
-# setup errbot base
+# install python dependencies
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # create nonroot errbot user and switch to it
-RUN useradd -m errbot
+RUN adduser -D errbot
 RUN chown -R errbot:errbot /app
 RUN chown -R errbot:errbot /usr/local/lib/python3.9/site-packages/errbot
 USER errbot
@@ -22,7 +19,8 @@ USER errbot
 RUN errbot --init
 
 # cleanup unused default errbot plugins
-RUN rm -rf plugins/err-example \
+RUN \
+rm -rf plugins/err-example \
 rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/chatRoom.* \
 rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/flows.* \
 rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/webserver.* \
