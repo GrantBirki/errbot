@@ -19,7 +19,8 @@ USER errbot
 RUN errbot --init
 
 # cleanup unused default errbot plugins
-RUN rm -rf plugins/err-example \
+RUN \
+rm -rf plugins/err-example \
 rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/chatRoom.* \
 rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/flows.* \
 rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/webserver.* \
