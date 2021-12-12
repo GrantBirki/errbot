@@ -44,6 +44,8 @@ spec:
               value: "na1"
             - name: RIOT_REGION_V5
               value: "AMERICAS"
+            - name: STATUS_PAGE_URL
+              value: "https://errbot-status.birki.io"
             - name: IMAGE_TAG
               value: "${IMAGE_TAG}"
             # Secret ENV Vars

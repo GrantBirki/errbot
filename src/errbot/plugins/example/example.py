@@ -7,6 +7,8 @@ from lib.chat.discord_custom import DiscordCustom
 
 discord = Discord()
 
+STATUS_PAGE_URL = os.environ.get("STATUS_PAGE_URL", False)
+
 
 class Example(BotPlugin):
     """Example 'Hello, world!' plugin for Errbot"""
@@ -15,6 +17,15 @@ class Example(BotPlugin):
     def hello(self, msg, args):
         """Say hello to the world"""
         return "hello world!"
+
+    @botcmd
+    def ping(self, msg, args):
+        """Check if the bot is up"""
+        if STATUS_PAGE_URL:
+            message = f"🟢 Pong!\nBot status:\n{STATUS_PAGE_URL}"
+        else:
+            message = "🟢 Pong!"
+        return message
 
     @botcmd
     def show_args(self, msg, args):
