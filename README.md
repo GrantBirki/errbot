@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/GrantBirki/errbot/actions/workflows/ci.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/ci.yml/badge.svg?event=push" alt="ci" height="18"></a>
+  <a href="https://github.com/GrantBirki/errbot/actions/workflows/ci-deploy.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/ci-deploy.yml/badge.svg?event=push" alt="ci-deploy" height="18"></a>
   <a href="https://github.com/GrantBirki/errbot/actions/workflows/review.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/review.yml/badge.svg?event=push" alt="review"/></a>
   <a href="https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml/badge.svg?event=push" alt="tfsec"/></a>
 </p>
