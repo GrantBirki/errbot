@@ -99,6 +99,18 @@ To setup your bot, you will need to modify your `config.env` file. To make thing
 
 ---
 
+### Project Components 🧰
+
+**Key concepts**:
+
+There are three main components to errbot:
+
+- The chatbot itself - This is `errbot`, the python app running in a docker container which processes requests - `src/errbot/`
+- The status page - This is the uptime-kuma docker app which accepts push events from the chatbot to display its health - `src/status_page/` - *add on service to the core chatbot*
+- The NGINX reverse proxy - This is a simple NGINX server which proxies HTTP requests to the status page - `src/nginx/` - *add on service to the core chatbot*
+
+The **status_page** and **NGINX** server are mainly just additions to the observability of **errbot**. The do not affect the functionality of the chatbot in any meaningful way.
+
 ### Testing and Building Locally 🧪
 
 **Important**: Make sure you followed the setup instructions above first
@@ -177,6 +189,8 @@ If you followed the steps above and everything succeeded, you should get a DM fr
 
 > Note x2: Running `make run` will start the `errbot-dev` bot and can be invoked with `!` rather than the usual `.`
 
+Remember to read the **Project Components** section above to get a feel for the components of the bot that are created with this command.
+
 ---
 
 ## Making your own plugin / function 🔌
@@ -238,11 +252,16 @@ What is in each folder?
 - `script/` - Maintenance and automation scripts for working with this project
 - `template/` - Template / boilerplate code for new chatops commands
 - `terraform/` - Terraform code for deploying `errbot` resources
-- `app/` - All the files, data, and configuration for `errbot`
+  - `terraform/aws` - AWS related resources
+  - `terraform/k8s-cluster` - The core components of the `errbot` k8s cluster
+  - `terraform/k8s` - The k8s resources, services, manifests, secrets, etc to get deployed on the `k8s-cluster`
+- `src/` - All the files, data, and configuration for `errbot` and its related services
 
   - `src/errbot/backend/` - Folder containing extra backend modules (Discord)
   - `src/errbot/` - Folder containing all the extra / custom plugins for our chatop commands
   - `src/errbot/lib/` - Folder containing shared libraries for plugins
+  - `src/status_page/` - Folder containing the code for building the errbot status page (uptime-kuma)
+  - `src/nginx/` - Folder containing the docker components for building the NGINX reverse proxy to handle HTTP requests for the status page
 
 What are these files?
 
@@ -259,13 +278,25 @@ What are these files?
 
 Here is a high level overview of this project and the software/infrastruce that run this bot:
 
+Core:
+
 - This project uses [errbot](https://github.com/errbotio/errbot) which is a Python based chatop/chatbot framework
 - `errbot` and all of its components are built using Docker to create a deployable image
-- We use Terraform and GitHub actions to deploy the Docker image (from our CI/CD pipeline) to Azure
-- The Docker image runs in a container in Azure and connects to Discord
+- We use Terraform and GitHub actions to deploy the Docker image (from our CI/CD pipeline) to Azure AKS (Kubernetes)
+- The Docker image runs in a container in Azure AKS and connects to Discord
 - The bot then listens for commands and responds to them
 - For any commands that require some form of "state" we use AWS DynamoDB to store information since containers are ephemeral by design
-- We store any configuration or credentials as environment variables which get injected into the container in our CI/CD builds
+- We store any configuration as environment variables and secrets as k8s secrets which get injected into the container on boot
+
+Status Page:
+
+In addition to the core `errbot` container, we also deploy a **status page** to k8s which accepts HTTP requests that are interpreted as healthchecks from `errbot`. The project that is used is [uptime-kuma](https://github.com/louislam/uptime-kuma). The **status page** consists of two components: the "app" (kuma-uptime) and the NGINX reverse proxy.
+
+- The status page source code is built via Docker in CI/CD (`src/status_page`)
+- The NGINX reverse proxy source code is built via Docker in CI/CD (`src/nginx`)
+- The status page and NGINX images are deployed with Terraform and GitHub actions to our k8s cluster
+- `errbot` will make HTTP GET requests to the `src/status_page` app at a set interval which gets registered as a healthcheck if it is successful (configured via the `STATUS_PUSH_ENDPOINT` environment variable)
+- End users can view the status page which is accessible from the NGINX reverse proxy (kong ingress gateway is configured to forward requets to it)
 
 ---
 
