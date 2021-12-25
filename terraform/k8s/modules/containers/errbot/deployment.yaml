@@ -32,6 +32,8 @@ spec:
             # General ENV Vars
             - name: BACKEND
               value: "Discord"
+            - name: BOT_STATUS_MESSAGE
+              value: "errbot | .help"
             - name: BOT_PREFIX
               value: "."
             - name: BOT_HOME_CHANNEL
