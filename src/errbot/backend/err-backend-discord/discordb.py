@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 import re
+import os
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
@@ -511,6 +512,12 @@ class DiscordBackend(ErrBot):
         )
         if self.bot_identifier is None:
             self.bot_identifier = DiscordPerson(DiscordBackend.client.user.id)
+
+        bot_status_message = os.environ.get("BOT_STATUS_MESSAGE", None)
+        if bot_status_message:
+            await DiscordBackend.client.change_presence(
+                activity=discord.Game(bot_status_message)
+            )
 
         for channel in DiscordBackend.client.get_all_channels():
             log.debug(f"Found channel: {channel}")
