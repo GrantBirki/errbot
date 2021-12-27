@@ -13,7 +13,12 @@ from lib.common.sentry import Sentry
 from lib.database.dynamo_tables import LeagueTable
 from riotwatcher import ApiError, LolWatcher
 
-LOL_WATCHER = LolWatcher(os.environ["RIOT_TOKEN"], timeout=10)
+# Get the RIOT_TOKEN and ensure it is a string and not a bytestring
+RIOT_TOKEN = os.environ['RIOT_TOKEN']
+if isinstance(RIOT_TOKEN, bytes):
+    RIOT_TOKEN = RIOT_TOKEN.decode('utf-8')
+
+LOL_WATCHER = LolWatcher(RIOT_TOKEN, timeout=10)
 REGION = os.environ["RIOT_REGION"]
 RIOT_REGION_V5 = os.environ["RIOT_REGION_V5"]
 discord = Discord()
