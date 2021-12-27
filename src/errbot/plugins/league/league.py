@@ -16,7 +16,7 @@ from riotwatcher import ApiError, LolWatcher
 # Get the RIOT_TOKEN and ensure it is a string and not a bytestring
 RIOT_TOKEN = os.environ["RIOT_TOKEN"]
 if isinstance(RIOT_TOKEN, bytes):
-    RIOT_TOKEN = RIOT_TOKEN.decode("utf-8")
+    RIOT_TOKEN = RIOT_TOKEN.decode("utf-8").replace("\n", "").strip()
 
 LOL_WATCHER = LolWatcher(RIOT_TOKEN, timeout=10)
 REGION = os.environ["RIOT_REGION"]
