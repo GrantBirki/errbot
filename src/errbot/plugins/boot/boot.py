@@ -13,7 +13,7 @@ INSTALL_MESSAGE_TEXT = "🟢 Systems are now online"
 # Interval for pushing health checks to the status_page endpoint
 INTERVAL = 15
 STATUS_PUSH_ENDPOINT = os.environ.get("STATUS_PUSH_ENDPOINT", False)
-STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 5 # seconds
+STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 10 # seconds
 
 
 class Boot(BotPlugin):
