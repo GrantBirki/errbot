@@ -1,6 +1,8 @@
-from errbot import BotPlugin, botcmd
 import os
+import time
+
 import requests
+from errbot import BotPlugin, botcmd
 
 # Version of the message that's triggered after installing the plugin
 # Incrementing this ensures the message is re-triggered, even if it had
@@ -11,6 +13,7 @@ INSTALL_MESSAGE_TEXT = "🟢 Systems are now online"
 # Interval for pushing health checks to the status_page endpoint
 INTERVAL = 15
 STATUS_PUSH_ENDPOINT = os.environ.get("STATUS_PUSH_ENDPOINT", False)
+STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 5 # seconds
 
 
 class Boot(BotPlugin):
@@ -34,7 +37,16 @@ class Boot(BotPlugin):
             self.start_poller(INTERVAL, self.push_health_status)
 
     def push_health_status(self):
-        requests.get(STATUS_PUSH_ENDPOINT)
+        try:
+            requests.get(STATUS_PUSH_ENDPOINT)
+        # If we get a ConnectionError, retry once more before raising an exception
+        except ConnectionError:
+            # Log a warning
+            self.log.warn(f"ConnectionError: Could not reach status_page endpoint - trying again in {STATUS_PUSH_ENDPOINT_FAILURE_RETRY} seconds")
+            # Sleep for the retry interval
+            time.sleep(STATUS_PUSH_ENDPOINT_FAILURE_RETRY)
+            # Make the request again - This time with no error handling to raise an exception if it fails again
+            requests.get(STATUS_PUSH_ENDPOINT)
 
     @botcmd(admin_only=True)
     def sentry(self, mess, args):
