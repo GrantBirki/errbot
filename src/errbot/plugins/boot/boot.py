@@ -13,7 +13,7 @@ INSTALL_MESSAGE_TEXT = "🟢 Systems are now online"
 # Interval for pushing health checks to the status_page endpoint
 INTERVAL = 15
 STATUS_PUSH_ENDPOINT = os.environ.get("STATUS_PUSH_ENDPOINT", False)
-STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 10 # seconds
+STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 10  # seconds
 
 
 class Boot(BotPlugin):
@@ -42,7 +42,9 @@ class Boot(BotPlugin):
         # If we get a ConnectionError, retry once more before raising an exception
         except ConnectionError:
             # Log a warning
-            self.log.warn(f"ConnectionError: Could not reach status_page endpoint - trying again in {STATUS_PUSH_ENDPOINT_FAILURE_RETRY} seconds")
+            self.log.warn(
+                f"ConnectionError: Could not reach status_page endpoint - trying again in {STATUS_PUSH_ENDPOINT_FAILURE_RETRY} seconds"
+            )
             # Sleep for the retry interval
             time.sleep(STATUS_PUSH_ENDPOINT_FAILURE_RETRY)
             # Make the request again - This time with no error handling to raise an exception if it fails again
