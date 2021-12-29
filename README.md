@@ -300,6 +300,18 @@ In addition to the core `errbot` container, we also deploy a **status page** to 
 
 ---
 
+## Mkdocs Documentation 📚
+
+To view and serve a local version of the [Mkdocs](https://mkdocs.org/) documentation for this project, run the following command:
+
+```console
+$ mkdocs serve
+INFO     -  Building documentation...
+INFO     -  Cleaning site directory
+INFO     -  Documentation built in 0.17 seconds
+INFO     -  [22:56:00] Serving on http://127.0.0.1:8000/
+```
+
 ## Bot Invite 🔗
 
 Use the link below to invite the bot to a Discord server. This link includes pre-made permissions:

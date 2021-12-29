@@ -224,3 +224,17 @@ In addition to the core `errbot` container, we also deploy a **status page** to 
 - The status page and NGINX images are deployed with Terraform and GitHub actions to our k8s cluster
 - `errbot` will make HTTP GET requests to the `src/status_page` app at a set interval which gets registered as a healthcheck if it is successful (configured via the `STATUS_PUSH_ENDPOINT` environment variable)
 - End users can view the status page which is accessible from the NGINX reverse proxy (kong ingress gateway is configured to forward requets to it)
+
+---
+
+## Mkdocs Documentation 📚
+
+To view and serve a local version of the [Mkdocs](https://mkdocs.org/) documentation for this project, run the following command:
+
+```console
+$ mkdocs serve
+INFO     -  Building documentation...
+INFO     -  Cleaning site directory
+INFO     -  Documentation built in 0.17 seconds
+INFO     -  [22:56:00] Serving on http://127.0.0.1:8000/
+```
