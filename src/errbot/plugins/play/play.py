@@ -9,7 +9,7 @@ import validators
 from errbot import BotPlugin, botcmd
 from lib.chat.discord import Discord
 from lib.chat.discord_custom import DiscordCustom
-from lib.common.sentry import Sentry
+from lib.common.errhelper import ErrHelper
 from lib.common.utilities import Util
 from lib.common.youtube_dl_lib import YtdlLib
 from lib.database.dynamo_tables import PlayTable
@@ -102,7 +102,7 @@ class Play(BotPlugin):
                 self.update_play_stats(queue_item)
 
         except Exception as e:
-            Sentry().capture(e)
+            ErrHelper().capture(e)
             self.log.exception(f"The play_cron() failed! - Error: {e}")
 
     @botcmd
@@ -155,7 +155,7 @@ class Play(BotPlugin):
         AKA skip the queue and play your tunes 'next'
         Note: This command uses the exact same syntax as the .play command
         """
-        Sentry().user(msg)
+        ErrHelper().user(msg)
 
         # Run the play_main() function with the queue_postition set to 1 (next song)
         for message in self.play_main(msg, args, queue_position=1):
@@ -172,7 +172,7 @@ class Play(BotPlugin):
         --channel <channel ID> - Optional: The full channel id to play the video/audio in
         Note: Use the --channel flag if you are not in a voice channel or want to play in a specific channel
         """
-        Sentry().user(msg)
+        ErrHelper().user(msg)
 
         for message in self.play_main(msg, args):
             yield message
@@ -184,7 +184,7 @@ class Play(BotPlugin):
         See what is in the .play queue
         Usage: .play queue
         """
-        Sentry().user(msg)
+        ErrHelper().user(msg)
 
         queue_items = self.read_queue(discord.guild_id(msg))
         # If it is not ready and open by another process we have to exit
@@ -209,7 +209,7 @@ class Play(BotPlugin):
         Gets stats about the .play command for your server
         Usage: .play stats
         """
-        Sentry().user(msg)
+        ErrHelper().user(msg)
 
         # Set the default message and title for the response to be returned via chat
         title = f"🎵 **`.play` stats for this Discord server:** 🎵"
@@ -306,7 +306,7 @@ class Play(BotPlugin):
         Usage: .stop (triggers a command flow for confirmation)
         Note: This command is kinda ugly but is helpful to full stop the .play queue
         """
-        Sentry().user(msg)
+        ErrHelper().user(msg)
 
         if msg.ctx.get("confirmed", None) == True:
             stopped = False
@@ -358,7 +358,7 @@ class Play(BotPlugin):
         Skip the current song in the .play queue
         Usage: .skip
         """
-        Sentry().user(msg)
+        ErrHelper().user(msg)
 
         queue_items = self.read_queue(discord.guild_id(msg))
         # If it is not ready and open by another process we have to exit
@@ -560,7 +560,7 @@ class Play(BotPlugin):
                     retries=3,
                 )
             except Exception as e:
-                Sentry().capture(e)
+                ErrHelper().capture(e)
                 return None
 
             # Search Spotify for the song
@@ -578,7 +578,7 @@ class Play(BotPlugin):
             return None
 
         except Exception as e:
-            Sentry().capture(e)
+            ErrHelper().capture(e)
             return None
 
     def read_queue(self, guild_id):
@@ -912,7 +912,7 @@ class Play(BotPlugin):
                 PlayTable(discord_server_id=queue_item["guild_id"], stats=stats)
             )
         except Exception as e:
-            Sentry().capture(e)
+            ErrHelper().capture(e)
             return False
 
     def fmt_play_time(self, play_time):
