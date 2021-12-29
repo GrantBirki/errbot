@@ -1,11 +1,9 @@
 import os
-from lib.common.utilities import Util
-from lib.common.sentry import Sentry
-from pynamodb.exceptions import DoesNotExist
-from traceback import print_exc
-from sys import stdout
 
 import boto3
+from lib.common.errhelper import ErrHelper
+from lib.common.utilities import Util
+from pynamodb.exceptions import DoesNotExist
 
 session = boto3.Session(
     aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
@@ -30,7 +28,7 @@ class Dynamo:
             object.save()
             return True
         except Exception as e:
-            Sentry().capture(e)
+            ErrHelper().capture(e)
             return False
 
     def update(self, table: object, record: object, fields_to_update: list):
@@ -51,7 +49,7 @@ class Dynamo:
         except DoesNotExist:
             return None
         except Exception as e:
-            Sentry().capture(e)
+            ErrHelper().capture(e)
             return False
 
     def get(self, object, partition_key, sort_key=None):
@@ -69,7 +67,7 @@ class Dynamo:
         except DoesNotExist:
             return None
         except Exception as e:
-            Sentry().capture(e)
+            ErrHelper().capture(e)
             return False
 
     def delete(self, object):
@@ -82,7 +80,7 @@ class Dynamo:
             object.delete()
             return True
         except Exception as e:
-            Sentry().capture(e)
+            ErrHelper().capture(e)
             return False
 
     def scan(self, table_name, **kwargs):
@@ -107,5 +105,5 @@ class Dynamo:
                 data.extend(response["Items"])
             return data
         except Exception as e:
-            Sentry().capture(e)
+            ErrHelper().capture(e)
             False
