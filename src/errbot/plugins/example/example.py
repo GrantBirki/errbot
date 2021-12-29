@@ -23,7 +23,7 @@ class Example(BotPlugin):
     def docs(self, msg, args):
         """View the public errbot docs"""
         if DOCS_URL:
-            message = f"📚 View my public documentation\n{STATUS_PAGE_URL}"
+            message = f"📚 View my public documentation\n{DOCS_URL}"
         else:
             message = "I don't have a public documentation URL set!"
         return message
