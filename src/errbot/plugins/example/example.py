@@ -8,6 +8,7 @@ from lib.chat.discord_custom import DiscordCustom
 discord = Discord()
 
 STATUS_PAGE_URL = os.environ.get("STATUS_PAGE_URL", False)
+DOCS_URL = os.environ.get("DOCS_URL", False)
 
 
 class Example(BotPlugin):
@@ -17,6 +18,15 @@ class Example(BotPlugin):
     def hello(self, msg, args):
         """Say hello to the world"""
         return "hello world!"
+
+    @botcmd
+    def docs(self, msg, args):
+        """View the public errbot docs"""
+        if DOCS_URL:
+            message = f"📚 View my public documentation\n{STATUS_PAGE_URL}"
+        else:
+            message = "I don't have a public documentation URL set!"
+        return message
 
     @botcmd
     def ping(self, msg, args):

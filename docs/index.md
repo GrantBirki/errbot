@@ -8,6 +8,10 @@ The goal of this project is to make it as easy as possible to launch a minimal, 
 
 > Note: This repo is a fork of my other project [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad)
 
+**Looking for the bot commands documentation?**
+
+Check it out [here](commands.md)!
+
 ## Quickstart ⭐
 
 Want to get going quick? Run the following commands to bring up a CLI to interact with `errbot` locally:

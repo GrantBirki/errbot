@@ -7,6 +7,7 @@ The following commands are all available via the chatbot:
 |   Command   |  Example  |  Admin Only         |  Description     |
 |    :----:   |     :----:    |   :----:      |        :----:       |
 | `.help`      | -         | False | The help command to view all available commands |
+| `.docs` | - | False | View the public documenation link for the bot |
 | `.about` | - | False | View information data about the chatbot |
 | `.crypto`   | `.crypto btc` | False | Get the current price of a crypto currency |
 | `.load` | - | False | Get the system load |
