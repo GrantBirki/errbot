@@ -24,6 +24,8 @@ class Load(BotPlugin):
         Play an audio file from the sounds folder in a given channel
         These are insanely loud sounds
         📢📢📢 bye bye ears
+
+        Example: .loud rickroll.mp3
         """
 
         allowed = cooldown.check(msg)

@@ -15,6 +15,7 @@ class Remember(BotPlugin):
     def remember(self, msg, args):
         """
         Remember something / anything for any reason
+        .rem <key> is <value>
         """
         return self.remember_main(msg, args)
 
@@ -75,6 +76,7 @@ class Remember(BotPlugin):
     def forget(self, msg, args):
         """
         Forget something that is being remembered
+        .forget <key>
         """
         guild_id = discord.guild_id(msg)
 
