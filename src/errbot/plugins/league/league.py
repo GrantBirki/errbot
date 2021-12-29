@@ -9,7 +9,7 @@ from errbot import BotPlugin, arg_botcmd, botcmd
 from lib.chat.discord import Discord
 from lib.common.utilities import Util
 from lib.database.dynamo import Dynamo
-from lib.common.sentry import Sentry
+from lib.common.errhelper import ErrHelper
 from lib.database.dynamo_tables import LeagueTable
 from riotwatcher import ApiError, LolWatcher
 
@@ -168,7 +168,7 @@ class League(BotPlugin):
                 ],
             )
         else:
-            Sentry().capture(
+            ErrHelper().capture(
                 f"❌ Something went wrong finding a db entry for `{item['summoner_name']}`"
             )
             self.log.error(
@@ -192,7 +192,7 @@ class League(BotPlugin):
                 color=color,
             )
         else:
-            Sentry().capture(
+            ErrHelper().capture(
                 f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`"
             )
             self.log.error(
@@ -218,7 +218,7 @@ class League(BotPlugin):
                 self.log.error(f"HTTPError: {e}")
                 continue
             except Exception as e:
-                Sentry().capture(e)
+                ErrHelper().capture(e)
                 self.log.error(f"error: {e}")
                 continue
 
@@ -506,7 +506,7 @@ class League(BotPlugin):
             if err.response.status_code == 404:
                 return None
             else:
-                Sentry().capture(err)
+                ErrHelper().capture(err)
                 raise
 
     def get_summoner_match_list(self, summoner_puuid):
