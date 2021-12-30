@@ -9,9 +9,12 @@ discord = Discord()
 SENTRY_DISABLED = os.environ.get("SENTRY_DISABLED", False)
 
 
-class Sentry:
+class ErrHelper:
     """
     Error handling helper class for dealing with exceptions and tracing
+
+    This class assumes that you are using Discord as your chat client.
+    If Sentry.io is successfully enabled in config.py, then this class will automatically send errors to Sentry.io. Otherwise, it will send errors to its usual logging methods.
     """
 
     def user(self, msg):
@@ -27,9 +30,11 @@ class Sentry:
 
     def capture(self, error):
         """
-        Capture an exception and send it to Sentry
+        Capture an exception
         :param error: The exception to be captured (String or Exception)
         :return: None
+
+        Note: If Sentry.io is enabled it will be sent to Sentry, otherwise it will be logged via the usual logging methods
         """
         if not SENTRY_DISABLED:
             # If the provided message type is a string, then we'll send it to Sentry as a message

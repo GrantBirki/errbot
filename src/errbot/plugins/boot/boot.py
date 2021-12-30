@@ -13,7 +13,7 @@ INSTALL_MESSAGE_TEXT = "🟢 Systems are now online"
 # Interval for pushing health checks to the status_page endpoint
 INTERVAL = 15
 STATUS_PUSH_ENDPOINT = os.environ.get("STATUS_PUSH_ENDPOINT", False)
-STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 10  # seconds
+STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 15  # seconds
 
 
 class Boot(BotPlugin):
@@ -40,10 +40,10 @@ class Boot(BotPlugin):
         try:
             requests.get(STATUS_PUSH_ENDPOINT)
         # If we get a ConnectionError, retry once more before raising an exception
-        except ConnectionError:
+        except Exception as e:
             # Log a warning
             self.log.warn(
-                f"ConnectionError: Could not reach status_page endpoint - trying again in {STATUS_PUSH_ENDPOINT_FAILURE_RETRY} seconds"
+                f"Could not reach status_page endpoint - {e} - trying again in {STATUS_PUSH_ENDPOINT_FAILURE_RETRY} seconds"
             )
             # Sleep for the retry interval
             time.sleep(STATUS_PUSH_ENDPOINT_FAILURE_RETRY)
@@ -52,7 +52,10 @@ class Boot(BotPlugin):
 
     @botcmd(admin_only=True)
     def sentry(self, mess, args):
-        """Get the status of the Sentry integration"""
+        """
+        Get the status of the Sentry integration
+        Useful for checking if the ErrHelper class is using Sentry.io
+        """
         sentry_disabled = os.environ.get("SENTRY_DISABLED", False)
         if sentry_disabled:
             return "❌ Sentry is disabled"

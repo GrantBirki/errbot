@@ -1,7 +1,7 @@
 import re
 
 from errbot import BotPlugin, botcmd
-from lib.common.sentry import Sentry
+from lib.common.errhelper import ErrHelper
 from lib.chat.discord import Discord
 from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import SparkleTable
@@ -246,5 +246,5 @@ class Sparkle(BotPlugin):
             }
         except Exception as e:
             # If anything goes wrong, return None
-            Sentry().capture(e)
+            ErrHelper().capture(e)
             return None
