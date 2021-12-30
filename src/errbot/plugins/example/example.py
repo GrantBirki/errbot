@@ -10,6 +10,7 @@ chatutils = ChatUtils()
 STATUS_PAGE_URL = os.environ.get("STATUS_PAGE_URL", False)
 DOCS_URL = os.environ.get("DOCS_URL", False)
 
+BACKEND = os.environ["BACKEND"]
 
 class Example(BotPlugin):
     """Example 'Hello, world!' plugin for Errbot"""
@@ -121,10 +122,16 @@ class Example(BotPlugin):
     def usertest(self, msg, args):
         """Send a message directly to a user"""
         yield f"Sending private message to: {msg.frm.person}"
-        self.send(
-            self.build_identifier(chatutils.handle(msg)),
-            "Boo! Bet you weren't expecting me, were you?",
-        )
+        if BACKEND == "discord":
+            self.send(
+                self.build_identifier(chatutils.handle(msg)),
+                "Boo! Bet you weren't expecting me, were you?",
+            )
+        elif BACKEND == "slack":
+            self.send(
+                self.build_identifier(msg.frm.person),
+                "Boo! Bet you weren't expecting me, were you?",
+            )
 
     @botcmd
     def version(self, msg, args):
