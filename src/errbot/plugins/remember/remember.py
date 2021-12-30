@@ -2,10 +2,10 @@ from errbot import BotPlugin, botcmd
 import re
 from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import RememberTable
-from lib.chat.discord import Discord
+from lib.chat.chatutils import ChatUtils
 
 dynamo = Dynamo()
-discord = Discord()
+chatutils = ChatUtils()
 
 
 class Remember(BotPlugin):
@@ -32,7 +32,7 @@ class Remember(BotPlugin):
         The main logic which drives the .rem/.remember command
         """
 
-        guild_id = discord.guild_id(msg)
+        guild_id = chatutils.guild_id(msg)
 
         # If the message is a private message
         if not guild_id:
@@ -59,9 +59,9 @@ class Remember(BotPlugin):
                     )
                 )
                 if new_record:
-                    return f"✅ Ok {discord.mention_user(msg)}, I'll remember `{result['key']}` for you"
+                    return f"✅ Ok {chatutils.mention_user(msg)}, I'll remember `{result['key']}` for you"
                 else:
-                    return f"❌ I couldn't write to the database, sorry {discord.mention_user(msg)}"
+                    return f"❌ I couldn't write to the database, sorry {chatutils.mention_user(msg)}"
 
         # If there was a match, we need to check if the record exists
         record = dynamo.get(RememberTable, guild_id, args)
@@ -78,7 +78,7 @@ class Remember(BotPlugin):
         Forget something that is being remembered
         .forget <key>
         """
-        guild_id = discord.guild_id(msg)
+        guild_id = chatutils.guild_id(msg)
 
         # If the message is a private message
         if not guild_id:
@@ -95,7 +95,7 @@ class Remember(BotPlugin):
         # If the record was deleted, return a message
         if result:
             return (
-                f"✅ Ok {discord.mention_user(msg)}, I'll forget about `{args}` for you"
+                f"✅ Ok {chatutils.mention_user(msg)}, I'll forget about `{args}` for you"
             )
         else:
             return f"❌ Failed to forget about `{args}`!"

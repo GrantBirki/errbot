@@ -2,12 +2,12 @@ import re
 
 from errbot import BotPlugin, botcmd
 from lib.common.errhelper import ErrHelper
-from lib.chat.discord import Discord
+from lib.chat.chatutils import ChatUtils
 from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import SparkleTable
 from lib.common.utilities import Util
 
-discord = Discord()
+chatutils = ChatUtils()
 dynamo = Dynamo()
 util = Util()
 
@@ -42,7 +42,7 @@ class Sparkle(BotPlugin):
         """
 
         # Get the guild_id for the channel where the .sparkle command was run
-        guild_id = discord.guild_id(msg)
+        guild_id = chatutils.guild_id(msg)
         if not guild_id:
             return "Please run this command in a Discord channel, not a DM"
 
@@ -51,13 +51,13 @@ class Sparkle(BotPlugin):
 
         # If the args is blank, we show the sparkles for the current user
         if len(args) == 0:
-            handle = str(discord.get_user_id(msg))
+            handle = str(chatutils.get_user_id(msg))
         else:
             pattern = r"^.*<\D+(\d+)>$"
             match = re.search(pattern, args)
             # If no match, check with no reason
             if not match:
-                return f"❌ {discord.mention_user(msg)} I couldn't properly parse that command with my magic regex"
+                return f"❌ {chatutils.mention_user(msg)} I couldn't properly parse that command with my magic regex"
             handle = str(match.group(1).strip())
 
         # Attempt to get the sparkles for the user
@@ -81,7 +81,7 @@ class Sparkle(BotPlugin):
         # If we got no record, we return a message stating so
         # Note: if a user copies a Discord handle it changes in a weird way so they should always type it out as @username and not try to copy from a previous message
         else:
-            return f"❌ {discord.mention_user(msg)} I couldn't find any matching sparkles for that user. Make sure to type the name and don't copy it because Discord is funky"
+            return f"❌ {chatutils.mention_user(msg)} I couldn't find any matching sparkles for that user. Make sure to type the name and don't copy it because Discord is funky"
 
     def sparkle_check(self, msg, result, guild_id):
         """
@@ -94,13 +94,13 @@ class Sparkle(BotPlugin):
 
         # If the result is None, it failed the regex
         if not result:
-            return f"❌ {discord.mention_user(msg)} I couldn't properly parse that command with my magic regex"
+            return f"❌ {chatutils.mention_user(msg)} I couldn't properly parse that command with my magic regex"
 
         if result["sparkle_reason"] is not None and "|" in result["sparkle_reason"]:
-            return f"❌ {discord.mention_user(msg)} The `|` is a reserved character for this command and cannot be used"
+            return f"❌ {chatutils.mention_user(msg)} The `|` is a reserved character for this command and cannot be used"
 
         # Users cannot sparkle themselves
-        if int(discord.get_user_id(msg)) == int(result["handle"]):
+        if int(chatutils.get_user_id(msg)) == int(result["handle"]):
             return "You can't sparkle yourself but nice try"
 
         # If no conditions are met then we passed!
@@ -112,7 +112,7 @@ class Sparkle(BotPlugin):
         """
 
         # Get the guild_id for the channel where the .sparkle command was run
-        guild_id = discord.guild_id(msg)
+        guild_id = chatutils.guild_id(msg)
 
         # Get the result from the msg by parsing it with regex
         result = self.sparkle_regex(msg)
@@ -147,10 +147,10 @@ class Sparkle(BotPlugin):
                     )
                     # The update passed
                     if update_result:
-                        return f"{discord.mention_user(msg)} sparkled {result['handle_full']} for {result['sparkle_reason']} ✨✨**{record.total_sparkles}**✨✨"
+                        return f"{chatutils.mention_user(msg)} sparkled {result['handle_full']} for {result['sparkle_reason']} ✨✨**{record.total_sparkles}**✨✨"
                     else:
                         # If the update_result is anything other than True, it failed
-                        return f"❌ {discord.mention_user(msg)} I failed to update the database with your `.sparkle` command"
+                        return f"❌ {chatutils.mention_user(msg)} I failed to update the database with your `.sparkle` command"
 
                 # Logic if no sparkle reason is supplied
                 else:
@@ -164,10 +164,10 @@ class Sparkle(BotPlugin):
                     )
                     # The update passed
                     if update_result:
-                        return f"{discord.mention_user(msg)} sparkled {result['handle_full']} ✨✨**{record.total_sparkles}**✨✨"
+                        return f"{chatutils.mention_user(msg)} sparkled {result['handle_full']} ✨✨**{record.total_sparkles}**✨✨"
                     else:
                         # If the update_result is anything other than True, it failed
-                        return f"❌ {discord.mention_user(msg)} I failed to update the database with your `.sparkle` command"
+                        return f"❌ {chatutils.mention_user(msg)} I failed to update the database with your `.sparkle` command"
 
             else:
                 # Create the record with a sparkle_reason
@@ -198,7 +198,7 @@ class Sparkle(BotPlugin):
                 if new_record:
                     return f"✨🌟✨ {result['handle_full']} just got their first sparkle!! ✨🌟✨"
                 else:
-                    return f"❌ I couldn't write to the database, sorry {discord.mention_user(msg)}"
+                    return f"❌ I couldn't write to the database, sorry {chatutils.mention_user(msg)}"
 
     def sparkle_regex(self, msg):
         """
@@ -240,7 +240,7 @@ class Sparkle(BotPlugin):
 
             # return the dict of the handle and sparkle_reason
             return {
-                "handle": str(discord.get_user_id(handle)),
+                "handle": str(chatutils.get_user_id(handle)),
                 "sparkle_reason": sparkle_reason,
                 "handle_full": handle,
             }

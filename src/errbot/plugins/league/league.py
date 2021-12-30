@@ -1,12 +1,10 @@
 import json
 import os
 import random
-import sys
-import traceback
 
 import requests
 from errbot import BotPlugin, arg_botcmd, botcmd
-from lib.chat.discord import Discord
+from lib.chat.chatutils import ChatUtils
 from lib.common.utilities import Util
 from lib.database.dynamo import Dynamo
 from lib.common.errhelper import ErrHelper
@@ -21,7 +19,7 @@ if isinstance(RIOT_TOKEN, bytes):
 LOL_WATCHER = LolWatcher(RIOT_TOKEN, timeout=10)
 REGION = os.environ["RIOT_REGION"]
 RIOT_REGION_V5 = os.environ["RIOT_REGION_V5"]
-discord = Discord()
+chatutils = ChatUtils()
 util = Util()
 dynamo = Dynamo()
 
@@ -180,11 +178,11 @@ class League(BotPlugin):
             # Sends a message to the user's discord channel which they registered with
             message_data = self.league_message(match_data)
             if message_data["win"] == True:
-                color = discord.color("green")
+                color = chatutils.color("green")
             else:
-                color = discord.color("red")
+                color = chatutils.color("red")
 
-            discord.send_card_helper(
+            chatutils.send_card_helper(
                 bot_self=self,
                 to=self.build_identifier(f"{LEAGUE_CHANNEL}@{guild_id}"),
                 title=f"Last Match For: `{item['summoner_name']}`",
@@ -230,18 +228,18 @@ class League(BotPlugin):
         Usage: .add me to league watcher <summoner_name>
         Example: .add me to league watcher birki
         """
-        discord_handle = discord.handle(msg)
-        guild_id = discord.guild_id(msg)
+        discord_handle = chatutils.handle(msg)
+        guild_id = chatutils.guild_id(msg)
 
         if not guild_id:
             return "Please run this command in a Discord channel, not a DM"
 
         get_result = dynamo.get(LeagueTable, guild_id, discord_handle)
         if get_result:
-            return f"ℹ️ {discord.mention_user(msg)} already has an entry in the league watcher!"
+            return f"ℹ️ {chatutils.mention_user(msg)} already has an entry in the league watcher!"
         elif get_result is False:
             return (
-                f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
+                f"❌ Failed to check the league watcher for {chatutils.mention_user(msg)}"
             )
 
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
@@ -259,9 +257,9 @@ class League(BotPlugin):
         )
 
         if write_result:
-            return f"✅ Added {discord.mention_user(msg)} to the league watcher!"
+            return f"✅ Added {chatutils.mention_user(msg)} to the league watcher!"
         else:
-            return f"❌ Failed to add {discord.mention_user(msg)} to the league watcher!"
+            return f"❌ Failed to add {chatutils.mention_user(msg)} to the league watcher!"
 
     @botcmd
     def league_streak(self, msg, args):
@@ -272,8 +270,8 @@ class League(BotPlugin):
         if args.strip() != "" and args != "me":
             return "What you are trying to do is not implemented yet"
 
-        discord_handle = discord.handle(msg)
-        guild_id = discord.guild_id(msg)
+        discord_handle = chatutils.handle(msg)
+        guild_id = chatutils.guild_id(msg)
 
         if not guild_id:
             return "Please run this command in a Discord channel, not a DM"
@@ -281,20 +279,20 @@ class League(BotPlugin):
         record = dynamo.get(LeagueTable, guild_id, discord_handle)
         if record is False:
             return (
-                f"❌ Failed to check the league watcher for {discord.mention_user(msg)}"
+                f"❌ Failed to check the league watcher for {chatutils.mention_user(msg)}"
             )
         elif record is None:
-            return f"❌ {discord.mention_user(msg)} is not in the league watcher!"
+            return f"❌ {chatutils.mention_user(msg)} is not in the league watcher!"
 
         if record.win_streak is None or record.loss_streak is None:
-            return f"❌ {discord.mention_user(msg)} has no win/loss streak data yet! Go play a game!"
+            return f"❌ {chatutils.mention_user(msg)} has no win/loss streak data yet! Go play a game!"
 
         match_data = {
             "win_streak": record.win_streak,
             "loss_streak": record.loss_streak,
         }
 
-        return f"{discord.mention_user(msg)} {self.get_streak(match_data)}"
+        return f"{chatutils.mention_user(msg)} {self.get_streak(match_data)}"
 
     @arg_botcmd("--summoner", dest="summoner", type=str, admin_only=True)
     @arg_botcmd("--discord", dest="discord", type=str, admin_only=True)
@@ -363,23 +361,23 @@ class League(BotPlugin):
 
         Usage: .remove me from league watcher
         """
-        discord_handle = discord.handle(msg)
-        guild_id = discord.guild_id(msg)
+        discord_handle = chatutils.handle(msg)
+        guild_id = chatutils.guild_id(msg)
 
         if not guild_id:
             return "Please run this command in a Discord channel, not a DM"
 
         get_result = dynamo.get(LeagueTable, guild_id, discord_handle)
         if get_result is None:
-            return f"ℹ️ {discord.mention_user(msg)} is not in the league watcher!"
+            return f"ℹ️ {chatutils.mention_user(msg)} is not in the league watcher!"
 
         result = dynamo.delete(get_result)
 
         if result:
-            return f"✅ Removed {discord.mention_user(msg)} from the league watcher!"
+            return f"✅ Removed {chatutils.mention_user(msg)} from the league watcher!"
         else:
             return (
-                f"❌ Faile to remove {discord.mention_user(msg)} to the league watcher!"
+                f"❌ Faile to remove {chatutils.mention_user(msg)} to the league watcher!"
             )
 
     @botcmd
@@ -389,8 +387,8 @@ class League(BotPlugin):
 
         This is mostly for debugging
         """
-        discord_handle = discord.handle(msg)
-        guild_id = discord.guild_id(msg)
+        discord_handle = chatutils.handle(msg)
+        guild_id = chatutils.guild_id(msg)
 
         if not guild_id:
             return "Please run this command in a Discord channel, not a DM"
@@ -421,7 +419,7 @@ class League(BotPlugin):
 
             return message
         else:
-            message = f"ℹ️ {discord.mention_user(msg)} is not in the league watcher for this Discord server!\n"
+            message = f"ℹ️ {chatutils.mention_user(msg)} is not in the league watcher for this Discord server!\n"
             message += "Use `.add me to league watcher <summoner_name>` to add yourself"
             return message
 
@@ -441,11 +439,11 @@ class League(BotPlugin):
 
         for message in messages:
             if message["win"] == True:
-                color = discord.color("green")
+                color = chatutils.color("green")
             else:
-                color = discord.color("red")
+                color = chatutils.color("red")
 
-            discord.send_card_helper(
+            chatutils.send_card_helper(
                 bot_self=self,
                 title=f"Last Match For: `{message['summoner']}`",
                 body=message["message"],
@@ -464,10 +462,10 @@ class League(BotPlugin):
 
         for message in messages:
             if message["win"] == True:
-                color = discord.color("green")
+                color = chatutils.color("green")
             else:
-                color = discord.color("red")
-            discord.send_card_helper(
+                color = chatutils.color("red")
+            chatutils.send_card_helper(
                 bot_self=self,
                 title=f"Last Match For: `{message['summoner']}`",
                 body=message["message"],
