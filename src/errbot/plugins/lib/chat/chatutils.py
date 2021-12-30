@@ -1,3 +1,5 @@
+import hashlib
+import os
 import re
 
 COLORS = {
@@ -10,6 +12,8 @@ COLORS = {
     "black": "#000000",
 }
 
+BACKEND = os.environ["BACKEND"]
+
 
 class ChatUtils:
     def color(self, color):
@@ -20,51 +24,87 @@ class ChatUtils:
 
     def guild_id(self, msg):
         """
-        Returns the guild_id as a an int
+        Returns the guild_id / slack server name as an int
+
+        For discord, this is the guild_id which is an int
+        For Slack, this is a pure int hash of the server name
         """
-        try:
-            return int(msg.frm.room.__dict__["_guild_id"])
-        except AttributeError:
-            return False
+        if BACKEND == "discord":
+            try:
+                return int(msg.frm.room.__dict__["_guild_id"])
+            except AttributeError:
+                return False
+        elif BACKEND == "slack":
+            # Get the name of the Slack server (a string)
+            server_name = str(msg.frm.room.__dict__["_bot"].__dict__["auth"]['team'])
+            # Hash the severname with sha256
+            hashed = hashlib.sha256(server_name.encode('utf8'))
+            hashed.hexdigest()
+            # Convert the hash to an int and get the first 16 digits
+            unique_slack_server_hash_init = int(str(int(hashed.hexdigest(), base=16))[:16])
+            return unique_slack_server_hash_init
 
     def channel_id(self, msg):
         """
-        Returns the channel ID as an int
+        Returns the channel ID
+        Discord will be an int while Slack will be a string
         """
-        return int(msg.frm.room.__dict__["_channel_id"])
+        if BACKEND == "discord":
+            return int(msg.frm.room.__dict__["_channel_id"])
+        elif BACKEND == "slack":
+            return str(msg.frm.__dict__["_channelid"])
 
     def handle(self, msg):
         """
-        Gets the Discord handle of a user
+        Gets the handle of a user
         This does not support mentions but is useful for getting the handle of a user
 
         Example: Birki#0001@bots -> Birki#0001
+        Example: channel/handle -> handle
         Use mention_user to get the ID to mention a user
         """
-        discord_handle = msg.frm.person.split("@")[0]
-        return discord_handle
+        if BACKEND == "discord":
+            return msg.frm.person.split("@")[0]
+        elif BACKEND == 'slack':
+            return str(msg.frm).split("/")[1]
 
     def mention_user(self, msg):
         """
         Gets the user's mention_id which can be used to directly mention a Discord user in chat
         Returns the the 'mention_id' with proper formatting for a mention
         """
-        return f"<@{msg.frm.__dict__['_user_id']}>"
+        if BACKEND == 'discord':
+            return f"<@{msg.frm.__dict__['_user_id']}>"
+        elif BACKEND == 'slack':
+            return msg.frm.person
 
     def get_user_id(self, msg):
         """
-        Gets the user's raw Discord ID and returns it
-        The user ID is an integer
+        Gets the user's raw ID and returns it
+        Note: The user ID for Discord is an integer
         Example: 12345678909876543
+
+        Note: The user ID for Slack is a string
+        Example: U123456789
         """
-        try:
-            return int(msg.frm.__dict__["_user_id"])
-        except (ValueError, AttributeError):
-            pattern = r"^<\D+(\d+)>$"
-            match = re.search(pattern, msg)
-            if not match:
-                raise ValueError("Could not find user ID")
-            return int(match.group(1).strip())
+        if BACKEND == "discord":
+            try:
+                return int(msg.frm.__dict__["_user_id"])
+            except (ValueError, AttributeError):
+                pattern = r"^<\D+(\d+)>$"
+                match = re.search(pattern, msg)
+                if not match:
+                    raise ValueError("Could not find user ID")
+                return int(match.group(1).strip())
+        elif BACKEND == "slack":
+            try:
+                return str(msg.frm.__dict__["_userid"])
+            except (ValueError, AttributeError):
+                pattern = r"^.*(@\S+)$"
+                match = re.search(pattern, msg)
+                if not match:
+                    raise ValueError("Could not find user ID")
+                return str(match.group(1).strip())
 
     def send_card_helper(
         self,
