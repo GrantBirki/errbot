@@ -9,7 +9,6 @@ chatutils = ChatUtils()
 
 STATUS_PAGE_URL = os.environ.get("STATUS_PAGE_URL", False)
 DOCS_URL = os.environ.get("DOCS_URL", False)
-
 BACKEND = os.environ["BACKEND"]
 
 class Example(BotPlugin):
