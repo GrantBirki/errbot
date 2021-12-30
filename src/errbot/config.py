@@ -72,7 +72,7 @@ BACKEND = os.environ.get("BACKEND", "Text")
 # would be considered an admin if setting '*@localhost'.
 
 # FOR SLACK
-# BOT_ADMINS = ("@Birki",)
+# BOT_ADMINS = ("@grant.birkinbine",)
 
 # Bot Admin Setting:
 try:
