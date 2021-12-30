@@ -22,6 +22,7 @@ RIOT_REGION_V5 = os.environ["RIOT_REGION_V5"]
 chatutils = ChatUtils()
 util = Util()
 dynamo = Dynamo()
+BACKEND = os.environ["BACKEND"]
 
 # Load the responses from disk into memory as a global variable
 with open("plugins/league/responses.json", "r") as raw:
@@ -182,13 +183,22 @@ class League(BotPlugin):
             else:
                 color = chatutils.color("red")
 
-            chatutils.send_card_helper(
-                bot_self=self,
-                to=self.build_identifier(f"{LEAGUE_CHANNEL}@{guild_id}"),
-                title=f"Last Match For: `{item['summoner_name']}`",
-                body=message_data["message"],
-                color=color,
-            )
+            if BACKEND == "discord":
+                chatutils.send_card_helper(
+                    bot_self=self,
+                    to=self.build_identifier(f"{LEAGUE_CHANNEL}@{guild_id}"),
+                    title=f"Last Match For: `{item['summoner_name']}`",
+                    body=message_data["message"],
+                    color=color,
+                )
+            elif BACKEND == "slack":
+                chatutils.send_card_helper(
+                    bot_self=self,
+                    to=self.build_identifier(f"{LEAGUE_CHANNEL}"),
+                    title=f"Last Match For: `{item['summoner_name']}`",
+                    body=message_data["message"],
+                    color=color,
+                )
         else:
             ErrHelper().capture(
                 f"❌ Something went wrong posting/updating the db record for`{item['summoner_name']}`"
