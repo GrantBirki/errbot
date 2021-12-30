@@ -74,7 +74,7 @@ Adding your bot to a chat service examples:
 
 In the case of Slack, this can be done by mentioning your bot in any channel and you will be prompted to invite the bot right there.
 
-> Note, this particular repo does not use Slack. It is a Discord app!
+> Note, this particular repo leans towards Discord for most things. However, as of this writing, all features of this bot work in Slack as well with the exception of having the bot join a voice channel as that is not a feature of Slack.. yet
 
 #### Discord
 
