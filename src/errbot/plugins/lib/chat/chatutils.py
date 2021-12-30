@@ -11,7 +11,7 @@ COLORS = {
 }
 
 
-class Discord:
+class ChatUtils:
     def color(self, color):
         """
         Gets the hex of a color for send_card() calls
