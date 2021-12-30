@@ -1,17 +1,20 @@
+import os
 import re
 
 from errbot import BotPlugin, botcmd
-from lib.common.errhelper import ErrHelper
 from lib.chat.chatutils import ChatUtils
+from lib.common.errhelper import ErrHelper
+from lib.common.utilities import Util
 from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import SparkleTable
-from lib.common.utilities import Util
 
 chatutils = ChatUtils()
 dynamo = Dynamo()
 util = Util()
 
 MAX_SPARKLE_REASON_LENGTH = 100
+
+BACKEND = os.environ["BACKEND"]
 
 
 class Sparkle(BotPlugin):
@@ -51,14 +54,26 @@ class Sparkle(BotPlugin):
 
         # If the args is blank, we show the sparkles for the current user
         if len(args) == 0:
-            handle = str(chatutils.get_user_id(msg))
+            if BACKEND == "discord":
+                handle = str(chatutils.get_user_id(msg))
+            elif BACKEND == "slack":
+                handle = str(chatutils.mention_user(msg))
+
         else:
-            pattern = r"^.*<\D+(\d+)>$"
-            match = re.search(pattern, args)
-            # If no match, check with no reason
-            if not match:
-                return f"❌ {chatutils.mention_user(msg)} I couldn't properly parse that command with my magic regex"
-            handle = str(match.group(1).strip())
+            if BACKEND == "discord":
+                pattern = r"^.*<\D+(\d+)>$"
+                match = re.search(pattern, args)
+                # If no match, check with no reason
+                if not match:
+                    return f"❌ {chatutils.mention_user(msg)} I couldn't properly parse that command with my magic regex"
+                handle = str(match.group(1).strip())
+            elif BACKEND == "slack":
+                pattern = r"^.*(@\S+)$"
+                match = re.search(pattern, args)
+                # If no match, check with no reason
+                if not match:
+                    return f"❌ {chatutils.mention_user(msg)} I couldn't properly parse that command with my magic regex"
+                handle = str(match.group(1).strip())
 
         # Attempt to get the sparkles for the user
         record = dynamo.get(SparkleTable, guild_id, handle)
@@ -81,7 +96,7 @@ class Sparkle(BotPlugin):
         # If we got no record, we return a message stating so
         # Note: if a user copies a Discord handle it changes in a weird way so they should always type it out as @username and not try to copy from a previous message
         else:
-            return f"❌ {chatutils.mention_user(msg)} I couldn't find any matching sparkles for that user. Make sure to type the name and don't copy it because Discord is funky"
+            return f"❌ {chatutils.mention_user(msg)} I couldn't find any matching sparkles for that user. Make sure to type the name and don't copy it because chat services can be funky"
 
     def sparkle_check(self, msg, result, guild_id):
         """
@@ -100,7 +115,7 @@ class Sparkle(BotPlugin):
             return f"❌ {chatutils.mention_user(msg)} The `|` is a reserved character for this command and cannot be used"
 
         # Users cannot sparkle themselves
-        if int(chatutils.get_user_id(msg)) == int(result["handle"]):
+        if chatutils.get_user_id(msg) == result["handle"]:
             return "You can't sparkle yourself but nice try"
 
         # If no conditions are met then we passed!
@@ -240,7 +255,7 @@ class Sparkle(BotPlugin):
 
             # return the dict of the handle and sparkle_reason
             return {
-                "handle": str(chatutils.get_user_id(handle)),
+                "handle": chatutils.get_user_id(handle),
                 "sparkle_reason": sparkle_reason,
                 "handle_full": handle,
             }
