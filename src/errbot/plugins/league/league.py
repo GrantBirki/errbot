@@ -248,9 +248,7 @@ class League(BotPlugin):
         if get_result:
             return f"ℹ️ {chatutils.mention_user(msg)} already has an entry in the league watcher!"
         elif get_result is False:
-            return (
-                f"❌ Failed to check the league watcher for {chatutils.mention_user(msg)}"
-            )
+            return f"❌ Failed to check the league watcher for {chatutils.mention_user(msg)}"
 
         # Runs a quick check against the Riot API to see if the summoner_name entered is valid
         puuid = self.get_summoner_puuid(summoner_name)
@@ -269,7 +267,9 @@ class League(BotPlugin):
         if write_result:
             return f"✅ Added {chatutils.mention_user(msg)} to the league watcher!"
         else:
-            return f"❌ Failed to add {chatutils.mention_user(msg)} to the league watcher!"
+            return (
+                f"❌ Failed to add {chatutils.mention_user(msg)} to the league watcher!"
+            )
 
     @botcmd
     def league_streak(self, msg, args):
@@ -288,9 +288,7 @@ class League(BotPlugin):
 
         record = dynamo.get(LeagueTable, guild_id, discord_handle)
         if record is False:
-            return (
-                f"❌ Failed to check the league watcher for {chatutils.mention_user(msg)}"
-            )
+            return f"❌ Failed to check the league watcher for {chatutils.mention_user(msg)}"
         elif record is None:
             return f"❌ {chatutils.mention_user(msg)} is not in the league watcher!"
 
@@ -386,9 +384,7 @@ class League(BotPlugin):
         if result:
             return f"✅ Removed {chatutils.mention_user(msg)} from the league watcher!"
         else:
-            return (
-                f"❌ Faile to remove {chatutils.mention_user(msg)} to the league watcher!"
-            )
+            return f"❌ Faile to remove {chatutils.mention_user(msg)} to the league watcher!"
 
     @botcmd
     def view_my_league_watcher_data(self, msg, args):

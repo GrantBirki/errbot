@@ -94,9 +94,7 @@ class Remember(BotPlugin):
 
         # If the record was deleted, return a message
         if result:
-            return (
-                f"✅ Ok {chatutils.mention_user(msg)}, I'll forget about `{args}` for you"
-            )
+            return f"✅ Ok {chatutils.mention_user(msg)}, I'll forget about `{args}` for you"
         else:
             return f"❌ Failed to forget about `{args}`!"
 

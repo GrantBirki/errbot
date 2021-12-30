@@ -36,12 +36,14 @@ class ChatUtils:
                 return False
         elif BACKEND == "slack":
             # Get the name of the Slack server (a string)
-            server_name = str(msg.frm.room.__dict__["_bot"].__dict__["auth"]['team'])
+            server_name = str(msg.frm.room.__dict__["_bot"].__dict__["auth"]["team"])
             # Hash the severname with sha256
-            hashed = hashlib.sha256(server_name.encode('utf8'))
+            hashed = hashlib.sha256(server_name.encode("utf8"))
             hashed.hexdigest()
             # Convert the hash to an int and get the first 16 digits
-            unique_slack_server_hash_init = int(str(int(hashed.hexdigest(), base=16))[:16])
+            unique_slack_server_hash_init = int(
+                str(int(hashed.hexdigest(), base=16))[:16]
+            )
             return unique_slack_server_hash_init
 
     def channel_id(self, msg):
@@ -65,7 +67,7 @@ class ChatUtils:
         """
         if BACKEND == "discord":
             return msg.frm.person.split("@")[0]
-        elif BACKEND == 'slack':
+        elif BACKEND == "slack":
             return str(msg.frm).split("/")[1]
 
     def mention_user(self, msg):
@@ -73,9 +75,9 @@ class ChatUtils:
         Gets the user's mention_id which can be used to directly mention a Discord user in chat
         Returns the the 'mention_id' with proper formatting for a mention
         """
-        if BACKEND == 'discord':
+        if BACKEND == "discord":
             return f"<@{msg.frm.__dict__['_user_id']}>"
-        elif BACKEND == 'slack':
+        elif BACKEND == "slack":
             return msg.frm.person
 
     def get_user_id(self, msg):
