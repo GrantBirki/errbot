@@ -34,6 +34,8 @@ class Play(BotPlugin):
     🎵 Play Plugin 🎵
     Play your favorite music through Errbot into your voice channel!
     Run `.play help` to view a more detailed help menu
+
+    Discord Specific Plugin
     """
 
     def play_cron(self):
