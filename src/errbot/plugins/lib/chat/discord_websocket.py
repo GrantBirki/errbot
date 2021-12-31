@@ -9,6 +9,10 @@ TOKEN = os.environ["CHAT_SERVICE_TOKEN"]
 
 
 class DiscordWebSocket:
+    """
+    This class is not used currently but it is here should you choose to work with it
+    """
+
     def __init__(self):
         self.websocket = websocket
         self.interval = None

@@ -64,6 +64,7 @@ except:
 
 # BACKEND = 'Slack'  # defaults to XMPP
 BACKEND = os.environ.get("BACKEND", "Text")
+os.environ["BACKEND"] = BACKEND.lower()
 
 # Set the admins of your bot. Only these users will have access
 # to the admin-only commands.
@@ -72,7 +73,7 @@ BACKEND = os.environ.get("BACKEND", "Text")
 # would be considered an admin if setting '*@localhost'.
 
 # FOR SLACK
-# BOT_ADMINS = ("@Birki",)
+# BOT_ADMINS = ("@grant.birkinbine",)
 
 # Bot Admin Setting:
 try:

@@ -2,13 +2,11 @@ import os
 import random
 
 from errbot import BotPlugin, botcmd
-from lib.chat.discord import Discord
 from lib.chat.discord_custom import DiscordCustom
 from lib.common.cooldown import CoolDown
 from lib.common.utilities import Util
 from lib.database.dynamo_tables import LoudTable
 
-discord = Discord()
 util = Util()
 cooldown = CoolDown(21600, LoudTable)
 

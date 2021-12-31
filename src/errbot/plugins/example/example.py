@@ -2,13 +2,14 @@ import os
 
 import psutil
 from errbot import BotPlugin, botcmd
-from lib.chat.discord import Discord
+from lib.chat.chatutils import ChatUtils
 from lib.chat.discord_custom import DiscordCustom
 
-discord = Discord()
+chatutils = ChatUtils()
 
 STATUS_PAGE_URL = os.environ.get("STATUS_PAGE_URL", False)
 DOCS_URL = os.environ.get("DOCS_URL", False)
+BACKEND = os.environ["BACKEND"]
 
 
 class Example(BotPlugin):
@@ -88,7 +89,7 @@ class Example(BotPlugin):
 
         message.append(f"\n__Checking Person info from `msg`__")
         message.append(f"• `msg.frm.person`: {msg.frm.person}")
-        message.append(f"• `@ test`: {discord.mention_user(msg)}")
+        message.append(f"• `@ test`: {chatutils.mention_user(msg)}")
 
         message.append(f"Done! 🎉")
 
@@ -101,9 +102,9 @@ class Example(BotPlugin):
         Example: .card <color>
         """
         if not args:
-            color = discord.color("white")
+            color = chatutils.color("white")
         else:
-            color = discord.color(args)
+            color = chatutils.color(args)
 
         self.send_card(
             # to=self.build_identifier(f'#general@873463331917299722'),
@@ -121,10 +122,16 @@ class Example(BotPlugin):
     def usertest(self, msg, args):
         """Send a message directly to a user"""
         yield f"Sending private message to: {msg.frm.person}"
-        self.send(
-            self.build_identifier(discord.handle(msg)),
-            "Boo! Bet you weren't expecting me, were you?",
-        )
+        if BACKEND == "discord":
+            self.send(
+                self.build_identifier(chatutils.handle(msg)),
+                "Boo! Bet you weren't expecting me, were you?",
+            )
+        elif BACKEND == "slack":
+            self.send(
+                self.build_identifier(msg.frm.person),
+                "Boo! Bet you weren't expecting me, were you?",
+            )
 
     @botcmd
     def version(self, msg, args):
@@ -140,7 +147,7 @@ class Example(BotPlugin):
         dc = DiscordCustom(self._bot)
 
         # Get the channel ID from the message to send the file to
-        channel_id = discord.channel_id(msg)
+        channel_id = chatutils.channel_id(msg)
 
         # Send the file
         dc.send_file(channel_id, filename)

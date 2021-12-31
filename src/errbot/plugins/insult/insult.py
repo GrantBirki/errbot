@@ -1,9 +1,9 @@
 from errbot import BotPlugin, botcmd
 import requests
 
-from lib.chat.discord import Discord
+from lib.chat.chatutils import ChatUtils
 
-discord = Discord()
+chatutils = ChatUtils()
 
 
 class Insult(BotPlugin):
@@ -21,7 +21,7 @@ class Insult(BotPlugin):
         """
 
         if args == "me":
-            user = discord.mention_user(msg)
+            user = chatutils.mention_user(msg)
         else:
             user = args
 

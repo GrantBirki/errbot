@@ -7,10 +7,10 @@ import time
 
 import discord
 
-from lib.chat.discord import Discord
+from lib.chat.chatutils import ChatUtils
 from lib.common.utilities import Util
 
-discord_custom = Discord()
+chatutils = ChatUtils()
 util = Util()
 
 
@@ -168,7 +168,7 @@ class DiscordCustom:
         if result["channel"] is None:
             # Get the current voice channel of the user who invoked the command
             channel_dict = self.get_voice_channel_of_a_user(
-                discord_custom.guild_id(msg), discord_custom.get_user_id(msg)
+                chatutils.guild_id(msg), chatutils.get_user_id(msg)
             )
             # If the user is not in a voice channel, return a helpful error message
             if not channel_dict:

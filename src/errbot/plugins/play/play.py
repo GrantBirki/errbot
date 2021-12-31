@@ -7,7 +7,7 @@ import uuid
 import spotipy
 import validators
 from errbot import BotPlugin, botcmd
-from lib.chat.discord import Discord
+from lib.chat.chatutils import ChatUtils
 from lib.chat.discord_custom import DiscordCustom
 from lib.common.errhelper import ErrHelper
 from lib.common.utilities import Util
@@ -19,7 +19,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from youtubesearchpython import VideosSearch
 
 util = Util()
-discord = Discord()
+chatutils = ChatUtils()
 ytdl = YtdlLib()
 dynamo = Dynamo()
 
@@ -34,6 +34,8 @@ class Play(BotPlugin):
     🎵 Play Plugin 🎵
     Play your favorite music through Errbot into your voice channel!
     Run `.play help` to view a more detailed help menu
+
+    Discord Specific Plugin
     """
 
     def play_cron(self):
@@ -77,14 +79,14 @@ class Play(BotPlugin):
                     message += "> **Next song:** None"
 
                 # Send the currently playing song into to the BOT_HOME_CHANNEL
-                discord.send_card_helper(
+                chatutils.send_card_helper(
                     bot_self=self,
                     to=self.build_identifier(
                         f"#{os.environ['BOT_HOME_CHANNEL']}@{queue_item['guild_id']}"
                     ),
                     title="🎶 Now Playing:",
                     body=message,
-                    color=discord.color("blue"),
+                    color=chatutils.color("blue"),
                 )
 
                 # Play the item in the queue
@@ -139,11 +141,11 @@ class Play(BotPlugin):
             "**`.play stats`** - View the `.play` stats for the Discord server\n\n"
         )
 
-        return discord.send_card_helper(
+        return chatutils.send_card_helper(
             bot_self=self,
             title="🎧 **.play help** 🎧",
             body=message,
-            color=discord.color("blue"),
+            color=chatutils.color("blue"),
             in_reply_to=msg,
         )
 
@@ -186,7 +188,7 @@ class Play(BotPlugin):
         """
         ErrHelper().user(msg)
 
-        queue_items = self.read_queue(discord.guild_id(msg))
+        queue_items = self.read_queue(chatutils.guild_id(msg))
         # If it is not ready and open by another process we have to exit
         if queue_items is False:
             return QUEUE_ERROR_MSG_READ
@@ -216,7 +218,7 @@ class Play(BotPlugin):
         message = ""
 
         # Get the .play stats for the Discord server where the command is run
-        record = dynamo.get(PlayTable, discord.guild_id(msg))
+        record = dynamo.get(PlayTable, chatutils.guild_id(msg))
 
         # Pre-check the record we get from the DB
         if record is None:
@@ -259,11 +261,11 @@ class Play(BotPlugin):
             message += f"• Total Play Time: **{self.fmt_play_time(dj_1['total_time_played'])}**\n\n"
         else:
             message += "No top DJs yet\n"
-            return discord.send_card_helper(
+            return chatutils.send_card_helper(
                 bot_self=self,
                 title=title,
                 body=message,
-                color=discord.color("blue"),
+                color=chatutils.color("blue"),
                 in_reply_to=msg,
             )
         if dj_2:
@@ -271,11 +273,11 @@ class Play(BotPlugin):
             message += f"• Songs Played: **{dj_2['total_songs_played']}**\n"
             message += f"• Total Play Time: **{self.fmt_play_time(dj_2['total_time_played'])}**\n\n"
         else:
-            return discord.send_card_helper(
+            return chatutils.send_card_helper(
                 bot_self=self,
                 title=title,
                 body=message,
-                color=discord.color("blue"),
+                color=chatutils.color("blue"),
                 in_reply_to=msg,
             )
         if dj_3:
@@ -283,19 +285,19 @@ class Play(BotPlugin):
             message += f"• Songs Played: **{dj_3['total_songs_played']}**\n"
             message += f"• Total Play Time: **{self.fmt_play_time(dj_3['total_time_played'])}**\n\n"
         else:
-            return discord.send_card_helper(
+            return chatutils.send_card_helper(
                 bot_self=self,
                 title=title,
                 body=message,
-                color=discord.color("blue"),
+                color=chatutils.color("blue"),
                 in_reply_to=msg,
             )
 
-        return discord.send_card_helper(
+        return chatutils.send_card_helper(
             bot_self=self,
             title=title,
             body=message,
-            color=discord.color("blue"),
+            color=chatutils.color("blue"),
             in_reply_to=msg,
         )
 
@@ -313,7 +315,7 @@ class Play(BotPlugin):
             yield "✅ Request confirmed\nStopping playback and removing all songs from the queue"
 
             # Compute the queue path
-            queue_path = f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
+            queue_path = f"{QUEUE_PATH}/{chatutils.guild_id(msg)}_queue.json"
             # Check if the queue file exists
             file_exists = os.path.exists(queue_path)
 
@@ -360,7 +362,7 @@ class Play(BotPlugin):
         """
         ErrHelper().user(msg)
 
-        queue_items = self.read_queue(discord.guild_id(msg))
+        queue_items = self.read_queue(chatutils.guild_id(msg))
         # If it is not ready and open by another process we have to exit
         if queue_items is False:
             return QUEUE_ERROR_MSG_READ
@@ -453,7 +455,7 @@ class Play(BotPlugin):
             # Get the current voice channel of the user who invoked the command
             dc = DiscordCustom(self._bot)
             channel_dict = dc.get_voice_channel_of_a_user(
-                discord.guild_id(msg), discord.get_user_id(msg)
+                chatutils.guild_id(msg), chatutils.get_user_id(msg)
             )
             # If the user is not in a voice channel, return a helpful error message
             if not channel_dict:
@@ -467,7 +469,7 @@ class Play(BotPlugin):
         file_path = ytdl.download_audio(url, file_name=song_uuid)
 
         # Check if there are any files in the queue
-        queue_items = self.read_queue(discord.guild_id(msg))
+        queue_items = self.read_queue(chatutils.guild_id(msg))
         # If it is not ready and open by another process we have to exit
         if queue_items is False:
             yield QUEUE_ERROR_MSG_READ
@@ -638,7 +640,7 @@ class Play(BotPlugin):
         :param queue_position: The queue position (int) - Defaults to None
         """
 
-        queue_path = f"{QUEUE_PATH}/{discord.guild_id(msg)}_queue.json"
+        queue_path = f"{QUEUE_PATH}/{chatutils.guild_id(msg)}_queue.json"
 
         # Truncate long song titles
         title_length = 40
@@ -648,8 +650,8 @@ class Play(BotPlugin):
             song = video_metadata["title"]
 
         queue_item = {
-            "guild_id": discord.guild_id(msg),
-            "user_id": discord.get_user_id(msg),
+            "guild_id": chatutils.guild_id(msg),
+            "user_id": chatutils.get_user_id(msg),
             "discord_channel_id": channel,
             "song_uuid": song_uuid,
             "song": song,

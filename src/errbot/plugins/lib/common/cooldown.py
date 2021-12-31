@@ -1,10 +1,10 @@
 from datetime import datetime
-from lib.chat.discord import Discord
+from lib.chat.chatutils import ChatUtils
 from lib.common.utilities import Util
 from lib.database.dynamo import Dynamo
 
 dynamo = Dynamo()
-discord = Discord()
+chatutils = ChatUtils()
 util = Util()
 
 
@@ -49,8 +49,8 @@ class CoolDown:
         :return first: True if the user is on a cooldown timer, False if not
         """
 
-        guild_id = discord.guild_id(msg)
-        handle = discord.handle(msg)
+        guild_id = chatutils.guild_id(msg)
+        handle = chatutils.handle(msg)
 
         # If the message matches the regex, create the key and value if it is not already in the database
         # Try to get the record to see if it exists

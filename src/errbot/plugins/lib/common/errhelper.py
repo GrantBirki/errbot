@@ -1,9 +1,9 @@
 import os
 
-from lib.chat.discord import Discord
+from lib.chat.chatutils import ChatUtils
 from sentry_sdk import capture_exception, capture_message, set_user
 
-discord = Discord()
+chatutils = ChatUtils()
 
 # Check if Sentry is enabled
 SENTRY_DISABLED = os.environ.get("SENTRY_DISABLED", False)
@@ -26,7 +26,7 @@ class ErrHelper:
         :return: None
         """
         if not SENTRY_DISABLED:
-            set_user({"username": discord.handle(msg)})
+            set_user({"username": chatutils.handle(msg)})
 
     def capture(self, error):
         """
