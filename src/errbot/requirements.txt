@@ -39,7 +39,7 @@ sentry-sdk==1.5.0
 # Azure
 # azure-cosmos==4.2.0
 
-# errbot[slack]
+# errbot[slack] # Uncomment all the lines below this one to enable Slack support
 # webtest==2.0.35
 # pygments-markdown-lexer>=0.1.0.dev39
 # ansi==0.2.0
