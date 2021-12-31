@@ -140,6 +140,7 @@ class Sparkle(BotPlugin):
 
         # If the message matches the regex, create the key and value if it is not already in the database
         if result:
+            guild_id = int(guild_id)
             # Try to get the record to see if it exists
             record = dynamo.get(SparkleTable, guild_id, result["handle"])
 
@@ -255,7 +256,8 @@ class Sparkle(BotPlugin):
 
             # return the dict of the handle and sparkle_reason
             return {
-                "handle": chatutils.get_user_id(handle),
+                # Our handle is expected to be a string. In the future make tables expect ints for handles
+                "handle": str(chatutils.get_user_id(handle)),
                 "sparkle_reason": sparkle_reason,
                 "handle_full": handle,
             }
