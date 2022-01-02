@@ -1,0 +1,9 @@
+[Core]
+Name = Eft 
+Module = eft 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Escape from Tarkov Plugin 
