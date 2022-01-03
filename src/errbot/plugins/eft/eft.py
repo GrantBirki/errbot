@@ -55,12 +55,13 @@ class Eft(BotPlugin):
         highest_price, trader = self.get_highest_trader_price(result_data)
 
         # Get item 'tier'
-        # TODO
+        item_tier = self.get_item_tier(highest_price, result_data)
 
         # Send a successful card with the eft item data
         body = ""
         body += f"**Price and Item Details:**\n"
         body += f"• Wiki: {result_data['link']}\n"
+        body += f"• Item Tier: {item_tier['msg']}\n"
         body += f"• Sell to: `{trader}` for `{self.fmt_number(highest_price)}`\n"
 
         # Get Average Flea Price
@@ -72,7 +73,7 @@ class Eft(BotPlugin):
         self.send_card(
             title=result_data["name"],
             body=body,
-            color=chatutils.color("white"),
+            color=item_tier["color"],
             in_reply_to=msg,
             thumbnail=result_data["iconLink"],
             fields=(
@@ -82,14 +83,49 @@ class Eft(BotPlugin):
                     "Change Last 48h:",
                     self.get_price_change(result_data["changeLast48hPercent"]),
                 ),
+                ("Price Per Grid:", item_tier["price_per_grid"]),
                 ("Item Types:", types),
             ),
         )
         return
 
-    def get_item_tier(self, result_data):
-        """not implemented yet"""
-        return
+    def get_item_tier(self, highest_price, result_data):
+        """
+        Get the 'tier' of the item (color and tier)
+        :param highest_price: The highest price (int) the item sells for
+        :return: A dict of the item tier data
+        """
+
+        # Calculate the price per grid unit
+        try:
+            price_per_grid = int(highest_price) / (
+                int(result_data["width"]) * int(result_data["height"])
+            )
+
+            if price_per_grid >= 25000:
+                color = chatutils.color("yellow")
+                tier_msg = "⭐ Legendary ⭐"
+            elif price_per_grid >= 12500:
+                color = chatutils.color("green")
+                tier_msg = "🟢 Great"
+            elif price_per_grid >= 8000:
+                color = chatutils.color("blue")
+                tier_msg = "🔵 Average"
+            else:
+                color = chatutils.color("red")
+                tier_msg = "🔴 Poor"
+
+            price_per_grid = self.fmt_number(price_per_grid)
+        except ZeroDivisionError:
+            color = chatutils.color("white")
+            tier_msg = "❓ N/A"
+            price_per_grid = "N/A"
+
+        return {
+            "color": color,
+            "price_per_grid": price_per_grid,
+            "msg": tier_msg,
+        }
 
     def get_highest_trader_price(self, result_data):
         """
