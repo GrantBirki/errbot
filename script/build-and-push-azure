@@ -24,8 +24,3 @@ echo "✅ Successfully logged into ACR"
 docker build -t $ACR_NAME.azurecr.io/errbot:test $REPO_DIR/src/errbot
 docker push $ACR_NAME.azurecr.io/errbot:test
 echo "✅ Successfully pushed the errbot image"
-
-cd $REPO_DIR
-$REPO_DIR/script/status-page --build-and-tag-only --tag="$ACR_NAME.azurecr.io/status_page:test"
-docker push $ACR_NAME.azurecr.io/status_page:test
-echo "✅ Successfully pushed the status_page image"
