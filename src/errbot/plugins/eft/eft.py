@@ -65,9 +65,10 @@ class Eft(BotPlugin):
         body += f"• Sell to: `{trader}` for `{self.fmt_number(highest_price)}`\n"
 
         # Get Average Flea Price
-        flea_price = self.fmt_number(result_data["avg24hPrice"])
-        if flea_price == 0 or flea_price == "0":
+        if result_data["avg24hPrice"] == 0:
             flea_price = "N/A"
+        else:
+            flea_price = self.fmt_number(result_data["avg24hPrice"])
 
         # Send a successful card with the eft item data
         self.send_card(
