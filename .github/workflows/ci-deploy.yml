@@ -273,7 +273,7 @@ jobs:
           # Config
           TF_VAR_IMAGE_TAG: ${{ github.sha }}
           # Creds
-          TF_VAR_STATUS_PUSH_ENDPOINT: ${{ secrets.STATUS_PUSH_ENDPOINT }}
+          # TF_VAR_STATUS_PUSH_ENDPOINT: ${{ secrets.STATUS_PUSH_ENDPOINT }}
           TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
           TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
           TF_VAR_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}
@@ -394,7 +394,7 @@ jobs:
           # Config
           TF_VAR_IMAGE_TAG: ${{ github.sha }}
           # Creds
-          TF_VAR_STATUS_PUSH_ENDPOINT: ${{ secrets.STATUS_PUSH_ENDPOINT }}
+          # TF_VAR_STATUS_PUSH_ENDPOINT: ${{ secrets.STATUS_PUSH_ENDPOINT }}
           TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
           TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
           TF_VAR_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}

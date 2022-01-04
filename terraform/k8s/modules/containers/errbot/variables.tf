@@ -12,10 +12,10 @@ variable "IMAGE_TAG" {
 
 # Bot Creds
 
-variable "STATUS_PUSH_ENDPOINT" {
-  type = string
-  sensitive = true
-}
+# variable "STATUS_PUSH_ENDPOINT" {
+#   type = string
+#   sensitive = true
+# }
 
 variable "CHAT_SERVICE_TOKEN" {
   type      = string
