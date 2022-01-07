@@ -184,8 +184,9 @@ class Eft(BotPlugin):
         :return: None - Sends a card in reply to the message with the ammo types that can be used
         """
         # Format the body of the message with the ammo types
-        body = "• " + "\n • ".join(AMMO_TYPES)
-        body += "\n**Key**:"
+        body = "**Available Ammo Types:**\n"
+        body += "• " + "\n • ".join(AMMO_TYPES)
+        body += "\n\n**Ammo Table Key**:"
         body += "\n• `Pen` - Penetration Power"
         body += "\n• `Dmg` - Damage"
         body += "\n• `Armor` - Armor Damage"
@@ -193,7 +194,7 @@ class Eft(BotPlugin):
 
         # Send the ammo help card
         self.send_card(
-            title="Available Ammo Types",
+            title="Ammo Help Command",
             body=body,
             color=chatutils.color("white"),
             in_reply_to=msg,
