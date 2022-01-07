@@ -8,6 +8,28 @@ from lib.common.errhelper import ErrHelper
 
 chatutils = ChatUtils()
 
+AMMO_TYPES = [
+    "7.62x51mm",
+    "7.62x39mm",
+    "5.56x45mm",
+    "5.45x39mm",
+    "7.62x54mm",
+    "9x39mm",
+    "9x19mm",
+    "9x18mm",
+    "9x21mm",
+    "12/70",
+    "4.6x30mm",
+    ".338 Lapua",
+    ".300 Blackout",
+    ".45 ACP",
+    "5.7x28mm",
+    "7.62x25mm",
+    "23x75mm",
+    "20/70",
+    "12.7x55mm",
+]
+
 
 class Eft(BotPlugin):
     """Escape From Tarkov plugin for Errbot - Cheeki Breeki!"""
@@ -27,7 +49,7 @@ class Eft(BotPlugin):
 
         # Validate the input
         if not self.input_validation(args):
-            self.general_error(msg, "Invalid input. Please try again.")
+            self.general_error(msg, "Invalid input.", "Please check your command and try again.")
             return
 
         # Execute the graphql query to try and get eft item data
@@ -37,6 +59,7 @@ class Eft(BotPlugin):
         if not result:
             self.general_error(
                 msg,
+                "Request Failed",
                 "During the request, the Tarkov API returned an error. Please check the logs.",
             )
             return
@@ -45,7 +68,7 @@ class Eft(BotPlugin):
         try:
             result_data = result["data"]["itemsByName"][0]
         except IndexError:
-            self.general_error(msg, "The item you requested was not found.")
+            self.general_error(msg, "Not found", "The item you requested was not found.")
             return
 
         # Format the types to be wrapped in backticks to look pretty
@@ -89,6 +112,92 @@ class Eft(BotPlugin):
             ),
         )
         return
+
+    @botcmd()
+    def eft_ammo(self, msg, args):
+        """
+        Get information about an ammo type
+
+        Run ".eft ammo help" to get all available ammo types
+
+        Example: .eft ammo 556x45
+        Syntax: .eft ammo <ammo_type>
+        """
+        # If the help command is called, show the ammo help card
+        if args == "help":
+            return self.ammo_help(msg)
+
+        # Get the ammo type from the args
+        ammo_type = ""
+        for ammo in AMMO_TYPES:
+            if ammo.lower() == args.lower().strip():
+                ammo_type = ammo
+                break
+        if ammo_type == "":
+            return self.general_error(msg, "Invalid ammo type", "You can view all ammo types with:\n`.eft ammo help`")
+
+        # Make an API call to get all the Tarkov ammo data
+        ammo_data = requests.get(
+            "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/ammunition.json"
+        ).json()
+
+        # Loop through the ammo data and find all the matching ammo types
+        ammo_list = []
+        for item in ammo_data.items():
+            if ammo_type in item[1]["name"].lower():
+                ammo_list.append(
+                    {
+                        "name": item[1]["shortName"],
+                        "penetration": item[1]["ballistics"]["penetrationPower"],
+                        "damage": item[1]["ballistics"]["damage"],
+                        "armorDamage": item[1]["ballistics"]["armorDamage"],
+                        "penchance": item[1]["ballistics"]["penetrationChance"],
+                    }
+                )
+
+        # Sort the ammo list by highest penetration power
+        ammo_list_sorted = sorted(ammo_list, key=lambda x: x['penetration'], reverse=True)
+
+        # Format the body of the card to send with a table of ammo data
+        body = "```Name         Pen  Dmg  Armor  Pen %\n"
+        for ammo in ammo_list_sorted:
+            name = ammo["name"]
+            if len(name) > 10:
+                name = name[0:10] + ".."
+            body += f"{name: <12} {ammo['penetration']: <4} {ammo['damage']: <4} {ammo['armorDamage']: <6} {round(ammo['penchance'] * 100, 2)}%\n"
+        body += "```"
+
+        # Send the ammo card with the ammo data
+        self.send_card(
+            title=ammo_type.strip(),
+            body=body.strip(),
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+            # thumbnail=result_data["iconLink"],
+        )
+        return
+
+    def ammo_help(self, msg):
+        """
+        Show the help command to view all the available ammo types
+        :param msg: The message object
+        :return: None - Sends a card in reply to the message with the ammo types that can be used
+        """
+        # Format the body of the message with the ammo types
+        body = "• " + "\n • ".join(AMMO_TYPES)
+        body += "\n**Key**:"
+        body += "\n• `Pen` - Penetration Power"
+        body += "\n• `Dmg` - Damage"
+        body += "\n• `Armor` - Armor Damage"
+        body += "\n• `Pen %` - Armor Penetration Chance"
+
+        # Send the ammo help card
+        self.send_card(
+            title="Available Ammo Types",
+            body=body,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
 
     def get_item_tier(self, highest_price, result_data):
         """
@@ -237,12 +346,12 @@ class Eft(BotPlugin):
         )
         return query.substitute(name=name)
 
-    def general_error(self, src_msg, msg):
+    def general_error(self, src_msg, title, msg):
         """
         Helper function for sending a general error card.
         """
         self.send_card(
-            title="Request Failed",
+            title=title,
             body=msg,
             color=chatutils.color("red"),
             in_reply_to=src_msg,
