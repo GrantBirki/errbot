@@ -49,7 +49,9 @@ class Eft(BotPlugin):
 
         # Validate the input
         if not self.input_validation(args):
-            self.general_error(msg, "Invalid input.", "Please check your command and try again.")
+            self.general_error(
+                msg, "Invalid input.", "Please check your command and try again."
+            )
             return
 
         # Execute the graphql query to try and get eft item data
@@ -68,7 +70,9 @@ class Eft(BotPlugin):
         try:
             result_data = result["data"]["itemsByName"][0]
         except IndexError:
-            self.general_error(msg, "Not found", "The item you requested was not found.")
+            self.general_error(
+                msg, "Not found", "The item you requested was not found."
+            )
             return
 
         # Format the types to be wrapped in backticks to look pretty
@@ -134,7 +138,11 @@ class Eft(BotPlugin):
                 ammo_type = ammo
                 break
         if ammo_type == "":
-            return self.general_error(msg, "Invalid ammo type", "You can view all ammo types with:\n`.eft ammo help`")
+            return self.general_error(
+                msg,
+                "Invalid ammo type",
+                "You can view all ammo types with:\n`.eft ammo help`",
+            )
 
         # Make an API call to get all the Tarkov ammo data
         ammo_data = requests.get(
@@ -156,7 +164,9 @@ class Eft(BotPlugin):
                 )
 
         # Sort the ammo list by highest penetration power
-        ammo_list_sorted = sorted(ammo_list, key=lambda x: x['penetration'], reverse=True)
+        ammo_list_sorted = sorted(
+            ammo_list, key=lambda x: x["penetration"], reverse=True
+        )
 
         # Format the body of the card to send with a table of ammo data
         body = "```Name         Pen  Dmg  Armor  Pen %\n"
