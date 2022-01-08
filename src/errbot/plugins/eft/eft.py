@@ -118,6 +118,81 @@ class Eft(BotPlugin):
         return
 
     @botcmd()
+    def eft_status(self, msg, args):
+        """
+        Get the status of Escape from Tarkov
+
+        Example: .eft status
+        Example: .eft status --messages
+        """
+        ErrHelper().user(msg)
+
+        # Get the status of the Tarkov servers from the graphql API
+        result = self.graph_ql(self.status_query())
+
+        # If the result is false, then the request failed
+        if not result:
+            self.general_error(
+                msg,
+                "Request Failed",
+                "During the request, the Tarkov API returned an error. Please check the logs.",
+            )
+            return
+
+        # Get the statuses from the query
+        try:
+            statuses = result["data"]["status"]["currentStatuses"]
+        except TypeError:
+            self.general_error(
+                msg,
+                "GraphQL Parsing Error",
+                "Failed to parse GraphQL response. Please check the logs.",
+            )
+            return
+
+        if "--messages" in args:
+            # Check if eft has posted any messages about server statuses
+            body = "Status Messages:\n"
+            try:
+                messages = result["data"]["status"]["messages"]
+                for message in messages:
+                    if message["solveTime"] == None:
+                        resolved = False
+                    else:
+                        resolved = True
+                    body += f"• Message: {message['content']} | Time: {message['time'].split('+')[0]} | Resolved: {resolved}\n"
+            except IndexError:
+                pass
+        else:
+            body = "Current Server Statuses:\n"
+
+        # Check the overall status of all Tarkov servers
+        eft_issues = False
+        eft_issues_dict = {}
+        for status in statuses:
+            if status["status"] != 0:
+                eft_issues = True
+                eft_issues_dict[status["name"]] = "🔴"
+            else:
+                eft_issues_dict[status["name"]] = "🟢"
+
+        fields = tuple([(k, v) for k, v in eft_issues_dict.items()])
+
+        if eft_issues:
+            color = chatutils.color("red")
+        else:
+            color = chatutils.color("green")
+
+        self.send_card(
+            title="Escape From Tarkov Status",
+            body=body,
+            color=color,
+            in_reply_to=msg,
+            fields=fields,
+        )
+        return
+
+    @botcmd()
     def eft_ammo(self, msg, args):
         """
         Get information about an ammo type
@@ -127,6 +202,8 @@ class Eft(BotPlugin):
         Example: .eft ammo 556x45
         Syntax: .eft ammo <ammo_type>
         """
+        ErrHelper().user(msg)
+
         # If the help command is called, show the ammo help card
         if args == "help":
             return self.ammo_help(msg)
@@ -329,6 +406,29 @@ class Eft(BotPlugin):
             types += "`" + type + "`, "
         types = types[:-2]
         return types
+
+    def status_query(self):
+        """
+        Get the query structure for asking the tarkov-tools GraphQL for the eft status
+        :return: String of the query structure for the status command
+        """
+        return """
+            {
+                status {
+                    currentStatuses {
+                        name
+                        message
+                        status
+                    },
+                    messages {
+                        time
+                        type
+                        content
+                        solveTime
+                    }
+                }
+            }
+        """
 
     def item_query(self, name):
         """
