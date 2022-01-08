@@ -44,6 +44,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dns_prefix          = "${var.PROJECT_NAME}-k8s"
   sku_tier            = "Free"
 
+  role_based_access_control {
+    enabled = true
+  }
+
   network_profile {
     network_plugin = "azure"
     network_policy = "calico"
