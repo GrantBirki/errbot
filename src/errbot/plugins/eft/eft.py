@@ -155,8 +155,8 @@ class Eft(BotPlugin):
             )
             return
 
+        # Check if eft has posted any messages about server statuses
         if "--messages" in args:
-            # Check if eft has posted any messages about server statuses
             body = "Status Messages:\n"
             try:
                 messages = result["data"]["status"]["messages"]
