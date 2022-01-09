@@ -5,7 +5,10 @@ import requests
 from errbot import BotPlugin, botcmd
 from lib.chat.chatutils import ChatUtils
 from lib.common.errhelper import ErrHelper
+from lib.common.down_detector import DownDetector
+from lib.chat.discord_custom import DiscordCustom
 
+downdetector = DownDetector()
 chatutils = ChatUtils()
 
 AMMO_TYPES = [
@@ -183,6 +186,7 @@ class Eft(BotPlugin):
         else:
             color = chatutils.color("green")
 
+        # Send a card with status info for eft
         self.send_card(
             title="Escape From Tarkov Status",
             body=body,
@@ -190,6 +194,12 @@ class Eft(BotPlugin):
             in_reply_to=msg,
             fields=fields,
         )
+
+        # Get and send a screenshot of the eft downdetector chart
+        chart_file = downdetector.chart("escape-from-tarkov")
+        dc = DiscordCustom(self._bot)
+        channel_id = chatutils.channel_id(msg)
+        dc.send_file(channel_id, chart_file)
         return
 
     @botcmd()
