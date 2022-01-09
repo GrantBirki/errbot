@@ -305,6 +305,7 @@ If there are currently **no** resources deployed for this project you will need 
 1. Run the `make build` command from the root of this repo
 1. Once the local deploy is complete, login to your Azure account and go to the errbot acr registry that was created
 1. Copy the acr username and password and add it to GitHub actions secrets
+1. Copy your `~/.kube/config` file and add it to GitHub actions secrets
 1. You may now deploy the pipeline through GitHub actions
 
 ---
