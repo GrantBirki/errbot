@@ -179,8 +179,10 @@ class Eft(BotPlugin):
             else:
                 eft_issues_dict[status["name"]] = "🟢"
 
+        # Format all the embed fields
         fields = tuple([(k, v) for k, v in eft_issues_dict.items()])
 
+        # Set the color of the card based on if there are any detected issues or not
         if eft_issues:
             color = chatutils.color("red")
         else:
@@ -194,6 +196,14 @@ class Eft(BotPlugin):
             in_reply_to=msg,
             fields=fields,
         )
+
+        # Check to see if the message was send from a guild or a DM
+        guild_id = chatutils.guild_id(msg)
+        if not guild_id:
+            yield "⚠️ To view the DownDetector status, please use this command in a channel, not a DM."
+            return
+        else:
+            yield "**DownDetector Status:**"
 
         # Get and send a screenshot of the eft downdetector chart
         chart_file = downdetector.chart("escape-from-tarkov")
