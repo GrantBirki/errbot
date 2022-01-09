@@ -48,8 +48,6 @@ spec:
               value: "na1"
             - name: RIOT_REGION_V5
               value: "AMERICAS"
-            - name: STATUS_PAGE_URL
-              value: "https://errbot-status.birki.io"
             - name: IMAGE_TAG
               value: "${IMAGE_TAG}"
             # Secret ENV Vars
@@ -88,8 +86,3 @@ spec:
                 secretKeyRef:
                   name: errbot-secret
                   key: SENTRY
-            - name: STATUS_PUSH_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  name: errbot-secret
-                  key: STATUS_PUSH_ENDPOINT

@@ -1,39 +1,31 @@
+output "aks_id" {
+  value = azurerm_kubernetes_cluster.aks.id
+}
+
+output "aks_fqdn" {
+  value = azurerm_kubernetes_cluster.aks.fqdn
+}
+
+output "aks_node_rg" {
+  value = azurerm_kubernetes_cluster.aks.node_resource_group
+}
+
+output "acr_id" {
+  value = azurerm_container_registry.acr.id
+}
+
+output "acr_login_server" {
+  value = azurerm_container_registry.acr.login_server
+}
+
 output "resource_group_name" {
   value = azurerm_resource_group.default.name
 }
 
 output "kubernetes_cluster_name" {
-  value = azurerm_kubernetes_cluster.default.name
-}
-
-output "kubernetes_cluster_full_id" {
-  value = azurerm_kubernetes_cluster.default.id
+  value = azurerm_kubernetes_cluster.aks.name
 }
 
 output "acr_name" {
   value = azurerm_container_registry.acr.name
 }
-
-# output "host" {
-#   value = azurerm_kubernetes_cluster.default.kube_config.0.host
-# }
-
-# output "client_key" {
-#   value = azurerm_kubernetes_cluster.default.kube_config.0.client_key
-# }
-
-# output "client_certificate" {
-#   value = azurerm_kubernetes_cluster.default.kube_config.0.client_certificate
-# }
-
-# output "kube_config" {
-#   value = azurerm_kubernetes_cluster.default.kube_config_raw
-# }
-
-# output "cluster_username" {
-#   value = azurerm_kubernetes_cluster.default.kube_config.0.username
-# }
-
-# output "cluster_password" {
-#   value = azurerm_kubernetes_cluster.default.kube_config.0.password
-# }

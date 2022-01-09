@@ -1,12 +1,39 @@
+import os
 import re
+import time
 from string import Template
 
 import requests
 from errbot import BotPlugin, botcmd
 from lib.chat.chatutils import ChatUtils
+from lib.chat.discord_custom import DiscordCustom
+from lib.common.down_detector import DownDetector
 from lib.common.errhelper import ErrHelper
 
+downdetector = DownDetector()
 chatutils = ChatUtils()
+
+AMMO_TYPES = [
+    "7.62x51mm",
+    "7.62x39mm",
+    "5.56x45mm",
+    "5.45x39mm",
+    "7.62x54mm",
+    "9x39mm",
+    "9x19mm",
+    "9x18mm",
+    "9x21mm",
+    "12/70",
+    "4.6x30mm",
+    ".338 Lapua",
+    ".300 Blackout",
+    ".45 ACP",
+    "5.7x28mm",
+    "7.62x25mm",
+    "23x75mm",
+    "20/70",
+    "12.7x55mm",
+]
 
 
 class Eft(BotPlugin):
@@ -27,7 +54,9 @@ class Eft(BotPlugin):
 
         # Validate the input
         if not self.input_validation(args):
-            self.general_error(msg, "Invalid input. Please try again.")
+            self.general_error(
+                msg, "Invalid input.", "Please check your command and try again."
+            )
             return
 
         # Execute the graphql query to try and get eft item data
@@ -37,6 +66,7 @@ class Eft(BotPlugin):
         if not result:
             self.general_error(
                 msg,
+                "Request Failed",
                 "During the request, the Tarkov API returned an error. Please check the logs.",
             )
             return
@@ -45,7 +75,9 @@ class Eft(BotPlugin):
         try:
             result_data = result["data"]["itemsByName"][0]
         except IndexError:
-            self.general_error(msg, "The item you requested was not found.")
+            self.general_error(
+                msg, "Not found", "The item you requested was not found."
+            )
             return
 
         # Format the types to be wrapped in backticks to look pretty
@@ -89,6 +121,199 @@ class Eft(BotPlugin):
             ),
         )
         return
+
+    @botcmd()
+    def eft_status(self, msg, args):
+        """
+        Get the status of Escape from Tarkov
+
+        Example: .eft status
+        Example: .eft status --messages
+        """
+        ErrHelper().user(msg)
+
+        # Get the status of the Tarkov servers from the graphql API
+        result = self.graph_ql(self.status_query())
+
+        # If the result is false, then the request failed
+        if not result:
+            self.general_error(
+                msg,
+                "Request Failed",
+                "During the request, the Tarkov API returned an error. Please check the logs.",
+            )
+            return
+
+        # Get the statuses from the query
+        try:
+            statuses = result["data"]["status"]["currentStatuses"]
+        except TypeError:
+            self.general_error(
+                msg,
+                "GraphQL Parsing Error",
+                "Failed to parse GraphQL response. Please check the logs.",
+            )
+            return
+
+        if "--messages" in args:
+            # Check if eft has posted any messages about server statuses
+            body = "Status Messages:\n"
+            try:
+                messages = result["data"]["status"]["messages"]
+                for message in messages:
+                    if message["solveTime"] == None:
+                        resolved = False
+                    else:
+                        resolved = True
+                    body += f"• Message: {message['content']} | Time: {message['time'].split('+')[0]} | Resolved: {resolved}\n"
+            except IndexError:
+                pass
+        else:
+            body = "Current Server Statuses:\n"
+
+        # Check the overall status of all Tarkov servers
+        eft_issues = False
+        eft_issues_dict = {}
+        for status in statuses:
+            if status["status"] != 0:
+                eft_issues = True
+                eft_issues_dict[status["name"]] = "🔴"
+            else:
+                eft_issues_dict[status["name"]] = "🟢"
+
+        # Format all the embed fields
+        fields = tuple([(k, v) for k, v in eft_issues_dict.items()])
+
+        # Set the color of the card based on if there are any detected issues or not
+        if eft_issues:
+            color = chatutils.color("red")
+        else:
+            color = chatutils.color("green")
+
+        # Send a card with status info for eft
+        self.send_card(
+            title="Escape From Tarkov Status",
+            body=body,
+            color=color,
+            in_reply_to=msg,
+            fields=fields,
+        )
+
+        # Check to see if the message was send from a guild or a DM
+        guild_id = chatutils.guild_id(msg)
+        if not guild_id:
+            yield "⚠️ To view the DownDetector status, please use this command in a channel, not a DM."
+            return
+        else:
+            yield "**DownDetector Status:**"
+
+        # Get and send a screenshot of the eft downdetector chart
+        chart_file = downdetector.chart("escape-from-tarkov")
+        if not chart_file:
+            yield "❌ Failed to get chart from DownDetector"
+            return
+        dc = DiscordCustom(self._bot)
+        channel_id = chatutils.channel_id(msg)
+        dc.send_file(channel_id, chart_file)
+        # Remove the chart file after it has been uploaded
+        time.sleep(5)
+        os.remove(chart_file)
+        return
+
+    @botcmd()
+    def eft_ammo(self, msg, args):
+        """
+        Get information about an ammo type
+
+        Run ".eft ammo help" to get all available ammo types
+
+        Example: .eft ammo 556x45
+        Syntax: .eft ammo <ammo_type>
+        """
+        ErrHelper().user(msg)
+
+        # If the help command is called, show the ammo help card
+        if args == "help":
+            return self.ammo_help(msg)
+
+        # Get the ammo type from the args
+        ammo_type = ""
+        for ammo in AMMO_TYPES:
+            if ammo.lower() == args.lower().strip():
+                ammo_type = ammo
+                break
+        if ammo_type == "":
+            return self.general_error(
+                msg,
+                "Invalid ammo type",
+                "You can view all ammo types with:\n`.eft ammo help`",
+            )
+
+        # Make an API call to get all the Tarkov ammo data
+        ammo_data = requests.get(
+            "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/ammunition.json"
+        ).json()
+
+        # Loop through the ammo data and find all the matching ammo types
+        ammo_list = []
+        for item in ammo_data.items():
+            if ammo_type in item[1]["name"].lower():
+                ammo_list.append(
+                    {
+                        "name": item[1]["shortName"],
+                        "penetration": item[1]["ballistics"]["penetrationPower"],
+                        "damage": item[1]["ballistics"]["damage"],
+                        "armorDamage": item[1]["ballistics"]["armorDamage"],
+                        "penchance": item[1]["ballistics"]["penetrationChance"],
+                    }
+                )
+
+        # Sort the ammo list by highest penetration power
+        ammo_list_sorted = sorted(
+            ammo_list, key=lambda x: x["penetration"], reverse=True
+        )
+
+        # Format the body of the card to send with a table of ammo data
+        body = "```Name         Pen  Dmg  Armor  Pen %\n"
+        for ammo in ammo_list_sorted:
+            name = ammo["name"]
+            if len(name) > 10:
+                name = name[0:10] + ".."
+            body += f"{name: <12} {ammo['penetration']: <4} {ammo['damage']: <4} {ammo['armorDamage']: <6} {round(ammo['penchance'] * 100, 2)}%\n"
+        body += "```"
+
+        # Send the ammo card with the ammo data
+        self.send_card(
+            title=ammo_type.strip(),
+            body=body.strip(),
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+            # thumbnail=result_data["iconLink"],
+        )
+        return
+
+    def ammo_help(self, msg):
+        """
+        Show the help command to view all the available ammo types
+        :param msg: The message object
+        :return: None - Sends a card in reply to the message with the ammo types that can be used
+        """
+        # Format the body of the message with the ammo types
+        body = "**Available Ammo Types:**\n"
+        body += "• " + "\n • ".join(AMMO_TYPES)
+        body += "\n\n**Ammo Table Key**:"
+        body += "\n• `Pen` - Penetration Power"
+        body += "\n• `Dmg` - Damage"
+        body += "\n• `Armor` - Armor Damage"
+        body += "\n• `Pen %` - Armor Penetration Chance"
+
+        # Send the ammo help card
+        self.send_card(
+            title="Ammo Help Command",
+            body=body,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
 
     def get_item_tier(self, highest_price, result_data):
         """
@@ -210,6 +435,29 @@ class Eft(BotPlugin):
         types = types[:-2]
         return types
 
+    def status_query(self):
+        """
+        Get the query structure for asking the tarkov-tools GraphQL for the eft status
+        :return: String of the query structure for the status command
+        """
+        return """
+            {
+                status {
+                    currentStatuses {
+                        name
+                        message
+                        status
+                    },
+                    messages {
+                        time
+                        type
+                        content
+                        solveTime
+                    }
+                }
+            }
+        """
+
     def item_query(self, name):
         """
         Helper function for building the graphql query for an eft item.
@@ -237,12 +485,12 @@ class Eft(BotPlugin):
         )
         return query.substitute(name=name)
 
-    def general_error(self, src_msg, msg):
+    def general_error(self, src_msg, title, msg):
         """
         Helper function for sending a general error card.
         """
         self.send_card(
-            title="Request Failed",
+            title=title,
             body=msg,
             color=chatutils.color("red"),
             in_reply_to=src_msg,

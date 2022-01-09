@@ -106,10 +106,6 @@ To setup your bot, you will need to modify your `config.env` file. To make thing
 There are three main components to errbot:
 
 - The chatbot itself - This is `errbot`, the python app running in a docker container which processes requests - `src/errbot/`
-- The status page - This is the uptime-kuma docker app which accepts push events from the chatbot to display its health - `src/status_page/` - *add on service to the core chatbot*
-- The NGINX reverse proxy - This is a simple NGINX server which proxies HTTP requests to the status page - `src/nginx/` - *add on service to the core chatbot*
-
-The **status_page** and **NGINX** server are mainly just additions to the observability of **errbot**. The do not affect the functionality of the chatbot in any meaningful way.
 
 ### Testing and Building Locally 🧪
 
@@ -260,8 +256,6 @@ What is in each folder?
   - `src/errbot/backend/` - Folder containing extra backend modules (Discord)
   - `src/errbot/` - Folder containing all the extra / custom plugins for our chatop commands
   - `src/errbot/lib/` - Folder containing shared libraries for plugins
-  - `src/status_page/` - Folder containing the code for building the errbot status page (uptime-kuma)
-  - `src/nginx/` - Folder containing the docker components for building the NGINX reverse proxy to handle HTTP requests for the status page
 
 What are these files?
 
@@ -287,16 +281,6 @@ Core:
 - The bot then listens for commands and responds to them
 - For any commands that require some form of "state" we use AWS DynamoDB to store information since containers are ephemeral by design
 - We store any configuration as environment variables and secrets as k8s secrets which get injected into the container on boot
-
-Status Page:
-
-In addition to the core `errbot` container, we also deploy a **status page** to k8s which accepts HTTP requests that are interpreted as healthchecks from `errbot`. The project that is used is [uptime-kuma](https://github.com/louislam/uptime-kuma). The **status page** consists of two components: the "app" (kuma-uptime) and the NGINX reverse proxy.
-
-- The status page source code is built via Docker in CI/CD (`src/status_page`)
-- The NGINX reverse proxy source code is built via Docker in CI/CD (`src/nginx`)
-- The status page and NGINX images are deployed with Terraform and GitHub actions to our k8s cluster
-- `errbot` will make HTTP GET requests to the `src/status_page` app at a set interval which gets registered as a healthcheck if it is successful (configured via the `STATUS_PUSH_ENDPOINT` environment variable)
-- End users can view the status page which is accessible from the NGINX reverse proxy (kong ingress gateway is configured to forward requets to it)
 
 ---
 

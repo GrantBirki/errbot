@@ -13,7 +13,6 @@ data "kubectl_path_documents" "errbot_secret_manifest" {
     SENTRY                = "${var.SENTRY}"
     IMAGE_TAG             = "${var.IMAGE_TAG}"
     ACR_NAME              = "${var.ACR_NAME}"
-    STATUS_PUSH_ENDPOINT  = "${var.STATUS_PUSH_ENDPOINT}"
   }
   pattern = "modules/containers/errbot/secret.yaml"
 }
