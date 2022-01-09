@@ -3,7 +3,13 @@ FROM python:3.9-alpine
 WORKDIR /app
 
 # install alpine dependencies
-RUN apk add gcc musl-dev libffi-dev make libffi-dev libsodium-dev opus-dev ffmpeg
+RUN apk add gcc musl-dev libffi-dev make libffi-dev libsodium-dev opus-dev ffmpeg zlib-dev jpeg-dev
+
+# setup selenium
+RUN echo "http://dl-4.alpinelinux.org/alpine/v3.14/main" >> /etc/apk/repositories && \
+    echo "http://dl-4.alpinelinux.org/alpine/v3.14/community" >> /etc/apk/repositories
+RUN apk update
+RUN apk add chromium chromium-chromedriver xvfb
 
 # install python dependencies
 COPY requirements.txt .
