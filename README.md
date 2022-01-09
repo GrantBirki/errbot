@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/GrantBirki/errbot/actions/workflows/ci-deploy.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/ci-deploy.yml/badge.svg?event=push" alt="ci-deploy" height="18"></a>
+  <a href="https://github.com/GrantBirki/errbot/actions/workflows/deploy-ci.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/deploy-ci.yml/badge.svg?event=push" alt="deploy-ci" height="18"></a>
   <a href="https://github.com/GrantBirki/errbot/actions/workflows/review.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/review.yml/badge.svg?event=push" alt="review"/></a>
   <a href="https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml"><img src="https://github.com/GrantBirki/errbot/actions/workflows/tfsec.yml/badge.svg?event=push" alt="tfsec"/></a>
 </p>
@@ -295,6 +295,19 @@ INFO     -  Cleaning site directory
 INFO     -  Documentation built in 0.17 seconds
 INFO     -  [22:56:00] Serving on http://127.0.0.1:8000/
 ```
+
+---
+
+## Deploying from Scratch 🚀
+
+If there are currently **no** resources deployed for this project you will need to follow the steps below to "deploy from scratch":
+
+1. Run the `make build` command from the root of this repo
+1. Once the local deploy is complete, login to your Azure account and go to the errbot acr registry that was created
+1. Copy the acr username and password and add it to GitHub actions secrets
+1. You may now deploy the pipeline through GitHub actions
+
+---
 
 ## Bot Invite 🔗
 
