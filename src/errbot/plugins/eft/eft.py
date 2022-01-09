@@ -1,12 +1,14 @@
+import os
 import re
+import time
 from string import Template
 
 import requests
 from errbot import BotPlugin, botcmd
 from lib.chat.chatutils import ChatUtils
-from lib.common.errhelper import ErrHelper
-from lib.common.down_detector import DownDetector
 from lib.chat.discord_custom import DiscordCustom
+from lib.common.down_detector import DownDetector
+from lib.common.errhelper import ErrHelper
 
 downdetector = DownDetector()
 chatutils = ChatUtils()
@@ -207,9 +209,15 @@ class Eft(BotPlugin):
 
         # Get and send a screenshot of the eft downdetector chart
         chart_file = downdetector.chart("escape-from-tarkov")
+        if not chart_file:
+            yield "❌ Failed to get chart from DownDetector"
+            return
         dc = DiscordCustom(self._bot)
         channel_id = chatutils.channel_id(msg)
         dc.send_file(channel_id, chart_file)
+        # Remove the chart file after it has been uploaded
+        time.sleep(5)
+        os.remove(chart_file)
         return
 
     @botcmd()

@@ -1,18 +1,26 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+import uuid
+from io import BytesIO
+
 from PIL import Image
+from pyvirtualdisplay import Display
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from io import BytesIO
-import uuid
-from pyvirtualdisplay import Display
 
 
 class DownDetector:
     """
     A helper class for interacting with and scraping the downdetector.com website
     """
+
+    def __init__(self, output_dir="plugins/lib/common/tmp"):
+        """
+        Initializes the DownDetector class
+        """
+        self.output_dir = output_dir
 
     def chart(self, service):
         """
@@ -44,10 +52,13 @@ class DownDetector:
         driver.get(f"https://downdetector.com/status/{service}/")
 
         # Wait for the chart to load
-        WAIT = 5
-        WebDriverWait(driver, WAIT).until(
-            EC.presence_of_element_located((By.ID, "chart-row"))
-        )
+        WAIT = 4
+        try:
+            WebDriverWait(driver, WAIT).until(
+                EC.presence_of_element_located((By.ID, "chart-row"))
+            )
+        except TimeoutException:
+            return False
 
         # Get the chart element
         s = driver.find_element(By.XPATH, "//body/div[3]/div[2]/div[1]/div[2]/div[1]")
@@ -71,7 +82,7 @@ class DownDetector:
 
         # Save the cropped image
         # Example url https://downdetector.com/status/escape-from-tarkov/
-        file_name = f"{service}-{uuid.uuid4()}.png"
+        file_name = f"{self.output_dir}/{service}-{uuid.uuid4()}.png"
         img_crop.save(file_name)
 
         # close browser
