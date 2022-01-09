@@ -52,7 +52,7 @@ class DownDetector:
         driver.get(f"https://downdetector.com/status/{service}/")
 
         # Wait for the chart to load
-        WAIT = 4
+        WAIT = 2
         try:
             WebDriverWait(driver, WAIT).until(
                 EC.presence_of_element_located((By.ID, "chart-row"))
