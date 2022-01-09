@@ -167,8 +167,9 @@ class Eft(BotPlugin):
                     else:
                         resolved = True
                     body += f"• Message: {message['content']} | Time: {message['time'].split('+')[0]} | Resolved: {resolved}\n"
+            # If an error was thrown, then the messages were not found
             except IndexError:
-                pass
+                body = "Current Server Statuses:\n"
         else:
             body = "Current Server Statuses:\n"
 
