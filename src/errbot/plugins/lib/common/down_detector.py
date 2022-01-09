@@ -1,5 +1,3 @@
-
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from PIL import Image
@@ -9,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from io import BytesIO
 import uuid
 from pyvirtualdisplay import Display
+
 
 class DownDetector:
     """
@@ -28,23 +27,27 @@ class DownDetector:
         display.start()
 
         options = Options()
-        options.add_argument('--no-sandbox')
-        options.add_argument('--headless')
-        options.add_argument('log-level=3')
-        options.add_argument('--disable-gpu')
-        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument("--no-sandbox")
+        options.add_argument("--headless")
+        options.add_argument("log-level=3")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--window-size=1920,1080")
-        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36")
-        
+        options.add_argument(
+            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"
+        )
+
         # initializing webdriver for Chrome with our options
         driver = webdriver.Chrome(options=options)
-        
+
         # Open the website
         driver.get(f"https://downdetector.com/status/{service}/")
 
         # Wait for the chart to load
         WAIT = 5
-        WebDriverWait(driver, WAIT).until(EC.presence_of_element_located((By.ID, "chart-row")))
+        WebDriverWait(driver, WAIT).until(
+            EC.presence_of_element_located((By.ID, "chart-row"))
+        )
 
         # Get the chart element
         s = driver.find_element(By.XPATH, "//body/div[3]/div[2]/div[1]/div[2]/div[1]")
@@ -52,10 +55,10 @@ class DownDetector:
         # Get the sizes of the chart for cropping
         location = s.location
         size = s.size
-        x = location['x']
-        y = location['y']
-        h = location['y'] + size['height']
-        w = location['x'] + size['width']
+        x = location["x"]
+        y = location["y"]
+        h = location["y"] + size["height"]
+        w = location["x"] + size["width"]
 
         # Save the chart screenshot to memory
         p = driver.get_screenshot_as_png()
