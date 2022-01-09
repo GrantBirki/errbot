@@ -134,7 +134,7 @@ jobs:
         if: github.event_name == 'push'
         uses: azure/docker-login@81744f9799e7eaa418697cb168452a2882ae844a # pin@v1
         with:
-          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          login-server: errbotacr.azurecr.io
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 

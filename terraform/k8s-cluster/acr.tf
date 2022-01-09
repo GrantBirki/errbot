@@ -10,7 +10,7 @@ resource "azurerm_container_registry" "acr" {
   resource_group_name = azurerm_resource_group.default.name
   location            = var.CLOUD_LOCATION
   sku                 = "Basic"
-  admin_enabled       = false
+  admin_enabled       = true
 
   tags = {
     managed_by = "terraform"
