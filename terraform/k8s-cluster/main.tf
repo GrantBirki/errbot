@@ -29,7 +29,7 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_resource_group" "default" {
-  name     = "${var.PROJECT_NAME}"
+  name     = var.PROJECT_NAME
   location = var.CLOUD_LOCATION
 
   tags = {
