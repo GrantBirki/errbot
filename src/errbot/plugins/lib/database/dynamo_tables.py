@@ -9,13 +9,15 @@ from pynamodb.attributes import (
 from pynamodb.models import Model
 
 LOCALSTACK = os.environ.get("LOCALSTACK", False)
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "no-aws")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "no-aws")
 
 class LeagueTable(Model):
     class Meta:
         table_name = "league"
         region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
         if LOCALSTACK:
             host = LOCALSTACK
 
@@ -35,8 +37,8 @@ class RememberTable(Model):
     class Meta:
         table_name = "remember"
         region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
         if LOCALSTACK:
             host = LOCALSTACK
 
@@ -49,8 +51,8 @@ class LoudTable(Model):
     class Meta:
         table_name = "loud"
         region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
         if LOCALSTACK:
             host = LOCALSTACK
 
@@ -63,8 +65,8 @@ class PlayTable(Model):
     class Meta:
         table_name = "play"
         region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
         if LOCALSTACK:
             host = LOCALSTACK
 
@@ -77,8 +79,8 @@ class TtsTable(Model):
     class Meta:
         table_name = "tts"
         region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
         if LOCALSTACK:
             host = LOCALSTACK
 
@@ -91,8 +93,8 @@ class SparkleTable(Model):
     class Meta:
         table_name = "sparkle"
         region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
         if LOCALSTACK:
             host = LOCALSTACK
 
