@@ -8,13 +8,20 @@ from pynamodb.attributes import (
 )
 from pynamodb.models import Model
 
+LOCALSTACK = os.environ.get("LOCALSTACK", False)
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "no-aws")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "no-aws")
+AWS_REGION = os.environ.get("AWS_REGION", "us-west-2")
+
 
 class LeagueTable(Model):
     class Meta:
         table_name = "league"
-        region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        region = AWS_REGION
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
@@ -31,9 +38,11 @@ class LeagueTable(Model):
 class RememberTable(Model):
     class Meta:
         table_name = "remember"
-        region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        region = AWS_REGION
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     rem_key = UnicodeAttribute(range_key=True)
@@ -43,9 +52,11 @@ class RememberTable(Model):
 class LoudTable(Model):
     class Meta:
         table_name = "loud"
-        region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        region = AWS_REGION
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
@@ -55,9 +66,11 @@ class LoudTable(Model):
 class PlayTable(Model):
     class Meta:
         table_name = "play"
-        region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        region = AWS_REGION
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     stats = UnicodeAttribute()
@@ -67,9 +80,11 @@ class PlayTable(Model):
 class TtsTable(Model):
     class Meta:
         table_name = "tts"
-        region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        region = AWS_REGION
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
@@ -79,9 +94,11 @@ class TtsTable(Model):
 class SparkleTable(Model):
     class Meta:
         table_name = "sparkle"
-        region = "us-west-2"
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        region = AWS_REGION
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)

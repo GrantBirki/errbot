@@ -1,0 +1,87 @@
+#!/bin/bash
+
+OFF='\033[0m' # Text color Reset
+BLUE='\033[0;34m' # Blue
+GREEN='\033[0;32m' # Green
+
+sleep 3
+
+export AWS_ACCESS_KEY_ID=foo
+export AWS_SECRET_ACCESS_KEY=bar
+export AWS_DEFAULT_REGION=us-west-2
+
+echo -e "⚙️ ${BLUE}Creating LeagueTable...${OFF}"
+aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+    --table-name league \
+    --attribute-definitions \
+        AttributeName=discord_server_id,AttributeType=N \
+        AttributeName=discord_handle,AttributeType=S \
+    --key-schema \
+        AttributeName=discord_server_id,KeyType=HASH \
+        AttributeName=discord_handle,KeyType=RANGE \
+--provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+echo -e "✅ ${GREEN}Created LeagueTable...${OFF}"
+
+echo -e "${BLUE}Creating RememberTable...${OFF}"
+aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+    --table-name remember \
+    --attribute-definitions \
+        AttributeName=discord_server_id,AttributeType=N \
+        AttributeName=rem_key,AttributeType=S \
+    --key-schema \
+        AttributeName=discord_server_id,KeyType=HASH \
+        AttributeName=rem_key,KeyType=RANGE \
+--provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+echo -e "✅ ${GREEN}Created RememberTable...${OFF}"
+
+echo -e "${BLUE}Creating LoudTable...${OFF}"
+aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+    --table-name loud \
+    --attribute-definitions \
+        AttributeName=discord_server_id,AttributeType=N \
+        AttributeName=discord_handle,AttributeType=S \
+    --key-schema \
+        AttributeName=discord_server_id,KeyType=HASH \
+        AttributeName=discord_handle,KeyType=RANGE \
+--provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+echo -e "✅ ${GREEN}Created LoudTable...${OFF}"
+
+echo -e "${BLUE}Creating PlayTable...${OFF}"
+aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+    --table-name play \
+    --attribute-definitions \
+        AttributeName=discord_server_id,AttributeType=N \
+    --key-schema \
+        AttributeName=discord_server_id,KeyType=HASH \
+--provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+echo -e "✅ ${GREEN}Created PlayTable...${OFF}"
+
+echo -e "${BLUE}Creating TtsTable...${OFF}"
+aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+    --table-name tts \
+    --attribute-definitions \
+        AttributeName=discord_server_id,AttributeType=N \
+        AttributeName=discord_handle,AttributeType=S \
+    --key-schema \
+        AttributeName=discord_server_id,KeyType=HASH \
+        AttributeName=discord_handle,KeyType=RANGE \
+--provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+echo -e "✅ ${GREEN}Created TtsTable...${OFF}"
+
+echo -e "${BLUE}Creating SparkleTable...${OFF}"
+aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+    --table-name sparkle \
+    --attribute-definitions \
+        AttributeName=discord_server_id,AttributeType=N \
+        AttributeName=discord_handle,AttributeType=S \
+    --key-schema \
+        AttributeName=discord_server_id,KeyType=HASH \
+        AttributeName=discord_handle,KeyType=RANGE \
+--provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+echo -e "✅ ${GREEN}Created SparkleTable...${OFF}"

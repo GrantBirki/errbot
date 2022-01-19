@@ -6,9 +6,9 @@ from lib.common.utilities import Util
 from pynamodb.exceptions import DoesNotExist
 
 session = boto3.Session(
-    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-    region_name="us-west-2",
+    aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID", "no-aws"),
+    aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY", "no-aws"),
+    region_name=os.environ.get("AWS_REGION", "us-west-2"),
 )
 
 dynamo = session.resource("dynamodb")
