@@ -8,6 +8,7 @@ from pynamodb.attributes import (
 )
 from pynamodb.models import Model
 
+LOCALSTACK = os.environ.get("LOCALSTACK", False)
 
 class LeagueTable(Model):
     class Meta:
@@ -15,6 +16,8 @@ class LeagueTable(Model):
         region = "us-west-2"
         aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
         aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
@@ -34,6 +37,8 @@ class RememberTable(Model):
         region = "us-west-2"
         aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
         aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     rem_key = UnicodeAttribute(range_key=True)
@@ -46,6 +51,8 @@ class LoudTable(Model):
         region = "us-west-2"
         aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
         aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
@@ -58,6 +65,8 @@ class PlayTable(Model):
         region = "us-west-2"
         aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
         aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     stats = UnicodeAttribute()
@@ -70,6 +79,8 @@ class TtsTable(Model):
         region = "us-west-2"
         aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
         aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)
@@ -82,6 +93,8 @@ class SparkleTable(Model):
         region = "us-west-2"
         aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
         aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        if LOCALSTACK:
+            host = LOCALSTACK
 
     discord_server_id = NumberAttribute(hash_key=True)
     discord_handle = UnicodeAttribute(range_key=True)

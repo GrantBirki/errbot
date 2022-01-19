@@ -4,6 +4,8 @@
 version: '3.9'
 
 services:
+
+  # This container is errbot
   chatbot:
     container_name: chatbot
     restart: always
@@ -11,3 +13,34 @@ services:
     env_file: 
       - ./config.env
       - ./creds.env
+    depends_on:
+      - localstack
+
+  # This container is a helper for localstack and is used to create DynamoDB tables on boot
+  localstack-helper:
+    container_name: localstack-helper
+    build: 
+      context: ./script
+      dockerfile: ./Dockerfile.localstack-helper
+    env_file: 
+      - ./config.env
+    depends_on:
+      - localstack
+
+  # This container is used to create a local 'mock' instance of AWS for testing
+  localstack:
+      container_name: "localstack"
+      image: localstack/localstack:0.13.3
+      ports:
+        - "127.0.0.1:4566:4566"
+        - "127.0.0.1:4571:4571"
+      environment:
+        - SERVICES=${SERVICES- }
+        - DEBUG=${DEBUG- }
+        - DATA_DIR=${DATA_DIR- }
+        - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
+        - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
+        - DOCKER_HOST=unix:///var/run/docker.sock
+      volumes:
+        - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+        - "/var/run/docker.sock:/var/run/docker.sock"
