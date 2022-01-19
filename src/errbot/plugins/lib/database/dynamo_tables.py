@@ -13,6 +13,7 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "no-aws")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "no-aws")
 AWS_REGION = os.environ.get("AWS_REGION", "us-west-2")
 
+
 class LeagueTable(Model):
     class Meta:
         table_name = "league"
