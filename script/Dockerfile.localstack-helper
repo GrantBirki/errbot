@@ -1,7 +1,0 @@
-FROM amazon/aws-cli:2.4.12
-
-WORKDIR /app
-
-COPY localstack .
-
-ENTRYPOINT ["/bin/bash", "-c", "./localstack"]
