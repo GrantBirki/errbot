@@ -13,37 +13,37 @@ Backends and their configurion are setup mostly with environment variables. The 
 1. Follow the [official errbot docs](https://errbot.readthedocs.io/en/latest/user_guide/configuration/slack.html) to create a Slack bot and the corresponding token (save this token for the next step)
 1. Paste the token you get from Slack into your `creds.env` file
 
-    ```ini
-    CHAT_SERVICE_TOKEN='xoxb-token-here' # Slack
-    ```
+```ini
+CHAT_SERVICE_TOKEN='xoxb-token-here' # Slack
+```
 
 1. Edit the `config.env` file to set your backend to Slack
 
-    ```ini
-    BACKEND='Discord'
-    ```
+```ini
+BACKEND='Discord'
+```
 
 1. Edit the `config.env` file to set the bot admin(s)
 
-    ```ini
-    BOT_ADMINS='@grant.birkinbine' # Slack example (your true Slack username)
-    ```
+```ini
+BOT_ADMINS='@grant.birkinbine' # Slack example (your true Slack username)
+```
 
 1. Disable the following lines as you will not be using the Discord backend and Slack does not support an option for a "bot status"
 
-    ```ini
-    # BOT_EXTRA_BACKEND_DIR='/app/backend/err-backend-discord'
-    # BOT_STATUS_MESSAGE='errbot | .help'
-    ```
+```ini
+# BOT_EXTRA_BACKEND_DIR='/app/backend/err-backend-discord'
+# BOT_STATUS_MESSAGE='errbot | .help'
+```
 
 1. Lastly, edit the `src/errbot/requirements.txt` file to enable Slack related pip packages. Look for the line that is a comment related to Slack and simply uncomment all the lines (packages) below it
 
-    ```python
-    # errbot[slack] # Uncomment all the lines below this one to enable Slack support
-    ...
-    ..
-    .
-    ```
+```python
+# errbot[slack] # Uncomment all the lines below this one to enable Slack support
+...
+..
+.
+```
 
 1. 🎉
 
