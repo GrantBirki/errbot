@@ -54,7 +54,7 @@ You can also view the docs by browsing to the `docs/` directory in the root of t
 
 - [About](https://errbot.birki.io)
 - [Setup](https://errbot.birki.io/setup)
-- [Usage](https://errbot.birki.io/usage)
+- [Development](https://errbot.birki.io/development)
 - [Commands](https://errbot.birki.io/commands)
 
 ---
