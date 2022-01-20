@@ -6,7 +6,7 @@ This project uses [errbot](https://github.com/errbotio/errbot) and [Docker](http
 
 The goal of this project is to make it as easy as possible to launch a minimal, working chatbot.
 
-> Note: This repo is a fork of my other project [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad)
+> Note: This repo is a fork of my other project [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad) - errbot-launchpad is a way more basic version of this project
 
 **Looking for the bot commands documentation?**
 
@@ -17,7 +17,7 @@ Check it out [here](commands.md)!
 Want to get going quick? Run the following commands to bring up a CLI to interact with `errbot` locally:
 
 1. `git clone git@github.com:GrantBirki/errbot.git`
-2. `cd errbot-launchpad`
+2. `cd errbot`
 3. `make local`
 
 Didn't work quite right? See the setup section below..
@@ -62,7 +62,7 @@ It could look something like this: `https://discord.com/api/oauth2/authorize?cli
 
 > Note: You can find an example invite link farther below
 
-Enter that link into your web browser and it should give you a list of servers to invtire your bot to. Add it to your favorite server!
+Enter that link into your web browser and it should give you a list of servers to invite your bot to. Add it to your favorite server!
 
 To setup your bot, you will need to modify your `config.env` file. To make things easier, there is a `config.example.env` file in the root of this repo.
 
@@ -177,6 +177,7 @@ What is in each folder?
 
 - `.github/` - Mainly GitHub workflows for actions
 - `script/` - Maintenance and automation scripts for working with this project
+- `script/localstack/` - Files and Dockerfiles related to building the localstack container for development
 - `template/` - Template / boilerplate code for new chatops commands
 - `terraform/` - Terraform code for deploying `errbot` resources
   - `terraform/aws` - AWS related resources
@@ -210,7 +211,7 @@ Core:
 - We use Terraform and GitHub actions to deploy the Docker image (from our CI/CD pipeline) to Azure AKS (Kubernetes)
 - The Docker image runs in a container in Azure AKS and connects to Discord
 - The bot then listens for commands and responds to them
-- For any commands that require some form of "state" we use AWS DynamoDB to store information since containers are ephemeral by design
+- For any commands that require some form of "state" we use AWS DynamoDB to store information since containers are ephemeral by design - We use [LocalStack](https://github.com/localstack/localstack) to mock AWS when developing locally 😉
 - We store any configuration as environment variables and secrets as k8s secrets which get injected into the container on boot
 
 ---
@@ -226,3 +227,19 @@ INFO     -  Cleaning site directory
 INFO     -  Documentation built in 0.17 seconds
 INFO     -  [22:56:00] Serving on http://127.0.0.1:8000/
 ```
+
+---
+
+## Deploying from Scratch to Azure with GitHub Actions
+
+> This sections is mostly my own notes and for those who are deploying this project with GitHub Actions to Azure AKS
+
+If there are currently **no** resources deployed for this project you will need to follow the steps below to "deploy from scratch":
+
+1. Run the `make build` command from the root of this repo
+1. Once the local deploy is complete, login to your Azure account and go to the errbot ACR registry that was created
+1. Copy the ACR `username` and `password` and add it to GitHub Actions secrets
+1. Copy your `~/.kube/config` file and add it to GitHub Actions secrets
+1. You may now deploy the pipeline through GitHub Actions
+
+---
