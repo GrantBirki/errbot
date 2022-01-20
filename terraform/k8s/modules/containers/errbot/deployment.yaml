@@ -15,8 +15,6 @@ spec:
       labels:
         name: errbot
     spec:
-      labels:
-        name: errbot
       containers:
         - name: errbot
           image: ${ACR_NAME}.azurecr.io/errbot:${IMAGE_TAG}
