@@ -48,13 +48,13 @@ Didn't work quite right? Want to actually connect to a chat service? Check out t
 
 ### Documentation 📖
 
-All the documentation for this project is available at [errbot-docs.birki.io](https://errbot-docs.birki.io).
+All the documentation for this project is available at [errbot.birki.io](https://errbot.birki.io).
 
 You can also view the docs by browsing to the `docs/` directory in the root of this repository.
 
-- [About](https://errbot-docs.birki.io)
-- [Setup](https://errbot-docs.birki.io/setup)
-- [Usage](https://errbot-docs.birki.io/usage)
-- [Commands](https://errbot-docs.birki.io/commands)
+- [About](https://errbot.birki.io)
+- [Setup](https://errbot.birki.io/setup)
+- [Usage](https://errbot.birki.io/usage)
+- [Commands](https://errbot.birki.io/commands)
 
 ---

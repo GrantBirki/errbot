@@ -15,8 +15,6 @@ spec:
       labels:
         name: errbot
     spec:
-      labels:
-        name: errbot
       containers:
         - name: errbot
           image: ${ACR_NAME}.azurecr.io/errbot:${IMAGE_TAG}
@@ -39,7 +37,7 @@ spec:
             - name: BOT_HOME_CHANNEL
               value: "errbot"
             - name: DOCS_URL
-              value: "https://errbot-docs.birki.io"
+              value: "https://errbot.birki.io"
             - name: BOT_ADMINS
               value: "Birki#0001"
             - name: BOT_EXTRA_BACKEND_DIR
