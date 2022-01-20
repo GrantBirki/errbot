@@ -7,15 +7,6 @@ run:
 
 	@echo "\e[32m[#] Containers are now running!\e[0m"
 
-errbot:
-	@echo "\033[0;34m[#] Killing old docker processes - errbot only\033[0m"
-	docker-compose rm -fs
-
-	@echo "\033[0;34m[#] Building docker containers - errbot only\033[0m"
-	docker-compose up --build -d chatbot
-
-	@echo "\e[32m[#] Container is now running! - errbot only\e[0m"
-
 
 local:
 	@echo "\033[0;34m[#] Starting local bot test environment\033[0m"
@@ -29,28 +20,13 @@ local:
 	docker run -it --rm --env-file config.env --env-file creds.env -e LOCAL_TESTING=True errbot_chatbot:latest
 	@echo "\e[32m[#] Exiting and cleaning up :)\e[0m"
 
-discord:
+discord: # Gets the backend files for discord if they do not exist
 	script/discord.sh
 
-command:
+command: # Use me to create a new command for the bot from scratch! Just follow the prompts - EX: 'make command'
 	script/command.sh
 
 push-azure: # Builds and pushes image to azure - testing only
 	@az acr login -n errbot
 	@cd app && docker build -t errbot.azurecr.io/errbot:ci-test .
 	@docker push errbot.azurecr.io/errbot:ci-test
-
-plan:
-	@cd terraform && terraform plan -var-file="terraform.tfvars.json"
-
-apply:
-	@cd terraform && terraform apply -var-file="terraform.tfvars.json"
-
-init:
-	@cd terraform && terraform init
-
-build:
-	@script/build
-
-destroy:
-	@script/destroy

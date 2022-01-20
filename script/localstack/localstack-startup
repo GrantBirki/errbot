@@ -1,17 +1,23 @@
 #!/bin/bash
 
+# This script starts the LocalStack service in the Docker container and pre-populates the DynamoDB tables
+
 OFF='\033[0m' # Text color Reset
 BLUE='\033[0;34m' # Blue
 GREEN='\033[0;32m' # Green
 
-sleep 3
+echo -e "⚙️ ${BLUE}======= Starting LocalStack (detached) =======${OFF}"
 
-export AWS_ACCESS_KEY_ID=foo
-export AWS_SECRET_ACCESS_KEY=bar
+make start & disown
+
+echo -e "⚙️ ${BLUE}======= Creating DynamoDB Tables =======${OFF}"
+
+export AWS_ACCESS_KEY_ID=test
+export AWS_SECRET_ACCESS_KEY=test
 export AWS_DEFAULT_REGION=us-west-2
 
 echo -e "⚙️ ${BLUE}Creating LeagueTable...${OFF}"
-aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
     --table-name league \
     --attribute-definitions \
         AttributeName=discord_server_id,AttributeType=N \
@@ -24,7 +30,7 @@ aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
 echo -e "✅ ${GREEN}Created LeagueTable...${OFF}"
 
 echo -e "${BLUE}Creating RememberTable...${OFF}"
-aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
     --table-name remember \
     --attribute-definitions \
         AttributeName=discord_server_id,AttributeType=N \
@@ -37,7 +43,7 @@ aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
 echo -e "✅ ${GREEN}Created RememberTable...${OFF}"
 
 echo -e "${BLUE}Creating LoudTable...${OFF}"
-aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
     --table-name loud \
     --attribute-definitions \
         AttributeName=discord_server_id,AttributeType=N \
@@ -50,7 +56,7 @@ aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
 echo -e "✅ ${GREEN}Created LoudTable...${OFF}"
 
 echo -e "${BLUE}Creating PlayTable...${OFF}"
-aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
     --table-name play \
     --attribute-definitions \
         AttributeName=discord_server_id,AttributeType=N \
@@ -61,7 +67,7 @@ aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
 echo -e "✅ ${GREEN}Created PlayTable...${OFF}"
 
 echo -e "${BLUE}Creating TtsTable...${OFF}"
-aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
     --table-name tts \
     --attribute-definitions \
         AttributeName=discord_server_id,AttributeType=N \
@@ -74,7 +80,7 @@ aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
 echo -e "✅ ${GREEN}Created TtsTable...${OFF}"
 
 echo -e "${BLUE}Creating SparkleTable...${OFF}"
-aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
+aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
     --table-name sparkle \
     --attribute-definitions \
         AttributeName=discord_server_id,AttributeType=N \
@@ -85,3 +91,9 @@ aws dynamodb --endpoint-url=${LOCALSTACK} create-table \
 --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
 echo -e "✅ ${GREEN}Created SparkleTable...${OFF}"
+
+echo -e "✅ ${GREEN}All Tables Built and LocalStack Running!${OFF}"
+echo -e ""
+echo -e "🟢 ${GREEN}Entering 'sleep infinity' command to keep myself running :)${OFF}"
+
+sleep infinity
