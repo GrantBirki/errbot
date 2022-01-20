@@ -1,8 +1,8 @@
-# Commands 💬
+# Commands
 
 The following commands are all available via the chatbot:
 
-> Note: `.` is the bot prefix to invoke the bot
+> Note: `.` is the bot prefix to invoke the bot in production and `!` is used for development
 
 |   Command   |  Example  |  Admin Only         |  Description     |
 |    :----:   |     :----:    |   :----:      |        :----:       |

@@ -1,10 +1,61 @@
-# Contributing 🖥️
+# Development
 
 Looking to add a feature, enchance an existing one, or contribute to this bot? You have come to the right place!
 
-The first step to contributing to this bot is getting your environment setup. This is covered on the main document under the installation section so make sure you have the `prerequisites` section checked off before continuing.
+The first step to contributing to this bot is getting your environment setup. This is covered on the main document under the [setup](setup.md) section so make sure you have the `prerequisites` section checked off before continuing.
+
+## Understanding the Bot
+
+Let's understand all the parts of the this repo so we are familiar before we begin
+
+### About the Infrastructure
+
+Here is a high level overview of this project and the software/infrastruce that run this bot:
+
+Core:
+
+- This project uses [errbot](https://github.com/errbotio/errbot) which is a Python based chatop/chatbot framework
+- `errbot` and all of its components are built using Docker to create a deployable image
+- We use Terraform and GitHub actions to deploy the Docker image (from our CI/CD pipeline) to Azure AKS (Kubernetes)
+- The Docker image runs in a container in Azure AKS and connects to Discord
+- The bot then listens for commands and responds to them
+- For any commands that require some form of "state" we use AWS DynamoDB to store information since containers are ephemeral by design - We use [LocalStack](https://github.com/localstack/localstack) to mock AWS when developing locally 😉
+- We store any configuration as environment variables and secrets as k8s secrets which get injected into the container on boot
+
+### Project Folder/File Information
+
+What is in each folder?
+
+- `.github/` - Mainly GitHub workflows for actions
+- `script/` - Maintenance and automation scripts for working with this project
+- `script/localstack/` - Files and Dockerfiles related to building the localstack container for development
+- `template/` - Template / boilerplate code for new chatops commands
+- `terraform/` - Terraform code for deploying `errbot` resources
+  - `terraform/aws` - AWS related resources
+  - `terraform/k8s-cluster` - The core components of the `errbot` k8s cluster
+  - `terraform/k8s` - The k8s resources, services, manifests, secrets, etc to get deployed on the `k8s-cluster`
+- `src/` - All the files, data, and configuration for `errbot` and its related services
+
+  - `src/errbot/backend/` - Folder containing extra backend modules (Discord)
+  - `src/errbot/` - Folder containing all the extra / custom plugins for our chatop commands
+  - `src/errbot/lib/` - Folder containing shared libraries for plugins
+
+What are these files?
+
+- `.gitignore` - Used for ignoring files from Git
+- `config.env` - Used for adding non-sensitive environment variables to your local instance of `errbot`
+- `creds.env` - Used for adding sensitive environment variables to your local instance of `errbot`
+- `docker-compose.yml` - Used for starting `errbot` locally with Docker-Compose
+- `Makefile` - Used to easily invoke scripts in this repo
+- `*.md` - Documentation!
+
+Okay, now let's get started!
+
+---
 
 ## Running the Bot Locally 🤖
+
+> This should look familiar from the [setup](setup.md) section
 
 Let's create a local instance of `Errbot`:
 
@@ -20,14 +71,9 @@ Removing chatbot ... done
 docker-compose build
 Building chatbot
 [+] Building 1.3s (22/22) FINISHED
-...
-..
-.
 [#] TEST Container is now running!
 [#] Interact with me over the CLI prompt below
-...
-..
-.
+
 [@local_admin ➡ @errbot] >>>
 ```
 
@@ -43,7 +89,7 @@ So what *exactly* does `make local` do?
 
 1. `docker-compose build`
 
-    Rebuilds the `errbot_chatbot` Docker container and bakes in any new changes you have made
+    Rebuilds the `errbot_chatbot` Docker container and bakes in any new changes you have made. The Docker build packages up components from the `src/errbot` directory
 
 1. Runs `docker run -it --rm --env-file config.env --env-file creds.env -e LOCAL_TESTING=True errbot_chatbot:latest` - Let's break this one down..
 
@@ -68,11 +114,11 @@ Click to expand each section and learn more about chatops
 
 <summary>What is a chatop command?</summary>
 
-`.help`, `.uptime`, `.whoami`, `.example` are all examples of chatop commands
+<b>.help</b>, <b>.uptime</b>, <b>.whoami</b>, <b>.example</b> are all examples of chatop commands
 
-The first three commands listed above (`.help`, `.uptime`, `.whoami`) are **builtin** commands. This means that they come with the [errbot](https://github.com/errbotio/errbot) framework.
+The first three commands listed above (<b>.help</b>, <b>.uptime</b>, <b>.whoami</b>) are <b>builtin</b> commands. This means that they come with the <a href="https://github.com/errbotio/errbot">errbot framework</a>.
 
-The last command listed above (`.example`) is a **plugin** command. This means that it is a chatop command which *we* created for our own use! This guide will focus on **plugins** which are chatops commands that we write and bake into our chatbot
+The last command listed above (<b>.example</b>) is a <b>plugin</b> command. This means that it is a chatop command which <i>we</i> created for our own use! This guide will focus on <b>plugins</b> which are chatops commands that we write and bake into our chatbot.
 
 </details>
 
@@ -80,9 +126,9 @@ The last command listed above (`.example`) is a **plugin** command. This means t
 
 <summary>Where are chatop commands stored?</summary>
 
-They are stored in the `src/errbot/plugins` folder. Each chatop command is then stored in its own subfolder:
+They are stored in the <b>src/errbot/plugins</b> folder. Each chatop command is then stored in its own subfolder:
 
-`src/errbot/example`
+<b>src/errbot/example</b>
 
 </details>
 
@@ -92,7 +138,7 @@ They are stored in the `src/errbot/plugins` folder. Each chatop command is then 
 
 Good thing you asked! This is a special folder for storing shared/common libraries between chatop commands.
 
-For example, let's say you had two chatop functions `.send cat meme` and `.send dog meme`. People were spamming memes too fast so you needed to rate limit both commands. You could add a shared `rate_limit_memes()` function in `src/errbot/lib/common` and then import that function into both your **cat** and **dog** chatops. Check out the `src/errbot/lib` folder to see examples in action
+For example, let's say you had two chatop functions <b>.send cat meme</b> and <b>.send dog meme</b>. People were spamming memes too fast so you needed to rate limit both commands. You could add a shared <b>rate_limit_memes()</b> function in <b>src/errbot/lib/common</b> and then import that function into both your <b>cat</b> and <b>dog</b> chatops. Check out the <b>src/errbot/lib</b> folder to see examples in action
 
 </details>
 
@@ -183,36 +229,8 @@ That's it! This will lint all `*.py` files in the repo to ensure they conform to
 
 > Linting is just the formatting of your code to a certain standard (ie: no trailing whitespaces, "" quotes instead of '', etc)
 
-## Deploying 🚀
+---
 
-Deploying your changes to the prod instance of `errbot` is *really* easy.
+## What's next?
 
-> We will use the `.cat meme` example from above
-
-All you need to do is the following:
-
-1. Create a new branch `cat-meme-feature`
-1. Commit your changes to the `cat-meme-feature` branch
-1. Push your changes
-1. Open up [github.com/GrantBirki/errbot/pulls](https://github.com/GrantBirki/errbot/pulls) and create a new pull request
-1. Wait for [CI](https://en.wikipedia.org/wiki/Continuous_integration) to finish and for all checks to pass
-1. View your Terraform output and ensure it looks like it is doing what you want it to (ie: not destroying resources)
-1. Request review on your pull request and obtain an approval (@grantbirki or any other member)
-1. Merge your pull request and your change will be automatically deployed! 🚀✨
-1. Run `.cat meme` in Discord to see your command in action 🐈
-
-## Tagging a Release 🏷
-
-Once you have deployed your changes via a merge, it is recommended to create a new release via a Git tag
-
-This can be easily accomplished by using the following helper script:
-
-```text
-script/release
-```
-
-This will create a tag with the following format (vX.X.X) and push it to the remote repo
-
-If you changes are minor and do not require a release, you may skip this step
-
-> Create release tags from the main branch
+Continue on to the [deployment](deployment.md) section to learn more about how to deploy your bot to production 🚀
