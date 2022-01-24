@@ -60,11 +60,11 @@ try:
             os.environ["SENTRY"], traces_sample_rate=1.0, release=os.environ["IMAGE_TAG"]
         )
 except:
-    print("[!] Failed to init sentry sdk")
+    log = logging.getLogger(__name__)
+    log.warning("Failed to init sentry sdk")
     # If Sentry fails to load, we will let other libraries know with the 'SENTRY_DISABLED' variable
     os.environ["SENTRY_DISABLED"] = "True"
-    print("[!] Sentry disabled:", os.environ["SENTRY_DISABLED"])
-    sys.stdout.flush()
+    log.warning(f"[!] Sentry disabled: {os.environ['SENTRY_DISABLED']}")
 
 # BACKEND = 'Slack'  # defaults to XMPP
 BACKEND = os.environ.get("BACKEND", "Text")
