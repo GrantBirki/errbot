@@ -20,7 +20,7 @@ class Example(BotPlugin):
     @botcmd
     def hello(self, msg, args):
         """Say hello to the world"""
-        return "hello world!"
+        return "Hello, world!"
 
     @botcmd
     def docs(self, msg, args):
