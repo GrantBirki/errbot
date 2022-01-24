@@ -44,7 +44,28 @@ Want to get going quick? Run the following commands to bring up a CLI to interac
 2. `cd errbot`
 3. `make local`
 
-Didn't work quite right? Want to actually connect to a chat service? Check out the docs (links below)!
+Didn't work quite right? Want to actually connect to a chat service? Check out the [docs](https://errbot.birki.io)
+
+## Writing Plugins
+
+Writing and creating your own plugins is extremely easy! The snippet below shows you how to create your own chatbot function in just a few lines of code:
+
+```python
+
+from errbot import BotPlugin, botcmd
+
+class Hello(BotPlugin):
+    """Example 'Hello, world!' plugin for Errbot"""
+
+    @botcmd
+    def hello(self, msg, args):
+        """Return the phrase "Hello, world!" in chat"""
+        return "Hello, world!"
+```
+
+> Tip: Running `make command` from the root of this repo will give you some prompts to follow and will drop the above snippet in the correct folder
+
+To learn more about plugin development, please check out the [development guide](https://errbot.birki.io/development)!
 
 ### Documentation 📖
 
@@ -56,5 +77,3 @@ You can also view the docs by browsing to the `docs/` directory in the root of t
 - [Setup](https://errbot.birki.io/setup)
 - [Development](https://errbot.birki.io/development)
 - [Commands](https://errbot.birki.io/commands)
-
----
