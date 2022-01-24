@@ -65,6 +65,10 @@ class Hello(BotPlugin):
 
 > Tip: Running `make command` from the root of this repo will give you some prompts to follow and will drop the above snippet in the correct folder
 
+The result of the plugin code above is a new chatop command:
+
+![Hello, World Example](docs/assets/hello-world-example.png)
+
 To learn more about plugin development, please check out the [development guide](https://errbot.birki.io/development)!
 
 ### Documentation 📖
