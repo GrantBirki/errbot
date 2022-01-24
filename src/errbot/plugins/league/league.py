@@ -712,4 +712,13 @@ class League(BotPlugin):
         """
         for item in QUEUE_ID_CACHE:
             if item["queueId"] == queue_id:
+
+                # If the game is a custom game, return the custom game name
+                if item["description"] == None:
+                    try:
+                        return item["map"]
+                    except KeyError:
+                        return "unknown"
+
+                # If the game is not a custom game, return the game name
                 return item["description"].replace("games", "").strip()
