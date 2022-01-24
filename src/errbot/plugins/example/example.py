@@ -4,6 +4,7 @@ import psutil
 from errbot import BotPlugin, botcmd
 from lib.chat.chatutils import ChatUtils
 from lib.chat.discord_custom import DiscordCustom
+# from lib.common.errhelper import ErrHelper
 
 chatutils = ChatUtils()
 
@@ -159,3 +160,15 @@ class Example(BotPlugin):
         cpu = f"CPU usage: {psutil.cpu_percent(4)}%\n"
         memory = f"Memory usage: {psutil.virtual_memory()[2]}%"
         return message + cpu + memory
+
+    # @botcmd
+    # def fail(self, msg, args):
+    #     """This is an example of using the ErrHelper class to capture errors"""
+
+    #     try:
+    #         x = 1 / 0
+    #     except ZeroDivisionError as error:
+    #         ErrHelper().capture(error)
+    #         x = "Check the logs because I made an error"
+
+    #     return x
