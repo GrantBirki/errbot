@@ -57,7 +57,9 @@ try:
 
         release = os.environ["IMAGE_TAG"][:8]
         sentry_sdk.init(
-            os.environ["SENTRY"], traces_sample_rate=1.0, release=os.environ["IMAGE_TAG"]
+            os.environ["SENTRY"],
+            traces_sample_rate=1.0,
+            release=os.environ["IMAGE_TAG"],
         )
 except:
     log = logging.getLogger(__name__)

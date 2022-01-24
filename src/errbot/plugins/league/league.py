@@ -719,6 +719,6 @@ class League(BotPlugin):
                         return item["map"]
                     except KeyError:
                         return "unknown"
-                
+
                 # If the game is not a custom game, return the game name
                 return item["description"].replace("games", "").strip()
