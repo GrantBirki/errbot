@@ -46,7 +46,7 @@ Want to get going quick? Run the following commands to bring up a CLI to interac
 
 Didn't work quite right? Want to actually connect to a chat service? Check out the [docs](https://errbot.birki.io)
 
-## Writing Plugins
+## Writing Plugins 🧰
 
 Writing and creating your own plugins is extremely easy! The snippet below shows you how to create your own chatbot function in just a few lines of code:
 
