@@ -71,6 +71,24 @@ The result of the plugin code above is a new chatop command:
 
 To learn more about plugin development, please check out the [development guide](https://errbot.birki.io/development)!
 
+### Deployment and Hosting 🚀
+
+This project builds a Docker container which you can deploy anywhere to bring your chatbot to life. Below are just a few example of all the many places you could deploy your chatbot container:
+
+- Raspberry Pi
+- Your own desktop
+- Any virtual machine running Docker
+- Public cloud container instances: ECS / Cloud Run / ACI
+- Public cloud Kubernetes services: EKS / GKE / **AKS** ⭐
+
+You may have noticed a "star" next to the **AKS** option. This is because it is the method I use to host my own instance of this project.
+
+I have committed all my Terraform files which create and deploy my Azure Kubernetes Service (AKS) to this repo for reference. You will even notice GitHub actions running my pipeline publically for deployments. Feel free to use what I do as a guide, adapt it, and even improve upon it!
+
+> Note: It is entirely up to you how you build, host, and deploy your container. There are tons of options and everyone has their own preferences.
+
+For more details on deployment, you can check out my notes in the [deployment guide](https://errbot.birki.io/deployment)
+
 ### Documentation 📖
 
 All the documentation for this project is available at [errbot.birki.io](https://errbot.birki.io).
