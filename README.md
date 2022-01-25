@@ -46,7 +46,7 @@ Want to get going quick? Run the following commands to bring up a CLI to interac
 
 Didn't work quite right? Want to actually connect to a chat service? Check out the [docs](https://errbot.birki.io)
 
-## Writing Plugins
+## Writing Plugins 🧰
 
 Writing and creating your own plugins is extremely easy! The snippet below shows you how to create your own chatbot function in just a few lines of code:
 
@@ -64,6 +64,10 @@ class Hello(BotPlugin):
 ```
 
 > Tip: Running `make command` from the root of this repo will give you some prompts to follow and will drop the above snippet in the correct folder
+
+The result of the plugin code above is a new chatop command:
+
+![Hello, World Example](docs/assets/hello-world-example.png)
 
 To learn more about plugin development, please check out the [development guide](https://errbot.birki.io/development)!
 

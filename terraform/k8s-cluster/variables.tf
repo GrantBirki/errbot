@@ -21,7 +21,7 @@ variable "NODE_COUNT" {
 
 variable "VM_SIZE" {
   description = "Size of the VM to create"
-  default     = "Standard_B4ms"
+  default     = "Standard_B2ms"
   type        = string
 }
 
@@ -33,6 +33,7 @@ variable "CLOUD_LOCATION" {
 
 variable "NODE_DISK_SIZE_GB" {
   description = "The size in GB of the storage on each node"
+  # This needs to be 30GB minimum or Azure API will say "no no no"
   default     = 30
   type        = number
 }
