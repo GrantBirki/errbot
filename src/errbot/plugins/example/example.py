@@ -100,7 +100,7 @@ class Example(BotPlugin):
     @botcmd
     def card(self, msg, args):
         """
-        Sends a card
+        Example function that sends a card / embed
         Example: .card <color>
         """
         if not args:
