@@ -274,4 +274,6 @@ That's it! This will lint all `*.py` files in the repo to ensure they conform to
 
 ## What's next?
 
-Continue on to the [deployment](deployment.md) section to learn more about how to deploy your bot to production 🚀
+Continue on to the [persistence](persistence.md) section to learn more about how to have a level of persistence with your bot in the ephemeral container world 💾
+
+Alternatively, continue on to the [deployment](deployment.md) section to learn more about how to deploy your bot to production 🚀
