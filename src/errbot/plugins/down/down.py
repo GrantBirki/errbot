@@ -27,7 +27,7 @@ class Down(BotPlugin):
 
         query = args.lower().strip()
 
-        chart_file = downdetector.search_for_chart(query)
+        chart_file = downdetector.chart(query, search=True)
         if not chart_file:
             return f"❌ Failed to get chart from DownDetector for `{query}`"
 
