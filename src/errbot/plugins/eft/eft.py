@@ -242,7 +242,7 @@ class Eft(BotPlugin):
             return self.ammo_help(msg)
 
         # Get a list of matching ammo types from the query
-        ammo_matches = self.ammo_search(args)
+        ammo_matches = self.search_helper(args, AMMO_TYPES)
 
         # If there are no matching ammo types, return an error message
         if len(ammo_matches) == 0:
@@ -306,20 +306,20 @@ class Eft(BotPlugin):
         )
         return
 
-    def ammo_search(self, ammo_query):
+    def search_helper(self, query, allowed_values):
         """
-        Helper function that searches EFTs known ammo types for a match
-        :param ammo_query: A string of the ammo type to search for
+        Helper function that searches through allowed_values (Array) given a query (String)
+        :param query: A string to use for searching
         :return matches: A List of items that matched the query
         """
-        # Loop through the AMMO_TYPES global var looking for matches with 'in'
-        ammo_matches = []
-        for ammo in AMMO_TYPES:
-            if ammo_query in ammo.lower():
+        # Loop through the allowed_values var looking for matches with 'in'
+        matches = []
+        for item in allowed_values:
+            if query in item.lower():
                 # A match is found and appended to our match list
-                ammo_matches.append(ammo)
+                matches.append(item)
 
-        return ammo_matches
+        return matches
 
     def ammo_help(self, msg):
         """
