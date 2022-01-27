@@ -264,11 +264,11 @@ class Eft(BotPlugin):
             )
         # If there are more than one matching ammo type, return an error message
         elif len(map_matches) > 1:
-            matches_fmt = "\n •".join(map_matches)
+            matches_fmt = "\n• ".join(map_matches)
             return self.general_error(
                 msg,
                 "Multiple matching maps",
-                f"Please refine your map search query since more than one map matched your request.\n**Matching Maps:**\n{matches_fmt}\n\nYou can view all available maps with: `.eft map help`",
+                f"Please refine your map search query since more than one map matched your request.\n\n**Matching Maps:**\n• {matches_fmt}\n\nYou can view all available maps with: `.eft map help`",
             )
         # If there is exactly one match, grab it from the list and carry on
         elif len(map_matches) == 1:
@@ -309,11 +309,11 @@ class Eft(BotPlugin):
             )
         # If there are more than one matching ammo type, return an error message
         elif len(ammo_matches) > 1:
-            matches_fmt = "\n •".join(ammo_matches)
+            matches_fmt = "\n• ".join(ammo_matches)
             return self.general_error(
                 msg,
                 "Multiple matching ammo types",
-                f"Please refine your ammo search query since more than one ammo type matched your request.\n**Matching Ammo Types:**\n• {matches_fmt}\n\nYou can view all available ammo types with: `.eft ammo help`",
+                f"Please refine your ammo search query since more than one ammo type matched your request.\n\n**Matching Ammo Types:**\n• {matches_fmt}\n\nYou can view all available ammo types with: `.eft ammo help`",
             )
         # If there is exactly one match, grab it from the list and carry on
         elif len(ammo_matches) == 1:
