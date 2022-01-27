@@ -35,6 +35,17 @@ AMMO_TYPES = [
     "12.7x55mm",
 ]
 
+MAPS = [
+    "shoreline",
+    "customs",
+    "reserve",
+    "labs",
+    "lighthouse",
+    "woods",
+    "factory",
+    "interchange",
+]
+
 
 class Eft(BotPlugin):
     """Escape From Tarkov plugin for Errbot - Cheeki Breeki!"""
@@ -223,43 +234,100 @@ class Eft(BotPlugin):
         return
 
     @botcmd()
+    def eft_map(self, msg, args):
+        """
+        Get HD Tarkov maps right in chat
+
+        Run ".eft map help" to get all available maps
+
+        Example: .eft map shoreline
+        Syntax: .eft map <map_name>
+        """
+        ErrHelper().user(msg)
+
+        # Format the args as lower-case and stripped
+        args = args.lower().strip()
+
+        # If the help command is called, show the ammo help card
+        if args == "help":
+            return self.map_help(msg)
+
+        # Get a list of matching ammo types from the query
+        map_matches = self.search_helper(args, MAPS)
+
+        # If there are no matching ammo types, return an error message
+        if len(map_matches) == 0:
+            return self.general_error(
+                msg,
+                "Invalid map",
+                "You can view all maps with:\n`.eft map help`",
+            )
+        # If there are more than one matching ammo type, return an error message
+        elif len(map_matches) > 1:
+            matches_fmt = "\n• ".join(map_matches)
+            return self.general_error(
+                msg,
+                "Multiple matching maps",
+                f"Please refine your map search query since more than one map matched your request.\n\n**Matching Maps:**\n• {matches_fmt}\n\nYou can view all available maps with: `.eft map help`",
+            )
+        # If there is exactly one match, grab it from the list and carry on
+        elif len(map_matches) == 1:
+            map = map_matches[0]
+
+        # TODO
+
+        return map
+
+    @botcmd()
     def eft_ammo(self, msg, args):
         """
         Get information about an ammo type
 
         Run ".eft ammo help" to get all available ammo types
 
-        Example: .eft ammo 556x45
+        Example: .eft ammo 7.62x51mm
         Syntax: .eft ammo <ammo_type>
         """
         ErrHelper().user(msg)
+
+        # Format the args as lower-case and stripped
+        args = args.lower().strip()
 
         # If the help command is called, show the ammo help card
         if args == "help":
             return self.ammo_help(msg)
 
-        # Get the ammo type from the args
-        ammo_type = ""
-        for ammo in AMMO_TYPES:
-            if ammo.lower() == args.lower().strip():
-                ammo_type = ammo
-                break
-        if ammo_type == "":
+        # Get a list of matching ammo types from the query
+        ammo_matches = self.search_helper(args, AMMO_TYPES)
+
+        # If there are no matching ammo types, return an error message
+        if len(ammo_matches) == 0:
             return self.general_error(
                 msg,
                 "Invalid ammo type",
                 "You can view all ammo types with:\n`.eft ammo help`",
             )
+        # If there are more than one matching ammo type, return an error message
+        elif len(ammo_matches) > 1:
+            matches_fmt = "\n• ".join(ammo_matches)
+            return self.general_error(
+                msg,
+                "Multiple matching ammo types",
+                f"Please refine your ammo search query since more than one ammo type matched your request.\n\n**Matching Ammo Types:**\n• {matches_fmt}\n\nYou can view all available ammo types with: `.eft ammo help`",
+            )
+        # If there is exactly one match, grab it from the list and carry on
+        elif len(ammo_matches) == 1:
+            ammo_type = ammo_matches[0]
 
         # Make an API call to get all the Tarkov ammo data
         ammo_data = requests.get(
             "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/ammunition.json"
         ).json()
 
-        # Loop through the ammo data and find all the matching ammo types
+        # Loop through and collect data on the selected ammo type
         ammo_list = []
         for item in ammo_data.items():
-            if ammo_type in item[1]["name"].lower():
+            if ammo_type.lower() in item[1]["name"].lower():
                 ammo_list.append(
                     {
                         "name": item[1]["shortName"],
@@ -286,13 +354,46 @@ class Eft(BotPlugin):
 
         # Send the ammo card with the ammo data
         self.send_card(
-            title=ammo_type.strip(),
+            title=ammo_type,
             body=body.strip(),
             color=chatutils.color("white"),
             in_reply_to=msg,
             # thumbnail=result_data["iconLink"],
         )
         return
+
+    def search_helper(self, query, allowed_values):
+        """
+        Helper function that searches through allowed_values (Array) given a query (String)
+        :param query: A string to use for searching
+        :return matches: A List of items that matched the query
+        """
+        # Loop through the allowed_values var looking for matches with 'in'
+        matches = []
+        for item in allowed_values:
+            if query in item.lower():
+                # A match is found and appended to our match list
+                matches.append(item)
+
+        return matches
+
+    def map_help(self, msg):
+        """
+        Show the help command to view all the available maps
+        :param msg: The message object
+        :return: None - Sends a card in reply to the message with the maps that can be used
+        """
+        # Format the body of the message with the maps
+        body = "**Available Maps:**\n"
+        body += "• " + "\n • ".join(MAPS)
+
+        # Send the ammo help card
+        self.send_card(
+            title="Map Help Command",
+            body=body,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
 
     def ammo_help(self, msg):
         """
