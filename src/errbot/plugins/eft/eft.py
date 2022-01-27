@@ -246,7 +246,7 @@ class Eft(BotPlugin):
         ErrHelper().user(msg)
 
         # Format the args as lower-case and stripped
-        args = args.lower.strip()
+        args = args.lower().strip()
 
         # If the help command is called, show the ammo help card
         if args == "help":
@@ -291,7 +291,7 @@ class Eft(BotPlugin):
         ErrHelper().user(msg)
 
         # Format the args as lower-case and stripped
-        args = args.lower.strip()
+        args = args.lower().strip()
 
         # If the help command is called, show the ammo help card
         if args == "help":
