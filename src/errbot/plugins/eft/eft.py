@@ -313,7 +313,7 @@ class Eft(BotPlugin):
             return self.general_error(
                 msg,
                 "Multiple matching ammo types",
-                f"Please refine your ammo search query since more than one ammo type matched your request.\n**Matching Ammo Types:**\n{matches_fmt}\n\nYou can view all available ammo types with: `.eft ammo help`",
+                f"Please refine your ammo search query since more than one ammo type matched your request.\n**Matching Ammo Types:**\n• {matches_fmt}\n\nYou can view all available ammo types with: `.eft ammo help`",
             )
         # If there is exactly one match, grab it from the list and carry on
         elif len(ammo_matches) == 1:
