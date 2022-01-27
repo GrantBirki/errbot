@@ -35,6 +35,17 @@ AMMO_TYPES = [
     "12.7x55mm",
 ]
 
+MAPS = [
+    "shoreline",
+    "customs",
+    "reserve",
+    "labs",
+    "lighthouse",
+    "woods",
+    "factory",
+    "interchange"
+]
+
 
 class Eft(BotPlugin):
     """Escape From Tarkov plugin for Errbot - Cheeki Breeki!"""
@@ -223,6 +234,51 @@ class Eft(BotPlugin):
         return
 
     @botcmd()
+    def eft_map(self, msg, args):
+        """
+        Get HD Tarkov maps right in chat
+
+        Run ".eft map help" to get all available maps
+
+        Example: .eft map shoreline
+        Syntax: .eft map <map_name>
+        """
+        ErrHelper().user(msg)
+
+        # Format the args as lower-case and stripped
+        args = args.lower.strip()
+
+        # If the help command is called, show the ammo help card
+        if args == "help":
+            return self.map_help(msg)
+
+        # Get a list of matching ammo types from the query
+        map_matches = self.search_helper(args, MAPS)
+
+        # If there are no matching ammo types, return an error message
+        if len(map_matches) == 0:
+            return self.general_error(
+                msg,
+                "Invalid map",
+                "You can view all maps with:\n`.eft map help`",
+            )
+        # If there are more than one matching ammo type, return an error message
+        elif len(map_matches) > 1:
+            matches_fmt = "\n •".join(map_matches)
+            return self.general_error(
+                msg,
+                "Multiple matching maps",
+                f"Please refine your map search query since more than one map matched your request.\n**Matching Maps:**\n{matches_fmt}\n\nYou can view all available maps with: `.eft map help`",
+            )
+        # If there is exactly one match, grab it from the list and carry on
+        elif len(map_matches) == 1:
+            map = map_matches[0]
+
+        #TODO
+
+        return map
+
+    @botcmd()
     def eft_ammo(self, msg, args):
         """
         Get information about an ammo type
@@ -320,6 +376,24 @@ class Eft(BotPlugin):
                 matches.append(item)
 
         return matches
+
+    def map_help(self, msg):
+        """
+        Show the help command to view all the available maps
+        :param msg: The message object
+        :return: None - Sends a card in reply to the message with the maps that can be used
+        """
+        # Format the body of the message with the maps
+        body = "**Available Maps:**\n"
+        body += "• " + "\n • ".join(MAPS)
+
+        # Send the ammo help card
+        self.send_card(
+            title="Map Help Command",
+            body=body,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
 
     def ammo_help(self, msg):
         """
