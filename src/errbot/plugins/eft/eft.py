@@ -43,7 +43,7 @@ MAPS = [
     "lighthouse",
     "woods",
     "factory",
-    "interchange"
+    "interchange",
 ]
 
 
@@ -274,7 +274,7 @@ class Eft(BotPlugin):
         elif len(map_matches) == 1:
             map = map_matches[0]
 
-        #TODO
+        # TODO
 
         return map
 
