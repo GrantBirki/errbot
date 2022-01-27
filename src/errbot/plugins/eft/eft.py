@@ -234,29 +234,41 @@ class Eft(BotPlugin):
         """
         ErrHelper().user(msg)
 
+        # Format the args as lower-case and stripped
+        args = args.lower.strip()
+
         # If the help command is called, show the ammo help card
         if args == "help":
             return self.ammo_help(msg)
 
-        # Get the ammo type from the args
-        ammo_type = ""
-        for ammo in AMMO_TYPES:
-            if ammo.lower() == args.lower().strip():
-                ammo_type = ammo
-                break
-        if ammo_type == "":
+        # Get a list of matching ammo types from the query
+        ammo_matches = self.ammo_search(args)
+
+        # If there are no matching ammo types, return an error message
+        if len(ammo_matches) == 0:
             return self.general_error(
                 msg,
                 "Invalid ammo type",
                 "You can view all ammo types with:\n`.eft ammo help`",
             )
+        # If there are more than one matching ammo type, return an error message
+        elif len(ammo_matches) > 1:
+            matches_fmt = "\n •".join(ammo_matches)
+            return self.general_error(
+                msg,
+                "Multiple matching ammo types",
+                f"Please refine your ammo search query since more than one ammo type matched your request.\n**Matching Ammo Types:**\n{matches_fmt}\n\nYou can view all available ammo types with: `.eft ammo help`",
+            )
+        # If there is exactly one match, grab it from the list and carry on
+        elif len(ammo_matches) == 1:
+            ammo_type = ammo_matches[0]
 
         # Make an API call to get all the Tarkov ammo data
         ammo_data = requests.get(
             "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/ammunition.json"
         ).json()
 
-        # Loop through the ammo data and find all the matching ammo types
+        # Loop through and collect data on the selected ammo type
         ammo_list = []
         for item in ammo_data.items():
             if ammo_type.lower() in item[1]["name"].lower():
@@ -293,6 +305,21 @@ class Eft(BotPlugin):
             # thumbnail=result_data["iconLink"],
         )
         return
+
+    def ammo_search(self, ammo_query):
+        """
+        Helper function that searches EFTs known ammo types for a match
+        :param ammo_query: A string of the ammo type to search for
+        :return matches: A List of items that matched the query
+        """
+        # Loop through the AMMO_TYPES global var looking for matches with 'in'
+        ammo_matches = []
+        for ammo in AMMO_TYPES:
+            if ammo_query in ammo.lower():
+                # A match is found and appended to our match list
+                ammo_matches.append(ammo)
+
+        return ammo_matches
 
     def ammo_help(self, msg):
         """
