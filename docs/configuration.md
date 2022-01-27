@@ -49,6 +49,25 @@ You may have noticed some plugins fail to load in the logs when you started your
 
 Other tokens such as `SPOTIFY_*` actually have handling built in that will just not use their feature if the tokens are not present.
 
+## What About Production?
+
+> Related to this section is the [deployment](deployment.md) page
+
+How do we get these environment variables into our container when deploying to production you ask? Well that really depends on how **you** are deploying your container to production. I will provide a few options below to give you some ideas:
+
+For `config.env`:
+
+- Apply your environment variables in your container definintion if you are using Kubernetes
+- Bake your environment variables into your container when building the image (meh)
+- Load the `config.env` file into the container or mount a volume with this file that the container has access to. Then read the file and populate the environment variables
+- Store the variables in a remote config store and read them from there
+
+For `creds.env`:
+
+- Use k8s secrets for when deploying to Kubernetes -> `terraform/k8s/modules/containers/errbot/secret.yaml`
+- Use Hashicorp Vault to inject secrets from `creds.env`
+- Use an external service like AWS Secrets Manager and read from there
+
 ## What's next?
 
 Continue on to the [development](development.md) section to learn more about how to build your bot, add new commands, and more!
