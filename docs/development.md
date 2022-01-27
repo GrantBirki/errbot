@@ -255,6 +255,8 @@ meeeeoowww
 
 ## Linting your code
 
+> This section is specific to the `GrantBirki/errbot` repo for the CI/CD pipeline and to adhear to code linting standards in this repo
+
 In order for CI to pass, you must have properly linted code. Luckily, this is extremely easy to do and can be performed in a single command:
 
 ```console
