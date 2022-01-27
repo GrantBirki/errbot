@@ -259,7 +259,7 @@ class Eft(BotPlugin):
         # Loop through the ammo data and find all the matching ammo types
         ammo_list = []
         for item in ammo_data.items():
-            if ammo_type in item[1]["name"].lower():
+            if ammo_type.lower() in item[1]["name"].lower():
                 ammo_list.append(
                     {
                         "name": item[1]["shortName"],
