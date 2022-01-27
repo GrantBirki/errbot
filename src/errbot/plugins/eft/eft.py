@@ -298,7 +298,7 @@ class Eft(BotPlugin):
 
         # Send the ammo card with the ammo data
         self.send_card(
-            title=ammo_type.strip(),
+            title=ammo_type,
             body=body.strip(),
             color=chatutils.color("white"),
             in_reply_to=msg,
