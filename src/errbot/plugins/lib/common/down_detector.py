@@ -22,10 +22,11 @@ class DownDetector:
         """
         self.output_dir = output_dir
 
-    def chart(self, service):
+    def chart(self, service, search=False):
         """
         Gets the chart of a service from downdetector.com
         :param service: the service to get the chart for (e.g. "escape-from-tarkov")
+        :param search: Defaults to False, set to True if you want to attempt to search for a service rather than an exact match on a service name - (e.g. "escape from tarkav" - with a typo)
         :return: the path to the downloaded chart (String) - False if anything fails
 
         Note: The service can be found in the url after /status/ -> https://downdetector.com/status/escape-from-tarkov/
