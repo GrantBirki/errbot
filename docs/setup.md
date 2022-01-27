@@ -98,6 +98,7 @@ If for some reason you are using Windows and not WSL, you can build a local imag
 
 ```console
 $ docker-compose build
+[+] Building 1.3s (22/22) FINISHED
 $ docker run -it --rm --env-file config.env --env-file creds.env -e LOCAL_TESTING=True errbot_chatbot:latest
 ```
 
@@ -122,14 +123,16 @@ Creating chatbot ... done
 [#] Container is now running!
 ```
 
-> Note: for security reasons the `creds.env` file is not committed to this repo and NEVER should be.
+> Note: for security reasons the `creds.env` file is not committed to this repo and **NEVER** should be.
 
 If you followed the steps above and everything succeeded, you should get a DM from the bot stating that it is "Now Online". You should note that you will only get this message if `BOT_ADMINS='@username'` is set to your username in the `config.env` file.
 
-> Note x2: Running `make run` will start the `errbot-dev` bot and can be invoked with `!` rather than the usual `.`
+> Note x2: Running `make run` will start the `errbot-dev` bot and can be invoked with `!` rather than the usual `.`. You can tweak this however you like with the `BOT_PREFIX` env var
 
 ---
 
+That's it for the setup! If you followed the instructions above, your Docker container should start and _most_ plugins should load correctly. Certain plugins like the `league` plugin require an API key so those will fail until that environment variable is provided but this is expected. All this and more will be covered in the next section!
+
 ## What's next?
 
-Continue on to the [development](development.md) section to learn more about how to build your bot, add new commands, and more!
+Continue on to the [configuration](configuration.md) section to learn how you can configure your bot to your preferences before you start development.

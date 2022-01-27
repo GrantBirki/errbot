@@ -53,3 +53,5 @@ The following commands are all available via the chatbot:
 | `.eft ammo` | `.eft ammo 7.62x39mm` | False | Get information about an ammo type |
 | `.eft ammo help` | - | False | Get information about the ammo types that can be used with the `.eft ammo` command |
 | `.eft status` | `.eft status` - `.eft status --messages` | False | Get the current status of the Escape from Tarkov servers |
+| `.eft map` | `.eft map shoreline` | False | Get an image of a map for a given Tarkov location |
+| `.eft map help` | - | False | Get information about the maps that can be used with the `.eft map` command |
