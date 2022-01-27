@@ -229,7 +229,7 @@ class Eft(BotPlugin):
 
         Run ".eft ammo help" to get all available ammo types
 
-        Example: .eft ammo 556x45
+        Example: .eft ammo 7.62x51mm
         Syntax: .eft ammo <ammo_type>
         """
         ErrHelper().user(msg)
