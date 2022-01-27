@@ -154,7 +154,7 @@ Run the following command to copy the `template` folder into the plugin director
 make command
 ```
 
-> Follow the prompts from this script and create a new command (maybe something like `.cat meme`)
+> Follow the prompts from this script and create a new command (maybe something like `.cat meow`)
 
 <details>
 
@@ -164,54 +164,93 @@ Enter the `src/errbot/template` folder and poke around the two files you see in 
 
 In order to make a new chatop command you just need to change a few lines to the new name of you function / functions.
 
-Let's say we want to make a new chatop command that displays a cat meme and it is invoked by typing `.cat meme`. To do so, make the following changes:
+Let's say we want to make a new chatop command that responds with some simple text like "meow" and it is invoked by typing `.cat meow`. To do so, make the following changes:
 
 1. Change the name of the `src/errbot/template` folder:
 
-    `src/errbot/template` -> `src/errbot/catmeme`
+    `src/errbot/template` -> `src/errbot/catmeow`
 
-1. Change the name of the `src/errbot/template/template.plug` file:
+2. Change the name of the `src/errbot/template/template.plug` file:
 
-    `src/errbot/template/template.plug` -> `src/errbot/template/catmeme.plug`
+    `src/errbot/template/template.plug` -> `src/errbot/template/catmeow.plug`
 
-1. Change the name of the `src/errbot/template/template.py` file:
+3. Change the name of the `src/errbot/template/template.py` file:
 
-    `src/errbot/template/template.py` -> `src/errbot/template/catmeme.py`
+    `src/errbot/template/template.py` -> `src/errbot/template/catmeow.py`
 
-1. Inside of the `src/errbot/template/template.plug` file change all occurrences of `Template` or `template` to `Catmeme` or `catmeme`:
+4. Inside of the `src/errbot/template/template.plug` file change all occurrences of `Template` or `template` to `Catmeow` or `catmeow`:
 
-    Example: `Name = Template # Change me!` -> `Name = Catmeme`
+    Example: `Name = Template # Change me!` -> `Name = Catmeow`
 
-    Example: `Module = template # Change me!` -> `Module = catmeme`
+    Example: `Module = template # Change me!` -> `Module = catmeow`
 
     > Note the cases of T/t and C/c above
 
-1. Inside of the `src/errbot/template/template.py` file change the class name:
+5. Inside of the `src/errbot/template/template.py` file change the class name:
 
-    `class Template(BotPlugin): # Change me!` -> `class Catmeme(BotPlugin):`
+    `class Template(BotPlugin): # Change me!` -> `class Catmeow(BotPlugin):`
 
-1. Inside of the `src/errbot/template/template.py` file change the function name:
+6. Inside of the `src/errbot/template/template.py` file change the function name:
 
-    `def template(self, msg, args): # Change me! (function name)` -> `def cat_meme(self, msg, args):`
+    `def template(self, msg, args): # Change me! (function name)` -> `def cat_meow(self, msg, args):`
 
-    > Note: We use `_` (underscores) in function names to represent spaces in our command. `def cat_meme(...)` becomes `.cat meme` via the chatop
+    > Note: We use `_` (underscores) in function names to represent spaces in our command. `def cat_meow(...)` becomes `.cat meow` via the chatop
 
-1. To make the `.cat meme` command return something, edit the return message:
+7. To make the `.cat meow` command return something, edit the return message:
 
     `return 'Hello world, I am a template!'` -> `return 'meow!'`
 
 </details>
 
-That's it! 🎉
+Once you follow through all the prompts from the script, you should have a new folder in `src/errbot/plugins/<new-command-name>`
+
+Open up the Python file in that directory to add some code. It will be a template for you to edit and bring your `.cat meow` command to life. I will include a snippet below of what it _could_ look like:
+
+```python
+
+from errbot import BotPlugin, botcmd
+
+class CatMeow(BotPlugin):
+    """A chat command that sends cat noises"""
+
+    @botcmd
+    def cat_meow(self, msg, args):
+        """Makes a cat noise"""
+        return "meeeeoowww"
+```
+
+Let's break down what each line of the snippet above does:
+
+```python
+from errbot import BotPlugin, botcmd
+# Imports the errbot plugins and decorators to make a function into a bot command
+```
+
+```python
+class CatMeow(BotPlugin):
+# Creates a new class for all our Cat related bot commands.
+# A class can contain many or just a single bot command
+```
+
+```python
+@botcmd # The mighty bot decorator that turns the function into a bot command!
+def cat_meow(self, msg, args): # The bot command (more info below this code snippet)
+    """Makes a cat noise""" # A docstring that can be viewed via the bot's 'help' command
+    return "meeeeoowww" # The String which the bot returns when invoked for this bot command
+```
+
+**The Bot Command**: In the snippet above, the line `def cat_meow(self, msg, args)` has a lot to unpack. This function has a decorator applied to it that turns it into a bot command. During run time, the `BOT_PREFIX` from the `config.env` file (in the root of this repo) get applied to the front of the function name and all `_` (underscores) become spaces. So `cat_meow` ultimately becomes `!cat meow` as a bot command for example. `self`, `msg`, and `args` are all required errbot params for this function to work. To see what attributes these objects contain I would suggest looking at `src/errbot/plugins/example/example.py` or taking a deeper looking into the official [errbot documentation](http://errbot.io/en/latest/). Okay, that's enough of that.. let's start the bot and test out our new `.cat meow` command!
 
 To test, `cd` to the root of this repo and run `make local`.
 
 Your new plugin should be loaded and you can interact with it via the CLI:
 
-```console
-[@local_admin ➡ @errbot] >>> .cat meme
+> Note: I use `.` to invoke my bot but that is ultimately determined on what you have you `BOT_PREFIX` set to in the `config.env` file.
 
-meow!
+```console
+[@local_admin ➡ @errbot] >>> .cat meow
+
+meeeeoowww
 ```
 
 ## Linting your code
