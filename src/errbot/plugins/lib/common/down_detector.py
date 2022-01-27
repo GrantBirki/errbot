@@ -49,8 +49,14 @@ class DownDetector:
         # initializing webdriver for Chrome with our options
         driver = webdriver.Chrome(options=options)
 
-        # Open the website
-        driver.get(f"https://downdetector.com/status/{service}/")
+        # If the search flag was provided, we search for the service in DownDetector
+        if search:
+            # TODO
+            pass
+
+        # If the search flag was not provided, we attempt to go directly to the service page
+        else:
+            driver.get(f"https://downdetector.com/status/{service}/")
 
         # Wait for the chart to load
         WAIT = 2

@@ -11,11 +11,11 @@ chatutils = ChatUtils()
 downdetector = DownDetector()
 
 
-class Down(BotPlugin):  
+class Down(BotPlugin):
     """DownDetector plugin for Errbot"""
 
     @botcmd
-    def down(self, msg, args):  
+    def down(self, msg, args):
         """
         Check the status of a game, service, or website with DownDetector
 
