@@ -131,6 +131,8 @@ If you followed the steps above and everything succeeded, you should get a DM fr
 
 ---
 
+That's it for the setup! If you followed the instructions above, your Docker container should start and _most_ plugins should load correctly. Certain plugins like the `league` plugin require an API key so those will fail until that environment variable is provided but this is expected. All this and more will be covered in the next section!
+
 ## What's next?
 
-Continue on to the [development](development.md) section to learn more about how to build your bot, add new commands, and more!
+Continue on to the [configuration](configuration.md) section to learn how you can configure your bot to your preferences before you start development.
