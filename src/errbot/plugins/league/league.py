@@ -12,42 +12,44 @@ from lib.database.dynamo_tables import LeagueTable
 from riotwatcher import ApiError, LolWatcher
 
 # Get the RIOT_TOKEN and ensure it is a string and not a bytestring
-RIOT_TOKEN = os.environ["RIOT_TOKEN"]
-if isinstance(RIOT_TOKEN, bytes):
-    RIOT_TOKEN = RIOT_TOKEN.decode("utf-8").replace("\n", "").strip()
+RIOT_TOKEN = os.environ.get("RIOT_TOKEN", False)
 
-LOL_WATCHER = LolWatcher(RIOT_TOKEN, timeout=10)
-REGION = os.environ["RIOT_REGION"]
-RIOT_REGION_V5 = os.environ["RIOT_REGION_V5"]
-chatutils = ChatUtils()
-util = Util()
-dynamo = Dynamo()
-BACKEND = os.environ["BACKEND"]
+# If the RIOT_TOKEN is not set, do not continue
+if RIOT_TOKEN:
+    if isinstance(RIOT_TOKEN, bytes):
+        RIOT_TOKEN = RIOT_TOKEN.decode("utf-8").replace("\n", "").strip()
+    LOL_WATCHER = LolWatcher(RIOT_TOKEN, timeout=10)
+    REGION = os.environ["RIOT_REGION"]
+    RIOT_REGION_V5 = os.environ["RIOT_REGION_V5"]
+    chatutils = ChatUtils()
+    util = Util()
+    dynamo = Dynamo()
+    BACKEND = os.environ["BACKEND"]
 
-# Load the responses from disk into memory as a global variable
-with open("plugins/league/responses.json", "r") as raw:
-    RESPONSES = json.loads(raw.read())
+    # Load the responses from disk into memory as a global variable
+    with open("plugins/league/responses.json", "r") as raw:
+        RESPONSES = json.loads(raw.read())
 
-# Load the queue id data from disk into memory as a global variable
-with open("plugins/league/queue_id_cache.json", "r") as raw:
-    QUEUE_ID_CACHE = json.loads(raw.read())
+    # Load the queue id data from disk into memory as a global variable
+    with open("plugins/league/queue_id_cache.json", "r") as raw:
+        QUEUE_ID_CACHE = json.loads(raw.read())
 
-# Query the league API to get the current version of league
-LEAGUE_VERSION = json.loads(
-    requests.get("https://ddragon.leagueoflegends.com/realms/na.json").text
-)["n"]["champion"]
-# Get the latest champion data and save it to memory as a global variable
-CHAMPION_DATA = json.loads(
-    requests.get(
-        f"https://ddragon.leagueoflegends.com/cdn/{LEAGUE_VERSION}/data/en_US/champion.json"
-    ).text
-)["data"]
+    # Query the league API to get the current version of league
+    LEAGUE_VERSION = json.loads(
+        requests.get("https://ddragon.leagueoflegends.com/realms/na.json").text
+    )["n"]["champion"]
+    # Get the latest champion data and save it to memory as a global variable
+    CHAMPION_DATA = json.loads(
+        requests.get(
+            f"https://ddragon.leagueoflegends.com/cdn/{LEAGUE_VERSION}/data/en_US/champion.json"
+        ).text
+    )["data"]
 
-# Specify the default league channel to use in discord
-LEAGUE_CHANNEL = "#league"
+    # Specify the default league channel to use in discord
+    LEAGUE_CHANNEL = "#league"
 
-# last_match_cron interval
-INTERVAL = 60  # seconds
+    # last_match_cron interval
+    INTERVAL = 60  # seconds
 
 
 class League(BotPlugin):
@@ -64,12 +66,17 @@ class League(BotPlugin):
 
         Note: the self.start_polling() function will wait for the first cron job to finish before starting the next one
         """
-        super().activate()
-        disabled = os.environ.get("DISABLE_LEAGUE_CRON", False)
-        if disabled:
-            self.log.warn("League cron disabled for local testing")
+        # If the RIOT_TOKEN is not set, deactivate the plugin
+        if RIOT_TOKEN is False:
+            self.log.info("No RIOT_TOKEN found in environment variables. Disabling the League plugin.")
+            super().deactivate()
         else:
-            self.start_poller(INTERVAL, self.last_match_cron)
+            super().activate()
+            disabled = os.environ.get("DISABLE_LEAGUE_CRON", False)
+            if disabled:
+                self.log.warn("League cron disabled for local testing")
+            else:
+                self.start_poller(INTERVAL, self.last_match_cron)
 
     @botcmd(admin_only=True)
     def league_disable(self, msg, args):
