@@ -25,11 +25,23 @@ class Down(BotPlugin):
         """
         ErrHelper().user(msg)
 
+        # Check to see if the message was send from a guild or a DM
+        guild_id = chatutils.guild_id(msg)
+        if not guild_id:
+            yield "⚠️ To view DownDetector status graphs, please use this command in a channel, not a DM."
+            return
+
         query = args.lower().strip()
 
+        yield f"📊 Fetching chart data for `{query}`..."
+
         chart_file = downdetector.chart(query, search=True)
-        if not chart_file:
-            return f"❌ Failed to get chart from DownDetector for `{query}`"
+        if chart_file == False:
+            yield f"❌ Failed to get chart from DownDetector for `{query}`"
+            return
+        elif chart_file == None:
+            yield f"🔎 No matching services found for `{query}`\nPlease try refining your search"
+            return
 
         dc = DiscordCustom(self._bot)
         channel_id = chatutils.channel_id(msg)
