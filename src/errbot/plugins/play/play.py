@@ -568,16 +568,20 @@ class Play(BotPlugin):
 
             # Init Spotify
             try:
-                sp = spotipy.Spotify(
-                    auth_manager=SpotifyClientCredentials(
-                        client_id=os.environ["SPOTIFY_CLIENT_ID"],
-                        client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
-                    ),
-                    requests_session=False,
-                    requests_timeout=3,
-                    backoff_factor=0.1,
-                    retries=3,
-                )
+                if SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET:
+                    sp = spotipy.Spotify(
+                        auth_manager=SpotifyClientCredentials(
+                            client_id=SPOTIFY_CLIENT_ID,
+                            client_secret=SPOTIFY_CLIENT_SECRET,
+                        ),
+                        requests_session=False,
+                        requests_timeout=3,
+                        backoff_factor=0.1,
+                        retries=3,
+                    )
+                else:
+                    # If the tokens are not set, return None
+                    return None
             except Exception as e:
                 ErrHelper().capture(e)
                 return None
