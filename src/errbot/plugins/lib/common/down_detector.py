@@ -15,6 +15,7 @@ OK = "no current problems"
 DOWN = "reports indicate problems"
 WARNING = "indicate possible problems"
 
+
 class DownDetector:
     """
     A helper class for interacting with and scraping the downdetector.com website
@@ -60,7 +61,9 @@ class DownDetector:
 
             # If the search flag was provided, we search for the service in DownDetector
             if search:
-                driver.get(f"https://downdetector.com/search/?q={service.replace(' ', '+')}")
+                driver.get(
+                    f"https://downdetector.com/search/?q={service.replace(' ', '+')}"
+                )
 
             # If the search flag was not provided, we attempt to go directly to the service page
             else:
@@ -84,7 +87,9 @@ class DownDetector:
                 return False, False
 
             # Get the chart element
-            chart_elem = driver.find_element(By.XPATH, "//body/div[3]/div[2]/div[1]/div[2]/div[1]")
+            chart_elem = driver.find_element(
+                By.XPATH, "//body/div[3]/div[2]/div[1]/div[2]/div[1]"
+            )
 
             # Get the sizes of the chart for cropping
             location = chart_elem.location
@@ -110,12 +115,19 @@ class DownDetector:
 
             try:
                 # Make a best effort attempt to get the status of the service from the page header
-                page_header = driver.find_element(By.XPATH, "/html[1]/body[1]/div[3]/div[2]/div[1]/div[1]/div[1]/div[1]")
+                page_header = driver.find_element(
+                    By.XPATH,
+                    "/html[1]/body[1]/div[3]/div[2]/div[1]/div[1]/div[1]/div[1]",
+                )
                 # Get the header text
                 page_header_text = page_header.text.strip().lower()
 
                 # Get and format the service name from the URL
-                service_name = driver.current_url.split("/status/")[-1].replace("-", " ").replace("/", "")
+                service_name = (
+                    driver.current_url.split("/status/")[-1]
+                    .replace("-", " ")
+                    .replace("/", "")
+                )
 
                 # Set the status based on the text of the header page
                 if OK in page_header_text:
