@@ -68,7 +68,7 @@ class League(BotPlugin):
         """
         # If the RIOT_TOKEN is not set, deactivate the plugin
         if RIOT_TOKEN is None:
-            self.log.info("No RIOT_TOKEN found in environment variables. Disabling the League plugin.")
+            self.log.warn("RIOT_TOKEN not found in environment variables. Disabling the League plugin.")
             super().deactivate()
         else:
             super().activate()
