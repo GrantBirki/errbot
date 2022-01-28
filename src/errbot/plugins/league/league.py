@@ -12,7 +12,7 @@ from lib.database.dynamo_tables import LeagueTable
 from riotwatcher import ApiError, LolWatcher
 
 # Get the RIOT_TOKEN and ensure it is a string and not a bytestring
-RIOT_TOKEN = os.environ.get("RIOT_TOKEN", False)
+RIOT_TOKEN = os.environ.get("RIOT_TOKEN", None)
 
 # If the RIOT_TOKEN is not set, do not continue
 if RIOT_TOKEN:
@@ -67,7 +67,7 @@ class League(BotPlugin):
         Note: the self.start_polling() function will wait for the first cron job to finish before starting the next one
         """
         # If the RIOT_TOKEN is not set, deactivate the plugin
-        if RIOT_TOKEN is False:
+        if RIOT_TOKEN is None:
             self.log.info("No RIOT_TOKEN found in environment variables. Disabling the League plugin.")
             super().deactivate()
         else:
