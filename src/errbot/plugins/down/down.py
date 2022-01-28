@@ -35,13 +35,15 @@ class Down(BotPlugin):
 
         yield f"📊 Fetching chart data for `{query}`..."
 
-        chart_file = downdetector.chart(query, search=True)
+        chart_file, status = downdetector.chart(query, search=True)
         if chart_file == False:
             yield f"❌ Failed to get chart from DownDetector for `{query}`"
             return
         elif chart_file == None:
-            yield f"🔎 No matching services found for `{query}`\nPlease try refining your search"
+            yield f"🔎 No matching services found for `{query}`"
             return
+
+        yield status
 
         dc = DiscordCustom(self._bot)
         channel_id = chatutils.channel_id(msg)
