@@ -210,10 +210,13 @@ class Eft(BotPlugin):
             yield "**DownDetector Status:**"
 
         # Get and send a screenshot of the eft downdetector chart
-        chart_file = downdetector.chart("escape-from-tarkov")
+        chart_file, status = downdetector.chart("escape-from-tarkov")
         if not chart_file:
             yield "❌ Failed to get chart from DownDetector"
             return
+
+        yield status
+
         dc = DiscordCustom(self._bot)
         channel_id = chatutils.channel_id(msg)
         dc.send_file(channel_id, chart_file)
