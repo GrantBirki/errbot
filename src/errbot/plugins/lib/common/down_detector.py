@@ -51,8 +51,7 @@ class DownDetector:
 
         # If the search flag was provided, we search for the service in DownDetector
         if search:
-            # TODO
-            pass
+            driver.get(f"https://downdetector.com/search/?q={service}")
 
         # If the search flag was not provided, we attempt to go directly to the service page
         else:
@@ -61,6 +60,14 @@ class DownDetector:
         # Wait for the chart to load
         WAIT = 2
         try:
+
+            # If we used the search flag, check the page to ensure a result was found
+            if search:
+                # If the search returned no results, return None
+                # dev note: the /search/ url stays if no results are found
+                if "/search/?q=" in driver.current_url:
+                    return None
+
             WebDriverWait(driver, WAIT).until(
                 EC.presence_of_element_located((By.ID, "chart-row"))
             )
