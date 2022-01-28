@@ -28,6 +28,9 @@ QUEUE_PATH = "plugins/play/queue"
 KILL_SWITCH_PATH = "plugins/lib/chat/dc_kill_switches"
 QUEUE_ERROR_MSG_READ = f"❌ An error occurring reading the .play queue!"
 
+SPOTIFY_CLIENT_ID=os.environ.get("SPOTIFY_CLIENT_ID", None)
+SPOTIFY_CLIENT_SECRET=os.environ.get("SPOTIFY_CLIENT_SECRET", None)
+
 
 class Play(BotPlugin):
     """
@@ -37,6 +40,20 @@ class Play(BotPlugin):
 
     Discord Specific Plugin
     """
+
+    def activate(self):
+        """
+        On activation of the plugin, check to ensure extra tokens are provided
+        Log a warning if tokens are missing from the environment variables
+        :return: None
+        """
+        if SPOTIFY_CLIENT_ID is None:
+            self.log.warn("SPOTIFY_CLIENT_ID not found in environment variables")
+        if SPOTIFY_CLIENT_SECRET is None:
+            self.log.warn("SPOTIFY_CLIENT_SECRET not found in environment variables")
+
+        # Activate the plugin
+        super().activate()
 
     def play_cron(self):
         """
