@@ -1,0 +1,9 @@
+[Core]
+Name = Down 
+Module = down 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Down plugin for interating with DownDetector

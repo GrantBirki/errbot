@@ -49,6 +49,7 @@ The following commands are all available via the chatbot:
 | `.wallstreetbets` | - | False | View the top trending stonks from /r/wallstreetbets |
 | `.sparkle` | `.sparkle @username for being awesome` | False | Sparkle a user to show your appreciation! (optionally provide a reason for the sparkling) - Inspired by [pwn](https://github.com/pmn/sparkles/blob/master/LICENSE.md) |
 | `.show sparkles` | `.show sparkes` - `.show sparkles for @username` | False | View the sparkles (and their reasons) for yourself or another user - Inspired by [pwn](https://github.com/pmn/sparkles/blob/master/LICENSE.md)|
+| `.down` | `.down twitter` | False | Get a DownDetector graph and the status for a given service |
 | `.eft` | `.eft clock` | False | Get an Escape from Tarkov item and its value |
 | `.eft ammo` | `.eft ammo 7.62x39mm` | False | Get information about an ammo type |
 | `.eft ammo help` | - | False | Get information about the ammo types that can be used with the `.eft ammo` command |
