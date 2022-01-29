@@ -45,9 +45,25 @@ Optional Examples:
 
 **A note on optional credentials as seen above:**
 
-You may have noticed some plugins fail to load in the logs when you started your bot after the setup step. This is likely due to the fact that some plugins included in this base project require API keys to work correctly. If you don't intend on using these plugins that need APIs, you don't want to deal with making the keys, or you just hate the plugin, you can disable or delete the plugin entirely. An example of a plugin that will fail to load is the `src/errbot/plugins/league` plugin. This plugin attempts to create a RIOT API client on boot and will fail if the token is missing. The good news is that if one plugin fails, all the rest will proceed. That one plugin that failed will just not be usable until the error is resolved. In the case of the `.league` command, all you need to do is A) generate an API token for the RIOT API or B) delete the `league/` directory from the `plugins/` folder.
+A few of the tokens listed above are optional and enable extra features to the bot when provided as environment variables. You can see more information on these in the configuration table below.
 
-Other tokens such as `SPOTIFY_*` actually have handling built in that will just not use their feature if the tokens are not present.
+## Configuration Table
+
+Now that you have a general understanding about how environment variables are used to configure the bot, let's look at a table of the configuration options that are available:
+
+**Key**:
+
+- `ENV VAR` - The variable name to be provided
+- `Value` - An example of the value(s) that can be provided
+- `Required / Optional` - Whether or not the variable is required or optional
+- `Description` - A description of what the variable is used for
+
+|   ENV VAR   |  Value  |  Required / Optional         |  Description     |
+|    :----:   |     :----:    |   :----:      |        :----:       |
+| `BACKEND` | Discord / Slack / etc | Required | Set the desired chat backend for the bot |
+| `BOT_PREFIX` | Any alpha-numeric character | Required | Set the character prefix used to invoke the bot (`.` is suggested) |
+| `BOT_HOME_CHANNEL` | Any string related to a text channel name | Optional | Set a home channel for the bot as a default. Example, posting messages to a channel on a schedule like weather updates |
+|TODO | TODO | TODO | TODO |
 
 ## What About Production?
 

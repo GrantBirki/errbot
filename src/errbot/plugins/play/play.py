@@ -28,6 +28,15 @@ QUEUE_PATH = "plugins/play/queue"
 KILL_SWITCH_PATH = "plugins/lib/chat/dc_kill_switches"
 QUEUE_ERROR_MSG_READ = f"❌ An error occurring reading the .play queue!"
 
+SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID", None)
+SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET", None)
+
+# If either token is missing, then we can't use spotify to pull song data
+if SPOTIFY_CLIENT_ID is None or SPOTIFY_CLIENT_SECRET is None:
+    SPOTIFY_ENABLED = False
+else:
+    SPOTIFY_ENABLED = True
+
 
 class Play(BotPlugin):
     """
@@ -37,6 +46,20 @@ class Play(BotPlugin):
 
     Discord Specific Plugin
     """
+
+    def activate(self):
+        """
+        On activation of the plugin, check to ensure extra tokens are provided
+        Log a warning if tokens are missing from the environment variables
+        :return: None
+        """
+        if SPOTIFY_CLIENT_ID is None:
+            self.log.warn("SPOTIFY_CLIENT_ID not found in environment variables")
+        if SPOTIFY_CLIENT_SECRET is None:
+            self.log.warn("SPOTIFY_CLIENT_SECRET not found in environment variables")
+
+        # Activate the plugin
+        super().activate()
 
     def play_cron(self):
         """
@@ -69,9 +92,11 @@ class Play(BotPlugin):
                 message += f"• **Duration:** {hms['minutes']:02}:{hms['seconds']:02}\n"
                 message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
 
-                spotify_url = self.spotify_url(queue_item)
-                if spotify_url:
-                    message += f"• **Spotify:** {spotify_url}\n"
+                # If Spotify is enabled, then try to add a link to the song
+                if SPOTIFY_ENABLED:
+                    spotify_url = self.spotify_url(queue_item)
+                    if spotify_url:
+                        message += f"• **Spotify:** {spotify_url}\n"
 
                 try:
                     message += f"> **Next song:** {queue_items[1]['song']}"
@@ -553,8 +578,8 @@ class Play(BotPlugin):
             try:
                 sp = spotipy.Spotify(
                     auth_manager=SpotifyClientCredentials(
-                        client_id=os.environ["SPOTIFY_CLIENT_ID"],
-                        client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
+                        client_id=SPOTIFY_CLIENT_ID,
+                        client_secret=SPOTIFY_CLIENT_SECRET,
                     ),
                     requests_session=False,
                     requests_timeout=3,
