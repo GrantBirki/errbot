@@ -31,6 +31,12 @@ QUEUE_ERROR_MSG_READ = f"❌ An error occurring reading the .play queue!"
 SPOTIFY_CLIENT_ID=os.environ.get("SPOTIFY_CLIENT_ID", None)
 SPOTIFY_CLIENT_SECRET=os.environ.get("SPOTIFY_CLIENT_SECRET", None)
 
+# If either token is missing, then we can't use spotify to pull song data
+if SPOTIFY_CLIENT_ID is None or SPOTIFY_CLIENT_SECRET is None:
+    SPOTIFY_ENABLED = False
+else:
+    SPOTIFY_ENABLED = True
+
 
 class Play(BotPlugin):
     """
@@ -86,9 +92,11 @@ class Play(BotPlugin):
                 message += f"• **Duration:** {hms['minutes']:02}:{hms['seconds']:02}\n"
                 message += f"• **Requested by:** <@{queue_item['user_id']}>\n"
 
-                spotify_url = self.spotify_url(queue_item)
-                if spotify_url:
-                    message += f"• **Spotify:** {spotify_url}\n"
+                # If Spotify is enabled, then try to add a link to the song
+                if SPOTIFY_ENABLED:
+                    spotify_url = self.spotify_url(queue_item)
+                    if spotify_url:
+                        message += f"• **Spotify:** {spotify_url}\n"
 
                 try:
                     message += f"> **Next song:** {queue_items[1]['song']}"
@@ -568,20 +576,16 @@ class Play(BotPlugin):
 
             # Init Spotify
             try:
-                if SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET:
-                    sp = spotipy.Spotify(
-                        auth_manager=SpotifyClientCredentials(
-                            client_id=SPOTIFY_CLIENT_ID,
-                            client_secret=SPOTIFY_CLIENT_SECRET,
-                        ),
-                        requests_session=False,
-                        requests_timeout=3,
-                        backoff_factor=0.1,
-                        retries=3,
-                    )
-                else:
-                    # If the tokens are not set, return None
-                    return None
+                sp = spotipy.Spotify(
+                    auth_manager=SpotifyClientCredentials(
+                        client_id=SPOTIFY_CLIENT_ID,
+                        client_secret=SPOTIFY_CLIENT_SECRET,
+                    ),
+                    requests_session=False,
+                    requests_timeout=3,
+                    backoff_factor=0.1,
+                    retries=3,
+                )
             except Exception as e:
                 ErrHelper().capture(e)
                 return None
