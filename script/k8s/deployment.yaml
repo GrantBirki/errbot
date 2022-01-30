@@ -21,10 +21,10 @@ spec:
           imagePullPolicy: Never # since we are using a local image in minikube
           resources:
             limits:
-              cpu: "2.0"
+              cpu: "2"
               memory: "8Gi"
             requests:
-              cpu: "1.0"
+              cpu: "1"
               memory: "400Mi"
           securityContext:
             allowPrivilegeEscalation: false
