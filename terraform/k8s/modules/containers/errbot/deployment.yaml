@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         name: errbot
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       containers:
         - name: errbot
@@ -28,6 +30,10 @@ spec:
               memory: "400Mi"
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
           env:
             # General ENV Vars
             - name: BACKEND
@@ -86,3 +92,5 @@ spec:
                 secretKeyRef:
                   name: errbot-secret
                   key: SENTRY
+      automountServiceAccountToken: false
+  strategy: {}

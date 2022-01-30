@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         name: errbot
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       containers:
         - name: errbot
@@ -21,13 +23,17 @@ spec:
           imagePullPolicy: Never # since we are using a local image in minikube
           resources:
             limits:
-              cpu: "2.0"
+              cpu: "2"
               memory: "8Gi"
             requests:
-              cpu: "1.0"
+              cpu: "1"
               memory: "400Mi"
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
           env:
             # General ENV Vars
             - name: BACKEND
@@ -54,8 +60,9 @@ spec:
               value: "True"
             - name: LOCALSTACK
               value: "http://localstack:4566"
-            # Secret ENV Vars
             - name: CHAT_SERVICE_TOKEN
+              # Secret ENV Vars
+
               valueFrom:
                 secretKeyRef:
                   name: errbot-secret
@@ -75,8 +82,6 @@ spec:
                 secretKeyRef:
                   name: errbot-secret
                   key: SPOTIFY_CLIENT_SECRET
-            - name: SENTRY
-              valueFrom:
-                secretKeyRef:
-                  name: errbot-secret
-                  key: SENTRY
+      automountServiceAccountToken: false
+  strategy: {}
+
