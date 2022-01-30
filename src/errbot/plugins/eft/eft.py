@@ -46,6 +46,8 @@ MAPS = [
     "interchange",
 ]
 
+MAP_DIR = "plugins/eft/maps"
+
 
 class Eft(BotPlugin):
     """Escape From Tarkov plugin for Errbot - Cheeki Breeki!"""
@@ -277,7 +279,10 @@ class Eft(BotPlugin):
         elif len(map_matches) == 1:
             map = map_matches[0]
 
-        # TODO
+        # Post the map file
+        dc = DiscordCustom(self._bot)
+        channel_id = chatutils.channel_id(msg)
+        dc.send_file(channel_id, f"{MAP_DIR}/{map}.jpg")
 
         return map
 
