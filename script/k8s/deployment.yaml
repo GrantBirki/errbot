@@ -75,8 +75,3 @@ spec:
                 secretKeyRef:
                   name: errbot-secret
                   key: SPOTIFY_CLIENT_SECRET
-            - name: SENTRY
-              valueFrom:
-                secretKeyRef:
-                  name: errbot-secret
-                  key: SENTRY
