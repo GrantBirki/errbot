@@ -28,6 +28,10 @@ spec:
               memory: "400Mi"
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
           env:
             # General ENV Vars
             - name: BACKEND
@@ -54,8 +58,9 @@ spec:
               value: "True"
             - name: LOCALSTACK
               value: "http://localstack:4566"
-            # Secret ENV Vars
             - name: CHAT_SERVICE_TOKEN
+              # Secret ENV Vars
+
               valueFrom:
                 secretKeyRef:
                   name: errbot-secret
@@ -75,3 +80,6 @@ spec:
                 secretKeyRef:
                   name: errbot-secret
                   key: SPOTIFY_CLIENT_SECRET
+      automountServiceAccountToken: false
+  strategy: {}
+
