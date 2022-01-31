@@ -56,3 +56,4 @@ The following commands are all available via the chatbot:
 | `.eft status` | `.eft status` - `.eft status --messages` | False | Get the current status of the Escape from Tarkov servers |
 | `.eft map` | `.eft map shoreline` | False | Get an image of a map for a given Tarkov location |
 | `.eft map help` | - | False | Get information about the maps that can be used with the `.eft map` command |
+| `.eft time` | - | False | Get the current time in Tarkov |
