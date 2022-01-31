@@ -392,6 +392,21 @@ class Eft(BotPlugin):
         )
         return
 
+    @botcmd()
+    def eft_time(self, msg, args):
+        """
+        Get the current time in Tarkov
+        Example: .eft time
+        """
+        ErrHelper().user(msg)
+
+        # Get the current time in Tarkov
+        left, right = self.tarkov_time()
+        if not left or not right:
+            return "❌ Failed to get Tarkov time"
+        
+        return f"🕒 `{left}` - `{right}`"
+
     def tarkov_time(self, map=None):
         """
         Gets the current time in Tarkov
