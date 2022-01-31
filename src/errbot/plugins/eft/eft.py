@@ -299,17 +299,13 @@ class Eft(BotPlugin):
         message += f"\n• Players: `{map_data['players']}`"
         message += f"\n• Duration: `{map_data['duration']}`"
 
-        try:
-            # TODO - Generate the time locally rather than querying an external API
-            # See https://github.com/adamburgess/tarkov-time
-            tarkov_time_data = requests.get("https://tarkov-time.adam.id.au/api").json()
-            if map == "factory":
-                message += f"\n• Time: `15:00` - `03:00`"
-            else:
-                message += f"\n• Time: `{tarkov_time_data['left']}` - `{tarkov_time_data['right']}`"
-        except Exception as error:
-            ErrHelper().capture(error)
-            message += "\n• Time: `failed`"
+        # Get the tarkov time for the map
+        left, right = self.tarkov_time(map)
+        if not left or not right:
+            message += f"\n• Time: `failed`"
+        else:
+            message += f"\n• Time: `{left}` - `{right}`"
+
         return message
 
     @botcmd()
@@ -395,6 +391,25 @@ class Eft(BotPlugin):
             # thumbnail=result_data["iconLink"],
         )
         return
+
+    def tarkov_time(self, map=None):
+        """
+        Gets the current time in Tarkov
+
+        :param map: The map name to check with times
+        :return left, right: Returns the 'left' and 'right' Tarkov times - False if failed
+        """
+        try:
+            # TODO - Generate the time locally rather than querying an external API
+            # See https://github.com/adamburgess/tarkov-time
+            tarkov_time_data = requests.get("https://tarkov-time.adam.id.au/api").json()
+            if map == "factory":
+                return "15:00", "03:00"
+            else:
+                return tarkov_time_data['left'], tarkov_time_data['right']
+        except Exception as error:
+            ErrHelper().capture(error)
+            False, False
 
     def search_helper(self, query, allowed_values):
         """
