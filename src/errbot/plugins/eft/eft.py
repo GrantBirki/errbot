@@ -298,6 +298,18 @@ class Eft(BotPlugin):
         message = f"**{map.capitalize()} Details:**"
         message += f"\n• Players: `{map_data['players']}`"
         message += f"\n• Duration: `{map_data['duration']}`"
+
+        try:
+            # TODO - Generate the time locally rather than querying an external API
+            # See https://github.com/adamburgess/tarkov-time
+            tarkov_time_data = requests.get("https://tarkov-time.adam.id.au/api").json()
+            if map == "factory":
+                message += f"\n• Time: `15:00` - `03:00`"
+            else:
+                message += f"\n• Time: `{tarkov_time_data['left']}` - `{tarkov_time_data['right']}`"
+        except Exception as error:
+            ErrHelper().capture(error)
+            message += "\n• Time: `failed`"
         return message
 
     @botcmd()
