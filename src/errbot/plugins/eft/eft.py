@@ -404,7 +404,7 @@ class Eft(BotPlugin):
         left, right = self.tarkov_time()
         if not left or not right:
             return "❌ Failed to get Tarkov time"
-        
+
         return f"🕒 `{left}` - `{right}`"
 
     def tarkov_time(self, map=None):
