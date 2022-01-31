@@ -36,14 +36,14 @@ AMMO_TYPES = [
 ]
 
 MAPS = [
-    "shoreline",
-    "customs",
-    "reserve",
-    "labs",
-    "lighthouse",
-    "woods",
-    "factory",
-    "interchange",
+    {"name": "shoreline", "players": "9-12", "duration": "40"},
+    {"name": "customs", "players:": "9-12", "duration": "35"},
+    {"name": "reserve", "players": "9-12", "duration": "35"},
+    {"name": "labs", "players": "6-10", "duration": "40"},
+    {"name": "lighthouse", "players": "9-12", "duration": "40"},
+    {"name": "woods", "players": "9-14", "duration": "40"},
+    {"name": "factory", "players": "9-12", "duration": "20-25"},
+    {"name": "interchange", "players": "10-14", "duration": "45"},
 ]
 
 MAP_DIR = "plugins/eft/maps"
@@ -257,8 +257,13 @@ class Eft(BotPlugin):
         if args == "help":
             return self.map_help(msg)
 
-        # Get a list of matching ammo types from the query
-        map_matches = self.search_helper(args, MAPS)
+        # Get a list of all maps
+        maps = []
+        for map in MAPS:
+            maps.append(map["name"])
+
+        # Search the args for a matching map from the map list
+        map_matches = self.search_helper(args, maps)
 
         # If there are no matching ammo types, return an error message
         if len(map_matches) == 0:
@@ -279,12 +284,21 @@ class Eft(BotPlugin):
         elif len(map_matches) == 1:
             map = map_matches[0]
 
+        # Get the map data from the matching map
+        for item in MAPS:
+            if item["name"] == map:
+                map_data = item
+
         # Post the map file
         dc = DiscordCustom(self._bot)
         channel_id = chatutils.channel_id(msg)
         dc.send_file(channel_id, f"{MAP_DIR}/{map}.jpg")
 
-        return map
+        # Format a message with map data
+        message = f"**{map.capitalize()} Details:**"
+        message += f"\n• Players: `{map_data['players']}`"
+        message += f"\n• Duration: `{map_data['duration']}`"
+        return message
 
     @botcmd()
     def eft_ammo(self, msg, args):
