@@ -406,7 +406,7 @@ class Eft(BotPlugin):
             if map == "factory":
                 return "15:00", "03:00"
             else:
-                return tarkov_time_data['left'], tarkov_time_data['right']
+                return tarkov_time_data["left"], tarkov_time_data["right"]
         except Exception as error:
             ErrHelper().capture(error)
             False, False
