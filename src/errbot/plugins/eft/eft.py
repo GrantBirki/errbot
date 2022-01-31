@@ -37,7 +37,7 @@ AMMO_TYPES = [
 
 MAPS = [
     {"name": "shoreline", "players": "9-12", "duration": "40"},
-    {"name": "customs", "players:": "9-12", "duration": "35"},
+    {"name": "customs", "players": "9-12", "duration": "35"},
     {"name": "reserve", "players": "9-12", "duration": "35"},
     {"name": "labs", "players": "6-10", "duration": "40"},
     {"name": "lighthouse", "players": "9-12", "duration": "40"},
@@ -298,6 +298,14 @@ class Eft(BotPlugin):
         message = f"**{map.capitalize()} Details:**"
         message += f"\n• Players: `{map_data['players']}`"
         message += f"\n• Duration: `{map_data['duration']}`"
+
+        # Get the tarkov time for the map
+        left, right = self.tarkov_time(map)
+        if not left or not right:
+            message += f"\n• Time: `failed`"
+        else:
+            message += f"\n• Time: `{left}` - `{right}`"
+
         return message
 
     @botcmd()
@@ -383,6 +391,40 @@ class Eft(BotPlugin):
             # thumbnail=result_data["iconLink"],
         )
         return
+
+    @botcmd()
+    def eft_time(self, msg, args):
+        """
+        Get the current time in Tarkov
+        Example: .eft time
+        """
+        ErrHelper().user(msg)
+
+        # Get the current time in Tarkov
+        left, right = self.tarkov_time()
+        if not left or not right:
+            return "❌ Failed to get Tarkov time"
+
+        return f"🕒 `{left}` - `{right}`"
+
+    def tarkov_time(self, map=None):
+        """
+        Gets the current time in Tarkov
+
+        :param map: The map name to check with times
+        :return left, right: Returns the 'left' and 'right' Tarkov times - False if failed
+        """
+        try:
+            # TODO - Generate the time locally rather than querying an external API
+            # See https://github.com/adamburgess/tarkov-time
+            tarkov_time_data = requests.get("https://tarkov-time.adam.id.au/api").json()
+            if map == "factory":
+                return "15:00", "03:00"
+            else:
+                return tarkov_time_data["left"], tarkov_time_data["right"]
+        except Exception as error:
+            ErrHelper().capture(error)
+            False, False
 
     def search_helper(self, query, allowed_values):
         """
