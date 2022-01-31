@@ -37,7 +37,7 @@ AMMO_TYPES = [
 
 MAPS = [
     {"name": "shoreline", "players": "9-12", "duration": "40"},
-    {"name": "customs", "players:": "9-12", "duration": "35"},
+    {"name": "customs", "players": "9-12", "duration": "35"},
     {"name": "reserve", "players": "9-12", "duration": "35"},
     {"name": "labs", "players": "6-10", "duration": "40"},
     {"name": "lighthouse", "players": "9-12", "duration": "40"},
