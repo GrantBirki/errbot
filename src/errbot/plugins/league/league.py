@@ -1,6 +1,7 @@
 import json
 import os
 import random
+from urllib.error import HTTPError
 
 import requests
 from errbot import BotPlugin, arg_botcmd, botcmd
@@ -41,7 +42,8 @@ if RIOT_TOKEN:
     # Get the latest champion data and save it to memory as a global variable
     CHAMPION_DATA = json.loads(
         requests.get(
-            f"https://ddragon.leagueoflegends.com/cdn/{LEAGUE_VERSION}/data/en_US/champion.json"
+            f"https://ddragon.leagueoflegends.com/cdn/{LEAGUE_VERSION}/data/en_US/champion.json",
+            timeout=10,
         ).text
     )["data"]
 
@@ -234,10 +236,20 @@ class League(BotPlugin):
             except requests.exceptions.HTTPError as e:
                 self.log.error(f"HTTPError: {e}")
                 continue
-            except Exception as e:
-                ErrHelper().capture(e)
-                self.log.error(f"error: {e}")
+            except requests.exceptions.ConnectionError as e:
+                self.log.error(f"ConnectionError: {e}")
                 continue
+            except HTTPError as e:
+                self.log.error(f"ConnectionError: {e}")
+                continue
+            except Exception as e:
+                if "503 server error" in str(e).lower():
+                    self.log.error(f"503 server error: {e}")
+                    continue
+                else:
+                    ErrHelper().capture(e)
+                    self.log.error(f"error: {e}")
+                    continue
 
     @arg_botcmd("summoner_name", type=str)
     def add_me_to_league_watcher(self, msg, summoner_name=None):
