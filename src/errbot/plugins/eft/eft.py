@@ -9,9 +9,11 @@ from lib.chat.chatutils import ChatUtils
 from lib.chat.discord_custom import DiscordCustom
 from lib.common.down_detector import DownDetector
 from lib.common.errhelper import ErrHelper
+from lib.common.utilities import Util
 
 downdetector = DownDetector()
 chatutils = ChatUtils()
+util = Util()
 
 AMMO_TYPES = [
     "7.62x51mm",
@@ -426,20 +428,14 @@ class Eft(BotPlugin):
             ErrHelper().capture(error)
             False, False
 
-    def search_helper(self, query, allowed_values):
+    def search_helper(self, word, patterns):
         """
-        Helper function that searches through allowed_values (Array) given a query (String)
-        :param query: A string to use for searching
+        Helper function that searches a list of patterns for a word
+        :param word: A string to use for searching (String)
+        :param patterns: A list of patterns to search for (List of Strings)
         :return matches: A List of items that matched the query
         """
-        # Loop through the allowed_values var looking for matches with 'in'
-        matches = []
-        for item in allowed_values:
-            if query in item.lower():
-                # A match is found and appended to our match list
-                matches.append(item)
-
-        return matches
+        return util.close_matches(word, patterns)
 
     def map_help(self, msg):
         """
