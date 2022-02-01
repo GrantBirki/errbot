@@ -1,7 +1,8 @@
 import hashlib
+import time
 import urllib.parse
 from datetime import datetime, timedelta
-import time
+from difflib import get_close_matches
 
 import psutil
 
@@ -10,6 +11,15 @@ class Util:
     """
     A collection of common utilities used throughout the repo
     """
+
+    def close_matches(self, word, patterns):
+        """
+        Given a word and a list of possible patterns, return a list of close matches
+        :param word: The word to search for (String)
+        :param patterns: A list of possible patterns (List of Strings)
+        :return: A list of close matches (List of Strings)
+        """
+        return get_close_matches(word, patterns)
 
     def iso_timestamp(self):
         """
