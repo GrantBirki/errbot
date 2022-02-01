@@ -11,7 +11,7 @@ class Util:
     """
     A collection of common utilities used throughout the repo
     """
-  
+
     def close_matches(self, word, patterns):
         """
         Given a word and a list of possible patterns, return a list of close matches
