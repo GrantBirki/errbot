@@ -252,6 +252,11 @@ class Eft(BotPlugin):
         """
         ErrHelper().user(msg)
 
+        # Check to see if the message was send from a guild or a DM
+        guild_id = chatutils.guild_id(msg)
+        if not guild_id:
+            return "⚠️ Please use this command in a channel, not a DM."
+
         # Format the args as lower-case and stripped
         args = args.lower().strip()
 
