@@ -447,9 +447,14 @@ class Eft(BotPlugin):
         :param msg: The message object
         :return: None - Sends a card in reply to the message with the maps that can be used
         """
+        # Get the list of maps
+        map_list = []
+        for map in MAPS:
+            map_list.append(map["name"])
+
         # Format the body of the message with the maps
         body = "**Available Maps:**\n"
-        body += "• " + "\n • ".join(MAPS)
+        body += "• " + "\n • ".join(map_list)
 
         # Send the ammo help card
         self.send_card(
