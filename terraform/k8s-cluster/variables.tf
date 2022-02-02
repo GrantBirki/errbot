@@ -21,7 +21,7 @@ variable "NODE_COUNT" {
 
 variable "VM_SIZE" {
   description = "Size of the VM to create"
-  default     = "Standard_B2ms"
+  default     = "Standard_B2s"
   type        = string
 }
 
