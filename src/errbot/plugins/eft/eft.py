@@ -50,7 +50,7 @@ MAPS = [
 
 MAP_DIR = "plugins/eft/maps"
 
-AMMO_CACHE_TIME = 3600 # 1 hour
+AMMO_CACHE_TIME = 3600  # 1 hour
 
 
 class Eft(BotPlugin):
@@ -362,7 +362,10 @@ class Eft(BotPlugin):
         if (
             not self.ammo_data
             or self.ammo_cache_time is None
-            or util.is_timestamp_older_than_n_seconds(self.ammo_cache_time, AMMO_CACHE_TIME) == True
+            or util.is_timestamp_older_than_n_seconds(
+                self.ammo_cache_time, AMMO_CACHE_TIME
+            )
+            == True
         ):
             self.ammo_data = self.get_ammo_data()
 
