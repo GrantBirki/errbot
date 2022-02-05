@@ -59,6 +59,7 @@ class Eft(BotPlugin):
         Initialize the plugin with its class variables
         """
         super().__init__(bot, name)
+        self.ammo_cache_time = None
         self.ammo_data = self.get_ammo_data()
 
     @botcmd
@@ -355,8 +356,12 @@ class Eft(BotPlugin):
         elif len(ammo_matches) >= 1:
             ammo_type = ammo_matches[0]
 
-        # If we don't have the cached ammo_data, fetch it
-        if not self.ammo_data:
+        # If we don't have the cached ammo_data and its not fresh, fetch it
+        if (
+            not self.ammo_data
+            or self.ammo_cache_time is None
+            or util.is_timestamp_older_than_n_seconds(self.ammo_cache_time, 15) == True
+        ):
             self.ammo_data = self.get_ammo_data()
 
         # Loop through and collect data on the selected ammo type
@@ -437,9 +442,14 @@ class Eft(BotPlugin):
         :return ammo_data: Returns the ammo data from GitHub (json) - False if failed
         """
         try:
-            return requests.get(
+            ammo_data = requests.get(
                 "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/ammunition.json"
             ).json()
+
+            # Update the ammo data cache
+            self.ammo_cache_time = util.parse_iso_timestamp(util.iso_timestamp())
+
+            return ammo_data
         except Exception as error:
             ErrHelper().capture(error)
             return False
