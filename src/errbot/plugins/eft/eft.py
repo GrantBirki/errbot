@@ -54,6 +54,13 @@ MAP_DIR = "plugins/eft/maps"
 class Eft(BotPlugin):
     """Escape From Tarkov plugin for Errbot - Cheeki Breeki!"""
 
+    def __init__(self, bot, name=None):
+        """
+        Initialize the plugin with its class variables
+        """
+        super().__init__(bot, name)
+        self.ammo_data = self.get_ammo_data()
+
     @botcmd
     def eft(self, msg, args):
         """
@@ -270,16 +277,16 @@ class Eft(BotPlugin):
             maps.append(map["name"])
 
         # Search the args for a matching map from the map list
-        map_matches = self.search_helper(args, maps)
+        map_matches = util.close_matches(args, maps)
 
-        # If there are no matching ammo types, return an error message
+        # If there are no matching maps, return an error message
         if len(map_matches) == 0:
             return self.general_error(
                 msg,
                 "Invalid map",
                 "You can view all maps with:\n`.eft map help`",
             )
-        # If there are more than one matching ammo type, return an error message
+        # If there are more than one matching maps, return an error message
         elif len(map_matches) > 1:
             matches_fmt = "\n• ".join(map_matches)
             return self.general_error(
@@ -335,7 +342,7 @@ class Eft(BotPlugin):
             return self.ammo_help(msg)
 
         # Get a list of matching ammo types from the query
-        ammo_matches = self.search_helper(args, AMMO_TYPES)
+        ammo_matches = util.close_matches(args, AMMO_TYPES, cutoff=0.7)
 
         # If there are no matching ammo types, return an error message
         if len(ammo_matches) == 0:
@@ -344,26 +351,17 @@ class Eft(BotPlugin):
                 "Invalid ammo type",
                 "You can view all ammo types with:\n`.eft ammo help`",
             )
-        # If there are more than one matching ammo type, return an error message
-        elif len(ammo_matches) > 1:
-            matches_fmt = "\n• ".join(ammo_matches)
-            return self.general_error(
-                msg,
-                "Multiple matching ammo types",
-                f"Please refine your ammo search query since more than one ammo type matched your request.\n\n**Matching Ammo Types:**\n• {matches_fmt}\n\nYou can view all available ammo types with: `.eft ammo help`",
-            )
-        # If there is exactly one match, grab it from the list and carry on
-        elif len(ammo_matches) == 1:
+        # If is one or greater matches, grab the first (closest) match and carry on
+        elif len(ammo_matches) >= 1:
             ammo_type = ammo_matches[0]
 
-        # Make an API call to get all the Tarkov ammo data
-        ammo_data = requests.get(
-            "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/ammunition.json"
-        ).json()
+        # If we don't have the cached ammo_data, fetch it
+        if not self.ammo_data:
+            self.ammo_data = self.get_ammo_data()
 
         # Loop through and collect data on the selected ammo type
         ammo_list = []
-        for item in ammo_data.items():
+        for item in self.ammo_data.items():
             if ammo_type.lower() in item[1]["name"].lower():
                 ammo_list.append(
                     {
@@ -433,14 +431,18 @@ class Eft(BotPlugin):
             ErrHelper().capture(error)
             False, False
 
-    def search_helper(self, word, patterns):
+    def get_ammo_data(self):
         """
-        Helper function that searches a list of patterns for a word
-        :param word: A string to use for searching (String)
-        :param patterns: A list of patterns to search for (List of Strings)
-        :return matches: A List of items that matched the query
+        Helper function to get the ammo data from GitHub
+        :return ammo_data: Returns the ammo data from GitHub (json) - False if failed
         """
-        return util.close_matches(word, patterns)
+        try:
+            return requests.get(
+                "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/ammunition.json"
+            ).json()
+        except Exception as error:
+            ErrHelper().capture(error)
+            return False
 
     def map_help(self, msg):
         """
