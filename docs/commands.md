@@ -11,6 +11,7 @@ The following commands are all available via the chatbot:
 - **Availability**: Where the command is available. Possible options include:
     - 🌎 - Globally available everywhere the bot is present
     - 🔒 - Locked to certain servers / chatrooms (not publically available)
+    - 🔒👨‍💻 - Locked to the bot admins
     - ❌ - Disabled
 
 |   Command   |  Example  |  Admin Only         |  Description     | Availability |
@@ -31,11 +32,11 @@ The following commands are all available via the chatbot:
 | `.add me to league watcher` | `.add me to league watcher <summoner_name>` | False | Add a summoner to the League watcher to "watch" for their games and post messages in the #league channel | 🔒 |
 | `.last match for` | `.last match for <summoner_name>` | False | Get the last League match data for a given summoner | 🌎 |
 | `.lmf` | `.lmf <summoner_name>` | False | Get the last League match data for a given summoner (An alias for `.last match for`) | 🌎 |
-| `.league disable` | - | True | Disable the League watcher | 🔒 |
-| `.league enable` | - | True | Enable the League watcher | 🔒 |
+| `.league disable` | - | True | Disable the League watcher | 🔒👨‍💻 |
+| `.league enable` | - | True | Enable the League watcher | 🔒👨‍💻 |
 | `.league streak` | - | False | View your current league win/loss streak | 🔒 |
-| `.add to league watcher` | `.add to league watcher --summoner birki --discord birki#0001 --guild 12345` | True | Admin command to add a summoner + Discord handle combo to a given guild for the League watcher | 🔒 |
-| `.remove from league watcher` | `.remove from league watcher --discord <discord_guild_id> --summoner <summoner_name>` | True | Admin command to remove a summoner in a specific discord guild from the league watcher | 🔒 |
+| `.add to league watcher` | `.add to league watcher --summoner birki --discord birki#0001 --guild 12345` | True | Admin command to add a summoner + Discord handle combo to a given guild for the League watcher | 🔒👨‍💻 |
+| `.remove from league watcher` | `.remove from league watcher --discord <discord_guild_id> --summoner <summoner_name>` | True | Admin command to remove a summoner in a specific discord guild from the league watcher | 🔒👨‍💻 |
 | `.view my league watcher data` | `.view my league watcher data` | False | View your league watcher data | 🔒 |
 | `.loud` | `.loud rickroll.mp3` | False | Play a very loud sound from the sounds folder on the bot | 🌎 |
 | `.loud list` | - | False | List all the mp3 sound files which can be used by the `.loud` command | 🌎 |
@@ -52,7 +53,7 @@ The following commands are all available via the chatbot:
 | `.tts` | `.tts hello world! I will be read over text to speech` | False | Read a text message over text to speech in a voice channel (that you are connected to) | 🌎 |
 | `.echo` | `.echo hello` | False | A simple command to echo back a message (Like the Linux "echo" binary) | 🌎 |
 | `.history` | - | False | View the past few commands (history) that have been used by the bot | 🌎 |
-| `.log tail` | - | True | Tail / View the bots latest log messages that have been written | 🔒 |
+| `.log tail` | - | True | Tail / View the bots latest log messages that have been written | 🔒👨‍💻 |
 | `.render test` | - | False | Render a sample message with errbot to see how the chat service handles it | 🌎 |
 | `.whoami` | - | False | Return a block of data about who the bot thinks you are | 🌎 |
 | `.wallstreetbets` | - | False | View the top trending stonks from /r/wallstreetbets | 🌎 |
