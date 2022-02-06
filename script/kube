@@ -51,4 +51,4 @@ docker build -t errbot:latest $REPO_DIR/src/errbot
 echo "🔨 Building localstack-errbot:latest image"
 docker build -t localstack-errbot:latest $REPO_DIR/script/localstack
 
-echo -e "\n✅ You're all set! Now you can run 'kubectl apply -f script/k8s/' to start applying the k8s resources!"
+echo -e "\n✅ You're all set! Now you can run 'kubectl apply -f script/k8s/ -R' to start applying the k8s resources! (recursively)"
