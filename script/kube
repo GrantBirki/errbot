@@ -30,7 +30,7 @@ else
   echo "✅ kubectl is installed"
 fi
 
-read -p "Have you already run 'minikube start' to bring up your local cluster (y/n)? " CONT
+read -p "❔ Have you already run 'minikube start' to bring up your local cluster (y/n)? " CONT
 if [ "$CONT" = "y" ]; then
   echo "✅ User confirmed cluster has been started";
 else
@@ -51,4 +51,13 @@ docker build -t errbot:latest $REPO_DIR/src/errbot
 echo "🔨 Building localstack-errbot:latest image"
 docker build -t localstack-errbot:latest $REPO_DIR/script/localstack
 
-echo -e "\n✅ You're all set! Now you can run 'kubectl apply -f script/k8s/ -R' to start applying the k8s resources! (recursively)"
+echo -e "\n🚀 Deploying k8s manifests to minikube cluster..."
+
+echo -e "➕ Creating namespace errbot"
+kubectl apply -f $REPO_DIR/script/k8s/errbot/namespace.yaml
+echo -e "➕ Creating namespace localstack"
+kubectl apply -f $REPO_DIR/script/k8s/localstack/namespace.yaml
+echo -e "➕ Recursively deploying all other manifests..."
+kubectl apply -f script/k8s/ -R
+
+echo -e "\n✅ You're all set!"

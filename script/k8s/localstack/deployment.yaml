@@ -26,8 +26,8 @@ spec:
       serviceAccountName: localstack
       containers:
         - name: localstack
-          image: "localstack/localstack:latest"
-          imagePullPolicy: IfNotPresent
+          image: "localstack-errbot:latest"
+          imagePullPolicy: Never # since we are using a local image in minikube
           ports:
             - name: edge
               containerPort: 4566
