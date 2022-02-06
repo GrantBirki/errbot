@@ -270,6 +270,47 @@ That's it! This will lint all `*.py` files in the repo to ensure they conform to
 
 > Linting is just the formatting of your code to a certain standard (ie: no trailing whitespaces, "" quotes instead of '', etc)
 
+## Kubernetes
+
+So far, in these docs we have been using docker-compose to run the bot. This is great for testing and development but it is not ideal for production or testing changes right before deploying to production.
+
+Like most containerized applications, Kubernetes is a great option. Kubernetes is what I use personally to deploy this bot. In order to closely mimic the docker-compose setup and the production Kubernetes setup we can use minikube to bridge the two together.
+
+> Note: docker-compose is still the suggested method for developing locally because it is easier and quicker to test changes. Kubernetes is best suited for testing significant changes right before deploying to production.
+
+To build a local Kubernetes cluster you will need to do following:
+
+- Install [minikube](https://minikube.sigs.k8s.io/docs/start/)
+- Install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+- Install [docker](https://docs.docker.com/get-docker/)
+- Edit the `script/k8s/errbot/secret.yaml.example`
+  - Rename the file to `secret.yaml`
+  - Add your `CHAT_SERVICE_TOKEN` as a [base64 encoded string](https://kubernetes.io/docs/concepts/configuration/secret/). You can use `python3 script/base64string.py --string <your-string>` to generate a base64 encoded string for the k8s secret
+  - Optionally set other secrets or credentials you wish to use in this file and then reference them in the `script/k8s/errbot/deployment.yaml` file
+  > ⚠️ Never commit this file as it contains secrets
+
+To start a local Kubernetes cluster with minikube, simply run the following command:
+
+```console
+$ make kube
+```
+
+This command will do the following:
+
+- Start the minikube cluster (if its not already running)
+- Bind Docker to the minikube cluster
+- Build our main errbot image
+- Build our [localstack](https://github.com/localstack/localstack) image to mock AWS services (if they are used)
+- Recursively deploy all `script/k8s/**` manifests to the minikube cluster
+
+Once the `make kube` command has finished, your bot should be running! 🎉
+
+## Extra Context
+
+We use minikube to test Kubernetes changes locally before deploying them to production for extra confidence. For example, if you want to change the resource limits for your errbot container this is something you should certainly test with minikube first. Being able to validate that it "works locally" is a great way to ensure you don't accidentally deploy a broken change to production. For this reason, it is highly suggested to build and test locally with minikube for all/any k8s related changes since testing with docker-compose just won't be sufficient.
+
+Minikube won't ever be a perfect replication of what is running in production, but the idea is that it is as close as possible to catch any crazy bugs that otherwise would not be caught when developing quickly with docker-compose.
+
 ---
 
 ## What's next?
