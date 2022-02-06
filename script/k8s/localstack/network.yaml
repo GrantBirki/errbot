@@ -12,3 +12,14 @@ spec:
     - Egress
   egress:
     - {}
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: errbot
+    - podSelector:
+        matchLabels:
+          name: errbot
+    ports:
+    - protocol: TCP
+      port: 4566
