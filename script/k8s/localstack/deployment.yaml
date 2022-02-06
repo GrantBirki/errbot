@@ -45,3 +45,5 @@ spec:
           env:
             - name: DEBUG
               value: "0"
+            - name: LOCALSTACK_HOST
+              value: "http://localhost:4566"
