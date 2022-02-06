@@ -78,6 +78,8 @@ To learn more about plugin development, please check out the [development guide]
 
 ### Deployment and Hosting 🚀
 
+If you do not wish to use this public version of errbot, you can clone this repo and self-host it anywhere you wish (yay opensource!).
+
 This project builds a Docker container which you can deploy anywhere to bring your chatbot to life. Below are just a few example of all the many places you could deploy your chatbot container:
 
 - Raspberry Pi
