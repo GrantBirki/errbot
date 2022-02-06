@@ -15,7 +15,7 @@ spec:
       labels:
         name: errbot
       annotations:
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
+        seccompProfile.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       containers:
         - name: errbot
