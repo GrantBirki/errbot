@@ -41,7 +41,7 @@ spec:
             - name: BOT_STATUS_MESSAGE
               value: "errbot.birki.io | .help"
             - name: BOT_PREFIX
-              value: "."
+              value: "!"
             - name: BOT_HOME_CHANNEL
               value: "errbot"
             - name: DOCS_URL
@@ -60,28 +60,26 @@ spec:
               value: "True"
             - name: LOCALSTACK
               value: "http://localstack.localstack:4566" # kubernetes service -> http://service.namespace:port
-            - name: CHAT_SERVICE_TOKEN
-              # Secret ENV Vars
-
+            - name: CHAT_SERVICE_TOKEN # required
               valueFrom:
                 secretKeyRef:
                   name: errbot-secret
                   key: CHAT_SERVICE_TOKEN
-            - name: RIOT_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: errbot-secret
-                  key: RIOT_TOKEN
-            - name: SPOTIFY_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: errbot-secret
-                  key: SPOTIFY_CLIENT_ID
-            - name: SPOTIFY_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: errbot-secret
-                  key: SPOTIFY_CLIENT_SECRET
+            # - name: RIOT_TOKEN # optional
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: errbot-secret
+            #       key: RIOT_TOKEN
+            # - name: SPOTIFY_CLIENT_ID # optional
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: errbot-secret
+            #       key: SPOTIFY_CLIENT_ID
+            # - name: SPOTIFY_CLIENT_SECRET # optional
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: errbot-secret
+            #       key: SPOTIFY_CLIENT_SECRET
       automountServiceAccountToken: false
   strategy: {}
 
