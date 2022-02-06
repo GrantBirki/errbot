@@ -1,0 +1,14 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: localstack-network-policy
+  namespace: localstack
+spec:
+  podSelector:
+    matchLabels:
+      name: localstack
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}

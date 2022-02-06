@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: localstack
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml
+    kompose.version: 1.26.1 (a9d05d509)
+  labels:
+    name: localstack
+  name: localstack
+spec:
+  ports:
+    - name: dynamodb
+      port: 31001
+      targetPort: 31001
+    - name: "4566"
+      port: 4566
+      targetPort: 4566
+    - name: "4571"
+      port: 4571
+      targetPort: 4571
+  selector:
+    name: localstack
+status:
+  loadBalancer: {}

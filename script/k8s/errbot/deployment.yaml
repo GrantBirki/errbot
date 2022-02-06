@@ -59,7 +59,7 @@ spec:
             - name: DISABLE_LEAGUE_CRON
               value: "True"
             - name: LOCALSTACK
-              value: "http://localstack:4566"
+              value: "http://localstack.localstack:31001" # kubernetes service -> http://service.hostname:port
             - name: CHAT_SERVICE_TOKEN
               # Secret ENV Vars
 
