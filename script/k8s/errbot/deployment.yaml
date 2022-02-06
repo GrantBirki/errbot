@@ -15,7 +15,7 @@ spec:
       labels:
         name: errbot
       annotations:
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
+        seccompProfile.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       containers:
         - name: errbot
@@ -41,13 +41,13 @@ spec:
             - name: BOT_STATUS_MESSAGE
               value: "errbot.birki.io | .help"
             - name: BOT_PREFIX
-              value: "."
+              value: "!"
             - name: BOT_HOME_CHANNEL
               value: "errbot"
             - name: DOCS_URL
               value: "https://errbot.birki.io"
             - name: BOT_ADMINS
-              value: "Birki#0001"
+              value: "Birki#0001" # change to your own handle for Slack, Discord, etc
             - name: BOT_EXTRA_BACKEND_DIR
               value: "/app/backend/err-backend-discord"
             - name: RIOT_REGION
@@ -59,29 +59,27 @@ spec:
             - name: DISABLE_LEAGUE_CRON
               value: "True"
             - name: LOCALSTACK
-              value: "http://localstack:4566"
-            - name: CHAT_SERVICE_TOKEN
-              # Secret ENV Vars
-
+              value: "http://localstack.localstack:4566" # kubernetes service -> http://service.namespace:port
+            - name: CHAT_SERVICE_TOKEN # required
               valueFrom:
                 secretKeyRef:
                   name: errbot-secret
                   key: CHAT_SERVICE_TOKEN
-            - name: RIOT_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: errbot-secret
-                  key: RIOT_TOKEN
-            - name: SPOTIFY_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: errbot-secret
-                  key: SPOTIFY_CLIENT_ID
-            - name: SPOTIFY_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: errbot-secret
-                  key: SPOTIFY_CLIENT_SECRET
+            # - name: RIOT_TOKEN # optional
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: errbot-secret
+            #       key: RIOT_TOKEN
+            # - name: SPOTIFY_CLIENT_ID # optional
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: errbot-secret
+            #       key: SPOTIFY_CLIENT_ID
+            # - name: SPOTIFY_CLIENT_SECRET # optional
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: errbot-secret
+            #       key: SPOTIFY_CLIENT_SECRET
       automountServiceAccountToken: false
   strategy: {}
 

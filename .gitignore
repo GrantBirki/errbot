@@ -9,7 +9,7 @@ test.py
 test.json
 terraform/.terraform/providers
 .cache
-script/k8s/secret.yaml
+script/k8s/**/secret.yaml
 
 # Local .terraform directories
 **/.terraform/*
