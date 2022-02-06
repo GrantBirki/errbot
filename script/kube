@@ -46,7 +46,9 @@ echo "🐳 Binding Docker to minikube Docker engine..."
 eval $(minikube docker-env)
 
 echo "🔨 Building errbot:latest image"
-
 docker build -t errbot:latest $REPO_DIR/src/errbot
 
-echo "You're all set! Now you can run 'kubectl apply -f script/k8s/' to start applying the k8s resources!"
+echo "🔨 Building localstack-errbot:latest image"
+docker build -t localstack-errbot:latest $REPO_DIR/script/localstack
+
+echo -e "\n✅ You're all set! Now you can run 'kubectl apply -f script/k8s/' to start applying the k8s resources!"
