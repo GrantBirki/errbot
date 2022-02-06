@@ -6,7 +6,7 @@
 
 <h2 align="center">errbot</h1>
 <p align="center">
-  A Dicord chatbot that is easy to deploy and build upon
+  A chatbot that is easy to deploy and build upon - It can do literally anything
 </p>
 
 <p align="center">
@@ -32,7 +32,12 @@
 
 ## About 💡
 
-This project uses [errbot](https://github.com/errbotio/errbot) and [Docker](https://www.docker.com/) to quickly launch your own chatbot in a container which is highly extensible! Use this dockerized version of Errbot to self-host your very own chatbot for popular services like Slack / Discord. Anything you can write Python 🐍 code to do, you can do with Errbot!
+This project uses [errbot](https://github.com/errbotio/errbot) (hence the name) and [Docker](https://www.docker.com/) to quickly launch your own chatbot in a container which is highly extensible! Use this dockerized version of Errbot to self-host your very own chatbot for popular services like Slack / Discord. Anything you can write Python 🐍 code to do, you can do with Errbot!
+
+There are two ways you can use this bot:
+
+1. Invite the bot to your own Discord server - You can even contribute to this repo to add your own commands!
+2. Self-host the bot yourself to build upon it
 
 > Check out [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad) if you don't want all the bells and whistles of this project.
 
