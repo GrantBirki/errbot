@@ -30,17 +30,29 @@ else
   echo "✅ kubectl is installed"
 fi
 
-read -p "❔ Have you already run 'minikube start' to bring up your local cluster (y/n)? " CONT
-if [ "$CONT" = "y" ]; then
-  echo "✅ User confirmed cluster has been started";
-else
-  echo "❌ Exiting!";
+which docker > /dev/null
+
+if [ $? -ne 0 ]; then
+  echo "❌ Please install docker to continue! https://docs.docker.com/get-docker/ | Exiting..."
   exit 1
+else
+  echo "✅ docker is installed"
 fi
 
 set -e # Prevent any kind of script failures
 
-echo "☸️ Let's build a local minikube k8s cluster!"
+# Check if the minikube cluster is running
+if [ "$(minikube status 2&> /dev/null; echo $?)" -ne 0 ]; then
+  read -p "❔ Could not determine if minikube is running, would you like to start minikube now (y/n)? " CONT
+  if [ "$CONT" = "y" ]; then
+    echo "⚙️ Starting minikube...";
+    minikube start
+  else
+    echo "⚠️ Continuing... (minikube may not be running)";
+  fi
+else
+  echo "✅ minikube is already running"
+fi
 
 echo "🐳 Binding Docker to minikube Docker engine..."
 eval $(minikube docker-env)
