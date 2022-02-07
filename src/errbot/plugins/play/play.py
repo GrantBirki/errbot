@@ -138,6 +138,9 @@ class Play(BotPlugin):
         The help command for .play
         View all the different ways you can use the .play functions
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         message = ""
         # .play
@@ -183,6 +186,8 @@ class Play(BotPlugin):
         Note: This command uses the exact same syntax as the .play command
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         # Run the play_main() function with the queue_postition set to 1 (next song)
         for message in self.play_main(msg, args, queue_position=1):
@@ -200,6 +205,8 @@ class Play(BotPlugin):
         Note: Use the --channel flag if you are not in a voice channel or want to play in a specific channel
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         for message in self.play_main(msg, args):
             yield message
@@ -212,6 +219,8 @@ class Play(BotPlugin):
         Usage: .play queue
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         queue_items = self.read_queue(chatutils.guild_id(msg))
         # If it is not ready and open by another process we have to exit
@@ -237,6 +246,8 @@ class Play(BotPlugin):
         Usage: .play stats
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         # Set the default message and title for the response to be returned via chat
         title = f"🎵 **`.play` stats for this Discord server:** 🎵"
@@ -334,6 +345,8 @@ class Play(BotPlugin):
         Note: This command is kinda ugly but is helpful to full stop the .play queue
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         if msg.ctx.get("confirmed", None) == True:
             stopped = False
@@ -386,6 +399,8 @@ class Play(BotPlugin):
         Usage: .skip
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         queue_items = self.read_queue(chatutils.guild_id(msg))
         # If it is not ready and open by another process we have to exit
