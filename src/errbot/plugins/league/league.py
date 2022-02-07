@@ -87,6 +87,7 @@ class League(BotPlugin):
         """
         Disable the league cron
         """
+        ErrHelper().user(msg)
         if len(self.current_pollers) == 0:
             return "⚠ League cron already disabled"
         else:
@@ -98,6 +99,7 @@ class League(BotPlugin):
         """
         Enable the league cron
         """
+        ErrHelper().user(msg)
         if len(self.current_pollers) == 0:
             self.start_poller(INTERVAL, self.last_match_cron)
             return "🟢 League cron enabled"
@@ -259,6 +261,7 @@ class League(BotPlugin):
         Usage: .add me to league watcher <summoner_name>
         Example: .add me to league watcher birki
         """
+        ErrHelper().user(msg)
         discord_handle = chatutils.handle(msg)
         guild_id = chatutils.guild_id(msg)
 
@@ -297,6 +300,7 @@ class League(BotPlugin):
         """
         Display's your summoner's win/loss streak
         """
+        ErrHelper().user(msg)
 
         if args.strip() != "" and args != "me":
             return "What you are trying to do is not implemented yet"
@@ -334,6 +338,7 @@ class League(BotPlugin):
         Usage: .add to league watcher <summoner> <discord> <guild>
         Example: .add to league watcher --summoner birki --discord birki#0001 --guild 12345
         """
+        ErrHelper().user(msg)
         guild_id = int(guild)
 
         get_result = dynamo.get(LeagueTable, guild_id, discord)
@@ -370,6 +375,7 @@ class League(BotPlugin):
         Usage: .remove from league watcher <guild> <discord>
         Example: .remove from league watcher --guild 12345 --discord birki#0001
         """
+        ErrHelper().user(msg)
         guild_id = int(guild)
 
         get_result = dynamo.get(LeagueTable, guild_id, discord)
@@ -390,6 +396,7 @@ class League(BotPlugin):
 
         Usage: .remove me from league watcher
         """
+        ErrHelper().user(msg)
         discord_handle = chatutils.handle(msg)
         guild_id = chatutils.guild_id(msg)
 
@@ -414,6 +421,10 @@ class League(BotPlugin):
 
         This is mostly for debugging
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         discord_handle = chatutils.handle(msg)
         guild_id = chatutils.guild_id(msg)
 
@@ -456,6 +467,7 @@ class League(BotPlugin):
         Get the last match for a user (LoL)
         Shortcut for "last_match_for"
         """
+        ErrHelper().user(msg)
 
         # TODO This code is all duplicated of the last_match_for command. No bueno
 
@@ -481,6 +493,7 @@ class League(BotPlugin):
     @arg_botcmd("summoner_name", type=str)
     def last_match_for(self, msg, summoner_name=None):
         """Get the last match for a user (LoL)"""
+        ErrHelper().user(msg)
 
         if type(summoner_name) is str:
             summoner_list = summoner_name.split(",")
