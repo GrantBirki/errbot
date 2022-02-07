@@ -31,7 +31,6 @@ This can be accomplished by using the `SERVER_LOCK_ALLOW_LIST='123456789,9876543
 To actually use the environement variable in conjunction the lock function **and** a bot function to "lock" you need to add the helper method to a bot command:
 
 ```python
-
 from errbot import BotPlugin, botcmd
 from lib.chat.chatutils import ChatUtils # import the ChatUtils lib
 
@@ -57,6 +56,40 @@ The `msg` variable in `def hello(self, msg, args)` contains a Discord server id 
 ![command lock example](assets/command-locked.png)
 
 If the user invoked the command from a server that **is** in the allow list, the command will execute normally.
+
+### ErrHelper
+
+The ErrHelper library is a very important library in terms of logging and error reporting. If the `SENTRY` environment variable is configured properly in the `creds.env` file, then this library is used to send exception reports to Sentry automatically. There is also a few helper functions available in this library that can be very useful in chat functions:
+
+1. Manually send an exception report to Sentry (ex: after capturing an exception with try/except)
+2. Get the current user context for better insights with Sentry (ex: get the user's username, id, etc)
+
+To learn more about the ErrHelper library before looking at the example below, check out the source code: `src/errbot/plugins/lib/common/errhelper.py`
+
+```python
+from errbot import BotPlugin, botcmd
+from lib.common.errhelper import ErrHelper # import the ErrHelper lib
+
+class Hello(BotPlugin):
+    """Example 'Hello, world!' plugin for Errbot"""
+
+    @botcmd
+    def hello(self, msg, args):
+        """Return the phrase "Hello, world!" in chat"""
+        ErrHelper().user(msg) # set the user context (do this right at the top of the function before anything else)
+
+        # optional example demonstrating how to send an exception report to Sentry manually
+        try:
+            # do something that might throw an exception
+            raise Exception("This is an example exception")
+        except Exception as error:
+            # send the exception to Sentry
+            ErrHelper().capture(error)
+
+        return "Hello, world!"
+```
+
+You should add the `ErrHelper().user(msg)` line to the very top of every single `@botcmd` function as this provides meaningful context to all exceptions that can/will occur eventually in your function 😄
 
 ---
 
