@@ -56,6 +56,8 @@ spec:
               value: "AMERICAS"
             - name: IMAGE_TAG
               value: "${IMAGE_TAG}"
+            - name: SERVER_LOCK_ALLOW_LIST
+              value: "66199319505543168"
             # Secret ENV Vars
             - name: CHAT_SERVICE_TOKEN
               valueFrom:

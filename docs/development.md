@@ -315,6 +315,4 @@ Minikube won't ever be a perfect replication of what is running in production, b
 
 ## What's next?
 
-Continue on to the [persistence](persistence.md) section to learn more about how to have a level of persistence with your bot in the ephemeral container world 💾
-
-Alternatively, continue on to the [deployment](deployment.md) section to learn more about how to deploy your bot to production 🚀
+Continue on to the [helper-functions](helper-functions.md) section to about some helpful functions to use in your bot commands to make life easier.
