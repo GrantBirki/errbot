@@ -5,7 +5,7 @@ from errbot import BotPlugin, botcmd
 from lib.chat.chatutils import ChatUtils
 from lib.chat.discord_custom import DiscordCustom
 
-# from lib.common.errhelper import ErrHelper
+from lib.common.errhelper import ErrHelper
 
 chatutils = ChatUtils()
 
@@ -171,5 +171,13 @@ class Example(BotPlugin):
     #     except ZeroDivisionError as error:
     #         ErrHelper().capture(error)
     #         x = "Check the logs because I made an error"
+
+    #     return x
+
+    # @botcmd
+    # def oh_no(self, msg, args):
+    #     """This is an example of using the ErrHelper class to capture errors"""
+
+    #     x = 1 / 0
 
     #     return x
