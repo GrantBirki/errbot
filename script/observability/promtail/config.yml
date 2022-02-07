@@ -17,4 +17,13 @@ scrape_configs:
         labels:
           job: errbot
           __path__: /app/errbot.log
-          host: grafana
+    pipeline_stages:
+    - match:
+        selector: '{job="errbot"}'
+        stages:
+        - regex:
+            expression: '(?P<timestamp>\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d,\d\d\d)\s(?P<level>[a-zA-Z]+)\s+(?P<name>[a-zA-Z\.]+)\s+(?P<message>.*)'
+
+        - labels:
+            level:
+            message:
