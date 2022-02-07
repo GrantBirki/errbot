@@ -1,6 +1,6 @@
 run:
 	@echo "\033[0;34m[#] Killing old docker processes\033[0m"
-	docker-compose rm -fs
+	docker-compose down -v -t 1
 
 	@echo "\033[0;34m[#] Building docker containers - full errbot stack\033[0m"
 	docker-compose up --build -d
@@ -11,7 +11,7 @@ run:
 local:
 	@echo "\033[0;34m[#] Starting local bot test environment\033[0m"
 	@echo "\033[0;34m[#] Killing old docker processes\033[0m"
-	docker-compose rm -fs
+	docker-compose down -v -t 1
 
 	@echo "\033[0;34m[#] Building docker containers\033[0m"
 	docker-compose build
