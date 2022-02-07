@@ -10,10 +10,11 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-- job_name: system
-  static_configs:
-  - targets:
-      - localhost
-    labels:
-      job: varlogs
-      __path__: /app/errbot.log
+  - job_name: errbot
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: errbot
+          __path__: /app/errbot.log
+          host: grafana

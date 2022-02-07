@@ -50,9 +50,8 @@ services:
     container_name: promtail
     image: grafana/promtail:2.4.2
     volumes:
-      - /var/log:/var/log
       - log-volume:/app:ro
-      - ./script/promtail/config.yaml:/etc/promtail/config.yaml
+      - ./script/observability/promtail/config.yml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
     depends_on:
       - loki
@@ -61,6 +60,9 @@ services:
   grafana:
     container_name: grafana
     image: grafana/grafana:latest
+    volumes:
+      - ./script/observability/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./script/observability/grafana/loki.yaml:/etc/grafana/provisioning/datasources/default.yaml
     ports:
       - "3000:3000"
     depends_on:
