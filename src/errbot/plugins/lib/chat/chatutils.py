@@ -21,6 +21,7 @@ if server_lock_env is not None:
 else:
     SERVER_LOCK_ALLOW_LIST = None
 
+
 class ChatUtils:
     def color(self, color):
         """
@@ -150,9 +151,9 @@ class ChatUtils:
                 self.locked_message(msg, bot_self)
                 return True
         except:
-           # Catch all exceptions and return True to lock by default
-           self.locked_message(msg, bot_self)
-           return True
+            # Catch all exceptions and return True to lock by default
+            self.locked_message(msg, bot_self)
+            return True
 
     def locked_message(self, msg, bot_self):
         return self.send_card_helper(
