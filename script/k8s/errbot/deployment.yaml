@@ -58,6 +58,8 @@ spec:
               value: "test"
             - name: DISABLE_LEAGUE_CRON
               value: "True"
+            - name: SERVER_LOCK_ALLOW_LIST
+              value: "disabled"
             - name: LOCALSTACK
               value: "http://localstack.localstack:4566" # kubernetes service -> http://service.namespace:port
             - name: CHAT_SERVICE_TOKEN # required

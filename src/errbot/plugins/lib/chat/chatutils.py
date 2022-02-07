@@ -14,6 +14,13 @@ COLORS = {
 
 BACKEND = os.environ["BACKEND"]
 
+# Get the allow listed servers for the Discord server lock
+server_lock_env = os.environ.get("SERVER_LOCK_ALLOW_LIST", None)
+if server_lock_env is not None:
+    SERVER_LOCK_ALLOW_LIST = server_lock_env.split(",")
+else:
+    SERVER_LOCK_ALLOW_LIST = None
+
 
 class ChatUtils:
     def color(self, color):
@@ -107,6 +114,55 @@ class ChatUtils:
                 if not match:
                     raise ValueError("Could not find user ID")
                 return str(match.group(1).strip())
+
+    def locked(self, msg, bot_self):
+        """
+        Used to lock a bot command behind the SERVER_LOCK_ALLOW_LIST
+        All commands that invoke this function (at the top of the bot command) will prevent execution of the bot funct...
+        ion unless the server is in the SERVER_LOCK_ALLOW_LIST
+
+        Note: This function currently only works for Discord
+
+        :param msg: The message object
+        :return: True if the server is not in the SERVER_LOCK_ALLOW_LIST otherwise, False
+
+        Note: Chat functions should immediately exit if this function returns true meaning that it is locked
+        """
+        try:
+            # If the SERVER_LOCK_ALLOW_LIST env is not set, lock the command by default
+            if SERVER_LOCK_ALLOW_LIST is None:
+                self.locked_message(msg, bot_self)
+                return True
+            # If the SERVER_LOCK_ALLOW_LIST is set to "disabled", unlock all the command locks
+            elif "disabled" in SERVER_LOCK_ALLOW_LIST:
+                return False
+
+            # Only execute if the backend is discord
+            if BACKEND == "discord":
+                # If the server id 'is not' in the allow list, return True because it is locked
+                if str(self.guild_id(msg)) not in SERVER_LOCK_ALLOW_LIST:
+                    self.locked_message(msg, bot_self)
+                    return True
+                # If the servier id 'is' in the allow list, return False because it is unlocked
+                else:
+                    return False
+            # If the backend is not discord, return True to lock by default
+            else:
+                self.locked_message(msg, bot_self)
+                return True
+        except:
+            # Catch all exceptions and return True to lock by default
+            self.locked_message(msg, bot_self)
+            return True
+
+    def locked_message(self, msg, bot_self):
+        return self.send_card_helper(
+            bot_self=bot_self,
+            title="🔒 Command Locked",
+            body="This command is locked and not publicly available",
+            color=self.color("red"),
+            in_reply_to=msg,
+        )
 
     def send_card_helper(
         self,

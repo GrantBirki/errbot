@@ -14,7 +14,7 @@ The following commands are all available via the chatbot:
     - 🔒👨‍💻 - Locked to the bot admins
     - ❌ - Disabled
 
-|   Command   |  Example  |  Admin Only         |  Description     | Availability |
+|  Command  |  Example  |  Admin Only  |  Description  |  Availability  |
 |    :----:   |     :----:    |   :----:      |        :----:       |        :----:       |
 | `.help`      | -         | False | The help command to view all available commands | 🌎 |
 | `.docs` | - | False | View the public documenation link for the bot | 🌎 |
@@ -30,6 +30,7 @@ The following commands are all available via the chatbot:
 | `.uptime` | - | False | View the bots "uptime" | 🌎 |
 | `.insult` | `.insult @errbot` | False | Insult a given user. Great with friends! | 🌎 |
 | `.add me to league watcher` | `.add me to league watcher <summoner_name>` | False | Add a summoner to the League watcher to "watch" for their games and post messages in the #league channel | 🔒 |
+| `.remove me from league watcher` | - | False | Remove your summoner from the League watcher | 🔒 |
 | `.last match for` | `.last match for <summoner_name>` | False | Get the last League match data for a given summoner | 🌎 |
 | `.lmf` | `.lmf <summoner_name>` | False | Get the last League match data for a given summoner (An alias for `.last match for`) | 🌎 |
 | `.league disable` | - | True | Disable the League watcher | 🔒👨‍💻 |
