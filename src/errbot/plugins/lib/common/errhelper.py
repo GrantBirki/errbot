@@ -39,7 +39,7 @@ class ErrHelper:
         :param error: The exception to be captured (String or Exception)
         :return: None
 
-        Note: If Sentry.io is enabled it will be sent to Sentry, otherwise it will be logged via the usual logging methods
+        Note: If Sentry.io is enabled it will be sent to Sentry AND logged, otherwise it will be logged via the usual logging methods
         """
         if SENTRY_DISABLED:
             LOG.error(error)
@@ -47,6 +47,8 @@ class ErrHelper:
             # If the provided message type is a string, then we'll send it to Sentry as a message
             if type(error) == str:
                 capture_message(error)
+                LOG.error(error)
             # Otherwise, we'll send it to Sentry as an exception (assumed)
             else:
                 capture_exception(error)
+                LOG.error(error)
