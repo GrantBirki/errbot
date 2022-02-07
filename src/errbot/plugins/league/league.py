@@ -262,6 +262,9 @@ class League(BotPlugin):
         Example: .add me to league watcher birki
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         discord_handle = chatutils.handle(msg)
         guild_id = chatutils.guild_id(msg)
 
@@ -301,6 +304,8 @@ class League(BotPlugin):
         Display's your summoner's win/loss streak
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         if args.strip() != "" and args != "me":
             return "What you are trying to do is not implemented yet"
@@ -339,6 +344,9 @@ class League(BotPlugin):
         Example: .add to league watcher --summoner birki --discord birki#0001 --guild 12345
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         guild_id = int(guild)
 
         get_result = dynamo.get(LeagueTable, guild_id, discord)
@@ -376,6 +384,9 @@ class League(BotPlugin):
         Example: .remove from league watcher --guild 12345 --discord birki#0001
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         guild_id = int(guild)
 
         get_result = dynamo.get(LeagueTable, guild_id, discord)
@@ -397,6 +408,9 @@ class League(BotPlugin):
         Usage: .remove me from league watcher
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         discord_handle = chatutils.handle(msg)
         guild_id = chatutils.guild_id(msg)
 
