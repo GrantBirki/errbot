@@ -15,11 +15,11 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: errbot
+          app: errbot
           __path__: /app/errbot.log
     pipeline_stages:
     - match:
-        selector: '{job="errbot"}'
+        selector: '{app="errbot"}'
         stages:
         - regex:
             expression: '(?P<timestamp>\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d,\d\d\d)\s(?P<level>[a-zA-Z]+)\s+(?P<name>[a-zA-Z\.]+)\s+(?P<message>.*)'
@@ -27,3 +27,23 @@ scrape_configs:
         - labels:
             level:
             message:
+
+    # to scrape metrics use -> https://grafana.com/docs/loki/latest/clients/promtail/stages/metrics/
+    # - match:
+    #     selector: '{app="errbot"}'
+    #     stages:
+    #     # The regex stage tries to extract a Go panic by looking for panic:
+    #     # in the log message.
+    #     - regex:
+    #         expression: '(?P<warning>\sWARNING\s\s\s\s\s)'
+
+    #     # The metrics stage is going to increment a panic_total metric counter
+    #     # which Promtail exposes. The counter is only incremented when panic
+    #     # was extracted from the regex stage.
+    #     - metrics:
+    #         warning_total:
+    #           type: Counter
+    #           description: "total count of warnings"
+    #           source: warning
+    #           config:
+    #             action: inc
