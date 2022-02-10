@@ -3,3 +3,14 @@ kind: Namespace
 metadata:
   name: observability
 spec: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: localstack
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
