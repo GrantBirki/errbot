@@ -72,4 +72,6 @@ kubectl apply -f $REPO_DIR/script/k8s/localstack/namespace.yaml
 echo -e "➕ Recursively deploying all other manifests..."
 kubectl apply -f script/k8s/ -R
 
+echo -e "\nTip: 'kubectl apply -f script/k8s/ -R' will apply all manifests for this local stack"
+
 echo -e "\n✅ You're all set!"
