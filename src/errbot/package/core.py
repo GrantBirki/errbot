@@ -80,7 +80,7 @@ class ErrBot(Backend, StoreMixin):
         self.flow_executor = FlowExecutor(self)
         self._gbl = RLock()  # this protects internal structures of this class
         self.set_message_size_limit()
-        self.command_counter = {} # custom command counter variable
+        self.command_usage_data = {} # custom command usage data variable
 
     @property
     def message_size_limit(self) -> int:
@@ -459,12 +459,12 @@ class ErrBot(Backend, StoreMixin):
         # ================ CUSTOM COMMAND COUNTER LOGIC ================
 
         try:
-            if cmd not in self.command_counter:
-                self.command_counter[cmd] = 1
+            if cmd not in self.command_usage_data:
+                self.command_usage_data[cmd] = 1
             else:
-                self.command_counter[cmd] += 1
+                self.command_usage_data[cmd] += 1
         except Exception as error:
-            log.error(f'Error when trying to increment the command counter for {cmd}: {error}')
+            log.error(f'Error when trying to increment the command usage data variable for {cmd}: {error}')
 
         # ==============================================================
 
