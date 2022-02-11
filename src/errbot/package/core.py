@@ -441,14 +441,18 @@ class ErrBot(Backend, StoreMixin):
         user_cmd_history = self.cmd_history[username]
 
         # ================ CUSTOM LOGIC ================
+        base_log_string = f'Processing command "{cmd}" with parameters "{args}" from {frm}'
         try:
             if os.environ["BACKEND"].lower().strip() == "discord":
-                guild_id = msg.frm.room.__dict__['_guild_id']
-                log.info(f'Processing command "{cmd}" with parameters "{args}" from {frm}:{guild_id}')
+                try:
+                    guild_id = msg.frm.room.__dict__['_guild_id']
+                    log.info(f'{base_log_string}:{guild_id}')
+                except AttributeError:
+                    log.info(f'{base_log_string}:dm')
             else:
-                log.info(f'Processing command "{cmd}" with parameters "{args}" from {frm}')
+                log.info(base_log_string)
         except:
-            log.info(f'Processing command "{cmd}" with parameters "{args}" from {frm}')
+            log.info(base_log_string)
         # ================ END CUSTOM LOGIC ================
 
         if (cmd, args) in user_cmd_history:
