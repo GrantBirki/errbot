@@ -21,7 +21,7 @@ INSTALL_MESSAGE_TEXT = "🟢 Systems are now online"
 # Interval for pushing health checks to the status_page endpoint
 STATUS_INTERVAL = 15
 # Interval for the command usage publish cron
-COMMAND_USAGE_PUBLISH_INTERVAL = 10
+COMMAND_USAGE_PUBLISH_INTERVAL = 120  # seconds
 STATUS_PUSH_ENDPOINT = os.environ.get("STATUS_PUSH_ENDPOINT", False)
 STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 15  # seconds
 BOT_NAME = os.environ["BOT_NAME"].strip()
