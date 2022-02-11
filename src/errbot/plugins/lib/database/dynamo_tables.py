@@ -115,6 +115,6 @@ class BotDataTable(Model):
         if LOCALSTACK:
             host = LOCALSTACK
 
-    bot = NumberAttribute(hash_key=True)
+    bot = UnicodeAttribute(hash_key=True)
     command_usage_data = UnicodeAttribute()
     updated_at = UnicodeAttribute()
