@@ -80,6 +80,7 @@ class ErrBot(Backend, StoreMixin):
         self.flow_executor = FlowExecutor(self)
         self._gbl = RLock()  # this protects internal structures of this class
         self.set_message_size_limit()
+        self.command_counter = {} # custom command counter variable
 
     @property
     def message_size_limit(self) -> int:
@@ -440,7 +441,8 @@ class ErrBot(Backend, StoreMixin):
         username = frm.person
         user_cmd_history = self.cmd_history[username]
 
-        # ================ CUSTOM LOGIC ================
+        # ================ CUSTOM LOGGING LOGIC ================
+
         base_log_string = f'Processing command "{cmd}" with parameters "{args}" from {frm}'
         try:
             if os.environ["BACKEND"].lower().strip() == "discord":
@@ -453,7 +455,15 @@ class ErrBot(Backend, StoreMixin):
                 log.info(base_log_string)
         except:
             log.info(base_log_string)
-        # ================ END CUSTOM LOGIC ================
+
+        # ================ CUSTOM COMMAND COUNTER LOGIC ================
+
+        if cmd not in self.command_counter:
+            self.command_counter[cmd] = 1
+        else:
+            self.command_counter[cmd] += 1
+
+        # ==============================================================
 
         if (cmd, args) in user_cmd_history:
             user_cmd_history.remove((cmd, args))  # Avoids duplicate history items
