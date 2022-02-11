@@ -18,5 +18,5 @@ module "errbot" {
 module "promtail" {
   source = "./modules/daemonsets/promtail"
   # Secrets
-  LOKI_PUSH_URL    = var.LOKI_PUSH_URL
+  LOKI_PUSH_URL = var.LOKI_PUSH_URL
 }

@@ -34,8 +34,8 @@ variable "CLOUD_LOCATION" {
 variable "NODE_DISK_SIZE_GB" {
   description = "The size in GB of the storage on each node"
   # This needs to be 30GB minimum or Azure API will say "no no no"
-  default     = 30
-  type        = number
+  default = 30
+  type    = number
 }
 
 # Azure Creds
