@@ -20,6 +20,8 @@ class Dynamo:
     def write(self, object):
         """
         Write a new (and replace) a database record
+        :return: True if successful
+        :return: False if there is an error
         """
         try:
             iso_timestamp = util.iso_timestamp()
@@ -37,6 +39,10 @@ class Dynamo:
 
         Example [records_to_update]:
         [SomeTable.hello_world.set("i am a message")]
+
+        :return: True if successful
+        :return: None if the record to update does not exist
+        :return: False if there is an error
         """
         try:
 
@@ -56,6 +62,10 @@ class Dynamo:
         """
         Get an existing database object
         Note: Useful for passing this object into the update method
+
+        :return: dynamodb object if it exists
+        :return: None if it does not exist
+        :return: False if there is an error
         """
         try:
             if sort_key:
@@ -75,6 +85,8 @@ class Dynamo:
         Deletes a database object
 
         Note: You need to run a get() and pass the object in to use this method
+        :return: True if successful
+        :return: False if there is an error
         """
         try:
             object.delete()
@@ -91,6 +103,8 @@ class Dynamo:
         or date equal to ... etc., you should consider using a query not scan
 
         kwargs are any parameters you want to pass to the scan operation
+        :return: A dictionary of all the records in the table if successful
+        :return: False if there is an error
         """
         try:
             dbTable = dynamo.Table(table_name)
