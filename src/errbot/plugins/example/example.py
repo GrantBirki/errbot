@@ -162,6 +162,21 @@ class Example(BotPlugin):
         memory = f"Memory usage: {psutil.virtual_memory()[2]}%"
         return message + cpu + memory
 
+    @botcmd
+    def totals(self, msg, args):
+        """Get all the totals for the bots usage"""
+
+        message = f"• TODO\n"
+
+        chatutils.send_card_helper(
+            bot_self=self,
+            title="📊 Bot Usage Totals",
+            body=message,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
+
+
     # @botcmd
     # def fail(self, msg, args):
     #     """This is an example of using the ErrHelper class to capture errors"""
