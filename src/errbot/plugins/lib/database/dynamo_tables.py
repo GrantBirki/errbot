@@ -105,3 +105,16 @@ class SparkleTable(Model):
     total_sparkles = NumberAttribute()
     sparkle_reasons = UnicodeAttribute()
     updated_at = UnicodeAttribute()
+
+class BotDataTable(Model):
+    class Meta:
+        table_name = "botdata"
+        region = AWS_REGION
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
+        if LOCALSTACK:
+            host = LOCALSTACK
+
+    bot = NumberAttribute(hash_key=True)
+    command_usage_data = UnicodeAttribute()
+    updated_at = UnicodeAttribute()
