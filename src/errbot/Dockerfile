@@ -16,6 +16,10 @@ RUN apk add chromium chromium-chromedriver xvfb
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+# for discord / other backends
+COPY --chown=errbot:errbot backend /app/backend
+RUN pip install -r /app/backend/err-backend-discord/requirements.txt
+
 # create nonroot errbot user and switch to it
 RUN adduser -D errbot
 RUN chown -R errbot:errbot /app
@@ -37,10 +41,6 @@ rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/webserver.* \
 rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/backup.* \
 rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/plugins.* \
 rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/textcmds.*
-
-# for discord / other backends
-COPY --chown=errbot:errbot backend /app/backend
-RUN pip install -r /app/backend/err-backend-discord/requirements.txt
 
 # copy local files
 COPY --chown=errbot:errbot config.py /app/config.py
