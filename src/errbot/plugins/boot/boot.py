@@ -48,7 +48,9 @@ class Boot(BotPlugin):
             self.start_poller(STATUS_INTERVAL, self.push_health_status)
 
         # Start the publish_command_counter cron
-        self.start_poller(COMMAND_USAGE_PUBLISH_INTERVAL, self.publish_command_usage_data)
+        self.start_poller(
+            COMMAND_USAGE_PUBLISH_INTERVAL, self.publish_command_usage_data
+        )
 
     def publish_command_usage_data(self):
         # Grab the current command counter dictionary
@@ -67,7 +69,9 @@ class Boot(BotPlugin):
         # If the record exists, update it with the most recent values collected
         if record:
             record_parsed = json.loads(record.command_usage_data)
-            updated_usage_data = dict(Counter(record_parsed) + Counter(command_usage_data_snapshot))
+            updated_usage_data = dict(
+                Counter(record_parsed) + Counter(command_usage_data_snapshot)
+            )
 
             # Update the record with the updated usage data
             update_result = dynamo.update(
@@ -80,11 +84,15 @@ class Boot(BotPlugin):
 
             # If the update was successful, return
             if update_result:
-                self.log.info(f"Successfully published command usage data for {BOT_NAME}")
+                self.log.info(
+                    f"Successfully published command usage data for {BOT_NAME}"
+                )
                 return
             # If the update failed due to a missing record, log the error
             elif update_result is None:
-                self.log.error(f"Failed to update BotDataTable due to a DoesNotExist exception from DynamoDB for {BOT_NAME}")
+                self.log.error(
+                    f"Failed to update BotDataTable due to a DoesNotExist exception from DynamoDB for {BOT_NAME}"
+                )
                 return
             # If the update failed, log an error and return
             elif update_result is False:

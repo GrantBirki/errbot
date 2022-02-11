@@ -106,6 +106,7 @@ class SparkleTable(Model):
     sparkle_reasons = UnicodeAttribute()
     updated_at = UnicodeAttribute()
 
+
 class BotDataTable(Model):
     class Meta:
         table_name = "botdata"

@@ -80,7 +80,7 @@ class ErrBot(Backend, StoreMixin):
         self.flow_executor = FlowExecutor(self)
         self._gbl = RLock()  # this protects internal structures of this class
         self.set_message_size_limit()
-        self.command_usage_data = {} # custom command usage data variable
+        self.command_usage_data = {}  # custom command usage data variable
 
     @property
     def message_size_limit(self) -> int:
@@ -443,14 +443,16 @@ class ErrBot(Backend, StoreMixin):
 
         # ================ CUSTOM LOGGING LOGIC ================
 
-        base_log_string = f'Processing command "{cmd}" with parameters "{args}" from {frm}'
+        base_log_string = (
+            f'Processing command "{cmd}" with parameters "{args}" from {frm}'
+        )
         try:
             if os.environ["BACKEND"].lower().strip() == "discord":
                 try:
-                    guild_id = msg.frm.room.__dict__['_guild_id']
-                    log.info(f'{base_log_string}:{guild_id}')
+                    guild_id = msg.frm.room.__dict__["_guild_id"]
+                    log.info(f"{base_log_string}:{guild_id}")
                 except AttributeError:
-                    log.info(f'{base_log_string}:dm')
+                    log.info(f"{base_log_string}:dm")
             else:
                 log.info(base_log_string)
         except:
@@ -464,7 +466,9 @@ class ErrBot(Backend, StoreMixin):
             else:
                 self.command_usage_data[cmd] += 1
         except Exception as error:
-            log.error(f'Error when trying to increment the command usage data variable for {cmd}: {error}')
+            log.error(
+                f"Error when trying to increment the command usage data variable for {cmd}: {error}"
+            )
 
         # ==============================================================
 

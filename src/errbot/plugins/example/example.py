@@ -197,7 +197,6 @@ class Example(BotPlugin):
             in_reply_to=msg,
         )
 
-
     # @botcmd
     # def fail(self, msg, args):
     #     """This is an example of using the ErrHelper class to capture errors"""
