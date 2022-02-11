@@ -458,10 +458,13 @@ class ErrBot(Backend, StoreMixin):
 
         # ================ CUSTOM COMMAND COUNTER LOGIC ================
 
-        if cmd not in self.command_counter:
-            self.command_counter[cmd] = 1
-        else:
-            self.command_counter[cmd] += 1
+        try:
+            if cmd not in self.command_counter:
+                self.command_counter[cmd] = 1
+            else:
+                self.command_counter[cmd] += 1
+        except Exception as error:
+            log.error(f'Error when trying to increment the command counter for {cmd}: {error}')
 
         # ==============================================================
 
