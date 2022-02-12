@@ -18,7 +18,6 @@
 
 import logging
 import os
-import sys
 
 ##########################################################################
 # Core Errbot configuration                                              #
@@ -44,6 +43,8 @@ import sys
 # 'XMPP'     - the Extensible Messaging and Presence Protocol (https://xmpp.org/)
 # 'Telegram' - cloud-based mobile and desktop messaging app with a focus
 #              on security and speed. (https://telegram.org/)
+
+BOT_NAME = os.environ["BOT_NAME"].strip()
 
 ### SENTRY.IO ###
 # Try to load sentry
@@ -159,7 +160,7 @@ PLUGINS_CALLBACK_ORDER = (None,)
 # to your formatter instance (inherits from logging.Formatter)
 #   For information on how to create a logging formatter and what it can do, see
 #   https://docs.python.org/3/library/logging.html#formatter-objects
-# BOT_LOG_FORMATTER =
+BOT_LOG_FORMATTER = logging.Formatter(f"%(asctime)s {BOT_NAME} %(levelname)-8s %(name)-25s %(message)s")
 
 # The location of the log file. If you set this to None, then logging will
 # happen to console only.
