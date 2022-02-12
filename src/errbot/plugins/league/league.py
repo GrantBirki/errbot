@@ -51,7 +51,7 @@ if RIOT_TOKEN:
     LEAGUE_CHANNEL = "#league"
 
     # last_match_cron interval
-    INTERVAL = 60  # seconds
+    INTERVAL = 90  # seconds
 
 
 class League(BotPlugin):
@@ -116,9 +116,10 @@ class League(BotPlugin):
         current_matches_sha256 = util.sha256(json.dumps(match_list))
         # Checks if the last match data is already in the database
         if item.get("last_match_sha256", None) == current_matches_sha256:
-            self.log.info(
-                f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_matches_sha256[:8]} | {item['summoner_name']}"
-            )
+            # Uncomment the line below for extra verbose logs as the league cron runs
+            # self.log.info(
+            #     f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_matches_sha256[:8]} | {item['summoner_name']}"
+            # )
             return "duplicate_sha"
 
         # Grab only the most recent match [0]
