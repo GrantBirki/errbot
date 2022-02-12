@@ -36,6 +36,8 @@ spec:
             privileged: false
           env:
             # General ENV Vars
+            - name: BOT_NAME
+              value: errbot
             - name: BACKEND
               value: "Discord"
             - name: BOT_STATUS_MESSAGE

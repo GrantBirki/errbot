@@ -130,3 +130,25 @@ module "dynamodb_table_sparkle" {
     managed_by = "terraform"
   }
 }
+
+# For botdata table
+module "dynamodb_botdata_play" {
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "1.1.0"
+
+  name                           = "botdata"
+  hash_key                       = "bot"
+  billing_mode                   = "PAY_PER_REQUEST"
+  point_in_time_recovery_enabled = true
+
+  attributes = [
+    {
+      name = "bot"
+      type = "S"
+    },
+  ]
+
+  tags = {
+    managed_by = "terraform"
+  }
+}

@@ -14,3 +14,9 @@ module "errbot" {
   # Config
   ACR_NAME = data.azurerm_container_registry.acr.name
 }
+
+module "promtail" {
+  source = "./modules/daemonsets/promtail"
+  # Secrets
+  LOKI_PUSH_URL = var.LOKI_PUSH_URL
+}

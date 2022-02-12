@@ -286,6 +286,7 @@ jobs:
           TF_VAR_SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           TF_VAR_SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           TF_VAR_SENTRY: ${{ secrets.SENTRY }}
+          TF_VAR_LOKI_PUSH_URL: ${{ secrets.LOKI_PUSH_URL }}
         run: terraform plan -no-color
         continue-on-error: true
 
@@ -406,6 +407,7 @@ jobs:
           TF_VAR_SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           TF_VAR_SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           TF_VAR_SENTRY: ${{ secrets.SENTRY }}
+          TF_VAR_LOKI_PUSH_URL: ${{ secrets.LOKI_PUSH_URL }}
         run: terraform apply -auto-approve
 
       # Send a deployment message to Discord via a webhook

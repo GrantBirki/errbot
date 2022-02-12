@@ -2,6 +2,10 @@
 
 # This is a script to automatically start a local minikube cluster for bot development
 
+OFF='\033[0m' # Text color Reset
+BLUE='\033[0;34m' # Blue
+GREEN='\033[0;32m' # Green
+
 set -e # Prevent any kind of script failures
 
 # Global Directory Variables
@@ -69,7 +73,13 @@ echo -e "➕ Creating namespace errbot"
 kubectl apply -f $REPO_DIR/script/k8s/errbot/namespace.yaml
 echo -e "➕ Creating namespace localstack"
 kubectl apply -f $REPO_DIR/script/k8s/localstack/namespace.yaml
+echo -e "➕ Creating namespace observability"
+kubectl apply -f $REPO_DIR/script/k8s/observability/namespace.yaml
 echo -e "➕ Recursively deploying all other manifests..."
 kubectl apply -f script/k8s/ -R
+
+echo -e "\nTip: ${BLUE}'kubectl apply -f script/k8s/ -R'${OFF} will apply all manifests for this local stack"
+echo -e "\nObservability: You can now optionally run ${BLUE}'script/k8s/observability/setup'${OFF} to setup a grafana stack in your k8s cluster"
+
 
 echo -e "\n✅ You're all set!"
