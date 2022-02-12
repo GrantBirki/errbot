@@ -169,8 +169,8 @@ class Example(BotPlugin):
         return message + cpu + memory
 
     @botcmd
-    def totals(self, msg, args):
-        """Get all the totals for the bots usage"""
+    def stats(self, msg, args):
+        """Get all the stats for the bot's command usage"""
 
         # Attempt to get the bot data table for this bot
         record = dynamo.get(BotDataTable, BOT_NAME)
