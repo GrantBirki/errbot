@@ -542,8 +542,15 @@ class DiscordBackend(ErrBot):
             if not isinstance(recipient, DiscordSender):
                 raise ValueError("Message object from is not a DiscordSender")
 
-            async with recipient.get_discord_object().typing():
-                self._dispatch_to_plugins("callback_message", err_msg)
+            try:
+                async with recipient.get_discord_object().typing():
+                    self._dispatch_to_plugins("callback_message", err_msg)
+            except discord.errors.HTTPException as error:
+                # Suppress this wacky error
+                if str(error) == "400 Bad Request (error code: 50007): Cannot send messages to this user":
+                    pass
+                else:
+                    log.error(f"discord.errors.HTTPException: {error}")
 
         if msg.mentions:
             self.callback_mention(
