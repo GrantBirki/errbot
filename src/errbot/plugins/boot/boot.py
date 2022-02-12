@@ -60,7 +60,8 @@ class Boot(BotPlugin):
 
         # If the command counter dict is empty, don't do anything
         if not command_usage_data_snapshot:
-            self.log.info(f"command_counter dict is empty, not publishing")
+            # uncomment the line(s) below for debugging and verbosity
+            # self.log.info(f"command_counter dict is empty, not publishing")
             return
 
         # Attempt to get the bot data table for this bot
@@ -84,23 +85,27 @@ class Boot(BotPlugin):
 
             # If the update was successful, return
             if update_result:
-                self.log.info(
-                    f"Successfully published command usage data for {BOT_NAME}"
-                )
+                # uncomment the line(s) below for debugging and verbosity
+                # self.log.info(
+                #     f"Successfully published command usage data for {BOT_NAME}"
+                # )
                 return
             # If the update failed due to a missing record, log the error
             elif update_result is None:
                 self.log.error(
-                    f"Failed to update BotDataTable due to a DoesNotExist exception from DynamoDB for {BOT_NAME}"
+                    f'Failed to update BotDataTable due to a DoesNotExist exception from DynamoDB for "{BOT_NAME}"'
                 )
                 return
             # If the update failed, log an error and return
             elif update_result is False:
-                self.log.error(f"Failed to update BotDataTable for {BOT_NAME}")
+                self.log.error(f'Failed to update BotDataTable for "{BOT_NAME}"')
                 return
 
         # If the record doesn't exist, create it
         elif record is None:
+            self.log.info(
+                f'BotDataTable record for "{BOT_NAME}" was not found. Creating..."'
+            )
             new_record = dynamo.write(
                 BotDataTable(
                     bot=BOT_NAME,
@@ -110,11 +115,11 @@ class Boot(BotPlugin):
             )
             # If the write was successful, log and return
             if new_record:
-                self.log.info(f"Created new BotDataTable record - BOT_NAME: {BOT_NAME}")
+                self.log.info(f'Created new BotDataTable record for "{BOT_NAME}"')
                 return
             # If the write failed, log an error and return
             elif new_record is False:
-                self.log.error(f"Failed to write to BotDataTable for {BOT_NAME}")
+                self.log.error(f'Failed to write to BotDataTable for "{BOT_NAME}"')
                 return
 
     def push_health_status(self):
