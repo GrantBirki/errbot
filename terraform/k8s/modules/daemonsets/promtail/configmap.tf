@@ -1,5 +1,5 @@
 data "kubectl_path_documents" "promtail_configmap_manifest" {
-  vars = {
+  sensitive_vars = {
     LOKI_PUSH_URL            = "${var.LOKI_PUSH_URL}"
   }
   pattern = "modules/daemonsets/promtail/promtail-config.yaml"
