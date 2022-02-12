@@ -2,7 +2,7 @@ data "kubectl_path_documents" "promtail_deployment_manifest" {
   depends_on = [
     data.kubectl_path_documents.promtail_configmap_manifest
   ]
-  pattern = "modules/daemonsets/promtail/deployment.yaml"
+  pattern = "modules/daemonsets/promtail/promtail.yaml"
 }
 
 resource "kubectl_manifest" "promtail_deployment" {
