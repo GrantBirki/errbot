@@ -160,7 +160,9 @@ PLUGINS_CALLBACK_ORDER = (None,)
 # to your formatter instance (inherits from logging.Formatter)
 #   For information on how to create a logging formatter and what it can do, see
 #   https://docs.python.org/3/library/logging.html#formatter-objects
-BOT_LOG_FORMATTER = logging.Formatter(f"%(asctime)s {BOT_NAME} %(levelname)-8s %(name)-25s %(message)s")
+BOT_LOG_FORMATTER = logging.Formatter(
+    f"%(asctime)s {BOT_NAME} %(levelname)-8s %(name)-25s %(message)s"
+)
 
 # The location of the log file. If you set this to None, then logging will
 # happen to console only.

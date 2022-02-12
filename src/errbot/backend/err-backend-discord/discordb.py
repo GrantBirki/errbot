@@ -547,7 +547,10 @@ class DiscordBackend(ErrBot):
                     self._dispatch_to_plugins("callback_message", err_msg)
             except discord.errors.HTTPException as error:
                 # Suppress this wacky error
-                if str(error) == "400 Bad Request (error code: 50007): Cannot send messages to this user":
+                if (
+                    str(error)
+                    == "400 Bad Request (error code: 50007): Cannot send messages to this user"
+                ):
                     pass
                 else:
                     log.error(f"discord.errors.HTTPException: {error}")
