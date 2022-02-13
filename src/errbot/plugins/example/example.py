@@ -1,23 +1,12 @@
 import os
-import json
 
-import psutil
 from errbot import BotPlugin, botcmd
 from lib.chat.chatutils import ChatUtils
 from lib.chat.discord_custom import DiscordCustom
-from lib.database.dynamo import Dynamo
-from lib.database.dynamo_tables import BotDataTable
-
-from lib.common.errhelper import ErrHelper
 
 chatutils = ChatUtils()
-dynamo = Dynamo()
 
-STATUS_PAGE_URL = os.environ.get("STATUS_PAGE_URL", False)
-DOCS_URL = os.environ.get("DOCS_URL", False)
 BACKEND = os.environ["BACKEND"]
-BOT_NAME = os.environ["BOT_NAME"].strip()
-BOT_PREFIX = os.environ.get("BOT_PREFIX", ".")
 
 
 class Example(BotPlugin):
