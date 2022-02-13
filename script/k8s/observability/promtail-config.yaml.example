@@ -5,7 +5,7 @@ metadata:
 data:
   promtail.yml: |
     client:
-      url: <add url here>
+      url: https://<your_account_id>:<your_api_key>@logs-prod3.grafana.net/loki/api/v1/push
 
     scrape_configs:
     - pipeline_stages:
