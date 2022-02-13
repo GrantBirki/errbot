@@ -8,20 +8,17 @@ from lib.chat.discord_custom import DiscordCustom
 from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import BotDataTable
 
-from lib.common.errhelper import ErrHelper
-
 chatutils = ChatUtils()
 dynamo = Dynamo()
 
 STATUS_PAGE_URL = os.environ.get("STATUS_PAGE_URL", False)
 DOCS_URL = os.environ.get("DOCS_URL", False)
-BACKEND = os.environ["BACKEND"]
 BOT_NAME = os.environ["BOT_NAME"].strip()
 BOT_PREFIX = os.environ.get("BOT_PREFIX", ".")
 
 
-class Core(BotPlugin):  
-    """Core plugins for Errbot"""
+class Core(BotPlugin):
+    """Core plugins for Errbot that return information, stats, and other useful info about the bot"""
 
     @botcmd
     def version(self, msg, args):
@@ -56,7 +53,7 @@ class Core(BotPlugin):
 
     @botcmd
     def stats(self, msg, args):
-        """Get all the stats for the bot's command usage"""
+        """Get all the stats for the bot's command usage and total servers"""
 
         # Attempt to get the bot data table for this bot
         record = dynamo.get(BotDataTable, BOT_NAME)
@@ -69,8 +66,13 @@ class Core(BotPlugin):
         elif record is False:
             return "❌ I failed to get the bot usage totals from the database for this bot. Please contact the bot owner."
 
+        # Initialize the custom Discord client to get the server count
+        dc = DiscordCustom(self._bot)
+
         # Format the totals message
-        message = f"**Command Usage Totals:**\n"
+        message = f"**Total Servers: {dc.total_servers()}**\n\n"
+
+        message += f"**Command Usage Totals:**\n"
         for key, value in record_parsed.items():
             message += f"• `{BOT_PREFIX}{key}` **: {value}**\n"
 
