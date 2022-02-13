@@ -69,3 +69,5 @@ Now you can navigate to [localhost:3000/login](http://localhost:3000/login) to g
 ## Grafana Screenshots 📸
 
 ![grafana errbot logs](assets/grafana-errbot-logs.png)
+
+![grafana errbot live tail](assets/grafana-errbot-livetail.png)
