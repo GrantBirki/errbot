@@ -45,6 +45,8 @@ The Loki data source is automatically configured so you can go straight to brows
 
 ### minikube
 
+In minikube and in production, we use a [daemonset in Kubernetes](https://grafana.com/docs/loki/latest/clients/promtail/installation/#daemonset-recommended). This allows us to scrape and collect all logs on the node with promtail and then push them to our defined Loki instance.
+
 The observability stack is also disabled by default in minikube but it can be easily enabled with a single command:
 
 ```console
