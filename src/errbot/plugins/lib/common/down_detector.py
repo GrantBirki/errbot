@@ -27,6 +27,7 @@ class DownDetector:
         Initializes the DownDetector class
         """
         self.output_dir = output_dir
+        self.bad_characters = "\\/;*?\"<>$#@!|[}]{=^%"
 
     def chart(self, service, search=False):
         """
@@ -175,19 +176,15 @@ class DownDetector:
         :param data: data to check (String)
         :return bool: true if bad data - false otherwise
         """
-
-        import sys
-
-        print(type(data))
-        print(data)
-        sys.stdout.flush()
-
         # If the provided input is a URL, it is bad
         if validators.url(data):
             return True
 
-        print('passed check')
-        sys.stdout.flush()
+        # Check against our 'bad_characters' list
+        for sub_string in self.bad_characters:
+            if sub_string in data:
+                # If a 'bad character' is found, return true
+                return True
 
         # Add more check here...
 
