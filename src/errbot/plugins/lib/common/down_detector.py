@@ -1,6 +1,7 @@
 import uuid
 from io import BytesIO
 
+import validators
 from lib.common.errhelper import ErrHelper
 from PIL import Image
 from pyvirtualdisplay import Display
@@ -75,6 +76,14 @@ class DownDetector:
 
                 # If we used the search flag, check the page to ensure a result was found
                 if search:
+                    # check the search input
+                    if self.bad_input(service):
+                        # close browser
+                        driver.close()
+                        driver.quit()
+                        display.stop()
+                        return False, f"❌ Bad search string: `{service}`"
+
                     # If the search returned no results, return None
                     # dev note: the /search/ url stays if no results are found
                     if "/search/?q=" in driver.current_url:
@@ -158,3 +167,29 @@ class DownDetector:
             display.stop()
 
             return False, "❌ A critical error occurred while trying to get the chart"
+
+    def bad_input(self, data):
+        """
+        Helper function to check if provided data is 'bad'
+        Bad could be data that is not a valid search string or malicious
+        :param data: data to check (String)
+        :return bool: true if bad data - false otherwise
+        """
+
+        import sys
+
+        print(type(data))
+        print(data)
+        sys.stdout.flush()
+
+        # If the provided input is a URL, it is bad
+        if validators.url(data):
+            return True
+
+        print('passed check')
+        sys.stdout.flush()
+
+        # Add more check here...
+
+        return False
+        
