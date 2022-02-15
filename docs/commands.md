@@ -39,7 +39,7 @@ The following commands are all available via the chatbot:
 | `.add to league watcher` | `.add to league watcher --summoner birki --discord birki#0001 --guild 12345` | True | Admin command to add a summoner + Discord handle combo to a given guild for the League watcher | 🔒👨‍💻 |
 | `.remove from league watcher` | `.remove from league watcher --discord <discord_guild_id> --summoner <summoner_name>` | True | Admin command to remove a summoner in a specific discord guild from the league watcher | 🔒👨‍💻 |
 | `.view my league watcher data` | `.view my league watcher data` | False | View your league watcher data | 🔒 |
-| `.loud` | `.loud rickroll.mp3` | False | Play a very loud sound from the sounds folder on the bot | 🌎 |
+| `.loud` | `.loud rickroll.mp3` | False | Play a very loud sound from the sounds folder on the bot | 🔒 |
 | `.loud list` | - | False | List all the mp3 sound files which can be used by the `.loud` command | 🌎 |
 | `.loud random` | - | False | Play a random sound from the sounds folder on the bot | 🌎 |
 | `.play` | `.play <youtube_url>` | False | Play a song, or sound from YouTube - Optionally use `--queue <number>` to select the queue position to play the song | 🔒 |
@@ -51,7 +51,7 @@ The following commands are all available via the chatbot:
 | `.rem` | `.rem <key> is <value>` | False | Have the bot remember something - Inspired by [hubot](https://github.com/github/hubot-scripts/blob/master/src/scripts/remember.coffee) under the MIT license | 🌎 |
 | `.forget` | `.forget <key>` | False | Make the bot forget something that is being remembered | 🌎 |
 | `.remember` | `.rememeber <key> is <value>` | False | The "longform" version of the `.rem` command | 🌎 |
-| `.tts` | `.tts hello world! I will be read over text to speech` | False | Read a text message over text to speech in a voice channel (that you are connected to) | 🌎 |
+| `.tts` | `.tts hello world! I will be read over text to speech` | False | Read a text message over text to speech in a voice channel (that you are connected to) | 🔒 |
 | `.echo` | `.echo hello` | False | A simple command to echo back a message (Like the Linux "echo" binary) | 🌎 |
 | `.history` | - | False | View the past few commands (history) that have been used by the bot | 🌎 |
 | `.log tail` | - | True | Tail / View the bots latest log messages that have been written | 🔒👨‍💻 |

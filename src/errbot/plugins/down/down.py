@@ -37,9 +37,14 @@ class Down(BotPlugin):
 
         chart_file, status = downdetector.chart(query, search=True)
         if chart_file == False:
+            if "bad search string" in status.lower():
+                yield status
+                return
             yield f"❌ Failed to get chart from DownDetector for `{query}`"
             return
         elif chart_file == None:
+            if ".com" in query:
+                yield f"💡 Tip: Try removing the `.com` from your query: `{query}`"
             yield f"🔎 No matching services found for `{query}`"
             return
 

@@ -28,7 +28,7 @@ Here is a description of how the logging tech stack can be setup in the differen
 - `make run`: Starts the bot using docker-compose. Builds the full stack as seperate containers running on the same docker network (see docker-compose section below as the stack components need to be enabled first)
 - `make kube`: Starts the bot in minikube with no logging stack initially. After the minikube cluster has been started, you have two options for starting your logging stack:
       - `script/k8s/obervability/setup`: Starts the logging stack inside of your minikube cluster (`make kube` must be run first)
-      - Manually apply the `script/k8s/obervability/*.yaml.example` files to your minikube cluster and make sure to edit them as needed. This option is more complex and allows you to point your minikube cluster to a different Loki instance such as Grafana cloud. In production, the bot ships logs to Grafana cloud (`make kube` must be run first)
+      - Manually apply the `script/k8s/obervability/*.yaml.*` files to your minikube cluster and make sure to edit them as needed (specifcally the config map file to point to your Loki instance). This option is more complex and allows you to point your minikube cluster to a different Loki instance such as Grafana cloud. In production, the bot ships logs to Grafana cloud (`make kube` must be run first)
 
 ### docker-compose
 
@@ -44,6 +44,8 @@ Once the docker-compose stack starts, you can navigate to [localhost:3000/login]
 The Loki data source is automatically configured so you can go straight to browsing your bot's logs!
 
 ### minikube
+
+In minikube and in production, we use a [daemonset in Kubernetes](https://grafana.com/docs/loki/latest/clients/promtail/installation/#daemonset-recommended). This allows us to scrape and collect all logs on the node with promtail and then push them to our defined Loki instance.
 
 The observability stack is also disabled by default in minikube but it can be easily enabled with a single command:
 

@@ -10,6 +10,7 @@ test.json
 terraform/.terraform/providers
 .cache
 script/k8s/**/secret.yaml
+script/k8s/observability/promtail-config.yaml
 
 # Local .terraform directories
 **/.terraform/*
