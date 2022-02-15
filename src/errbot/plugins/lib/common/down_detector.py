@@ -27,7 +27,7 @@ class DownDetector:
         Initializes the DownDetector class
         """
         self.output_dir = output_dir
-        self.bad_characters = "\\/;*?\"<>$#@!|[}]{=^%"
+        self.bad_characters = '\\/;*?"<>$#@!|[}]{=^%'
 
     def chart(self, service, search=False):
         """
@@ -189,4 +189,3 @@ class DownDetector:
         # Add more check here...
 
         return False
-        
