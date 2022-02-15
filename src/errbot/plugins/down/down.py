@@ -43,6 +43,8 @@ class Down(BotPlugin):
             yield f"❌ Failed to get chart from DownDetector for `{query}`"
             return
         elif chart_file == None:
+            if ".com" in query:
+                yield f"💡 Tip: Try removing the `.com` from your query: `{query}`"
             yield f"🔎 No matching services found for `{query}`"
             return
 
