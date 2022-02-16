@@ -6,9 +6,12 @@ from lib.chat.discord_custom import DiscordCustom
 from lib.common.cooldown import CoolDown
 from lib.common.utilities import Util
 from lib.database.dynamo_tables import LoudTable
+from lib.chat.chatutils import ChatUtils
+from lib.common.errhelper import ErrHelper
 
 util = Util()
 cooldown = CoolDown(21600, LoudTable)
+chatutils = ChatUtils()
 
 PATH = "plugins/loud/sounds"
 
@@ -25,6 +28,9 @@ class Load(BotPlugin):
 
         Example: .loud rickroll.mp3
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         allowed = cooldown.check(msg)
 
@@ -61,6 +67,10 @@ class Load(BotPlugin):
         """
         List all the files that are ready to be played with the .loud command
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         # Get the list of files in the sounds folder
         files = os.listdir(PATH)
 
@@ -80,6 +90,9 @@ class Load(BotPlugin):
         """
         Play a random audio file from the sounds folder in a given channel
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         allowed = cooldown.check(msg)
 

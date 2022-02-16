@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Usage:
+# script/observability/observability
+
+OFF='\033[0m' # Text color Reset
+BLUE='\033[0;34m' # Blue
+GREEN='\033[0;32m' # Green
+
+set +e # Allow failures when checking for dependencies
+
+which helm > /dev/null
+
+if [ $? -ne 0 ]; then
+  echo "❌ Please install helm to continue! https://helm.sh/docs/intro/install/ | Exiting..."
+  exit 1
+else
+  echo "✅ helm is installed"
+fi
+
+set -e # prevent failures again
+
+# get the help repo and update
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+# install the grafana / loki / promtail stack
+helm upgrade --install loki --namespace=observability grafana/loki-stack  --set grafana.enabled=true,prometheus.enabled=true,prometheus.alertmanager.persistentVolume.enabled=false,prometheus.server.persistentVolume.enabled=false
+
+# display grafana password
+grafana_pw=$(kubectl get secret --namespace observability loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
+
+echo -e "🔑 Grafana User: ${BLUE}admin${OFF}"
+echo -e "🔑 Grafana Pass: ${BLUE}${grafana_pw}${OFF}"
+
+echo -e "\n✅ Your loki/grafana/promtail stack in k8s has been setup! Next steps:"
+echo -e "  - in a seperate terminal, run: ${BLUE}'kubectl port-forward --namespace observability service/loki-grafana 3000:80'${OFF}"
+echo -e "  - open up ${BLUE}http://localhost:3000${OFF} in your browser"

@@ -15,7 +15,7 @@ spec:
       labels:
         name: errbot
       annotations:
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
+        seccompProfile.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       containers:
         - name: errbot
@@ -36,6 +36,8 @@ spec:
             privileged: false
           env:
             # General ENV Vars
+            - name: BOT_NAME
+              value: errbot
             - name: BACKEND
               value: "Discord"
             - name: BOT_STATUS_MESSAGE
@@ -56,6 +58,8 @@ spec:
               value: "AMERICAS"
             - name: IMAGE_TAG
               value: "${IMAGE_TAG}"
+            - name: SERVER_LOCK_ALLOW_LIST
+              value: "66199319505543168"
             # Secret ENV Vars
             - name: CHAT_SERVICE_TOKEN
               valueFrom:

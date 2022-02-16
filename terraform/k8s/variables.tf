@@ -84,3 +84,11 @@ variable "SENTRY" {
   type      = string
   sensitive = true
 }
+
+### End Bot Creds
+
+# Loki URL
+variable "LOKI_PUSH_URL" {
+  type      = string
+  sensitive = true
+}

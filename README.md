@@ -6,7 +6,7 @@
 
 <h2 align="center">errbot</h1>
 <p align="center">
-  A Dicord chatbot that is easy to deploy and build upon
+  A chatbot that is easy to deploy and build upon - It can do literally anything
 </p>
 
 <p align="center">
@@ -32,7 +32,12 @@
 
 ## About 💡
 
-This project uses [errbot](https://github.com/errbotio/errbot) and [Docker](https://www.docker.com/) to quickly launch your own chatbot in a container which is highly extensible! Use this dockerized version of Errbot to self-host your very own chatbot for popular services like Slack / Discord. Anything you can write Python 🐍 code to do, you can do with Errbot!
+This project uses [errbot](https://github.com/errbotio/errbot) (hence the name) and [Docker](https://www.docker.com/) to quickly launch your own chatbot in a container which is highly extensible! Use this dockerized version of Errbot to self-host your very own chatbot for popular services like Slack / Discord. Anything you can write Python 🐍 code to do, you can do with Errbot!
+
+There are two ways you can use this bot:
+
+1. Invite the bot to your own Discord server - You can even contribute to this repo to add your own commands!
+2. Self-host the bot yourself to build upon it
 
 > Check out [errbot-launchpad](https://github.com/GrantBirki/errbot-launchpad) if you don't want all the bells and whistles of this project.
 
@@ -45,6 +50,8 @@ Want to get going quick? Run the following commands to bring up a CLI to interac
 3. `make local`
 
 Didn't work quite right? Want to actually connect to a chat service? Check out the [docs](https://errbot.birki.io)
+
+> Want to jump to the `Turbo Quickstart` for Discord guide? Check it out [here](https://errbot.birki.io/discord-turbo-quickstart/)
 
 ## Writing Plugins 🧰
 
@@ -72,6 +79,8 @@ The result of the plugin code above is a new chatop command:
 To learn more about plugin development, please check out the [development guide](https://errbot.birki.io/development)!
 
 ### Deployment and Hosting 🚀
+
+If you do not wish to use this public version of errbot, you can clone this repo and self-host it anywhere you wish (yay opensource!).
 
 This project builds a Docker container which you can deploy anywhere to bring your chatbot to life. Below are just a few example of all the many places you could deploy your chatbot container:
 

@@ -1,6 +1,6 @@
 # To build the entire stack run 'make run'
 
-version: '3.9'
+version: '3'
 
 services:
 
@@ -14,10 +14,13 @@ services:
       - ./creds.env
     depends_on:
       - localstack
+    # uncomment the volume lines below to enable the 'observability' stack
+    # volumes:
+    #   - log-volume:/app
 
   # This container is used to create a local 'mock' instance of AWS for testing
   localstack:
-      container_name: "localstack"
+      container_name: localstack
       build:
         context: ./script/localstack
         dockerfile: ./Dockerfile
@@ -35,3 +38,38 @@ services:
       volumes:
         - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
         - "/var/run/docker.sock:/var/run/docker.sock"
+
+  # Containers for observability
+  # uncomment the volume lines below to enable the 'observability' stack
+#   loki:
+#     container_name: loki
+#     image: grafana/loki:2.4.2
+#     ports:
+#       - "3100:3100"
+#     command: -config.file=/etc/loki/local-config.yaml
+
+#   promtail:
+#     container_name: promtail
+#     image: grafana/promtail:2.4.2
+#     volumes:
+#       - log-volume:/app:ro
+#       - ./script/observability/promtail/config.yml:/etc/promtail/config.yml
+#     command: -config.file=/etc/promtail/config.yml
+#     depends_on:
+#       - loki
+#       - chatbot
+
+#   grafana:
+#     container_name: grafana
+#     image: grafana/grafana:latest
+#     volumes:
+#       - ./script/observability/grafana/grafana.ini:/etc/grafana/grafana.ini
+#       - ./script/observability/grafana/loki.yaml:/etc/grafana/provisioning/datasources/default.yaml
+#     ports:
+#       - "3000:3000"
+#     depends_on:
+#       - loki
+#       - promtail
+
+# volumes:
+#   log-volume:

@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# This is a script to automatically start a local minikube cluster for bot development
+
+OFF='\033[0m' # Text color Reset
+BLUE='\033[0;34m' # Blue
+GREEN='\033[0;32m' # Green
+
+set -e # Prevent any kind of script failures
+
+# Global Directory Variables
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # The directory of this script
+REPO_DIR="$(dirname "$SCRIPT_DIR")" # The root directory of this repository
+
+echo "🔎 Checking for required dependencies..."
+
+set +e # Allow failures when checking for dependencies
+
+which minikube > /dev/null
+
+if [ $? -ne 0 ]; then
+  echo "❌ Please install the minikube to continue! https://minikube.sigs.k8s.io/docs/start/ | Exiting..."
+  exit 1
+else
+  echo "✅ minikube is installed"
+fi
+
+which kubectl > /dev/null
+
+if [ $? -ne 0 ]; then
+  echo "❌ Please install kubectl to continue! https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/ | Exiting..."
+  exit 1
+else
+  echo "✅ kubectl is installed"
+fi
+
+which docker > /dev/null
+
+if [ $? -ne 0 ]; then
+  echo "❌ Please install docker to continue! https://docs.docker.com/get-docker/ | Exiting..."
+  exit 1
+else
+  echo "✅ docker is installed"
+fi
+
+set -e # Prevent any kind of script failures
+
+# Check if the minikube cluster is running
+if [ "$(minikube status 2&> /dev/null; echo $?)" -ne 0 ]; then
+  read -p "❔ Could not determine if minikube is running, would you like to start minikube now (y/n)? " CONT
+  if [ "$CONT" = "y" ]; then
+    echo "⚙️ Starting minikube...";
+    minikube start
+  else
+    echo "⚠️ Continuing... (minikube may not be running)";
+  fi
+else
+  echo "✅ minikube is already running"
+fi
+
+echo "🐳 Binding Docker to minikube Docker engine..."
+eval $(minikube docker-env)
+
+echo "🔨 Building errbot:latest image"
+docker build -t errbot:latest $REPO_DIR/src/errbot
+
+echo "🔨 Building localstack-errbot:latest image"
+docker build -t localstack-errbot:latest $REPO_DIR/script/localstack
+
+echo -e "\n🚀 Deploying k8s manifests to minikube cluster..."
+
+echo -e "➕ Creating namespace errbot"
+kubectl apply -f $REPO_DIR/script/k8s/errbot/namespace.yaml
+echo -e "➕ Creating namespace localstack"
+kubectl apply -f $REPO_DIR/script/k8s/localstack/namespace.yaml
+echo -e "➕ Creating namespace observability"
+kubectl apply -f $REPO_DIR/script/k8s/observability/namespace.yaml
+echo -e "➕ Recursively deploying all other manifests..."
+kubectl apply -f script/k8s/ -R
+
+echo -e "\nTip: ${BLUE}'kubectl apply -f script/k8s/ -R'${OFF} will apply all manifests for this local stack"
+echo -e "\nObservability: You can now optionally run ${BLUE}'script/k8s/observability/setup'${OFF} to setup a grafana stack in your k8s cluster"
+
+
+echo -e "\n✅ You're all set!"

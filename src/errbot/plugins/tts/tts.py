@@ -4,8 +4,11 @@ from lib.chat.text_to_speech import TextToSpeech
 from lib.common.cooldown import CoolDown
 from lib.database.dynamo_tables import TtsTable
 from lib.chat.discord_custom import DiscordCustom
+from lib.chat.chatutils import ChatUtils
+from lib.common.errhelper import ErrHelper
 
 cooldown = CoolDown(3, TtsTable)
+chatutils = ChatUtils()
 
 
 class Tts(BotPlugin):
@@ -19,6 +22,9 @@ class Tts(BotPlugin):
         --channel <channel ID> - The full channel id to play the video/audio in
         --text "some cool text" - The text to play wrapped in quotes
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         allowed = cooldown.check(msg)
 

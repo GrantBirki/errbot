@@ -55,6 +55,7 @@ Now that you have a general understanding about how environment variables are us
 
 |   ENV VAR   |  Value  |  Required / Optional         |  Description     |
 |    :----:   |     :----:    |   :----:      |        :----:       |
+| `BOT_NAME` | Any alpha-numeric character | Required | A unique identifier that will be used in the logs for identifying your bot. This value should be unique if you have multiple bots running in the same environment |
 | `BACKEND` | Discord / Slack / etc | Required | Set the desired chat backend for the bot |
 | `BOT_PREFIX` | Any alpha-numeric character | Required | Set the character prefix used to invoke the bot (`.` is suggested) |
 | `BOT_HOME_CHANNEL` | Any string related to a text channel name | Optional | Set a home channel for the bot as a default. Example, posting messages to a channel on a schedule like weather updates |

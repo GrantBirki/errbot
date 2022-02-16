@@ -51,7 +51,7 @@ if RIOT_TOKEN:
     LEAGUE_CHANNEL = "#league"
 
     # last_match_cron interval
-    INTERVAL = 60  # seconds
+    INTERVAL = 90  # seconds
 
 
 class League(BotPlugin):
@@ -87,6 +87,7 @@ class League(BotPlugin):
         """
         Disable the league cron
         """
+        ErrHelper().user(msg)
         if len(self.current_pollers) == 0:
             return "⚠ League cron already disabled"
         else:
@@ -98,6 +99,7 @@ class League(BotPlugin):
         """
         Enable the league cron
         """
+        ErrHelper().user(msg)
         if len(self.current_pollers) == 0:
             self.start_poller(INTERVAL, self.last_match_cron)
             return "🟢 League cron enabled"
@@ -114,9 +116,10 @@ class League(BotPlugin):
         current_matches_sha256 = util.sha256(json.dumps(match_list))
         # Checks if the last match data is already in the database
         if item.get("last_match_sha256", None) == current_matches_sha256:
-            self.log.info(
-                f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_matches_sha256[:8]} | {item['summoner_name']}"
-            )
+            # Uncomment the line below for extra verbose logs as the league cron runs
+            # self.log.info(
+            #     f"skipping... last: {item.get('last_match_sha256', None)[:8]} | current: {current_matches_sha256[:8]} | {item['summoner_name']}"
+            # )
             return "duplicate_sha"
 
         # Grab only the most recent match [0]
@@ -259,6 +262,10 @@ class League(BotPlugin):
         Usage: .add me to league watcher <summoner_name>
         Example: .add me to league watcher birki
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         discord_handle = chatutils.handle(msg)
         guild_id = chatutils.guild_id(msg)
 
@@ -297,6 +304,9 @@ class League(BotPlugin):
         """
         Display's your summoner's win/loss streak
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         if args.strip() != "" and args != "me":
             return "What you are trying to do is not implemented yet"
@@ -334,6 +344,10 @@ class League(BotPlugin):
         Usage: .add to league watcher <summoner> <discord> <guild>
         Example: .add to league watcher --summoner birki --discord birki#0001 --guild 12345
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         guild_id = int(guild)
 
         get_result = dynamo.get(LeagueTable, guild_id, discord)
@@ -370,6 +384,10 @@ class League(BotPlugin):
         Usage: .remove from league watcher <guild> <discord>
         Example: .remove from league watcher --guild 12345 --discord birki#0001
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         guild_id = int(guild)
 
         get_result = dynamo.get(LeagueTable, guild_id, discord)
@@ -390,6 +408,10 @@ class League(BotPlugin):
 
         Usage: .remove me from league watcher
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         discord_handle = chatutils.handle(msg)
         guild_id = chatutils.guild_id(msg)
 
@@ -414,6 +436,10 @@ class League(BotPlugin):
 
         This is mostly for debugging
         """
+        ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
+
         discord_handle = chatutils.handle(msg)
         guild_id = chatutils.guild_id(msg)
 
@@ -456,6 +482,7 @@ class League(BotPlugin):
         Get the last match for a user (LoL)
         Shortcut for "last_match_for"
         """
+        ErrHelper().user(msg)
 
         # TODO This code is all duplicated of the last_match_for command. No bueno
 
@@ -481,6 +508,7 @@ class League(BotPlugin):
     @arg_botcmd("summoner_name", type=str)
     def last_match_for(self, msg, summoner_name=None):
         """Get the last match for a user (LoL)"""
+        ErrHelper().user(msg)
 
         if type(summoner_name) is str:
             summoner_list = summoner_name.split(",")

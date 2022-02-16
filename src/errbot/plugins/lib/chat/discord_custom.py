@@ -25,6 +25,13 @@ class DiscordCustom:
         self.play_sleep_duration = play_sleep_duration
         self.kill_switch_path = kill_switch_path
 
+    def total_servers(self):
+        """
+        Get's the total number of servers the bot is present in
+        :return: the total number of servers (int)
+        """
+        return len(self.bot.client.guilds)
+
     def get_channel(self, channel_id):
         """
         Get's the channel object from the ID

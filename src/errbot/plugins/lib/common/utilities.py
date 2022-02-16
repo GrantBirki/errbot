@@ -12,14 +12,15 @@ class Util:
     A collection of common utilities used throughout the repo
     """
 
-    def close_matches(self, word, patterns):
+    def close_matches(self, word, patterns, cutoff=0.6):
         """
         Given a word and a list of possible patterns, return a list of close matches
         :param word: The word to search for (String)
         :param patterns: A list of possible patterns (List of Strings)
+        :param cutoff: The cutoff to determine if a pattern is a match (Float)
         :return: A list of close matches (List of Strings)
         """
-        return get_close_matches(word, patterns)
+        return get_close_matches(word, patterns, cutoff=cutoff)
 
     def iso_timestamp(self):
         """

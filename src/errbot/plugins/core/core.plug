@@ -1,0 +1,9 @@
+[Core]
+Name = Core 
+Module = core 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Core plugins and commands that are always useful to use with the bot 
