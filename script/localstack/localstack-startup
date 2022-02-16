@@ -16,6 +16,17 @@ export AWS_ACCESS_KEY_ID=test
 export AWS_SECRET_ACCESS_KEY=test
 export AWS_DEFAULT_REGION=us-west-2
 
+echo -e "${BLUE}Creating BotDataTable...${OFF}"
+aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
+    --table-name botdata \
+    --attribute-definitions \
+        AttributeName=key,AttributeType=S \
+    --key-schema \
+        AttributeName=key,KeyType=HASH \
+--provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+echo -e "✅ ${GREEN}Created BotDataTable...${OFF}"
+
 echo -e "⚙️ ${BLUE}Creating LeagueTable...${OFF}"
 aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
     --table-name league \
@@ -91,17 +102,6 @@ aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
 --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
 echo -e "✅ ${GREEN}Created SparkleTable...${OFF}"
-
-echo -e "${BLUE}Creating BotDataTable...${OFF}"
-aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
-    --table-name botdata \
-    --attribute-definitions \
-        AttributeName=key,AttributeType=S \
-    --key-schema \
-        AttributeName=key,KeyType=HASH \
---provisioned-throughput \
-        ReadCapacityUnits=10,WriteCapacityUnits=5
-echo -e "✅ ${GREEN}Created BotDataTable...${OFF}"
 
 echo -e "✅ ${GREEN}All Tables Built and LocalStack Running!${OFF}"
 echo -e ""
