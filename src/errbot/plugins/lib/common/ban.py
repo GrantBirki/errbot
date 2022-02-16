@@ -26,14 +26,14 @@ class Ban:
         # If the record exists, update it with the most recent values collected
         if record:
             record_parsed = json.loads(record.value)
-            updated_record = record_parsed.append(user)
+            record_parsed.append(user)
 
             # Update the record with the latest data
             update_result = dynamo.update(
                 table=BotDataTable,
                 record=record,
                 fields_to_update=[
-                    BotDataTable.value.set(json.dumps(updated_record))
+                    BotDataTable.value.set(json.dumps(record_parsed))
                 ],
             )
 
@@ -71,6 +71,43 @@ class Ban:
             if new_record:
                 LOG.info(f'Created new BotDataTable record for "{BAN_USER_RECORD}"')
                 return True
+            # If the write failed, log an error and return
+            elif new_record is False:
+                LOG.error(f'Failed to write to BotDataTable for "{BAN_USER_RECORD}"')
+                return False
+
+    def get_banned_users(self):
+        """
+        Gets a list of all banned users from the remote state
+        :return: A list of all banned users
+
+        Note: If the record does not exist, it will be created as an empty list []
+        """
+        # Attempt to get the user bans record
+        record = dynamo.get(BotDataTable, BAN_USER_RECORD)
+
+        # If the record exists, return it
+        if record:
+            return json.loads(record.value)
+
+        # If the record doesn't exist, create it
+        # Note: This should only ever happen once, when the ban record does not exist
+        elif record is None:
+            LOG.warning(
+                f'BotDataTable record for "{BAN_USER_RECORD}" was not found. Creating..."'
+            )
+            new_record = dynamo.write(
+                BotDataTable(
+                    key=BAN_USER_RECORD,
+                    value=json.dumps([]), # create a brand new empty record
+                    updated_at=util.iso_timestamp(),
+                )
+            )
+            # If the write was successful, log and return
+            if new_record:
+                LOG.info(f'Created new BotDataTable record for "{BAN_USER_RECORD}"')
+                # Return the empty list as the record was just created
+                return []
             # If the write failed, log an error and return
             elif new_record is False:
                 LOG.error(f'Failed to write to BotDataTable for "{BAN_USER_RECORD}"')
