@@ -53,9 +53,7 @@ class Boot(BotPlugin):
         self.remote_sync(retries=10, usage_publish=False)
 
         # Start the remote_sync cron
-        self.start_poller(
-            REMOTE_SYNC_INTERVAL, self.remote_sync
-        )
+        self.start_poller(REMOTE_SYNC_INTERVAL, self.remote_sync)
 
     def remote_sync(self, retries=3, usage_publish=True):
         self.sync_ban_list(retries=retries)
@@ -78,9 +76,7 @@ class Boot(BotPlugin):
                 # If we are out of retries, log an error and exit
                 if i == retries - 1:
                     self.log.error(
-                        "Failed to get remote ban list after {} retries".format(
-                            retries
-                        )
+                        "Failed to get remote ban list after {} retries".format(retries)
                     )
                     return
                 # If we are not out of retries, sleep and try again
@@ -98,7 +94,6 @@ class Boot(BotPlugin):
             self._bot.banned_users = remote_ban_list
             self.log.info("Ban list has been synced with remote state")
             return
-
 
     def publish_command_usage_data(self):
         """

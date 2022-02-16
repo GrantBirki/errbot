@@ -13,6 +13,7 @@ LOG = logging.getLogger(__name__)
 BOT_NAME = os.environ["BOT_NAME"].strip()
 BAN_USER_RECORD = "user-bans"
 
+
 class Ban:
     def remove_user(self, user):
         """
@@ -32,23 +33,17 @@ class Ban:
             update_result = dynamo.update(
                 table=BotDataTable,
                 record=record,
-                fields_to_update=[
-                    BotDataTable.value.set(json.dumps(record_parsed))
-                ],
+                fields_to_update=[BotDataTable.value.set(json.dumps(record_parsed))],
             )
 
             # If the update was successful, return
             if update_result:
                 # uncomment the line(s) below for debugging and verbosity
-                LOG.info(
-                    f'Successfully removed ban for "{user}"'
-                )
+                LOG.info(f'Successfully removed ban for "{user}"')
                 return True
             # If the update failed due to a missing record, log the error
             elif update_result is None:
-                LOG.error(
-                    f'Failed to remove ban for "{user}" due to a missing record'
-                )
+                LOG.error(f'Failed to remove ban for "{user}" due to a missing record')
                 return False
             # If the update failed, log an error and return
             elif update_result is False:
@@ -80,17 +75,13 @@ class Ban:
             update_result = dynamo.update(
                 table=BotDataTable,
                 record=record,
-                fields_to_update=[
-                    BotDataTable.value.set(json.dumps(record_parsed))
-                ],
+                fields_to_update=[BotDataTable.value.set(json.dumps(record_parsed))],
             )
 
             # If the update was successful, return
             if update_result:
                 # uncomment the line(s) below for debugging and verbosity
-                LOG.info(
-                    f'Successfully updated banned users record with "{user}"'
-                )
+                LOG.info(f'Successfully updated banned users record with "{user}"')
                 return True
             # If the update failed due to a missing record, log the error
             elif update_result is None:
@@ -147,7 +138,7 @@ class Ban:
             new_record = dynamo.write(
                 BotDataTable(
                     key=BAN_USER_RECORD,
-                    value=json.dumps([]), # create a brand new empty record
+                    value=json.dumps([]),  # create a brand new empty record
                     updated_at=util.iso_timestamp(),
                 )
             )
