@@ -15,13 +15,13 @@ variable "ENVIRONMENT" {
 
 variable "NODE_COUNT" {
   description = "Number of Nodes in your K8s cluster"
-  default     = 1
+  default     = 2
   type        = number
 }
 
 variable "VM_SIZE" {
   description = "Size of the VM to create"
-  default     = "Standard_B2ms"
+  default     = "Standard_B2s"
   type        = string
 }
 
