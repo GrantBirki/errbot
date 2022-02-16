@@ -37,7 +37,7 @@ spec:
           env:
             # General ENV Vars
             - name: BOT_NAME
-              value: errbot
+              value: ${NAMESPACE}
             - name: BACKEND
               value: "Discord"
             - name: BOT_STATUS_MESSAGE
