@@ -7,6 +7,7 @@ from lib.chat.chatutils import ChatUtils
 from lib.chat.discord_custom import DiscordCustom
 from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import BotDataTable
+from lib.common.ban import Ban
 
 chatutils = ChatUtils()
 dynamo = Dynamo()
@@ -119,3 +120,33 @@ class Core(BotPlugin):
             color=chatutils.color("white"),
             in_reply_to=msg,
         )
+
+    @botcmd
+    def ban(self, msg, args):
+
+        # Check to ensure the user is an admin
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
+        # If the user is already banned, return
+        if args in self._bot.banned_users:
+            return f"ℹ️ User: `{args}` is already banned"
+
+        # If the user is not already banned, add them to the ban list in memory
+        self._bot.banned_users.append(args)
+
+        # Update the database with the new user ban so it persists across restarts
+        result = Ban().user(args)
+
+        # Return a message based on the result of the database update
+        if result:
+            return f"✅ User: `{args}` has been **banned**"
+        else:
+            return f"❌ Failed to ban user: `{args}`\n🗒️Check the logs for more info"
+
+    @botcmd
+    def banned_users(self, msg, args):
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
+        return self._bot.banned_users
