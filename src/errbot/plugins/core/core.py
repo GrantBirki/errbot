@@ -60,7 +60,7 @@ class Core(BotPlugin):
 
         # If the record exists, update it with the most recent values collected
         if record:
-            record_parsed = json.loads(record.command_usage_data)
+            record_parsed = json.loads(record.value)
         elif record is None:
             return "❌ I could not find a record for this bot in the database. Please contact the bot owner."
         elif record is False:

@@ -96,9 +96,9 @@ echo -e "${BLUE}Creating BotDataTable...${OFF}"
 aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
     --table-name botdata \
     --attribute-definitions \
-        AttributeName=bot,AttributeType=S \
+        AttributeName=key,AttributeType=S \
     --key-schema \
-        AttributeName=bot,KeyType=HASH \
+        AttributeName=key,KeyType=HASH \
 --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
 echo -e "✅ ${GREEN}Created BotDataTable...${OFF}"

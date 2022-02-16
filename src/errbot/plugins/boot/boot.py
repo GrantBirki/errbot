@@ -69,7 +69,7 @@ class Boot(BotPlugin):
 
         # If the record exists, update it with the most recent values collected
         if record:
-            record_parsed = json.loads(record.command_usage_data)
+            record_parsed = json.loads(record.value)
             updated_usage_data = dict(
                 Counter(record_parsed) + Counter(command_usage_data_snapshot)
             )
@@ -79,7 +79,7 @@ class Boot(BotPlugin):
                 table=BotDataTable,
                 record=record,
                 fields_to_update=[
-                    BotDataTable.command_usage_data.set(json.dumps(updated_usage_data))
+                    BotDataTable.value.set(json.dumps(updated_usage_data))
                 ],
             )
 
@@ -108,8 +108,8 @@ class Boot(BotPlugin):
             )
             new_record = dynamo.write(
                 BotDataTable(
-                    bot=BOT_NAME,
-                    command_usage_data=json.dumps(command_usage_data_snapshot),
+                    key=BOT_NAME,
+                    value=json.dumps(command_usage_data_snapshot),
                     updated_at=util.iso_timestamp(),
                 )
             )
