@@ -123,7 +123,10 @@ class Core(BotPlugin):
 
     @botcmd
     def ban(self, msg, args):
-
+        """
+        Admin command for banning users globally from using the bot
+        Example: .ban user#1234
+        """
         # Check to ensure the user is an admin
         if not chatutils.is_admin(msg):
             return "This command is only available to bot admins."
@@ -140,7 +143,7 @@ class Core(BotPlugin):
 
         # Return a message based on the result of the database update
         if result:
-            return f"✅ User: `{args}` has been **banned**"
+            return f"⛔ User: `{args}` has been **banned**"
         else:
             return f"❌ Failed to ban user: `{args}`\n🗒️Check the logs for more info"
 
@@ -149,4 +152,15 @@ class Core(BotPlugin):
         if not chatutils.is_admin(msg):
             return "This command is only available to bot admins."
 
-        return self._bot.banned_users
+        banned_users_list = self._bot.banned_users
+        message = f"**Banned Users: {len(banned_users_list)}**\n\n"
+        for user in banned_users_list:
+            message += f"• `{user}`\n"
+
+        chatutils.send_card_helper(
+            bot_self=self,
+            title="⛔ Banned Users",
+            body=message,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
