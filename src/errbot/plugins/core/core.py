@@ -84,3 +84,38 @@ class Core(BotPlugin):
             color=chatutils.color("white"),
             in_reply_to=msg,
         )
+
+    @botcmd(admin_only=True)
+    def users(self, msg, args):
+        """
+        Get the total number of users in all servers the bot is connected to
+        """
+        dc = DiscordCustom(self._bot)
+        return f"**Total Users: {dc.total_users()}**"
+
+    @botcmd(admin_only=True)
+    def servers(self, msg, args):
+        """
+        Get the total servers the bot is in with details
+        :admin only:
+        """
+        dc = DiscordCustom(self._bot)
+        servers = dc.active_servers()
+
+        message = f"**Active Servers: {len(servers)}**\n\n"
+
+        for server in servers:
+            message += f"• **{server['name']}**\n"
+            message += f"  - ID: `{server['id']}`\n"
+            message += f"  - Owner: `{server['owner']}`\n"
+            message += f"  - Member count: `{server['member_count']}`\n"
+            message += "\n"
+
+        # Return a card with the total server information
+        chatutils.send_card_helper(
+            bot_self=self,
+            title="📊 Active Server Information",
+            body=message,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
