@@ -6,6 +6,12 @@ variable "NAMESPACE" {
 }
 
 # Container configuration
+variable "SERVER_LOCK_ALLOW_LIST" {
+  description = "List of servers the bot is allowed to operate certain commands in"
+  default     = "66199319505543168" # MWM
+  type        = string
+}
+
 variable "REQUESTS_CPU" {
   description = "The CPU units to request on container creation"
   default     = "0.5"
