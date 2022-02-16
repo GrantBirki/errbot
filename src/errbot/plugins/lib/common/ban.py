@@ -14,6 +14,54 @@ BOT_NAME = os.environ["BOT_NAME"].strip()
 BAN_USER_RECORD = "user-bans"
 
 class Ban:
+    def remove_user(self, user):
+        """
+        Remove a ban for a given user
+        :param user: The handle of the user to un-ban
+        :return: True if successful, False if it fails
+        """
+        # Attempt to get the user bans record
+        record = dynamo.get(BotDataTable, BAN_USER_RECORD)
+
+        # If the record exists, update it with the user removal
+        if record:
+            record_parsed = json.loads(record.value)
+            record_parsed.remove(user)
+
+            # Update the record with the latest data
+            update_result = dynamo.update(
+                table=BotDataTable,
+                record=record,
+                fields_to_update=[
+                    BotDataTable.value.set(json.dumps(record_parsed))
+                ],
+            )
+
+            # If the update was successful, return
+            if update_result:
+                # uncomment the line(s) below for debugging and verbosity
+                LOG.info(
+                    f'Successfully removed ban for "{user}"'
+                )
+                return True
+            # If the update failed due to a missing record, log the error
+            elif update_result is None:
+                LOG.error(
+                    f'Failed to remove ban for "{user}" due to a missing record'
+                )
+                return False
+            # If the update failed, log an error and return
+            elif update_result is False:
+                LOG.error(f'Failed to remove ban for "{user}"')
+                return False
+
+        # If the record doesn't exist, exit
+        elif record is None:
+            LOG.info(
+                f'Could not remove ban for "{user}" because the "{BAN_USER_RECORD}" record was not found"'
+            )
+            return False
+
     def user(self, user):
         """
         Ban a given user
@@ -41,18 +89,18 @@ class Ban:
             if update_result:
                 # uncomment the line(s) below for debugging and verbosity
                 LOG.info(
-                    f"Successfully updated banned users record with {user}"
+                    f'Successfully updated banned users record with "{user}"'
                 )
                 return True
             # If the update failed due to a missing record, log the error
             elif update_result is None:
                 LOG.error(
-                    f'Failed to update banned users record with {user} due to a missing record'
+                    f'Failed to update banned users record with "{user}" due to a missing record'
                 )
                 return False
             # If the update failed, log an error and return
             elif update_result is False:
-                LOG.error(f'Failed to update banned users record with {user}')
+                LOG.error(f'Failed to update banned users record with "{user}"')
                 return False
 
         # If the record doesn't exist, create it

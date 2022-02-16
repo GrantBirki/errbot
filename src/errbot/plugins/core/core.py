@@ -122,6 +122,32 @@ class Core(BotPlugin):
         )
 
     @botcmd
+    def unban(self, msg, args):
+        """
+        Admin command for unbanning users
+        Example: .unban user#1234
+        """
+        # Check to ensure the user is an admin
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
+        # If the user not already banned, return
+        if args not in self._bot.banned_users:
+            return f"ℹ️ User: `{args}` is **not** banned. Nothing to do..."
+
+        # Remove the banned user from the ban list in memory
+        self._bot.banned_users.remove(args)
+
+        # Remove the user from the ban database so it persists across restarts
+        result = Ban().remove_user(args)
+
+        # Return a message based on the result of the database update
+        if result:
+            return f"✅ User: `{args}` has been **removed** from the ban list"
+        else:
+            return f"❌ Failed to remove user: `{args}` from the ban list\n🗒️Check the logs for more info"
+
+    @botcmd
     def ban(self, msg, args):
         """
         Admin command for banning users globally from using the bot
