@@ -1,10 +1,11 @@
 data "kubectl_path_documents" "errbot_deployment_manifest" {
   depends_on = [
-    data.kubectl_file_documents.errbot_namespace_manifest,
+    data.kubectl_path_documents.errbot_namespace_manifest,
     data.kubectl_path_documents.errbot_secret_manifest
   ]
 
   vars = {
+    NAMESPACE       = "${var.NAMESPACE}"
     IMAGE_TAG       = "${var.IMAGE_TAG}"
     ACR_NAME        = "${var.ACR_NAME}"
     REQUESTS_CPU    = "${var.REQUESTS_CPU}"
@@ -17,7 +18,7 @@ data "kubectl_path_documents" "errbot_deployment_manifest" {
 
 resource "kubectl_manifest" "errbot_deployment" {
   depends_on = [
-    data.kubectl_file_documents.errbot_namespace_manifest
+    data.kubectl_path_documents.errbot_namespace_manifest
   ]
   count     = length(data.kubectl_path_documents.errbot_deployment_manifest.documents)
   yaml_body = element(data.kubectl_path_documents.errbot_deployment_manifest.documents, count.index)
