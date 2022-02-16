@@ -38,8 +38,15 @@ variable "IMAGE_TAG" {
 # Bot Creds
 
 variable "CHAT_SERVICE_TOKEN" {
-  type      = string
-  sensitive = true
+  description = "The chat service token for the bot (primary)"
+  type        = string
+  sensitive   = true
+}
+
+variable "CHAT_SERVICE_TOKEN_PUBLIC" {
+  description = "The chat service token for the bot (secondary / public)"
+  type        = string
+  sensitive   = true
 }
 
 variable "RIOT_TOKEN" {

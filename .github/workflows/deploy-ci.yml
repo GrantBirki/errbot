@@ -274,6 +274,7 @@ jobs:
           TF_VAR_IMAGE_TAG: ${{ github.sha }}
           # Creds
           TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
+          TF_VAR_CHAT_SERVICE_TOKEN_PUBLIC: ${{ secrets.CHAT_SERVICE_TOKEN_PUBLIC }}
           TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
           TF_VAR_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}
           TF_VAR_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
@@ -395,6 +396,7 @@ jobs:
           TF_VAR_IMAGE_TAG: ${{ github.sha }}
           # Creds
           TF_VAR_CHAT_SERVICE_TOKEN: ${{ secrets.TF_VAR_CHAT_SERVICE_TOKEN }}
+          TF_VAR_CHAT_SERVICE_TOKEN_PUBLIC: ${{ secrets.CHAT_SERVICE_TOKEN_PUBLIC }}
           TF_VAR_CLIENT_ID: ${{ secrets.TF_VAR_CLIENT_ID }}
           TF_VAR_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}
           TF_VAR_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}

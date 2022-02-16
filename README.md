@@ -30,6 +30,10 @@
 
 <hr>
 
+## Bot Invite Link 🔗
+
+[**Click here**](https://discord.com/api/oauth2/authorize?client_id=943402285680189511&permissions=36734976&scope=bot) to invite errbot to your Discord server!
+
 ## About 💡
 
 This project uses [errbot](https://github.com/errbotio/errbot) (hence the name) and [Docker](https://www.docker.com/) to quickly launch your own chatbot in a container which is highly extensible! Use this dockerized version of Errbot to self-host your very own chatbot for popular services like Slack / Discord. Anything you can write Python 🐍 code to do, you can do with Errbot!
