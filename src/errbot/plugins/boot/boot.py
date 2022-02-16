@@ -21,7 +21,7 @@ INSTALL_MESSAGE_TEXT = "🟢 Systems are now online"
 # Interval for pushing health checks to the status_page endpoint
 STATUS_INTERVAL = 15
 # Interval for the command usage publish cron
-COMMAND_USAGE_PUBLISH_INTERVAL = 120  # seconds
+REMOTE_SYNC_INTERVAL = 5  # seconds
 STATUS_PUSH_ENDPOINT = os.environ.get("STATUS_PUSH_ENDPOINT", False)
 STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 15  # seconds
 BOT_NAME = os.environ["BOT_NAME"].strip()
@@ -47,10 +47,13 @@ class Boot(BotPlugin):
             )
             self.start_poller(STATUS_INTERVAL, self.push_health_status)
 
-        # Start the publish_command_counter cron
+        # Start the remote_sync cron
         self.start_poller(
-            COMMAND_USAGE_PUBLISH_INTERVAL, self.publish_command_usage_data
+            REMOTE_SYNC_INTERVAL, self.remote_sync
         )
+
+    def remote_sync(self):
+        self.publish_command_usage_data()
 
     def publish_command_usage_data(self):
         # Grab the current command counter dictionary
