@@ -483,7 +483,7 @@ class ErrBot(Backend, StoreMixin):
         # Server ban logic
         if self.backend == "discord":
             try:
-                server_id = msg.frm.room.__dict__["_guild_id"]
+                server_id = str(msg.frm.room.__dict__["_guild_id"])
             except AttributeError:
                 server_id = False
         elif self.backend == "slack":
