@@ -132,18 +132,18 @@ module "dynamodb_table_sparkle" {
 }
 
 # For botdata table
-module "dynamodb_botdata_play" {
+module "dynamodb_botdata" {
   source  = "terraform-aws-modules/dynamodb-table/aws"
   version = "1.1.0"
 
   name                           = "botdata"
-  hash_key                       = "bot"
+  hash_key                       = "key"
   billing_mode                   = "PAY_PER_REQUEST"
   point_in_time_recovery_enabled = true
 
   attributes = [
     {
-      name = "bot"
+      name = "key"
       type = "S"
     },
   ]

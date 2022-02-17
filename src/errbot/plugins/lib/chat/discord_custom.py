@@ -27,14 +27,42 @@ class DiscordCustom:
 
     def total_servers(self):
         """
-        Get's the total number of servers the bot is present in
+        Gets the total number of servers the bot is present in
         :return: the total number of servers (int)
         """
         return len(self.bot.client.guilds)
 
+    def total_users(self):
+        """
+        Gets the total amount of all users in all servers the bot is connected to
+        :return: the total amount of users (int)
+        """
+        users = 0
+        for guild in self.bot.client.guilds:
+            users += guild.member_count
+        return users
+
+    def active_servers(self):
+        """
+        Get the total number of active servers the bot is in with their details
+        :return: a list of dicts
+        """
+        servers_list = []
+        servers = self.bot.client.guilds
+        for guild in servers:
+            servers_list.append(
+                {
+                    "name": guild.name,
+                    "id": guild.id,
+                    "member_count": guild.member_count,
+                    "owner": guild.owner,
+                }
+            )
+        return servers_list
+
     def get_channel(self, channel_id):
         """
-        Get's the channel object from the ID
+        Gets the channel object from the ID
         :return: the channel object (discord.VoiceChannel)
         """
         return self.bot.client.get_channel(channel_id)

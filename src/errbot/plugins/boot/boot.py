@@ -8,6 +8,7 @@ from errbot import BotPlugin, botcmd
 from lib.common.utilities import Util
 from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import BotDataTable
+from lib.common.ban import Ban
 
 dynamo = Dynamo()
 util = Util()
@@ -21,7 +22,7 @@ INSTALL_MESSAGE_TEXT = "🟢 Systems are now online"
 # Interval for pushing health checks to the status_page endpoint
 STATUS_INTERVAL = 15
 # Interval for the command usage publish cron
-COMMAND_USAGE_PUBLISH_INTERVAL = 120  # seconds
+REMOTE_SYNC_INTERVAL = 120  # seconds
 STATUS_PUSH_ENDPOINT = os.environ.get("STATUS_PUSH_ENDPOINT", False)
 STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 15  # seconds
 BOT_NAME = os.environ["BOT_NAME"].strip()
@@ -47,12 +48,57 @@ class Boot(BotPlugin):
             )
             self.start_poller(STATUS_INTERVAL, self.push_health_status)
 
-        # Start the publish_command_counter cron
-        self.start_poller(
-            COMMAND_USAGE_PUBLISH_INTERVAL, self.publish_command_usage_data
-        )
+        # Run a remote_sync on startup
+        # Note: We won't publish usage data on startup, as we will wait for that to collect
+        self.remote_sync(retries=10, usage_publish=False)
+
+        # Start the remote_sync cron
+        self.start_poller(REMOTE_SYNC_INTERVAL, self.remote_sync)
+
+    def remote_sync(self, retries=3, usage_publish=True):
+        self.sync_ban_list(retries=retries)
+        if usage_publish:
+            self.publish_command_usage_data()
+
+    def sync_ban_list(self, retries=3):
+        """
+        Ensures the ban lists are in sync with the remote state in DynamoDB
+        """
+        # Attempt to get the ban list from the remote state with retries
+        for i in range(retries):
+            # Get the ban list
+            remote_ban_list = Ban().get_banned_users()
+            if remote_ban_list or remote_ban_list == []:
+                # If we got the ban list, break out of the loop
+                break
+            # If the ban list is None or False, something went wrong
+            else:
+                # If we are out of retries, log an error and exit
+                if i == retries - 1:
+                    self.log.error(
+                        "Failed to get remote ban list after {} retries".format(retries)
+                    )
+                    return
+                # If we are not out of retries, sleep and try again
+                time.sleep(0.5)
+
+        # Check if the ban list from the remote state is different from the local state
+        local_ban_list = self._bot.banned_users
+        if sorted(local_ban_list) == sorted(remote_ban_list):
+            # uncomment this to debug or for extra verbosity
+            # self.log.info(
+            #     f"Ban lists are in sync with remote state in DynamoDB for {BOT_NAME}"
+            # )
+            return
+        else:
+            self._bot.banned_users = remote_ban_list
+            self.log.info("Ban list has been synced with remote state")
+            return
 
     def publish_command_usage_data(self):
+        """
+        Runs inside of the remote_sync cron to publish command usage data DynamoDB
+        """
         # Grab the current command counter dictionary
         command_usage_data_snapshot = self._bot.command_usage_data
         # Reset the global command counter
@@ -69,7 +115,7 @@ class Boot(BotPlugin):
 
         # If the record exists, update it with the most recent values collected
         if record:
-            record_parsed = json.loads(record.command_usage_data)
+            record_parsed = json.loads(record.value)
             updated_usage_data = dict(
                 Counter(record_parsed) + Counter(command_usage_data_snapshot)
             )
@@ -79,7 +125,7 @@ class Boot(BotPlugin):
                 table=BotDataTable,
                 record=record,
                 fields_to_update=[
-                    BotDataTable.command_usage_data.set(json.dumps(updated_usage_data))
+                    BotDataTable.value.set(json.dumps(updated_usage_data))
                 ],
             )
 
@@ -108,8 +154,8 @@ class Boot(BotPlugin):
             )
             new_record = dynamo.write(
                 BotDataTable(
-                    bot=BOT_NAME,
-                    command_usage_data=json.dumps(command_usage_data_snapshot),
+                    key=BOT_NAME,
+                    value=json.dumps(command_usage_data_snapshot),
                     updated_at=util.iso_timestamp(),
                 )
             )

@@ -81,6 +81,9 @@ class ErrBot(Backend, StoreMixin):
         self._gbl = RLock()  # this protects internal structures of this class
         self.set_message_size_limit()
         self.command_usage_data = {}  # custom command usage data variable
+        self.banned_users = (
+            []
+        )  # custom list of users that are banned from using the bot
 
     @property
     def message_size_limit(self) -> int:
@@ -457,6 +460,18 @@ class ErrBot(Backend, StoreMixin):
                 log.info(base_log_string)
         except:
             log.info(base_log_string)
+
+        # ================ CUSTOM BAN LOGIC ================
+
+        if os.environ["BACKEND"].lower().strip() == "discord":
+            handle = msg.frm.person.split("@")[0]
+        elif os.environ["BACKEND"].lower().strip() == "slack":
+            handle = str(msg.frm).split("/")[1]
+
+        if handle in self.banned_users:
+            log.info(f"{handle} is banned, ignoring command.")
+            self.send_simple_reply(msg, f"Sorry, you are banned")
+            return
 
         # ================ CUSTOM COMMAND COUNTER LOGIC ================
 

@@ -5,13 +5,14 @@ data "kubectl_path_documents" "errbot_deployment_manifest" {
   ]
 
   vars = {
-    NAMESPACE       = "${var.NAMESPACE}"
-    IMAGE_TAG       = "${var.IMAGE_TAG}"
-    ACR_NAME        = "${var.ACR_NAME}"
-    REQUESTS_CPU    = "${var.REQUESTS_CPU}"
-    REQUESTS_MEMORY = "${var.REQUESTS_MEMORY}"
-    LIMITS_CPU      = "${var.LIMITS_CPU}"
-    LIMITS_MEMORY   = "${var.LIMITS_MEMORY}"
+    NAMESPACE              = "${var.NAMESPACE}"
+    SERVER_LOCK_ALLOW_LIST = "${var.SERVER_LOCK_ALLOW_LIST}"
+    IMAGE_TAG              = "${var.IMAGE_TAG}"
+    ACR_NAME               = "${var.ACR_NAME}"
+    REQUESTS_CPU           = "${var.REQUESTS_CPU}"
+    REQUESTS_MEMORY        = "${var.REQUESTS_MEMORY}"
+    LIMITS_CPU             = "${var.LIMITS_CPU}"
+    LIMITS_MEMORY          = "${var.LIMITS_MEMORY}"
   }
   pattern = "modules/containers/errbot/deployment.yaml"
 }

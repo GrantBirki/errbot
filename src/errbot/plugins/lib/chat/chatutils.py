@@ -13,6 +13,7 @@ COLORS = {
 }
 
 BACKEND = os.environ["BACKEND"]
+BOT_ADMINS = os.environ.get("BOT_ADMINS", "").split(",")
 
 # Get the allow listed servers for the Discord server lock
 server_lock_env = os.environ.get("SERVER_LOCK_ALLOW_LIST", None)
@@ -28,6 +29,17 @@ class ChatUtils:
         Gets the hex of a color for send_card() calls
         """
         return COLORS[color]
+
+    def is_admin(self, msg):
+        """
+        Checks if a given user is a BOT_ADMIN
+        :param msg: The message object
+        :return: True if the user is an admin, False otherwise
+        """
+        if self.handle(msg) in BOT_ADMINS:
+            return True
+        else:
+            return False
 
     def guild_id(self, msg):
         """

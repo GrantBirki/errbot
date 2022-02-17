@@ -7,6 +7,7 @@ from lib.chat.chatutils import ChatUtils
 from lib.chat.discord_custom import DiscordCustom
 from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import BotDataTable
+from lib.common.ban import Ban
 
 chatutils = ChatUtils()
 dynamo = Dynamo()
@@ -60,7 +61,7 @@ class Core(BotPlugin):
 
         # If the record exists, update it with the most recent values collected
         if record:
-            record_parsed = json.loads(record.command_usage_data)
+            record_parsed = json.loads(record.value)
         elif record is None:
             return "❌ I could not find a record for this bot in the database. Please contact the bot owner."
         elif record is False:
@@ -80,6 +81,111 @@ class Core(BotPlugin):
         chatutils.send_card_helper(
             bot_self=self,
             title="📊 Bot Usage Totals",
+            body=message,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
+
+    @botcmd(admin_only=True)
+    def users(self, msg, args):
+        """
+        Get the total number of users in all servers the bot is connected to
+        """
+        dc = DiscordCustom(self._bot)
+        return f"**Total Users: {dc.total_users()}**"
+
+    @botcmd(admin_only=True)
+    def servers(self, msg, args):
+        """
+        Get the total servers the bot is in with details
+        :admin only:
+        """
+        dc = DiscordCustom(self._bot)
+        servers = dc.active_servers()
+
+        message = f"**Active Servers: {len(servers)}**\n\n"
+
+        for server in servers:
+            message += f"• **{server['name']}**\n"
+            message += f"  - ID: `{server['id']}`\n"
+            message += f"  - Owner: `{server['owner']}`\n"
+            message += f"  - Member count: `{server['member_count']}`\n"
+            message += "\n"
+
+        # Return a card with the total server information
+        chatutils.send_card_helper(
+            bot_self=self,
+            title="📊 Active Server Information",
+            body=message,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
+
+    @botcmd
+    def unban(self, msg, args):
+        """
+        Admin command for unbanning users
+        Example: .unban user#1234
+        """
+        # Check to ensure the user is an admin
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
+        # If the user not already banned, return
+        if args not in self._bot.banned_users:
+            return f"ℹ️ User: `{args}` is **not** banned. Nothing to do..."
+
+        # Remove the banned user from the ban list in memory
+        self._bot.banned_users.remove(args)
+
+        # Remove the user from the ban database so it persists across restarts
+        result = Ban().remove_user(args)
+
+        # Return a message based on the result of the database update
+        if result:
+            return f"✅ User: `{args}` has been **removed** from the ban list"
+        else:
+            return f"❌ Failed to remove user: `{args}` from the ban list\n🗒️Check the logs for more info"
+
+    @botcmd
+    def ban(self, msg, args):
+        """
+        Admin command for banning users globally from using the bot
+        Example: .ban user#1234
+        """
+        # Check to ensure the user is an admin
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
+        # If the user is already banned, return
+        if args in self._bot.banned_users:
+            return f"ℹ️ User: `{args}` is already banned"
+
+        # If the user is not already banned, add them to the ban list in memory
+        self._bot.banned_users.append(args)
+
+        # Update the database with the new user ban so it persists across restarts
+        result = Ban().user(args)
+
+        # Return a message based on the result of the database update
+        if result:
+            return f"⛔ User: `{args}` has been **banned**"
+        else:
+            return f"❌ Failed to ban user: `{args}`\n🗒️Check the logs for more info"
+
+    @botcmd
+    def banned_users(self, msg, args):
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
+        banned_users_list = self._bot.banned_users
+        message = f"**Banned Users: {len(banned_users_list)}**\n\n"
+        for user in banned_users_list:
+            message += f"• `{user}`\n"
+
+        chatutils.send_card_helper(
+            bot_self=self,
+            title="⛔ Banned Users",
             body=message,
             color=chatutils.color("white"),
             in_reply_to=msg,
