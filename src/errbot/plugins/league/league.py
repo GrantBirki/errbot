@@ -77,7 +77,7 @@ class League(BotPlugin):
         else:
             super().activate()
             disabled = os.environ.get("DISABLE_LEAGUE_CRON", False)
-            if disabled:
+            if disabled.lower().strip() == "true":
                 self.log.warn("League cron disabled for local testing")
             else:
                 self.start_poller(INTERVAL, self.last_match_cron)

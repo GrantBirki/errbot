@@ -6,6 +6,12 @@ variable "NAMESPACE" {
 }
 
 # Container configuration
+variable "DISABLE_LEAGUE_CRON" {
+  description = "Disable the cron job for the league plugin"
+  default     = "True"
+  type        = string
+}
+
 variable "SERVER_LOCK_ALLOW_LIST" {
   description = "List of servers the bot is allowed to operate certain commands in"
   default     = "66199319505543168" # MWM

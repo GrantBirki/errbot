@@ -13,6 +13,7 @@ data "kubectl_path_documents" "errbot_deployment_manifest" {
     REQUESTS_MEMORY        = "${var.REQUESTS_MEMORY}"
     LIMITS_CPU             = "${var.LIMITS_CPU}"
     LIMITS_MEMORY          = "${var.LIMITS_MEMORY}"
+    DISABLE_LEAGUE_CRON    = "${var.DISABLE_LEAGUE_CRON}"
   }
   pattern = "modules/containers/errbot/deployment.yaml"
 }

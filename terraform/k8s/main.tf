@@ -14,6 +14,7 @@ module "errbot" {
   # Config
   ACR_NAME  = data.azurerm_container_registry.acr.name
   NAMESPACE = "errbot"
+  DISABLE_LEAGUE_CRON = "False"
 }
 
 module "errbot_public" {
@@ -32,6 +33,7 @@ module "errbot_public" {
   # Config
   ACR_NAME  = data.azurerm_container_registry.acr.name
   NAMESPACE = "errbot-public"
+  DISABLE_LEAGUE_CRON = "True"
 }
 
 module "promtail" {
