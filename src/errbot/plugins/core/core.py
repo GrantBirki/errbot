@@ -131,7 +131,7 @@ class Core(BotPlugin):
         if not chatutils.is_admin(msg):
             return "This command is only available to bot admins."
 
-        # If the user not already banned, return
+        # If the user is not already banned, return
         if args not in self._bot.banned_users:
             return f"ℹ️ User: `{args}` is **not** banned. Nothing to do..."
 
@@ -139,7 +139,7 @@ class Core(BotPlugin):
         self._bot.banned_users.remove(args)
 
         # Remove the user from the ban database so it persists across restarts
-        result = Ban().remove_user(args)
+        result = Ban().remove_ban(args, ban_type="user")
 
         # Return a message based on the result of the database update
         if result:
@@ -165,7 +165,7 @@ class Core(BotPlugin):
         self._bot.banned_users.append(args)
 
         # Update the database with the new user ban so it persists across restarts
-        result = Ban().user(args)
+        result = Ban().add_ban(args, ban_type="user")
 
         # Return a message based on the result of the database update
         if result:
@@ -175,6 +175,9 @@ class Core(BotPlugin):
 
     @botcmd
     def banned_users(self, msg, args):
+        """
+        Admin command for listing all banned users
+        """
         if not chatutils.is_admin(msg):
             return "This command is only available to bot admins."
 
@@ -186,6 +189,80 @@ class Core(BotPlugin):
         chatutils.send_card_helper(
             bot_self=self,
             title="⛔ Banned Users",
+            body=message,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
+
+    @botcmd
+    def unban_server(self, msg, args):
+        """
+        Admin command for unbanning servers
+        Example: .unban server 1234567890
+        Note: This is not tested with Slack
+        """
+        # Check to ensure the server is an admin
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
+        # If the server not already banned, return
+        if args not in self._bot.banned_servers:
+            return f"ℹ️ Server: `{args}` is **not** banned. Nothing to do..."
+
+        # Remove the banned server from the ban list in memory
+        self._bot.banned_servers.remove(args)
+
+        # Remove the server from the ban database so it persists across restarts
+        result = Ban().remove_ban(args, ban_type="server")
+
+        # Return a message based on the result of the database update
+        if result:
+            return f"✅ Server: `{args}` has been **removed** from the ban list"
+        else:
+            return f"❌ Failed to remove server: `{args}` from the ban list\n🗒️Check the logs for more info"
+
+    @botcmd
+    def ban_server(self, msg, args):
+        """
+        Admin command for banning servers globally from using the bot
+        Example: .ban 1234567890
+        """
+        # Check to ensure the server is an admin
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
+        # If the server is already banned, return
+        if args in self._bot.banned_servers:
+            return f"ℹ️ Server: `{args}` is already banned"
+
+        # If the server is not already banned, add them to the ban list in memory
+        self._bot.banned_servers.append(args)
+
+        # Update the database with the new server ban so it persists across restarts
+        result = Ban().add_ban(args, ban_type="server")
+
+        # Return a message based on the result of the database update
+        if result:
+            return f"⛔ Server: `{args}` has been **banned**"
+        else:
+            return f"❌ Failed to ban server: `{args}`\n🗒️Check the logs for more info"
+
+    @botcmd
+    def banned_servers(self, msg, args):
+        """
+        Admin command for listing all banned servers
+        """
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
+        banned_servers_list = self._bot.banned_servers
+        message = f"**Banned Servers: {len(banned_servers_list)}**\n\n"
+        for server in banned_servers_list:
+            message += f"• `{server}`\n"
+
+        chatutils.send_card_helper(
+            bot_self=self,
+            title="⛔ Banned Servers",
             body=message,
             color=chatutils.color("white"),
             in_reply_to=msg,
