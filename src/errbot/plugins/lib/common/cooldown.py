@@ -26,7 +26,7 @@ class CoolDown:
 
     def remaining(self):
         """
-        Returns a formatted string of the hours, minutes, and seconds remaining on a cooldown timer
+        :return: a formatted string of the hours, minutes, and seconds remaining on a cooldown timer
         Note: it is required to init the class first and call the .check function on the class
         """
         timestamp = util.parse_iso_timestamp(self.updated_at)
@@ -36,6 +36,7 @@ class CoolDown:
     def check_timestamp(self, timestamp):
         """
         Checks if the timestamp is within the cool down period
+        :param timestamp: The ISO formatted timestamp to check (String)
         :return: True if the timestamp is no longer on cool down. False if the timestamp is still on cooldown
         """
         timestamp = util.parse_iso_timestamp(timestamp)
@@ -46,9 +47,9 @@ class CoolDown:
     def check(self, msg):
         """
         Checks the cooldown for a user given a specific command / DB table
+        :param msg: The message object
         :return first: True if the user is on a cooldown timer, False if not
         """
-
         guild_id = chatutils.guild_id(msg)
         handle = chatutils.handle(msg)
 

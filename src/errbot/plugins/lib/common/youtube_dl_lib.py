@@ -38,7 +38,6 @@ class YtdlLib:
         :param file_name: optional file name to save the file as
         :return: the path to the downloaded audio file
         """
-
         # If the file_name was provided, use it, otherwise generate a random one
         if file_name:
             output_file = f"{self.path}/{file_name}.mp3"
@@ -77,5 +76,12 @@ class YtdlLib:
         return output_file
 
     def downloader(self, ydl_opts, url):
+        """
+        Function to download a video with youtube_dl
+        :param ydl_opts: the youtube_dl options
+        :param url: the full url to the video
+        :return: None
+        Note: The file will be downloaded to the path specified in ydl_opts
+        """
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
