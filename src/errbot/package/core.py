@@ -13,10 +13,11 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 import atexit
 import difflib
+import hashlib
 import inspect
 import logging
-import re
 import os
+import re
 import traceback
 from collections.abc import Mapping
 from datetime import datetime
@@ -84,6 +85,10 @@ class ErrBot(Backend, StoreMixin):
         self.banned_users = (
             []
         )  # custom list of users that are banned from using the bot
+        self.banned_servers = (
+            []
+        )  # custom list of users that are banned from using the bot
+        self.backend = os.environ["BACKEND"].lower().strip() # custom backend variable
 
     @property
     def message_size_limit(self) -> int:
@@ -450,7 +455,7 @@ class ErrBot(Backend, StoreMixin):
             f'Processing command "{cmd}" with parameters "{args}" from {frm}'
         )
         try:
-            if os.environ["BACKEND"].lower().strip() == "discord":
+            if self.backend == "discord":
                 try:
                     guild_id = msg.frm.room.__dict__["_guild_id"]
                     log.info(f"{base_log_string}:{guild_id}")
@@ -463,14 +468,38 @@ class ErrBot(Backend, StoreMixin):
 
         # ================ CUSTOM BAN LOGIC ================
 
-        if os.environ["BACKEND"].lower().strip() == "discord":
+        # User ban logic
+        if self.backend == "discord":
             handle = msg.frm.person.split("@")[0]
-        elif os.environ["BACKEND"].lower().strip() == "slack":
+        elif self.backend == "slack":
             handle = str(msg.frm).split("/")[1]
 
+        # If the user is banned, don't let them do anything and return a message
         if handle in self.banned_users:
-            log.info(f"{handle} is banned, ignoring command.")
+            log.info(f'User "{handle}" is banned, ignoring command.')
             self.send_simple_reply(msg, f"Sorry, you are banned")
+            return
+
+        # Server ban logic
+        if self.backend == "discord":
+            try:
+                server_id = msg.frm.room.__dict__["_guild_id"]
+            except AttributeError:
+                server_id = False
+        elif self.backend == "slack":
+            # Note: Slack banning is not tested
+            # Get the name of the Slack server (a string)
+            server_name = str(msg.frm.room.__dict__["_bot"].__dict__["auth"]["team"])
+            # Hash the severname with sha256
+            hashed = hashlib.sha256(server_name.encode("utf8"))
+            hashed.hexdigest()
+            # Convert the hash to an int and get the first 16 digits
+            server_id = str(int(hashed.hexdigest(), base=16))[:16]
+        
+        # If the server is banned, don't let them do anything and return a message
+        if server_id in self.banned_servers:
+            log.info(f'Server "{server_id}" is banned, ignoring command.')
+            self.send_simple_reply(msg, f"Sorry, this server is banned")
             return
 
         # ================ CUSTOM COMMAND COUNTER LOGIC ================
