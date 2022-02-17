@@ -56,18 +56,21 @@ class Boot(BotPlugin):
         self.start_poller(REMOTE_SYNC_INTERVAL, self.remote_sync)
 
     def remote_sync(self, retries=3, usage_publish=True):
-        self.sync_ban_list(retries=retries)
+        self.sync_ban_list(retries=retries, ban_type="user")
+        self.sync_ban_list(retries=retries, ban_type="server")
         if usage_publish:
             self.publish_command_usage_data()
 
-    def sync_ban_list(self, retries=3):
+    def sync_ban_list(self, retries=3, ban_type="user"):
         """
-        Ensures the ban lists are in sync with the remote state in DynamoDB
+        Ensures a given ban list is in sync with the remote state in DynamoDB
+        :param retries: Number of retries to attempt before giving up
+        :param ban_type: Type of ban list to sync
         """
         # Attempt to get the ban list from the remote state with retries
         for i in range(retries):
             # Get the ban list
-            remote_ban_list = Ban().get_banned_users()
+            remote_ban_list = Ban().get_bans(ban_type=ban_type)
             if remote_ban_list or remote_ban_list == []:
                 # If we got the ban list, break out of the loop
                 break
@@ -83,7 +86,10 @@ class Boot(BotPlugin):
                 time.sleep(0.5)
 
         # Check if the ban list from the remote state is different from the local state
-        local_ban_list = self._bot.banned_users
+        if ban_type == "user":
+            local_ban_list = self._bot.banned_users
+        elif ban_type == "server":
+            local_ban_list = self._bot.banned_servers
         if sorted(local_ban_list) == sorted(remote_ban_list):
             # uncomment this to debug or for extra verbosity
             # self.log.info(
@@ -91,8 +97,12 @@ class Boot(BotPlugin):
             # )
             return
         else:
-            self._bot.banned_users = remote_ban_list
-            self.log.info("Ban list has been synced with remote state")
+            if ban_type == "user":
+                self._bot.banned_users = remote_ban_list
+                self.log.info(f'Ban list "user" has been synced with remote state')
+            elif ban_type == "server":
+                self._bot.banned_servers = remote_ban_list
+                self.log.info(f'Ban list "server" has been synced with remote state')
             return
 
     def publish_command_usage_data(self):
