@@ -86,20 +86,27 @@ class Core(BotPlugin):
             in_reply_to=msg,
         )
 
-    @botcmd(admin_only=True)
+    @botcmd()
     def users(self, msg, args):
         """
         Get the total number of users in all servers the bot is connected to
         """
+        # Check to ensure the user is an admin
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
         dc = DiscordCustom(self._bot)
         return f"**Total Users: {dc.total_users()}**"
 
-    @botcmd(admin_only=True)
+    @botcmd()
     def servers(self, msg, args):
         """
         Get the total servers the bot is in with details
         :admin only:
         """
+        # Check to ensure the user is an admin
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
         dc = DiscordCustom(self._bot)
         servers = dc.active_servers()
 
