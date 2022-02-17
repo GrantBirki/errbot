@@ -88,7 +88,7 @@ class ErrBot(Backend, StoreMixin):
         self.banned_servers = (
             []
         )  # custom list of users that are banned from using the bot
-        self.backend = os.environ["BACKEND"].lower().strip() # custom backend variable
+        self.backend = os.environ["BACKEND"].lower().strip()  # custom backend variable
 
     @property
     def message_size_limit(self) -> int:
@@ -495,7 +495,7 @@ class ErrBot(Backend, StoreMixin):
             hashed.hexdigest()
             # Convert the hash to an int and get the first 16 digits
             server_id = str(int(hashed.hexdigest(), base=16))[:16]
-        
+
         # If the server is banned, don't let them do anything and return a message
         if server_id in self.banned_servers:
             log.info(f'Server "{server_id}" is banned, ignoring command.')
