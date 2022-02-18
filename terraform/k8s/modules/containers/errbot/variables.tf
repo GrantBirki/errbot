@@ -20,25 +20,25 @@ variable "SERVER_LOCK_ALLOW_LIST" {
 
 variable "REQUESTS_CPU" {
   description = "The CPU units to request on container creation"
-  default     = "0.5"
+  default     = "0.25"
   type        = string
 }
 
 variable "REQUESTS_MEMORY" {
   description = "The memory units to request on container creation"
-  default     = "400Mi"
+  default     = "100Mi"
   type        = string
 }
 
 variable "LIMITS_CPU" {
   description = "The CPU units to limit the container to"
-  default     = "1.4"
+  default     = "1.0"
   type        = string
 }
 
 variable "LIMITS_MEMORY" {
   description = "The memory units to limit the container to"
-  default     = "3Gi"
+  default     = "1Gi"
   type        = string
 }
 
