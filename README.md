@@ -57,6 +57,12 @@ Didn't work quite right? Want to actually connect to a chat service? Check out t
 
 > Want to jump to the `Turbo Quickstart` for Discord guide? Check it out [here](https://errbot.birki.io/discord-turbo-quickstart/)
 
+## Demo 📹
+
+Check out the video below to see a simple example of errbot in action!
+
+https://user-images.githubusercontent.com/23362539/154757128-82c3d546-2195-42ab-83ed-bcec63739f5e.mp4
+
 ## Writing Plugins 🧰
 
 Writing and creating your own plugins is extremely easy! The snippet below shows you how to create your own chatbot function in just a few lines of code:
