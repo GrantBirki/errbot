@@ -10,16 +10,18 @@ class Wallstreetbets(BotPlugin):
         """
         Get the top stonks from Wallstreetbets and their sentiment
         """
+        try:
+            stonks = self.get_wallstreebets()[:5]
 
-        stonks = self.get_wallstreebets()[:5]
+            message = []
+            for stonk in stonks:
+                message.append(
+                    f"Ticker: `${stonk['ticker'].ljust(4)}` | Sentiment: `{stonk['sentiment']}` | Comments: `{stonk['no_of_comments']}`"
+                )
 
-        message = []
-        for stonk in stonks:
-            message.append(
-                f"Ticker: `${stonk['ticker'].ljust(4)}` | Sentiment: `{stonk['sentiment']}` | Comments: `{stonk['no_of_comments']}`"
-            )
-
-        return "\n".join(message)
+            return "\n".join(message)
+        except requests.exceptions.JSONDecodeError:
+            return "❌ Failed to get Wallstreetbets data"
 
     def get_wallstreebets(self):
         return requests.get("https://dashboard.nbshare.io/api/v1/apps/reddit").json()
