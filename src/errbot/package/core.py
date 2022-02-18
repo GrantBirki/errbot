@@ -446,8 +446,6 @@ class ErrBot(Backend, StoreMixin):
     def _process_command(self, msg, cmd, args, match):
         """Process and execute a bot command"""
 
-        log.info("start _process_command")
-
         # first it must go through the command filters
         msg, cmd, args = self._process_command_filters(msg, cmd, args, False)
         if msg is None:
