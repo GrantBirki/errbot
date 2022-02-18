@@ -162,6 +162,22 @@ This is covered in the public documentation: [errbot.birki.io](https://errbot.bi
 
 </details>
 
+<details>
+<summary>How is this bot different from errbotio/errbot?</summary>
+
+[errbotio/errbot](https://github.com/errbotio/errbot) is a fantastic chatbot framework written in Python and it is the foundation of this project.
+
+This project uses [errbotio/errbot](https://github.com/errbotio/errbot) for all of its chatbot related function calls, communicating with the Discord backend, and the majority of its configuration.
+
+There are some differences between the two, however:
+
+- This project adapts some custom code that errbotio/errbot does not currently support. This includes things like custom logging, banning users/servers, locking certain commands, etc
+- The original framework of [errbotio/errbot](https://github.com/errbotio/errbot) has been Dockerized in this project
+
+I kept the same name for this project and provided many links to the original framework as inspiration
+
+</details>
+
 ---
 
 ### Opensource 🌎
