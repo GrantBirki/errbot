@@ -27,6 +27,8 @@ class ChatUtils:
     def color(self, color):
         """
         Gets the hex of a color for send_card() calls
+        :param color: The color to get the hex of (red, green, yellow, blue, white, cyan, black)
+        :return: The hex of the color
         """
         return COLORS[color]
 
@@ -43,7 +45,9 @@ class ChatUtils:
 
     def guild_id(self, msg):
         """
-        Returns the guild_id / slack server name as an int
+        Gets the guild ID of a message
+        :param msg: The message object
+        :return: the guild_id / slack server name (Int)
 
         For discord, this is the guild_id which is an int
         For Slack, this is a pure int hash of the server name
@@ -67,7 +71,9 @@ class ChatUtils:
 
     def channel_id(self, msg):
         """
-        Returns the channel ID
+        Gets the channel ID of a message
+        :param msg: The message object
+        :return: the Discord channel_id (Int) / slack channel id (String)
         Discord will be an int while Slack will be a string
         """
         if BACKEND == "discord":
@@ -79,6 +85,8 @@ class ChatUtils:
         """
         Gets the handle of a user
         This does not support mentions but is useful for getting the handle of a user
+        :param msg: The message object
+        :return: The handle of the user (String)
 
         Example: Birki#0001@bots -> Birki#0001
         Example: channel/handle -> handle
@@ -92,7 +100,8 @@ class ChatUtils:
     def mention_user(self, msg):
         """
         Gets the user's mention_id which can be used to directly mention a Discord user in chat
-        Returns the the 'mention_id' with proper formatting for a mention
+        :param msg: The message object
+        :return: the the 'mention_id' with proper formatting for a mention (String)
         """
         if BACKEND == "discord":
             return f"<@{msg.frm.__dict__['_user_id']}>"
@@ -102,6 +111,9 @@ class ChatUtils:
     def get_user_id(self, msg):
         """
         Gets the user's raw ID and returns it
+        :param msg: The message object
+        :return: the user's Discord ID (Int) / Slack ID (String)
+
         Note: The user ID for Discord is an integer
         Example: 12345678909876543
 
@@ -195,6 +207,7 @@ class ChatUtils:
         :param color: The color of the card (color object)
         :param in_reply_to: The message to reply to (usually a Discord.Message object) (if used)
         :param retries: The number of times to retry the request
+        :return: None
         """
         for i in range(retries):
             try:

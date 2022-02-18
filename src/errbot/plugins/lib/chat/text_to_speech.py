@@ -15,6 +15,11 @@ class TextToSpeech:
         self.path = path
 
     def convert_to_mp3(self, text):
+        """
+        Convert text to speech as a mp3 file
+        :param text: The text to convert (String)
+        :return: The path to the mp3 file (String)
+        """
         speech_obj = gTTS(text=text, lang=self.language, slow=self.slow, tld=self.tld)
         output_file = f"{self.path}/{uuid.uuid4()}.mp3"
         speech_obj.save(output_file)

@@ -132,6 +132,7 @@ class DiscordCustom:
         :param channel: the voice channel to play the file in (id)
         :param file_duration: the duration of the file in seconds (int) - Default None will get the duration from youtube-dl
         :param file: the file to play (path)
+        :return: None
         """
 
         # First we get the file duration so we can kick the bot once its done playing
@@ -303,9 +304,9 @@ class DiscordCustom:
     def get_audio_file_duration(self, file):
         """
         Get's the audio file duration in seconds as a float
+        :param file: The path to the file to get the duration of
         :return: the duration of the file in seconds (float)
         """
-
         # Use native FFMPEG to get the duration of the file
         process = subprocess.Popen(
             [

@@ -24,7 +24,8 @@ class Util:
 
     def iso_timestamp(self):
         """
-        Return a ISO formatted timestamp of the current time
+        Helper function to return a ISO formatted timestamp
+        :return: an ISO formatted timestamp of the current time
         """
         return datetime.utcnow().replace(microsecond=0).isoformat()
 
@@ -32,12 +33,16 @@ class Util:
         """
         Parse a ISO formatted timestamp and return a datetime object
         Used in conjunction with iso_timestamp()
+        :param timestamp: The ISO formatted timestamp (String)
+        :return: A datetime object
         """
         return datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
 
     def is_timestamp_older_than_n_seconds(self, timestamp, seconds):
         """
         Given a timestamp and N seconds, check the timestamp
+        :param timestamp: The timestamp to check (DateTime object)
+        :param seconds: The number of seconds to check (Integer)
         :return: True if timestamp is older than N seconds, False otherwise
         """
         expiration = datetime.utcnow() - timedelta(seconds=seconds)
@@ -51,6 +56,8 @@ class Util:
     def when_ready_timestamp(self, timestamp, seconds):
         """
         Given X seconds in the future, determine when a timestamp is considered ready
+        :param timestamp: The timestamp to check (DateTime object)
+        :param seconds: The number of seconds to check (Integer)
         :return: a dict with hours_minutes_seconds() like formatting
         """
         ready = timestamp + timedelta(seconds=seconds)
@@ -62,6 +69,8 @@ class Util:
     def fmt_hms(self, hms):
         """
         Format a dict of hours, minutes and seconds into a string
+        :param hms: A dict of hours, minutes and seconds (Dict)
+        :return: A string of the form "H:## M:## S:##"
         """
         hours = int(hms.get("hours", 0))
         minutes = int(hms.get("minutes", 0))
@@ -71,12 +80,16 @@ class Util:
     def sha256(self, data):
         """
         Hash a string and return a SHA256 hash
+        :param data: The string to hash (String)
+        :return: A SHA256 hash of the string (String)
         """
         return hashlib.sha256(data.encode("utf-8")).hexdigest()
 
     def hours_minutes_seconds(self, seconds):
         """
         Get the hours, munutes and seconds from a given number of seconds
+        :param seconds: The number of seconds to convert (Integer)
+        :return: A dict of hours, minutes and seconds (Dict)
         """
         h = seconds // 3600
         m = seconds % 3600 // 60
@@ -87,18 +100,23 @@ class Util:
     def hours_minutes_seconds_from_ms(self, ms):
         """
         Get the hours, munutes and seconds from a given number of milliseconds
+        :param ms: The number of milliseconds to convert (Integer)
+        :return: A dict of hours, minutes and seconds (Dict)
         """
         return self.hours_minutes_seconds(int(ms / 1000))
 
     def url_encode(self, string):
         """
         url encode a string
+        :param string: The string to encode (String)
+        :return: The url encoded string (String)
         """
         return urllib.parse.quote(string)
 
     def is_file_open(self, file_path):
         """
         Checks if a file is open
+        :param file_path: The path to the file to check (String)
         :return: True if file is open, False if not
         Note: will return False if file does not exist which is okay
         Example: is_file_open('test.txt')
@@ -122,6 +140,9 @@ class Util:
         """
         Helper function to check if a file is ready to be opened
         Use in conjunction with is_file_open()
+        :param file_path: The path to the file to check (String)
+        :param retries: The number of times to check if the file is ready (Integer)
+        :param sleep_time: The number of seconds to sleep between checks (Float)
         :return: True if file is ready, False if not
         """
         for _ in range(retries):
