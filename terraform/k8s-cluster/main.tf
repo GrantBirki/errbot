@@ -10,6 +10,29 @@ provider "azurerm" {
   subscription_id = var.SUBSCRIPTION_ID
 }
 
+# The security group to assign to the subnet below
+resource "azurerm_network_security_group" "nsg" {
+  name                = "${var.PROJECT_NAME}_nsg"
+  location            = var.CLOUD_LOCATION
+  resource_group_name = azurerm_resource_group.default.name
+
+  security_rule {
+    name                       = "block-aks-inbound"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Deny"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  tags = {
+    created_by = "terraform"
+  }
+}
+
 # The Azure Subnet for the AKS cluster
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.PROJECT_NAME}_vnet"
@@ -21,11 +44,18 @@ resource "azurerm_virtual_network" "vnet" {
   }
 }
 
+# Create the subnet inside the vnet
 resource "azurerm_subnet" "subnet" {
   address_prefixes     = ["10.2.0.0/24"]
   name                 = "${var.PROJECT_NAME}_default_subnet"
   resource_group_name  = azurerm_resource_group.default.name
   virtual_network_name = azurerm_virtual_network.vnet.name
+}
+
+# Link the subnet to the security group
+resource "azurerm_subnet_network_security_group_association" "nsg_association" {
+  subnet_id                 = azurerm_subnet.subnet.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
 resource "azurerm_resource_group" "default" {
@@ -49,8 +79,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   network_profile {
-    network_plugin = "azure"
-    network_policy = "calico"
+    network_plugin    = "azure"
+    network_policy    = "calico"
+    load_balancer_sku = "basic"
   }
 
   default_node_pool {
