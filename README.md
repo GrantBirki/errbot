@@ -102,6 +102,10 @@ I have committed all my Terraform files which create and deploy my Azure Kuberne
 
 For more details on deployment, you can check out my notes in the [deployment guide](https://errbot.birki.io/deployment)
 
+### Community Discord 💬
+
+If you need help with development, have a question, new feature, or just want to test out the bot, you can join the [errbot community Discord](https://discord.gg/qvnxqyuVpM)
+
 ### Documentation 📖
 
 All the documentation for this project is available at [errbot.birki.io](https://errbot.birki.io).
@@ -112,3 +116,69 @@ You can also view the docs by browsing to the `docs/` directory in the root of t
 - [Setup](https://errbot.birki.io/setup)
 - [Development](https://errbot.birki.io/development)
 - [Commands](https://errbot.birki.io/commands)
+
+---
+
+### FAQ 📚
+
+Expand the sections below to view commonly asked questions and their answers:
+
+<details>
+<summary>How can I contribute to the bot?</summary>
+
+Check out the [contributing guide](CONTRIBUTING.md)!
+
+</details>
+
+<details>
+<summary>How can I add my own command to the bot?</summary>
+
+Check out the [contributing guide](CONTRIBUTING.md)!
+
+</details>
+
+<details>
+<summary>How can I get real time help?</summary>
+
+Check out the community Discord server link mentioned above in this document
+
+</details>
+
+<details>
+<summary>Is this bot opensource?</summary>
+
+Yes! If you are reading this text that means you have landed on the errbot repo where all the code and project files are located.
+
+Everything and I mean _everything_ is open source about this bot.
+
+Feel free to open pull requests to make your own changes and they will be live anywhere and everywhere where the bot lives in Discord.
+
+</details>
+
+<details>
+<summary>How do I self-host my own version of this bot?</summary>
+
+This is covered in the public documentation: [errbot.birki.io](https://errbot.birki.io)
+
+</details>
+
+---
+
+### Opensource 🌎
+
+This project is **100% opensource**, here is what that means...
+
+This project is _slightly_ different from other opensource projects in the sense that it is not just opensource code but also infrastructure and configuration.
+
+Errbot is a public bot made for and by the community. It is not a commercial product and is not a paid service and as such, all of the code and project files are open source.
+
+Here are all the components of this project that are opensource and can be edited by the public (hint: its basically everything):
+
+- Source code
+- CI/CD pipeline
+- Infrastructure (k8s)
+- Terraform IaC files
+- Documentation
+- Basic configuration
+
+> The only thing that is **not** open source is what cannot be, such as secrets, credentials, and API keys that are stored as k8s secrets or used in the CI/CD pipeline
