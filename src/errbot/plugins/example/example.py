@@ -31,6 +31,7 @@ class Example(BotPlugin):
         # Send the file
         dc.send_file(channel_id, filename)
 
+    # Extra tests and examples commented out
     # @botcmd
     # def card(self, msg, args):
     #     """

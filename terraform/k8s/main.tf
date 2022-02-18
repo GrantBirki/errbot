@@ -12,8 +12,8 @@ module "errbot" {
   SENTRY                = var.SENTRY
 
   # Config
-  ACR_NAME  = data.azurerm_container_registry.acr.name
-  NAMESPACE = "errbot"
+  ACR_NAME            = data.azurerm_container_registry.acr.name
+  NAMESPACE           = "errbot"
   DISABLE_LEAGUE_CRON = "False"
 }
 
@@ -31,8 +31,8 @@ module "errbot_public" {
   SENTRY                = var.SENTRY
 
   # Config
-  ACR_NAME  = data.azurerm_container_registry.acr.name
-  NAMESPACE = "errbot-public"
+  ACR_NAME            = data.azurerm_container_registry.acr.name
+  NAMESPACE           = "errbot-public"
   DISABLE_LEAGUE_CRON = "True"
 }
 

@@ -412,6 +412,15 @@ jobs:
           TF_VAR_LOKI_PUSH_URL: ${{ secrets.LOKI_PUSH_URL }}
         run: terraform apply -auto-approve
 
+  deployed:
+    environment: production
+    needs: [changes, build, terraform]
+    if:
+      ( needs.changes.outputs.src == 'true' || needs.changes.outputs.terraform == 'true' ) && github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
       # Send a deployment message to Discord via a webhook
       - name: Discord notification
         if: github.event_name == 'push'
