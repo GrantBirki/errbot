@@ -268,6 +268,13 @@ class ErrBot(Backend, StoreMixin):
 
         frm = msg.frm
         text = msg.body
+
+        ######### CUSTOM LOGIC #########
+        if text == self.prefix:
+            log.debug("Ignoring empty message")
+            return False
+        ################################
+
         if not hasattr(msg.frm, "person"):
             raise Exception(
                 f'msg.frm not an Identifier as it misses the "person" property.'
@@ -438,6 +445,8 @@ class ErrBot(Backend, StoreMixin):
 
     def _process_command(self, msg, cmd, args, match):
         """Process and execute a bot command"""
+
+        log.info("start _process_command")
 
         # first it must go through the command filters
         msg, cmd, args = self._process_command_filters(msg, cmd, args, False)
