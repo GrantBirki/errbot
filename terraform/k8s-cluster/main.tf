@@ -49,8 +49,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   network_profile {
-    network_plugin = "azure"
-    network_policy = "calico"
+    network_plugin    = "azure"
+    network_policy    = "calico"
+    load_balancer_sku = "basic"
   }
 
   default_node_pool {
