@@ -35,6 +35,7 @@ AMMO_TYPES = [
     "23x75mm",
     "20/70",
     "12.7x55mm",
+    ".366 TKM",
 ]
 
 MAPS = [
@@ -63,6 +64,39 @@ class Eft(BotPlugin):
         super().__init__(bot, name)
         self.ammo_cache_time = None
         self.ammo_data = self.get_ammo_data()
+
+    @botcmd
+    def eft_help(self, msg, args):
+        """
+        Returns a simple help command for the main .eft function
+        """
+        body = "**💡 About:**\n"
+        body += "**errbot** comes with several plugins to help you with Escape from Tarkov!\n\n"
+        body += (
+            "• `.eft <item>` - Get current information about an item and its prices\n"
+        )
+        body += "• `.eft ammo <ammo_type>` - Get an ammo type sorted by its performance tier\n"
+        body += "• `.eft map <map>` - Have a map returned in chat and info about its location\n"
+        body += "• `.eft time` - Get the current time in Tarkov\n"
+        body += (
+            "• `.eft status` - Get the current status of Escape from Tarkov servers\n\n"
+        )
+        body += "**📓 Examples:**\n\n"
+        body += "• `.eft ammo help` - View the help command for `.eft ammo`\n"
+        body += (
+            "• `.eft ammo 7.62x51mm` - Get information about the 7.62x51mm ammo type\n"
+        )
+        body += "• `.eft map help` - View the help command for `.eft map`\n"
+        body += "• `.eft map shoreline` - Get the shoreline map and its details\n"
+        body += "• `.eft watch` - Get price info for the 'Roler Submariner gold wrist watch'\n"
+
+        # Send the eft help card
+        self.send_card(
+            title=".eft help command",
+            body=body,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
 
     @botcmd
     def eft(self, msg, args):
@@ -344,8 +378,14 @@ class Eft(BotPlugin):
         if args == "help":
             return self.ammo_help(msg)
 
-        # Get a list of matching ammo types from the query
-        ammo_matches = util.close_matches(args, AMMO_TYPES, cutoff=0.7)
+        ### custom logic for short char length matches ###
+        if "acp" in args.lower():
+            ammo_matches = [".45 ACP"]
+        elif "366" in args or "tkm" in args.lower():
+            ammo_matches = [".366 TKM"]
+        else:
+            # Get a list of matching ammo types from the query
+            ammo_matches = util.close_matches(args, AMMO_TYPES, cutoff=0.6)
 
         # If there are no matching ammo types, return an error message
         if len(ammo_matches) == 0:
