@@ -70,6 +70,7 @@ The following commands are all available via the chatbot:
 | `.sparkle` | `.sparkle @username for being awesome` | Sparkle a user to show your appreciation! (optionally provide a reason for the sparkling) - Inspired by [pwn](https://github.com/pmn/sparkles/blob/master/LICENSE.md) | 🌎 |
 | `.show sparkles` | `.show sparkes` - `.show sparkles for @username` | View the sparkles (and their reasons) for yourself or another user - Inspired by [pwn](https://github.com/pmn/sparkles/blob/master/LICENSE.md)| 🌎 |
 | `.down` | `.down twitter` | Get a DownDetector graph and the status for a given service | 🌎 |
+| `.eft help` | - | Help message for all `.eft` commands | 🌎 |
 | `.eft` | `.eft clock` | Get an Escape from Tarkov item and its value | 🌎 |
 | `.eft ammo` | `.eft ammo 7.62x39mm` | Get information about an ammo type | 🌎 |
 | `.eft ammo help` | - | Get information about the ammo types that can be used with the `.eft ammo` command | 🌎 |
