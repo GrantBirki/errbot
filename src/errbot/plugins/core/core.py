@@ -73,9 +73,11 @@ class Core(BotPlugin):
         # Format the totals message
         message = f"**Total Servers: {dc.total_servers()}**\n\n"
         message += f"**Command Usage Totals:**\n\n"
-        
+
         # Loop through the sorted command usage totals and append to the message variable
-        for key, value in sorted(record_parsed.items(), key=lambda x: x[1], reverse=True):
+        for key, value in sorted(
+            record_parsed.items(), key=lambda x: x[1], reverse=True
+        ):
             message += f"• `{BOT_PREFIX}{key}` **: {value}**\n"
 
         # Return a card with the totals message

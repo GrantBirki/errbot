@@ -50,7 +50,9 @@ class Boot(BotPlugin):
 
         # Run a remote_sync on startup
         # Note: We won't publish usage data on startup, as we will wait for that to collect
-        self.log.info(f"'REMOTE_SYNC_INTERVAL' is set to {REMOTE_SYNC_INTERVAL} seconds")
+        self.log.info(
+            f"'REMOTE_SYNC_INTERVAL' is set to {REMOTE_SYNC_INTERVAL} seconds"
+        )
         self.remote_sync(retries=10, usage_publish=False)
 
         # Start the remote_sync cron
