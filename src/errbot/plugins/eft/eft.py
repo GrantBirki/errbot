@@ -35,6 +35,7 @@ AMMO_TYPES = [
     "23x75mm",
     "20/70",
     "12.7x55mm",
+    ".366 TKM"
 ]
 
 MAPS = [
@@ -377,8 +378,14 @@ class Eft(BotPlugin):
         if args == "help":
             return self.ammo_help(msg)
 
-        # Get a list of matching ammo types from the query
-        ammo_matches = util.close_matches(args, AMMO_TYPES, cutoff=0.7)
+        ### custom logic for short char length matches ###
+        if "acp" in args.lower():
+            ammo_matches = [".45 ACP"]
+        elif "366" in args or "tkm" in args.lower():
+            ammo_matches = [".366 TKM"]
+        else:
+            # Get a list of matching ammo types from the query
+            ammo_matches = util.close_matches(args, AMMO_TYPES, cutoff=0.6)
 
         # If there are no matching ammo types, return an error message
         if len(ammo_matches) == 0:
