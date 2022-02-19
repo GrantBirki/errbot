@@ -24,6 +24,7 @@ USER errbot
 
 # replace default errbot files with our custom ones
 COPY --chown=errbot:errbot package/core.py /usr/local/lib/python3.9/site-packages/errbot/core.py
+COPY --chown=errbot:errbot package/core_plugins/help.py /usr/local/lib/python3.9/site-packages/errbot/core_plugins/help.py
 
 # init errbot
 RUN errbot --init
