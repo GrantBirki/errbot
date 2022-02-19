@@ -105,28 +105,30 @@ class Core(BotPlugin):
         """
         # Check to ensure the user is an admin
         if not chatutils.is_admin(msg):
-            return "This command is only available to bot admins."
+            yield "This command is only available to bot admins."
+            return
 
         dc = DiscordCustom(self._bot)
         servers = dc.active_servers()
 
-        message = f"**Active Servers: {len(servers)}**\n\n"
+        message = "📊 Active Server Information\n\n"
+        message += f"**Active Servers: {len(servers)}**\n\n"
 
+        count = 0
         for server in servers:
             message += f"• **{server['name']}**\n"
             message += f"  - ID: `{server['id']}`\n"
             message += f"  - Owner: `{server['owner']}`\n"
             message += f"  - Member count: `{server['member_count']}`\n"
             message += "\n"
+            if count >= 25:
+                yield message
+                message = ""
+                count = 0
+            count += 1
 
-        # Return a card with the total server information
-        chatutils.send_card_helper(
-            bot_self=self,
-            title="📊 Active Server Information",
-            body=message,
-            color=chatutils.color("white"),
-            in_reply_to=msg,
-        )
+        yield message
+        return
 
     @botcmd
     def unban(self, msg, args):
