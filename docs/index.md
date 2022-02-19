@@ -32,6 +32,16 @@ In this guide you will find details about how the bot works, and how you can cre
 
 ---
 
+## Bot Invite Link 🔗
+
+[**Click here**](https://discord.com/api/oauth2/authorize?client_id=943402285680189511&permissions=36734976&scope=bot) to invite errbot to your Discord server!
+
+## Community Discord 💬
+
+If you need help with development, have a question, new feature, or just want to test out the bot, you can join the [errbot community Discord](https://discord.gg/qvnxqyuVpM)
+
+---
+
 ## Mkdocs Documentation 📚
 
 > _Docs about docs? WhOa sO mEtA_
