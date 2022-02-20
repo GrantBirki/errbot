@@ -552,6 +552,12 @@ class DiscordBackend(ErrBot):
                     == "400 Bad Request (error code: 50007): Cannot send messages to this user"
                 ):
                     pass
+                # Surpress this error for now as it is overwhelming
+                elif (
+                    "403 Forbidden (error code: 20026): Your bot has been flagged by our anti-spam system" in str(error)
+                ):
+                    log.warning("Your bot has been flagged by our anti-spam system - custom log")
+                    pass
                 else:
                     log.error(f"discord.errors.HTTPException: {error}")
 
