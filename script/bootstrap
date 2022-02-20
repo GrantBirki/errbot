@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e # prevent any kind of script failures
+
+OFF='\033[0m' # Text color Reset
+BLUE='\033[0;34m' # Blue
+GREEN='\033[0;32m' # Green
+
+set -e # Prevent any kind of script failures
+
+# Global Directory Variables
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # The directory of this script
+REPO_DIR="$(dirname "$SCRIPT_DIR")" # The root directory of this repository
+
+# Dependency versions
+TERRAFORM_VERSION="1.1.0"
+
+echo -e "🥾 Bootstrapping repo!\n"
+echo -e "⚙️ Installing dependencies...\n"
+echo -e "📦 Installing tfenv"
+
+if [ -d "$HOME/.tfenv" ] 
+then
+    echo "$HOME/.tfenv already exists, skipping..." 
+else
+    git clone https://github.com/tfutils/tfenv.git ~/.tfenv
+    echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bash_profile
+fi
+
+source ~/.bash_profile
+tfenv install $TERRAFORM_VERSION
+tfenv use $TERRAFORM_VERSION
