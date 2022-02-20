@@ -34,3 +34,7 @@ curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffo
 sudo install skaffold /usr/local/bin/
 rm ./skaffold
 echo -e "✅ skaffold installed"
+
+echo -e "🗺️ configuring minikube permissions"
+sudo chown -R $USER $HOME/.minikube; chmod -R u+wrx $HOME/.minikube
+echo -e "✅ minikube permissions set"
