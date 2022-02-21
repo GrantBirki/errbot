@@ -15,7 +15,7 @@ variable "ENVIRONMENT" {
 
 variable "NODE_COUNT" {
   description = "Number of Nodes in your K8s cluster"
-  default     = 3
+  default     = 2
   type        = number
 }
 
