@@ -1,0 +1,43 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata:
+  name: workshop--
+build:
+  artifacts:
+  - image: errbot
+    context: src/errbot
+    docker:
+      dockerfile: Dockerfile
+  - image: localstack-errbot
+    context: script/localstack
+    docker:
+      dockerfile: Dockerfile
+    
+deploy:
+  kubectl:
+    manifests:
+    # Manifests are applied in order shown below
+    - script/k8s/errbot/namespace.yaml
+    - script/k8s/errbot/network.yaml
+    - script/k8s/errbot/secret.yaml
+    - script/k8s/errbot/deployment.yaml
+    - script/k8s/localstack/namespace.yaml
+    - script/k8s/localstack/service-account.yaml
+    - script/k8s/localstack/service.yaml
+    - script/k8s/localstack/network.yaml
+    - script/k8s/localstack/deployment.yaml
+
+  helm:
+    releases:
+    - name: grafana
+      repo: https://grafana.github.io/helm-charts
+      remoteChart: loki-stack
+      namespace: observability
+      createNamespace: true
+      imageStrategy:
+        helm: {}
+      setValues:
+        grafana.enabled: true
+        prometheus.enabled: true
+        prometheus.alertmanager.persistentVolume.enabled: false
+        prometheus.server.persistentVolume.enabled: false

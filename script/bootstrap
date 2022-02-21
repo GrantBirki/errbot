@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e # prevent any kind of script failures
+
+OFF='\033[0m' # Text color Reset
+BLUE='\033[0;34m' # Blue
+GREEN='\033[0;32m' # Green
+
+set -e # Prevent any kind of script failures
+
+# Global Directory Variables
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # The directory of this script
+REPO_DIR="$(dirname "$SCRIPT_DIR")" # The root directory of this repository
+
+# Dependency versions
+TERRAFORM_VERSION="1.1.0"
+
+echo -e "🥾 Bootstrapping repo!\n"
+echo -e "⚙️ Installing dependencies...\n"
+
+echo -e "📦 Installing tfenv"
+if [ -d "$HOME/.tfenv" ] 
+then
+    echo "$HOME/.tfenv already exists, skipping..." 
+else
+    git clone https://github.com/tfutils/tfenv.git ~/.tfenv
+fi
+tfenv install $TERRAFORM_VERSION
+tfenv use $TERRAFORM_VERSION
+echo -e "✅ tfenv installed"
+
+echo -e "📦 Installing skaffold"
+curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
+sudo install skaffold /usr/local/bin/
+rm ./skaffold
+echo -e "✅ skaffold installed"
+
+echo -e "🗺️ configuring minikube permissions"
+sudo chown -R $USER $HOME/.minikube; chmod -R u+wrx $HOME/.minikube
+echo -e "✅ minikube permissions set"
