@@ -25,7 +25,7 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 
 # install the grafana / loki / promtail stack
-helm upgrade --install loki --namespace=observability grafana/loki-stack  --set grafana.enabled=true,prometheus.enabled=true,prometheus.alertmanager.persistentVolume.enabled=false,prometheus.server.persistentVolume.enabled=false
+helm upgrade --install loki --namespace=observability grafana/loki-stack --set grafana.enabled=true,prometheus.enabled=true,prometheus.alertmanager.persistentVolume.enabled=false,prometheus.server.persistentVolume.enabled=false
 
 # display grafana password
 grafana_pw=$(kubectl get secret --namespace observability loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
