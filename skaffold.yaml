@@ -12,6 +12,7 @@ build:
     context: script/localstack
     docker:
       dockerfile: Dockerfile
+    
 deploy:
   kubectl:
     manifests:
@@ -27,3 +28,18 @@ deploy:
     - script/k8s/localstack/deployment.yaml
     # - script/k8s/observability/namespace.yaml
     # - script/k8s/observability/promtail.yaml
+
+  helm:
+    releases:
+    - name: grafana
+      repo: https://grafana.github.io/helm-charts
+      remoteChart: loki-stack
+      namespace: observability
+      createNamespace: true
+      imageStrategy:
+        helm: {}
+      setValues:
+        grafana.enabled: true
+        prometheus.enabled: true
+        prometheus.alertmanager.persistentVolume.enabled: false
+        prometheus.server.persistentVolume.enabled: false
