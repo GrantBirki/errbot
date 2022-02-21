@@ -6,7 +6,7 @@ Running the project with [skaffold](https://skaffold.dev/)
 
 Before you can get going with `skaffold` you need to edit one file first to add your bot token
 
-1. Obtain a bot token from your chatservice (Discord, Slack, etc)
+1. Obtain a bot token from your chat service (Discord, Slack, etc)
 2. `base64` encode the token so it can be saved as a k8s secret
 
     ```console
