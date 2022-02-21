@@ -33,6 +33,16 @@ Before you can get going with `skaffold` you need to edit one file first to add 
 
     > Optionally, run `skaffold dev --tail=true` to attach to your running containers to view log output while they run
 
+### Minikube Dashboard
+
+The first thing you may want to do is connect to your minikube instance via the dashboard UI.
+
+Enable the k8s dashboard by running the following command in a seperate terminal window:
+
+```
+$ minikube dashboard --profile custom
+```
+
 ### Grafana
 
 Now that your cluster is up and running, you can get to your Grafana instance for metrics, logs, etc by doing the following:
