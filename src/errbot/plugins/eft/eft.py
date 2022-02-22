@@ -82,24 +82,26 @@ class Eft(BotPlugin):
             self.start_poller(INTERVAL, self.item_tracker_cron)
 
     def item_tracker_cron(self):
+        """
+        The cron that runs to check the item tracker database for items that need to be alerted
+        """
+        # Get all items in the database
         db_items = dynamo.scan("eftitemtracker")
 
+        # If there are no items, return
         if not db_items:
-            self.log.info("No items in the database")
             return
 
+        # Loop through all returned items and check for possible alerts
         for item in db_items:
-            self.log.info(
-                f"item: {item['item']} - threshold: {item['threshold']} - channel: {item['channel']} - server: {item['server_id']}"
-            )
             self.eft_tracker_alert(item)
 
     def eft_tracker_alert(self, record):
         """
         Main function for processing an eft tracker record for alerting on price changes
         :param record: The database record to parse for item tracking
+        :return: None
         """
-
         # Get the most recent data for the item via the tarkov api
         result = self.graph_ql(self.item_query(record["item"]))
 
@@ -115,22 +117,35 @@ class Eft(BotPlugin):
             self.info.error("failed to find item in tarkov cron")
             return
 
+        # Check the alert type (price or percentage)
         if "%" in record["threshold"]:
             alert_type = "%"
+            if float(result_data["changeLast48hPercent"]) >= float(
+                record["threshold"].replace("%", "")
+            ):
+                alert = True
         else:
             alert_type = "₽"
-
-        if alert_type == "₽":
-            if result_data["avg24hPrice"] > int(record["threshold"]):
+            if result_data["avg24hPrice"] >= int(record["threshold"]):
                 alert = True
 
-        # Alert
+        # If there is not an alert, return
+        if not alert:
+            return
+
+        # If there is an alert, then send the alert
         if alert:
             try:
                 # If the alert fired, remove the record from the database
-                delete_result = dynamo.delete(dynamo.get(EftTrackerTable, int(record['server_id']), record['item']))
+                delete_result = dynamo.delete(
+                    dynamo.get(
+                        EftTrackerTable, int(record["server_id"]), record["item"]
+                    )
+                )
                 if not delete_result:
-                    self.log.error("Failed to delete tarkov tracker item from the database")
+                    self.log.error(
+                        "Failed to delete tarkov tracker item from the database"
+                    )
                     return
             except Exception as e:
                 ErrHelper().capture(e)
@@ -138,12 +153,17 @@ class Eft(BotPlugin):
 
             # Format the alert
             title = f"🔔 Price Alert: `{record['item']}`"
-            body = f"Tracked item: `{record['item']}` has crossed the threshold of `{record['threshold']}{alert_type}`"
+            body = f"**Item:** `{record['item']}` has crossed the threshold of `{record['threshold'].replace('%', '')}{alert_type}`!\n"
+            if alert_type == "₽":
+                body += f"**Condition:** `{self.fmt_number(result_data['avg24hPrice'])}₽` (current) >= `{record['threshold']}{alert_type}` (threshold)\n"
+            elif alert_type == "%":
+                body += f"**Condition:** item % price change `{result_data['changeLast48hPercent']}%` (current) has increased more than `{record['threshold']}` (threshold)\n"
             color = chatutils.color("yellow")
             thumbnail = result_data["iconLink"]
             fields = (
-                ("Item:", record['item']),
-                (f"Threshold ({alert_type}):", record['threshold']),
+                ("Item:", record["item"]),
+                (f"Threshold ({alert_type}):", record["threshold"]),
+                ("Price:", self.fmt_number(result_data["avg24hPrice"])),
             )
 
             # Send the alert
@@ -152,7 +172,9 @@ class Eft(BotPlugin):
                     title=title,
                     body=body,
                     color=chatutils.color("yellow"),
-                    to=self.build_identifier(f"#{record['channel']}@{record['server_id']}"),
+                    to=self.build_identifier(
+                        f"#{record['channel']}@{record['server_id']}"
+                    ),
                     thumbnail=thumbnail,
                     fields=fields,
                 )
@@ -223,7 +245,9 @@ class Eft(BotPlugin):
         )
 
         if write_result:
-            body = f"I will post to the `#{channel}` channel when this alert triggers\n\n"
+            body = (
+                f"I will post to the `#{channel}` channel when this alert triggers\n\n"
+            )
             if channel == "general":
                 # If the general channel was used, add a note to the body
                 body += f"> Note: Use the `.eft track help` command to set your alert channel"
@@ -240,9 +264,7 @@ class Eft(BotPlugin):
             )
             return
         else:
-            return (
-                f"❌ Failed to track {item}!"
-            )
+            return f"❌ Failed to track {item}!"
 
     @botcmd
     def eft_help(self, msg, args):
