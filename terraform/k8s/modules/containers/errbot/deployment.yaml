@@ -52,6 +52,8 @@ spec:
               value: "Birki#0001"
             - name: BOT_EXTRA_BACKEND_DIR
               value: "/app/backend/err-backend-discord"
+            - name: DISABLE_EFT_CRON
+              value: "False"
             - name: DISABLE_LEAGUE_CRON
               value: "${DISABLE_LEAGUE_CRON}"
             - name: RIOT_REGION
