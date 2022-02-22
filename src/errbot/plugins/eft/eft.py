@@ -206,12 +206,28 @@ class Eft(BotPlugin):
         elif get_result is False:
             return f"❌ Failed to get tracking data for `{item}`"
 
-        # Validate the input
+        # Validate the input specifically for the item
         if not self.input_validation(item):
             self.general_error(
-                msg, "Invalid input.", "Please check your command and try again."
+                msg, "Invalid item input.", "Please check your command and try again. Note: `.eft track help` is your friend"
             )
             return
+        # Validate the input specifically for the threshold it can either be a number or a percentage
+        if not re.match(r"^\d+|^\d+%$", threshold):
+            self.general_error(
+                msg,
+                "Invalid threshold input.",
+                "Please check your command and try again. Note: `.eft track help` is your friend",
+            )
+            return
+        if "." in threshold and "%" not in threshold:
+            self.general_error(
+                msg,
+                "Invalid threshold input (no decimals in prices please).",
+                "Please check your command and try again. Note: `.eft track help` is your friend",
+            )
+            return
+        # Validate the input specifically for the channel
 
         # Check to ensure the item exists via the tarkov api
         result = self.graph_ql(self.item_query(item))
