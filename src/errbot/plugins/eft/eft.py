@@ -107,7 +107,9 @@ class Eft(BotPlugin):
         body += "This plugin is used to track items in the Escape From Tarkov game.\n"
         body += "You can track items to see when they reach a fixed price or when they increase by a percentage.\n\n"
         body += "**Usage:**\n"
-        body += "`.eft track --item <item> --threshold <threshold> --channel <channel>`\n\n"
+        body += (
+            "`.eft track --item <item> --threshold <threshold> --channel <channel>`\n\n"
+        )
         body += "**Examples:**\n"
         body += "`.eft track --item m4a1 --threshold 20000 --channel #eft`\n"
         body += "`.eft track --item m4a1 --threshold 10% --channel #eft`\n"
@@ -238,7 +240,7 @@ class Eft(BotPlugin):
                 item=item,
                 threshold=threshold,
                 channel=channel,
-                handle=chatutils.mention_user(msg)
+                handle=chatutils.mention_user(msg),
             )
         )
 
