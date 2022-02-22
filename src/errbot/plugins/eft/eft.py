@@ -228,6 +228,14 @@ class Eft(BotPlugin):
             )
             return
         # Validate the input specifically for the channel
+        dc = DiscordCustom(self._bot)
+        if not channel in dc.get_all_text_channels(chatutils.guild_id(msg), names_only=True):
+            self.general_error(
+                msg,
+                f"Invalid channel input: `{channel}`",
+                "The text channel provided cannot be found. Note: `.eft track help` is your friend",
+            )
+            return
 
         # Check to ensure the item exists via the tarkov api
         result = self.graph_ql(self.item_query(item))
