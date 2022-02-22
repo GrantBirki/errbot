@@ -19,6 +19,7 @@ chatutils = ChatUtils()
 util = Util()
 dynamo = Dynamo()
 
+BACKEND = os.environ["BACKEND"]
 AMMO_TYPES = [
     "7.62x51mm",
     "7.62x39mm",
@@ -88,7 +89,82 @@ class Eft(BotPlugin):
             return
 
         for item in db_items:
-            self.log.info(f"item: {item['item']} - threshold: {item['threshold']} - channel: {item['channel']}")
+            self.log.info(
+                f"item: {item['item']} - threshold: {item['threshold']} - channel: {item['channel']} - server: {item['server_id']}"
+            )
+            self.eft_tracker_alert(item)
+
+    def eft_tracker_alert(self, record):
+        """
+        Main function for processing an eft tracker record for alerting on price changes
+        :param record: The database record to parse for item tracking
+        """
+
+        # Get the most recent data for the item via the tarkov api
+        result = self.graph_ql(self.item_query(record["item"]))
+
+        # If the result is false, then the request failed
+        if not result:
+            self.log.error("Failed to get item data from the tarkov api in the cron")
+            return
+
+        # Get the first result from the query
+        try:
+            result_data = result["data"]["itemsByName"][0]
+        except IndexError:
+            self.info.error("failed to find item in tarkov cron")
+            return
+
+        if "%" in record["threshold"]:
+            alert_type = "%"
+        else:
+            alert_type = "₽"
+
+        if alert_type == "₽":
+            if result_data["avg24hPrice"] > int(record["threshold"]):
+                alert = True
+
+        # Alert
+        if alert:
+            try:
+                # If the alert fired, remove the record from the database
+                delete_result = dynamo.delete(dynamo.get(EftTrackerTable, int(record['server_id']), record['item']))
+                if not delete_result:
+                    self.log.error("Failed to delete tarkov tracker item from the database")
+                    return
+            except Exception as e:
+                ErrHelper().capture(e)
+                return
+
+            # Format the alert
+            title = f"🔔 Price Alert: `{record['item']}`"
+            body = f"Tracked item: `{record['item']}` has crossed the threshold of `{record['threshold']}{alert_type}`"
+            color = chatutils.color("yellow")
+            thumbnail = result_data["iconLink"]
+            fields = (
+                ("Item:", record['item']),
+                (f"Threshold ({alert_type}):", record['threshold']),
+            )
+
+            # Send the alert
+            if BACKEND == "discord":
+                self.send_card(
+                    title=title,
+                    body=body,
+                    color=chatutils.color("yellow"),
+                    to=self.build_identifier(f"#{record['channel']}@{record['server_id']}"),
+                    thumbnail=thumbnail,
+                    fields=fields,
+                )
+            elif BACKEND == "slack":
+                self.send_card(
+                    title=title,
+                    body=body,
+                    color=color,
+                    to=self.build_identifier(f"#{record['channel']}"),
+                    thumbnail=thumbnail,
+                    fields=fields,
+                )
 
     @arg_botcmd("--item", dest="item", type=str)
     @arg_botcmd("--threshold", dest="threshold", type=str)
