@@ -54,7 +54,7 @@ MAPS = [
 ]
 MAP_DIR = "plugins/eft/maps"
 AMMO_CACHE_TIME = 3600  # 1 hour
-INTERVAL = 5  # 5 seconds
+INTERVAL = 300  # 5 minutes
 
 
 class Eft(BotPlugin):
