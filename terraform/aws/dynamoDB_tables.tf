@@ -152,3 +152,30 @@ module "dynamodb_botdata" {
     managed_by = "terraform"
   }
 }
+
+# For the eft tracker feature
+module "dynamodb_table" {
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "1.1.0"
+
+  name                           = "eftitemtracker"
+  hash_key                       = "server_id"
+  range_key                      = "item"
+  billing_mode                   = "PAY_PER_REQUEST"
+  point_in_time_recovery_enabled = true
+
+  attributes = [
+    {
+      name = "server_id"
+      type = "N"
+    },
+    {
+      name = "item"
+      type = "S"
+    }
+  ]
+
+  tags = {
+    managed_by = "terraform"
+  }
+}
