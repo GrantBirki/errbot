@@ -132,3 +132,4 @@ class EftTrackerTable(Model):
     server_id = NumberAttribute(hash_key=True)
     item = UnicodeAttribute(range_key=True)
     threshold = UnicodeAttribute()
+    channel = UnicodeAttribute()
