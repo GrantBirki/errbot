@@ -123,7 +123,9 @@ class Eft(BotPlugin):
         # Validate the input specifically for the item
         if not self.input_validation(item):
             self.general_error(
-                msg, "Invalid item input.", "Please check your command and try again. Note: `.eft track help` is your friend"
+                msg,
+                "Invalid item input.",
+                "Please check your command and try again. Note: `.eft track help` is your friend",
             )
             return
         # Validate the input specifically for the threshold it can either be a number or a percentage
@@ -143,7 +145,9 @@ class Eft(BotPlugin):
             return
         # Validate the input specifically for the channel
         dc = DiscordCustom(self._bot)
-        if not channel in dc.get_all_text_channels(chatutils.guild_id(msg), names_only=True):
+        if not channel in dc.get_all_text_channels(
+            chatutils.guild_id(msg), names_only=True
+        ):
             self.general_error(
                 msg,
                 f"Invalid channel input: `{channel}`",
