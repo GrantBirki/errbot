@@ -238,6 +238,7 @@ class Eft(BotPlugin):
                 item=item,
                 threshold=threshold,
                 channel=channel,
+                handle=chatutils.mention_user(msg)
             )
         )
 
@@ -932,6 +933,7 @@ class Eft(BotPlugin):
                 body += f"**Condition:** `{self.fmt_number(result_data['avg24hPrice'])}₽` (current) >= `{record['threshold']}{alert_type}` (threshold)\n"
             elif alert_type == "%":
                 body += f"**Condition:** item % price change `{result_data['changeLast48hPercent']}%` (current) has increased more than `{record['threshold']}` (threshold)\n"
+            body += f"**User:** {record['handle']}\n"
             color = chatutils.color("yellow")
             thumbnail = result_data["iconLink"]
             fields = (

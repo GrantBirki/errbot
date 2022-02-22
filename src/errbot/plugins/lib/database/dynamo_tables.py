@@ -134,3 +134,4 @@ class EftTrackerTable(Model):
     item = UnicodeAttribute(range_key=True)
     threshold = UnicodeAttribute()
     channel = UnicodeAttribute()
+    handle = UnicodeAttribute()
