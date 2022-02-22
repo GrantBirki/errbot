@@ -96,98 +96,6 @@ class Eft(BotPlugin):
         for item in db_items:
             self.eft_tracker_alert(item)
 
-    def eft_tracker_alert(self, record):
-        """
-        Main function for processing an eft tracker record for alerting on price changes
-        :param record: The database record to parse for item tracking
-        :return: None
-        """
-        # Get the most recent data for the item via the tarkov api
-        result = self.graph_ql(self.item_query(record["item"]))
-
-        # If the result is false, then the request failed
-        if not result:
-            self.log.error("Failed to get item data from the tarkov api in the cron")
-            return
-
-        # Get the first result from the query
-        try:
-            result_data = result["data"]["itemsByName"][0]
-        except IndexError:
-            self.info.error("failed to find item in tarkov cron")
-            return
-
-        # Check the alert type (price or percentage)
-        if "%" in record["threshold"]:
-            alert_type = "%"
-            if float(result_data["changeLast48hPercent"]) >= float(
-                record["threshold"].replace("%", "")
-            ):
-                alert = True
-        else:
-            alert_type = "₽"
-            if result_data["avg24hPrice"] >= int(record["threshold"]):
-                alert = True
-
-        # If there is not an alert, return
-        if not alert:
-            return
-
-        # If there is an alert, then send the alert
-        if alert:
-            try:
-                # If the alert fired, remove the record from the database
-                delete_result = dynamo.delete(
-                    dynamo.get(
-                        EftTrackerTable, int(record["server_id"]), record["item"]
-                    )
-                )
-                if not delete_result:
-                    self.log.error(
-                        "Failed to delete tarkov tracker item from the database"
-                    )
-                    return
-            except Exception as e:
-                ErrHelper().capture(e)
-                return
-
-            # Format the alert
-            title = f"🔔 Price Alert: `{record['item']}`"
-            body = f"**Item:** `{record['item']}` has crossed the threshold of `{record['threshold'].replace('%', '')}{alert_type}`!\n"
-            if alert_type == "₽":
-                body += f"**Condition:** `{self.fmt_number(result_data['avg24hPrice'])}₽` (current) >= `{record['threshold']}{alert_type}` (threshold)\n"
-            elif alert_type == "%":
-                body += f"**Condition:** item % price change `{result_data['changeLast48hPercent']}%` (current) has increased more than `{record['threshold']}` (threshold)\n"
-            color = chatutils.color("yellow")
-            thumbnail = result_data["iconLink"]
-            fields = (
-                ("Item:", record["item"]),
-                (f"Threshold ({alert_type}):", record["threshold"]),
-                ("Price:", self.fmt_number(result_data["avg24hPrice"])),
-            )
-
-            # Send the alert
-            if BACKEND == "discord":
-                self.send_card(
-                    title=title,
-                    body=body,
-                    color=chatutils.color("yellow"),
-                    to=self.build_identifier(
-                        f"#{record['channel']}@{record['server_id']}"
-                    ),
-                    thumbnail=thumbnail,
-                    fields=fields,
-                )
-            elif BACKEND == "slack":
-                self.send_card(
-                    title=title,
-                    body=body,
-                    color=color,
-                    to=self.build_identifier(f"#{record['channel']}"),
-                    thumbnail=thumbnail,
-                    fields=fields,
-                )
-
     @arg_botcmd("--item", dest="item", type=str)
     @arg_botcmd("--threshold", dest="threshold", type=str)
     @arg_botcmd("--channel", dest="channel", default="general", type=str)
@@ -901,6 +809,98 @@ class Eft(BotPlugin):
             types += "`" + type + "`, "
         types = types[:-2]
         return types
+
+    def eft_tracker_alert(self, record):
+        """
+        Main function for processing an eft tracker record for alerting on price changes
+        :param record: The database record to parse for item tracking
+        :return: None
+        """
+        # Get the most recent data for the item via the tarkov api
+        result = self.graph_ql(self.item_query(record["item"]))
+
+        # If the result is false, then the request failed
+        if not result:
+            self.log.error("Failed to get item data from the tarkov api in the cron")
+            return
+
+        # Get the first result from the query
+        try:
+            result_data = result["data"]["itemsByName"][0]
+        except IndexError:
+            self.info.error("failed to find item in tarkov cron")
+            return
+
+        # Check the alert type (price or percentage)
+        if "%" in record["threshold"]:
+            alert_type = "%"
+            if float(result_data["changeLast48hPercent"]) >= float(
+                record["threshold"].replace("%", "")
+            ):
+                alert = True
+        else:
+            alert_type = "₽"
+            if result_data["avg24hPrice"] >= int(record["threshold"]):
+                alert = True
+
+        # If there is not an alert, return
+        if not alert:
+            return
+
+        # If there is an alert, then send the alert
+        if alert:
+            try:
+                # If the alert fired, remove the record from the database
+                delete_result = dynamo.delete(
+                    dynamo.get(
+                        EftTrackerTable, int(record["server_id"]), record["item"]
+                    )
+                )
+                if not delete_result:
+                    self.log.error(
+                        "Failed to delete tarkov tracker item from the database"
+                    )
+                    return
+            except Exception as e:
+                ErrHelper().capture(e)
+                return
+
+            # Format the alert
+            title = f"🔔 Price Alert: `{record['item']}`"
+            body = f"**Item:** `{record['item']}` has crossed the threshold of `{record['threshold'].replace('%', '')}{alert_type}`!\n"
+            if alert_type == "₽":
+                body += f"**Condition:** `{self.fmt_number(result_data['avg24hPrice'])}₽` (current) >= `{record['threshold']}{alert_type}` (threshold)\n"
+            elif alert_type == "%":
+                body += f"**Condition:** item % price change `{result_data['changeLast48hPercent']}%` (current) has increased more than `{record['threshold']}` (threshold)\n"
+            color = chatutils.color("yellow")
+            thumbnail = result_data["iconLink"]
+            fields = (
+                ("Item:", record["item"]),
+                (f"Threshold ({alert_type}):", record["threshold"]),
+                ("Price:", self.fmt_number(result_data["avg24hPrice"])),
+            )
+
+            # Send the alert
+            if BACKEND == "discord":
+                self.send_card(
+                    title=title,
+                    body=body,
+                    color=chatutils.color("yellow"),
+                    to=self.build_identifier(
+                        f"#{record['channel']}@{record['server_id']}"
+                    ),
+                    thumbnail=thumbnail,
+                    fields=fields,
+                )
+            elif BACKEND == "slack":
+                self.send_card(
+                    title=title,
+                    body=body,
+                    color=color,
+                    to=self.build_identifier(f"#{record['channel']}"),
+                    thumbnail=thumbnail,
+                    fields=fields,
+                )
 
     def status_query(self):
         """
