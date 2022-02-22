@@ -4,16 +4,20 @@ import time
 from string import Template
 
 import requests
-from errbot import BotPlugin, botcmd
+from errbot import BotPlugin, botcmd, arg_botcmd
 from lib.chat.chatutils import ChatUtils
 from lib.chat.discord_custom import DiscordCustom
 from lib.common.down_detector import DownDetector
 from lib.common.errhelper import ErrHelper
 from lib.common.utilities import Util
 
+from lib.database.dynamo import Dynamo
+from lib.database.dynamo_tables import EftTrackerTable
+
 downdetector = DownDetector()
 chatutils = ChatUtils()
 util = Util()
+dynamo = Dynamo()
 
 AMMO_TYPES = [
     "7.62x51mm",
@@ -37,7 +41,6 @@ AMMO_TYPES = [
     "12.7x55mm",
     ".366 TKM",
 ]
-
 MAPS = [
     {"name": "shoreline", "players": "9-12", "duration": "40"},
     {"name": "customs", "players": "9-12", "duration": "35"},
@@ -48,10 +51,9 @@ MAPS = [
     {"name": "factory", "players": "9-12", "duration": "20-25"},
     {"name": "interchange", "players": "10-14", "duration": "45"},
 ]
-
 MAP_DIR = "plugins/eft/maps"
-
 AMMO_CACHE_TIME = 3600  # 1 hour
+INTERVAL = 5  # 5 seconds
 
 
 class Eft(BotPlugin):
@@ -64,6 +66,107 @@ class Eft(BotPlugin):
         super().__init__(bot, name)
         self.ammo_cache_time = None
         self.ammo_data = self.get_ammo_data()
+
+    def activate(self):
+        """
+        Runs the item_tracker_cron() function every interval
+
+        Note: the self.start_polling() function will wait for the first cron job to finish before starting the next one
+        """
+        super().activate()
+        disabled = os.environ.get("DISABLE_EFT_CRON", False)
+        if disabled.lower().strip() == "true":
+            self.log.warn("eft item cron disabled for local testing")
+        else:
+            self.start_poller(INTERVAL, self.item_tracker_cron)
+
+    def item_tracker_cron(self):
+        db_items = dynamo.scan("eftitemtracker")
+
+        if not db_items:
+            self.log.info("No items in the database")
+            return
+
+        for item in db_items:
+            self.log.info(f"item: {item['item']} - threshold: {item['threshold']} - channel: {item['channel']}")
+
+    @arg_botcmd("--item", dest="item", type=str)
+    @arg_botcmd("--threshold", dest="threshold", type=str)
+    @arg_botcmd("--channel", dest="channel", default="general", type=str)
+    def eft_track(self, msg, item=None, threshold=None, channel=None):
+        ErrHelper().user(msg)
+
+        server_id = chatutils.guild_id(msg)
+        channel = channel.replace("#", "")
+
+        if not server_id:
+            return "Please run this command in a Discord channel, not a DM"
+
+        get_result = dynamo.get(EftTrackerTable, server_id, item)
+        if get_result:
+            return f"ℹ️ {chatutils.mention_user(msg)} `{item}` is already being tracked"
+        elif get_result is False:
+            return f"❌ Failed to get tracking data for `{item}`"
+
+        # Validate the input
+        if not self.input_validation(item):
+            self.general_error(
+                msg, "Invalid input.", "Please check your command and try again."
+            )
+            return
+
+        # Check to ensure the item exists via the tarkov api
+        result = self.graph_ql(self.item_query(item))
+
+        # If the result is false, then the request failed
+        if not result:
+            self.general_error(
+                msg,
+                "Request Failed",
+                "During the request, the Tarkov API returned an error. Please check the logs.",
+            )
+            return
+
+        # Get the first result from the query
+        try:
+            result_data = result["data"]["itemsByName"][0]
+        except IndexError:
+            self.general_error(
+                msg, "Not found", "The item you requested was not found."
+            )
+            return
+
+        # Write the item to track to the database
+        write_result = dynamo.write(
+            EftTrackerTable(
+                server_id=server_id,
+                item=item,
+                threshold=threshold,
+                channel=channel,
+            )
+        )
+
+        if write_result:
+            body = f"I will post to the `#{channel}` channel when this alert triggers\n\n"
+            if channel == "general":
+                # If the general channel was used, add a note to the body
+                body += f"> Note: Use the `.eft track help` command to set your alert channel"
+            self.send_card(
+                title=f"✅ Tracking `{item}`",
+                body=body,
+                color=chatutils.color("white"),
+                in_reply_to=msg,
+                thumbnail=result_data["iconLink"],
+                fields=(
+                    ("Item:", item),
+                    ("Threshold:", threshold),
+                ),
+            )
+            return
+        else:
+            return (
+                f"❌ Failed to track {item}!"
+            )
 
     @botcmd
     def eft_help(self, msg, args):
