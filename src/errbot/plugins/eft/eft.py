@@ -192,6 +192,12 @@ class Eft(BotPlugin):
     @arg_botcmd("--threshold", dest="threshold", type=str)
     @arg_botcmd("--channel", dest="channel", default="general", type=str)
     def eft_track(self, msg, item=None, threshold=None, channel=None):
+        """
+        Track the price of an Escape from Tarkov item
+        Usage: .eft track --item <item> --threshold <threshold> --channel <channel>
+        Example 1: .eft track --item m4a1 --threshold 20000 --channel general
+        Example 1: .eft track --item m4a1 --threshold 10% --channel eft
+        """
         ErrHelper().user(msg)
 
         server_id = chatutils.guild_id(msg)
@@ -306,6 +312,8 @@ class Eft(BotPlugin):
         body += (
             "• `.eft status` - Get the current status of Escape from Tarkov servers\n\n"
         )
+        body += "• `.eft track --item <item> --threshold <threshold> --channel <channel>` - Track an item and alert you when it rises to a price or by a certain percentage\n"
+        body += "• `.eft untrack <item> - Untrack an item being tracked for price alerts (use the same name you entered it with)\n"
         body += "**📓 Examples:**\n\n"
         body += "• `.eft ammo help` - View the help command for `.eft ammo`\n"
         body += (
@@ -314,6 +322,10 @@ class Eft(BotPlugin):
         body += "• `.eft map help` - View the help command for `.eft map`\n"
         body += "• `.eft map shoreline` - Get the shoreline map and its details\n"
         body += "• `.eft watch` - Get price info for the 'Roler Submariner gold wrist watch'\n"
+        body += "• `.eft track --item m4a1 --threshold 20000 --channel general` - Track the m4a1 and alert you in the general channel when its price rises to the threshold\n"
+        body += "• `.eft track --item m4a1 --threshold 10% --channel general` - Track the m4a1 and alert you in the general channel when its price rises by 10%\n"
+        body += "• `.eft untrack m4a1` - Stop tracking the m4a1 for price alerts (if you have alerts set)\n"
+        body += "• `.eft tracking` - Display all tracked eft items\n"
 
         # Send the eft help card
         self.send_card(
