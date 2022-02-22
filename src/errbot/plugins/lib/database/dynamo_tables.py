@@ -119,3 +119,19 @@ class BotDataTable(Model):
     key = UnicodeAttribute(hash_key=True)
     value = UnicodeAttribute()
     updated_at = UnicodeAttribute()
+
+
+class EftTrackerTable(Model):
+    class Meta:
+        table_name = "eftitemtracker"
+        region = AWS_REGION
+        aws_access_key_id = AWS_ACCESS_KEY_ID
+        aws_secret_access_key = AWS_SECRET_ACCESS_KEY
+        if LOCALSTACK:
+            host = LOCALSTACK
+
+    server_id = NumberAttribute(hash_key=True)
+    item = UnicodeAttribute(range_key=True)
+    threshold = UnicodeAttribute()
+    channel = UnicodeAttribute()
+    handle = UnicodeAttribute()

@@ -4,17 +4,22 @@ import time
 from string import Template
 
 import requests
-from errbot import BotPlugin, botcmd
+from errbot import BotPlugin, botcmd, arg_botcmd
 from lib.chat.chatutils import ChatUtils
 from lib.chat.discord_custom import DiscordCustom
 from lib.common.down_detector import DownDetector
 from lib.common.errhelper import ErrHelper
 from lib.common.utilities import Util
 
+from lib.database.dynamo import Dynamo
+from lib.database.dynamo_tables import EftTrackerTable
+
 downdetector = DownDetector()
 chatutils = ChatUtils()
 util = Util()
+dynamo = Dynamo()
 
+BACKEND = os.environ["BACKEND"]
 AMMO_TYPES = [
     "7.62x51mm",
     "7.62x39mm",
@@ -37,7 +42,6 @@ AMMO_TYPES = [
     "12.7x55mm",
     ".366 TKM",
 ]
-
 MAPS = [
     {"name": "shoreline", "players": "9-12", "duration": "40"},
     {"name": "customs", "players": "9-12", "duration": "35"},
@@ -48,10 +52,9 @@ MAPS = [
     {"name": "factory", "players": "9-12", "duration": "20-25"},
     {"name": "interchange", "players": "10-14", "duration": "45"},
 ]
-
 MAP_DIR = "plugins/eft/maps"
-
 AMMO_CACHE_TIME = 3600  # 1 hour
+INTERVAL = 300  # 5 minutes
 
 
 class Eft(BotPlugin):
@@ -64,6 +67,204 @@ class Eft(BotPlugin):
         super().__init__(bot, name)
         self.ammo_cache_time = None
         self.ammo_data = self.get_ammo_data()
+
+    def activate(self):
+        """
+        Runs the item_tracker_cron() function every interval
+
+        Note: the self.start_polling() function will wait for the first cron job to finish before starting the next one
+        """
+        super().activate()
+        disabled = os.environ.get("DISABLE_EFT_CRON", False)
+        if disabled.lower().strip() == "true":
+            self.log.warn("eft item cron disabled for local testing")
+        else:
+            self.start_poller(INTERVAL, self.item_tracker_cron)
+
+    def item_tracker_cron(self):
+        """
+        The cron that runs to check the item tracker database for items that need to be alerted
+        """
+        # Get all items in the database
+        db_items = dynamo.scan("eftitemtracker")
+
+        # If there are no items, return
+        if not db_items:
+            return
+
+        # Loop through all returned items and check for possible alerts
+        for item in db_items:
+            self.eft_tracker_alert(item)
+
+    @botcmd
+    def eft_track_help(self, msg, args):
+        """
+        Help command for .eft track
+        Get a detailed help command for the eft item tracker
+        """
+        # Format the body of the message
+        body = "**About:**\n"
+        body += "This plugin is used to track items in the Escape From Tarkov game.\n"
+        body += "You can track items to see when they reach a fixed price or when they increase by a percentage.\n\n"
+        body += "**Usage:**\n"
+        body += (
+            "`.eft track --item <item> --threshold <threshold> --channel <channel>`\n\n"
+        )
+        body += "**Examples:**\n"
+        body += "`.eft track --item m4a1 --threshold 20000 --channel #eft`\n"
+        body += "`.eft track --item m4a1 --threshold 10% --channel #eft`\n"
+        body += "`.eft track --item m4a1 --threshold 10.5% --channel #alerts`\n"
+        body += "`.eft track --item m4a1 --threshold 10.5%` - No --channel flag defaults to `#general`\n"
+
+        # Send the ammo help card
+        self.send_card(
+            title="EFT Tracker Help Command",
+            body=body,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
+
+    @botcmd
+    def eft_untrack(self, msg, args):
+        """
+        Untrack/remove an eft alert
+        Usage: .eft untrack <item>
+        Example: .eft untrack m4a1
+        """
+        ErrHelper().user(msg)
+        if not args:
+            return f"⚠️ Please provide an item name to remove tracking for"
+
+        server_id = chatutils.guild_id(msg)
+        if not server_id:
+            return "Please run this command in a Discord channel, not a DM"
+
+        # Check if the item is already tracked
+        get_result = dynamo.get(EftTrackerTable, server_id, args)
+        if get_result:
+            # If the item is tracked, delete it
+            delete_result = dynamo.delete(get_result)
+            if delete_result:
+                return f"✅ {chatutils.mention_user(msg)} `{args}` has been removed from the tracker"
+            else:
+                return f"❌ Failed to remove `{args}` from the tracker"
+        elif get_result is False:
+            return f"❌ Failed to get tracking data for `{args}`"
+        elif get_result is None:
+            return f"⚠️ I could not find any record of `{args}` in the tracker... try again?"
+
+    @arg_botcmd("--item", dest="item", type=str)
+    @arg_botcmd("--threshold", dest="threshold", type=str)
+    @arg_botcmd("--channel", dest="channel", default="general", type=str)
+    def eft_track(self, msg, item=None, threshold=None, channel=None):
+        """
+        Track the price of an Escape from Tarkov item
+        Usage: .eft track --item <item> --threshold <threshold> --channel <channel>
+        Example 1: .eft track --item m4a1 --threshold 20000 --channel general
+        Example 2: .eft track --item m4a1 --threshold 10% --channel eft
+        """
+        ErrHelper().user(msg)
+
+        server_id = chatutils.guild_id(msg)
+        channel = channel.replace("#", "")
+
+        if not server_id:
+            return "Please run this command in a Discord channel, not a DM"
+
+        get_result = dynamo.get(EftTrackerTable, server_id, item)
+        if get_result:
+            return f"ℹ️ {chatutils.mention_user(msg)} `{item}` is already being tracked"
+        elif get_result is False:
+            return f"❌ Failed to get tracking data for `{item}`"
+
+        # Validate the input specifically for the item
+        if not self.input_validation(item):
+            self.general_error(
+                msg,
+                "Invalid item input.",
+                "Please check your command and try again. Note: `.eft track help` is your friend",
+            )
+            return
+        # Validate the input specifically for the threshold it can either be a number or a percentage
+        if not re.match(r"^\d+|^\d+%$", threshold):
+            self.general_error(
+                msg,
+                "Invalid threshold input.",
+                "Please check your command and try again. Note: `.eft track help` is your friend",
+            )
+            return
+        if "." in threshold and "%" not in threshold:
+            self.general_error(
+                msg,
+                "Invalid threshold input (no decimals in prices please).",
+                "Please check your command and try again. Note: `.eft track help` is your friend",
+            )
+            return
+        # Validate the input specifically for the channel
+        dc = DiscordCustom(self._bot)
+        if not channel in dc.get_all_text_channels(
+            chatutils.guild_id(msg), names_only=True
+        ):
+            self.general_error(
+                msg,
+                f"Invalid channel input: `{channel}`",
+                "The text channel provided cannot be found. Note: `.eft track help` is your friend",
+            )
+            return
+
+        # Check to ensure the item exists via the tarkov api
+        result = self.graph_ql(self.item_query(item))
+
+        # If the result is false, then the request failed
+        if not result:
+            self.general_error(
+                msg,
+                "Request Failed",
+                "During the request, the Tarkov API returned an error. Please check the logs.",
+            )
+            return
+
+        # Get the first result from the query
+        try:
+            result_data = result["data"]["itemsByName"][0]
+        except IndexError:
+            self.general_error(
+                msg, "Not found", "The item you requested was not found."
+            )
+            return
+
+        # Write the item to track to the database
+        write_result = dynamo.write(
+            EftTrackerTable(
+                server_id=server_id,
+                item=item,
+                threshold=threshold,
+                channel=channel,
+                handle=chatutils.mention_user(msg),
+            )
+        )
+
+        if write_result:
+            body = (
+                f"I will post to the `#{channel}` channel when this alert triggers\n\n"
+            )
+            if channel == "general":
+                # If the general channel was used, add a note to the body
+                body += f"> Note: Use the `.eft track help` command to set your alert channel"
+            self.send_card(
+                title=f"✅ Tracking `{item}`",
+                body=body,
+                color=chatutils.color("white"),
+                in_reply_to=msg,
+                thumbnail=result_data["iconLink"],
+                fields=(
+                    ("Item:", item),
+                    ("Threshold:", threshold),
+                ),
+            )
+            return
+        else:
+            return f"❌ Failed to track {item}!"
 
     @botcmd
     def eft_help(self, msg, args):
@@ -81,6 +282,8 @@ class Eft(BotPlugin):
         body += (
             "• `.eft status` - Get the current status of Escape from Tarkov servers\n\n"
         )
+        body += "• `.eft track --item <item> --threshold <threshold> --channel <channel>` - Track an item and alert you when it rises to a price or by a certain percentage\n"
+        body += "• `.eft untrack <item> - Untrack an item being tracked for price alerts (use the same name you entered it with)\n"
         body += "**📓 Examples:**\n\n"
         body += "• `.eft ammo help` - View the help command for `.eft ammo`\n"
         body += (
@@ -89,6 +292,10 @@ class Eft(BotPlugin):
         body += "• `.eft map help` - View the help command for `.eft map`\n"
         body += "• `.eft map shoreline` - Get the shoreline map and its details\n"
         body += "• `.eft watch` - Get price info for the 'Roler Submariner gold wrist watch'\n"
+        body += "• `.eft track --item m4a1 --threshold 20000 --channel general` - Track the m4a1 and alert you in the general channel when its price rises to the threshold\n"
+        body += "• `.eft track --item m4a1 --threshold 10% --channel general` - Track the m4a1 and alert you in the general channel when its price rises by 10%\n"
+        body += "• `.eft untrack m4a1` - Stop tracking the m4a1 for price alerts (if you have alerts set)\n"
+        body += "• `.eft tracking` - Display all tracked eft items\n"
 
         # Send the eft help card
         self.send_card(
@@ -664,6 +871,100 @@ class Eft(BotPlugin):
             types += "`" + type + "`, "
         types = types[:-2]
         return types
+
+    def eft_tracker_alert(self, record):
+        """
+        Main function for processing an eft tracker record for alerting on price changes
+        :param record: The database record to parse for item tracking
+        :return: None
+        """
+        # Get the most recent data for the item via the tarkov api
+        result = self.graph_ql(self.item_query(record["item"]))
+
+        # If the result is false, then the request failed
+        if not result:
+            self.log.error("Failed to get item data from the tarkov api in the cron")
+            return
+
+        # Get the first result from the query
+        try:
+            result_data = result["data"]["itemsByName"][0]
+        except IndexError:
+            self.info.error("failed to find item in tarkov cron")
+            return
+
+        alert = False
+        # Check the alert type (price or percentage)
+        if "%" in record["threshold"]:
+            alert_type = "%"
+            if float(result_data["changeLast48hPercent"]) >= float(
+                record["threshold"].replace("%", "")
+            ):
+                alert = True
+        else:
+            alert_type = "₽"
+            if result_data["avg24hPrice"] >= int(record["threshold"]):
+                alert = True
+
+        # If there is not an alert, return
+        if not alert:
+            return
+
+        # If there is an alert, then send the alert
+        if alert:
+            try:
+                # If the alert fired, remove the record from the database
+                delete_result = dynamo.delete(
+                    dynamo.get(
+                        EftTrackerTable, int(record["server_id"]), record["item"]
+                    )
+                )
+                if not delete_result:
+                    self.log.error(
+                        "Failed to delete tarkov tracker item from the database"
+                    )
+                    return
+            except Exception as e:
+                ErrHelper().capture(e)
+                return
+
+            # Format the alert
+            title = f"🔔 Price Alert: `{record['item']}`"
+            body = f"**Item:** `{record['item']}` has crossed the threshold of `{record['threshold'].replace('%', '')}{alert_type}`!\n"
+            if alert_type == "₽":
+                body += f"**Condition:** `{self.fmt_number(result_data['avg24hPrice'])}₽` (current) >= `{record['threshold']}{alert_type}` (threshold)\n"
+            elif alert_type == "%":
+                body += f"**Condition:** item % price change `{result_data['changeLast48hPercent']}%` (current) has increased more than `{record['threshold']}` (threshold)\n"
+            body += f"**User:** {record['handle']}\n"
+            color = chatutils.color("yellow")
+            thumbnail = result_data["iconLink"]
+            fields = (
+                ("Item:", record["item"]),
+                (f"Threshold ({alert_type}):", record["threshold"]),
+                ("Price:", self.fmt_number(result_data["avg24hPrice"])),
+            )
+
+            # Send the alert
+            if BACKEND == "discord":
+                self.send_card(
+                    title=title,
+                    body=body,
+                    color=chatutils.color("yellow"),
+                    to=self.build_identifier(
+                        f"#{record['channel']}@{record['server_id']}"
+                    ),
+                    thumbnail=thumbnail,
+                    fields=fields,
+                )
+            elif BACKEND == "slack":
+                self.send_card(
+                    title=title,
+                    body=body,
+                    color=color,
+                    to=self.build_identifier(f"#{record['channel']}"),
+                    thumbnail=thumbnail,
+                    fields=fields,
+                )
 
     def status_query(self):
         """

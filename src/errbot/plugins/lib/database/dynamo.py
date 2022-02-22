@@ -11,7 +11,13 @@ session = boto3.Session(
     region_name=os.environ.get("AWS_REGION", "us-west-2"),
 )
 
-dynamo = session.resource("dynamodb")
+LOCALSTACK = os.environ.get("LOCALSTACK", False)
+if LOCALSTACK:
+    dynamo = session.resource(
+        "dynamodb", endpoint_url=os.environ.get("LOCALSTACK", None)
+    )
+else:
+    dynamo = session.resource("dynamodb")
 
 util = Util()
 

@@ -78,5 +78,8 @@ The following commands are all available via the chatbot:
 | `.eft map` | `.eft map shoreline` | Get an image of a map for a given Tarkov location | 🌎 |
 | `.eft map help` | - | Get information about the maps that can be used with the `.eft map` command | 🌎 |
 | `.eft time` | - | Get the current time in Tarkov | 🌎 |
+| `.eft track` | `.eft track --item <item> --threshold <threshold> --channel <channel>` | Track an item for price changes in Escape from Tarkov | 🌎 |
+| `.eft untrack` | `.eft untrack <item>` | Stop tracking a tracked item for price changes in Escape from Tarkov | 🌎 |
+| `.eft track help` | - | Get the detailed help command for the Escape from Tarkov item tracker | 🌎 |
 
 > Note: `.` is the bot prefix to invoke the bot in production and `!` is often used for development
