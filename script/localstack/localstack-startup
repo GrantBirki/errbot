@@ -40,6 +40,19 @@ aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
         ReadCapacityUnits=10,WriteCapacityUnits=5
 echo -e "✅ ${GREEN}Created LeagueTable...${OFF}"
 
+echo -e "⚙️ ${BLUE}Creating EftItemTrackerTable...${OFF}"
+aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
+    --table-name eftitemtracker \
+    --attribute-definitions \
+        AttributeName=server_id,AttributeType=N \
+        AttributeName=item,AttributeType=S \
+    --key-schema \
+        AttributeName=server_id,KeyType=HASH \
+        AttributeName=item,KeyType=RANGE \
+--provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5
+echo -e "✅ ${GREEN}Created LeagueTable...${OFF}"
+
 echo -e "${BLUE}Creating RememberTable...${OFF}"
 aws dynamodb --endpoint-url=${LOCALSTACK_HOST} create-table \
     --table-name remember \
