@@ -96,6 +96,61 @@ class Eft(BotPlugin):
         for item in db_items:
             self.eft_tracker_alert(item)
 
+    @botcmd
+    def eft_track_help(self, msg, args):
+        """
+        Help command for .eft track
+        Get a detailed help command for the eft item tracker
+        """
+        # Format the body of the message
+        body = "**About:**\n"
+        body += "This plugin is used to track items in the Escape From Tarkov game.\n"
+        body += "You can track items to see when they reach a fixed price or when they increase by a percentage.\n\n"
+        body += "**Usage:**\n"
+        body += "`.eft track --item <item> --threshold <threshold> --channel <channel>`\n\n"
+        body += "**Examples:**\n"
+        body += "`.eft track --item m4a1 --threshold 20000 --channel #eft`\n"
+        body += "`.eft track --item m4a1 --threshold 10% --channel #eft`\n"
+        body += "`.eft track --item m4a1 --threshold 10.5% --channel #alerts`\n"
+        body += "`.eft track --item m4a1 --threshold 10.5%` - No --channel flag defaults to `#general`\n"
+
+        # Send the ammo help card
+        self.send_card(
+            title="EFT Tracker Help Command",
+            body=body,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
+
+    @botcmd
+    def eft_untrack(self, msg, args):
+        """
+        Untrack/remove an eft alert
+        Usage: .eft untrack <item>
+        Example: .eft untrack m4a1
+        """
+        ErrHelper().user(msg)
+        if not args:
+            return f"⚠️ Please provide an item name to remove tracking for"
+
+        server_id = chatutils.guild_id(msg)
+        if not server_id:
+            return "Please run this command in a Discord channel, not a DM"
+
+        # Check if the item is already tracked
+        get_result = dynamo.get(EftTrackerTable, server_id, args)
+        if get_result:
+            # If the item is tracked, delete it
+            delete_result = dynamo.delete(get_result)
+            if delete_result:
+                return f"✅ {chatutils.mention_user(msg)} `{args}` has been removed from the tracker"
+            else:
+                return f"❌ Failed to remove `{args}` from the tracker"
+        elif get_result is False:
+            return f"❌ Failed to get tracking data for `{args}`"
+        elif get_result is None:
+            return f"⚠️ I could not find any record of `{args}` in the tracker... try again?"
+
     @arg_botcmd("--item", dest="item", type=str)
     @arg_botcmd("--threshold", dest="threshold", type=str)
     @arg_botcmd("--channel", dest="channel", default="general", type=str)
@@ -835,6 +890,7 @@ class Eft(BotPlugin):
             self.info.error("failed to find item in tarkov cron")
             return
 
+        alert = False
         # Check the alert type (price or percentage)
         if "%" in record["threshold"]:
             alert_type = "%"
