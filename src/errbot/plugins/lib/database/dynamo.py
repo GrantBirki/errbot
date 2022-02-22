@@ -13,7 +13,9 @@ session = boto3.Session(
 
 LOCALSTACK = os.environ.get("LOCALSTACK", False)
 if LOCALSTACK:
-    dynamo = session.resource("dynamodb", endpoint_url=os.environ.get("LOCALSTACK", None))
+    dynamo = session.resource(
+        "dynamodb", endpoint_url=os.environ.get("LOCALSTACK", None)
+    )
 else:
     dynamo = session.resource("dynamodb")
 

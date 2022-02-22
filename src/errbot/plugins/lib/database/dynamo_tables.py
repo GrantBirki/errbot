@@ -120,6 +120,7 @@ class BotDataTable(Model):
     value = UnicodeAttribute()
     updated_at = UnicodeAttribute()
 
+
 class EftTrackerTable(Model):
     class Meta:
         table_name = "eftitemtracker"
