@@ -161,7 +161,7 @@ class Eft(BotPlugin):
         Track the price of an Escape from Tarkov item
         Usage: .eft track --item <item> --threshold <threshold> --channel <channel>
         Example 1: .eft track --item m4a1 --threshold 20000 --channel general
-        Example 1: .eft track --item m4a1 --threshold 10% --channel eft
+        Example 2: .eft track --item m4a1 --threshold 10% --channel eft
         """
         ErrHelper().user(msg)
 

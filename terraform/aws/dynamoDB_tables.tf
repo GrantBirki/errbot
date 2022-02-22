@@ -154,7 +154,7 @@ module "dynamodb_botdata" {
 }
 
 # For the eft tracker feature
-module "dynamodb_table" {
+module "dynamodb_eft_tracker" {
   source  = "terraform-aws-modules/dynamodb-table/aws"
   version = "1.1.0"
 
