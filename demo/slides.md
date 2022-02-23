@@ -97,77 +97,54 @@ h1 {
 ![DevOps Visualized](assets/devops-loop.svg)
 
 ---
-layout: image-right
-image: https://source.unsplash.com/collection/94734566/1920x1080
----
 
-# Code
+# Plan 💡
 
-Use code snippets and get the highlighting directly![^1]
+The planning phase of DevOps is often [agile software development](https://en.wikipedia.org/wiki/Agile_software_development)
 
-```ts {all|2|1-6|9|all}
-interface User {
-  id: number
-  firstName: string
-  lastName: string
-  role: string
-}
+- Iterative
+- Continuous
+- Can (and will) change frequently
+- No "big bang" launch, an iterative approach
 
-function updateUser(id: number, update: User) {
-  const user = getUser(id)
-  const newUser = {...user, ...update}  
-  saveUser(id, newUser)
-}
-```
-
-<arrow v-click="3" x1="400" y1="420" x2="230" y2="330" color="#564" width="3" arrowSize="1" />
-
-[^1]: [Learn More](https://sli.dev/guide/syntax.html#line-highlighting)
+> For this demo we will be planning the launch of a new chat bot command `.devops`
 
 <style>
-.footnotes-sep {
-  @apply mt-20 opacity-10;
+code {
+  color: orange;
 }
-.footnotes {
-  @apply text-sm opacity-75;
-}
-.footnote-backref {
-  display: none;
+blockquote {
+  color: #A9A9A9;
 }
 </style>
 
 ---
 
-# Components
+# Code 💻
 
-<div grid="~ cols-2 gap-4">
-<div>
+The coding phase of DevOps is where ideas come to life... and where nightmares are born
 
-You can use Vue components directly inside your slides.
-
-We have provided a few built-in components like `<Tweet/>` and `<Youtube/>` that you can use directly. And adding your custom components is also super easy.
-
-```html
-<Counter :count="10" />
+```python
+if production == "down":
+  print("This does not bring joy")
 ```
 
-<!-- ./components/Counter.vue -->
-<Counter :count="10" m="t-4" />
+- 👯 Develop in sharable environments
+- 🖌️ Adopt a common code style (use a linter)
+- ⚙️ Use a version control system
+- 💾 Commit and push often
+- 👀 Work in the open, get feedback, request reviews
 
-Check out [the guides](https://sli.dev/builtin/components.html) for more.
+> For the DevOpsDaysLA demo, we will be writting code in [GitHub codespaces](https://github.com/features/codespaces)
 
-</div>
-<div>
-
-```html
-<Tweet id="1390115482657726468" />
-```
-
-<Tweet id="1390115482657726468" scale="0.65" />
-
-</div>
-</div>
-
+<style>
+code {
+  color: orange;
+}
+blockquote {
+  color: #A9A9A9;
+}
+</style>
 
 ---
 class: px-20
