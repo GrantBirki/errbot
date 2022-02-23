@@ -102,10 +102,10 @@ h1 {
 
 The planning phase of DevOps is often [agile software development](https://en.wikipedia.org/wiki/Agile_software_development)
 
-- Iterative
-- Continuous
-- Can (and will) change frequently
-- No "big bang" launch, an iterative approach
+- • Iterative
+- • Continuous
+- • Can (and will) change frequently
+- • No "big bang" launch, an iterative approach
 
 > For this demo we will be planning the launch of a new chat bot command `.devops`
 
