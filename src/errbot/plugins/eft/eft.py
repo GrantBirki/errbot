@@ -118,6 +118,8 @@ class Eft(BotPlugin):
         body += "`.eft track --item m4a1 --threshold 10% --channel #eft`\n"
         body += "`.eft track --item m4a1 --threshold 10.5% --channel #alerts`\n"
         body += "`.eft track --item m4a1 --threshold 10.5%` - No --channel flag defaults to `#general`\n"
+        body += '`.eft track --item "golden neck chain" --threshold 25% --channel eft` - Notice the "" quotes\n'
+        body += '\n> **Note:** If your --item field contains spaces, wrap it in quotes like so `--item "golden neck chain"`\n'
 
         # Send the ammo help card
         self.send_card(
@@ -165,6 +167,7 @@ class Eft(BotPlugin):
         Usage: .eft track --item <item> --threshold <threshold> --channel <channel>
         Example 1: .eft track --item m4a1 --threshold 20000 --channel general
         Example 2: .eft track --item m4a1 --threshold 10% --channel eft
+        Example 3: .eft track --item "golden neck chain" --threshold 25% --channel eft
         """
         ErrHelper().user(msg)
 
@@ -260,19 +263,20 @@ class Eft(BotPlugin):
 
         if write_result:
             body = (
-                f"I will post to the `#{channel}` channel when this alert triggers\n\n"
+                f"I will post to the `#{channel}` channel when this alert triggers\n"
             )
+            body += f"To remove this alert, use `.eft untrack {item}`\n\n"
             if channel == "general":
                 # If the general channel was used, add a note to the body
                 body += f"> Note: Use the `.eft track help` command to set your alert channel"
             self.send_card(
-                title=f"✅ Tracking `{item}`",
+                title=f"✅ Tracking `{result_data['name']}`",
                 body=body,
                 color=chatutils.color("white"),
                 in_reply_to=msg,
                 thumbnail=result_data["iconLink"],
                 fields=(
-                    ("Item:", item),
+                    ("Item:", result_data['name']),
                     ("Threshold:", threshold),
                 ),
             )
