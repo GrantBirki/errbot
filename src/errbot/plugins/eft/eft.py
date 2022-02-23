@@ -137,8 +137,8 @@ class Eft(BotPlugin):
         Example: .eft untrack m4a1
         """
         ErrHelper().user(msg)
-        if not args:
-            return f"⚠️ Please provide an item name to remove tracking for"
+        if not args or args.strip() == "":
+            return f"⚠️ Please provide an item to remove tracking for"
 
         server_id = chatutils.guild_id(msg)
         if not server_id:
@@ -179,7 +179,7 @@ class Eft(BotPlugin):
 
         # Basic checks for parameters
         if item is None or item.strip() == "":
-            return "⚠️ Please provide an item name to track"
+            return "⚠️ Please provide an item to track"
         if threshold is None or threshold.strip() == "":
             return "⚠️ Please provide a threshold"
         if channel is None or channel.strip() == "":
