@@ -262,9 +262,7 @@ class Eft(BotPlugin):
         )
 
         if write_result:
-            body = (
-                f"I will post to the `#{channel}` channel when this alert triggers\n"
-            )
+            body = f"I will post to the `#{channel}` channel when this alert triggers\n"
             body += f"To remove this alert, use `.eft untrack {item}`\n\n"
             if channel == "general":
                 # If the general channel was used, add a note to the body
@@ -276,7 +274,7 @@ class Eft(BotPlugin):
                 in_reply_to=msg,
                 thumbnail=result_data["iconLink"],
                 fields=(
-                    ("Item:", result_data['name']),
+                    ("Item:", result_data["name"]),
                     ("Threshold:", threshold),
                 ),
             )
