@@ -903,7 +903,7 @@ class Eft(BotPlugin):
                 alert = True
         else:
             alert_type = "₽"
-            if result_data["avg24hPrice"] >= int(record["threshold"]):
+            if float(result_data["avg24hPrice"]) >= float(record["threshold"]):
                 alert = True
 
         # If there is not an alert, return
