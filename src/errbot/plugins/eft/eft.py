@@ -94,7 +94,10 @@ class Eft(BotPlugin):
 
         # Loop through all returned items and check for possible alerts
         for item in db_items:
-            self.eft_tracker_alert(item)
+            try:
+                self.eft_tracker_alert(item)
+            except Exception as e:
+                ErrHelper().capture(e)
 
     @botcmd
     def eft_track_help(self, msg, args):
@@ -170,6 +173,17 @@ class Eft(BotPlugin):
 
         if not server_id:
             return "Please run this command in a Discord channel, not a DM"
+
+        # Basic checks for parameters
+        if item is None or item.strip() == "":
+            return "⚠️ Please provide an item name to track"
+        if threshold is None or threshold.strip() == "":
+            return "⚠️ Please provide a threshold"
+        if channel is None or channel.strip() == "":
+            channel = "general"
+
+        # Sanitize the threshold
+        threshold = threshold.strip().replace(",", "")
 
         get_result = dynamo.get(EftTrackerTable, server_id, item)
         if get_result:
