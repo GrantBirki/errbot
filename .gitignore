@@ -26,3 +26,6 @@ override.tf.json
 
 # Codespaces
 .venv
+
+# Node
+demo/node_modules
