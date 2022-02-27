@@ -400,8 +400,53 @@ The first step to build our bot locally is to generate a bot token. This worksho
 - 2: Click the "New Application" button - Name your bot `firstname-errbot-dev`
 - 3: Click the "Bot" tab -> "Add Bot"
 - 4: Copy down your bot token
+- 5: Under the "General Information" tab, copy down your bot's `application id`
 
 ![Discord Bot Token Copy](assets/discord-bot-token-copy.png)
+
+---
+
+# Invite the Bot 🔗
+
+The next step is to invite your newly created bot to your Discord server.
+
+Use the `application id` from the previous step to invite your bot to your server and paste it into the link below:
+
+```text
+https://discord.com/api/oauth2/authorize?client_id=<application_id>&permissions=36734976&scope=bot
+```
+
+Paste the formatted link above link into your browser and add the bot to your desired server!
+
+> For the DevOpsDaysLA workshop you can join the following Discord server for testing and bot invites: [Server Invite Link](https://discord.gg/76q9Ca4RzW)
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Setup Bot Token 🔑
+
+From your codespace (or local) console, execute the following commands:
+
+Create the `secret.yaml` file for your local k8s deployment:
+
+```text
+cp script/k8s/errbot/secret.yaml.example script/k8s/errbot/secret.yaml
+```
+
+[base64](https://kubernetes.io/docs/concepts/configuration/secret/#overview-of-secrets) encode your bot token (from the previous slide):
+
+```text
+python3 script/base64string.py --string <bot_token>
+```
+
+Add your base64 encoded bot token to the `script/k8s/errbot/secret.yaml` file:
+
+`"${CHAT_SERVICE_TOKEN}"` -> `"your-bot-token-here"`
 
 ---
 
