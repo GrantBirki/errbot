@@ -412,6 +412,8 @@ For this step, all you need to do is "check the box" for "Server Members Intent"
 
 ![Server Members Intent](assets/discord-bot-server-members-intent.png)
 
+---
+
 # Invite the Bot 🔗
 
 The next step is to invite your newly created bot to your Discord server.
@@ -486,11 +488,31 @@ blockquote {
 
 ---
 
-# Intro to k8s
+# Development Environment 1,000 Foot Overview 🦅
 
 While the Skaffold command is running, let's look at our dev env ([source](https://errbot.birki.io/deployment/)):
 
 ![Project Directories](assets/project-directories.png)
+
+---
+
+# Kubernetes Files 📂
+
+The `script/k8s/` directory contains all the files we need to deploy our bot to Kubernetes locally (using Skaffold)
+
+**Benefits of using Skaffold:**
+
+- • Live reload (changes to source files or k8s manifests)
+- • Handles all `kubectl` commands for us
+- • Faster dev cycles
+- • Very close to our production environment (if not identical)
+
+**Alternative dev building options:**
+
+- 🐳 Docker-compose - The `make run` command from the root of this repo is a wrapper command for building locally with Docker-compose
+- ☸️ Minikube - The `make kube` command from the root of this repo is a wrapper command for building locally with minikube using `kubectl`
+
+---
 
 # Learn More
 
