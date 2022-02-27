@@ -110,9 +110,6 @@ The planning phase of DevOps is often [agile software development](https://en.wi
 > For this demo we will be planning the launch of a new chat bot command `.devops`
 
 <style>
-code {
-  color: orange;
-}
 blockquote {
   color: #A9A9A9;
 }
@@ -138,9 +135,6 @@ if production == "down":
 > For the DevOpsDaysLA demo, we will be writting code in [GitHub codespaces](https://github.com/features/codespaces)
 
 <style>
-code {
-  color: orange;
-}
 blockquote {
   color: #A9A9A9;
 }
@@ -291,12 +285,6 @@ In this workshop, we will be doing the following:
 - 🔭 Observe our bot's usage with Grafana & Loki
 - 🚀 Run a real world CI/CD pipeline and deployment
 
-<style>
-code {
-  color: orange;
-}
-</style>
-
 ---
 
 # Getting Started 💡
@@ -390,6 +378,8 @@ blockquote {
 
 You will now connect to Codespaces through your browser. If you have [Visual Studio Code](https://code.visualstudio.com/) installed, you can optionally attach there as well.
 
+Our Codespace environment comes pre-installed with all the dependencies we need to run errbot locally and develop new features.
+
 > Note: If you are **not** apart of the DevOpsDaysLA workshop, you will be doing all the following steps from here on locally and not in GitHub Codespaces
 
 <style>
@@ -397,6 +387,21 @@ blockquote {
   color: #A9A9A9;
 }
 </style>
+
+---
+
+# Generating a Bot Token 🔑
+
+The first step to build our bot locally is to generate a bot token. This workshop uses Discord but you can also use Slack or [other chat services](https://errbot.readthedocs.io/en/latest/user_guide/setup.html#id1) as well.
+
+**Discord:**
+
+- 1: Navigate to the [Discord App Dashboard](https://discord.com/developers/applications)
+- 2: Click the "New Application" button - Name your bot `firstname-errbot-dev`
+- 3: Click the "Bot" tab -> "Add Bot"
+- 4: Copy down your bot token
+
+![Discord Bot Token Copy](assets/discord-bot-token-copy.png)
 
 ---
 
