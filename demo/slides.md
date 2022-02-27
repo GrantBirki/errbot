@@ -406,6 +406,12 @@ The first step to build our bot locally is to generate a bot token. This worksho
 
 ---
 
+# Configure the Bot 🔧
+
+For this step, all you need to do is "check the box" for "Server Members Intent":
+
+![Server Members Intent](assets/discord-bot-server-members-intent.png)
+
 # Invite the Bot 🔗
 
 The next step is to invite your newly created bot to your Discord server.
@@ -479,6 +485,12 @@ blockquote {
 </style>
 
 ---
+
+# Intro to k8s
+
+While the Skaffold command is running, let's look at our dev env ([source](https://errbot.birki.io/deployment/)):
+
+![Project Directories](assets/project-directories.png)
 
 # Learn More
 
