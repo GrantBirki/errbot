@@ -352,7 +352,7 @@ To begin implementing our `.devops` bot command, we need to first start our dev 
 
 Simply create a new GitHub Codespace
 
-![GitHub Codespace](assets/launch-codespace.png)
+![GitHub Codespace](assets/codespaces-launch.png)
 
 **Non-DevOpsDaysLA Workshop:**
 
@@ -375,6 +375,22 @@ If you are apart of the DevOpsDaysLA workshop, you will be able to create a new 
 You can read more about GitHub Codespaces [here](https://github.com/features/codespaces)
 
 > Note: If you are not apart of the DevOpsDaysLA workshop, you will **not** have free access to GitHub codespaces and will need to setup errbot [locally for development](https://errbot.birki.io/setup/)
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Connect to Codespace
+
+![Connect to Codespace](assets/codespaces-connect.png)
+
+You will now connect to Codespaces through your browser. If you have [Visual Studio Code](https://code.visualstudio.com/) installed, you can optionally attach there as well.
+
+> Note: If you are **not** apart of the DevOpsDaysLA workshop, you will be doing all the following steps from here on locally and not in GitHub Codespaces
 
 <style>
 blockquote {
