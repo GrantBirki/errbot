@@ -28,6 +28,7 @@ What is in each folder?
 
 - `.github/` - Mainly GitHub workflows for actions
 - `script/` - Maintenance and automation scripts for working with this project
+- `script/k8s/` - Kubernetes deployment scripts for local development
 - `script/localstack/` - Files and Dockerfiles related to building the localstack container for development
 - `template/` - Template / boilerplate code for new chatops commands
 - `terraform/` - Terraform code for deploying `errbot` resources
