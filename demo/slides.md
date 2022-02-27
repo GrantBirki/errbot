@@ -278,6 +278,26 @@ blockquote {
 
 ---
 
+# Hands-on Workshop Time 👐
+
+In this workshop, we will be doing the following:
+
+- 📚 Build our documentation page - [GitHub Pages](https://pages.github.com/)
+- 💻 Implement our new `.devops` chatbot command
+- 📦 Building the bot using [skaffold](https://skaffold.dev/) with our new command
+- 🧪 Ensure our test suite is passing
+- 🔒 Run SAST on our code and container scanning on our container image
+- 🤹 Interact and use our new chat command
+- 🔭 Observe our bot's usage with Grafana & Loki
+- 🚀 Run a real world CI/CD pipeline and deployment
+
+<style>
+code {
+  color: orange;
+}
+</style>
+
+---
 
 # Learn More
 
