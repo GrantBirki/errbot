@@ -284,7 +284,7 @@ In this workshop, we will be doing the following:
 
 - 📚 Build our documentation page - [GitHub Pages](https://pages.github.com/)
 - 💻 Implement our new `.devops` chatbot command
-- 📦 Building the bot using [skaffold](https://skaffold.dev/) with our new command
+- 📦 Building the bot using [skaffold](https://skaffold.dev/) with our new command (Thanks [@murriel](https://github.com/murriel)!)
 - 🧪 Ensure our test suite is passing
 - 🔒 Run SAST on our code and container scanning on our container image
 - 🤹 Interact and use our new chat command
@@ -294,6 +294,91 @@ In this workshop, we will be doing the following:
 <style>
 code {
   color: orange;
+}
+</style>
+
+---
+
+# Getting Started 💡
+
+- 1: Go to [github.com/DevOpsDaysLA/workshop-1](https://github.com/DevOpsDaysLA/workshop-1) and click "Fork" in the upper right corner
+- 2: Ensure you fork the repo into the [DevOpsDaysLA](https://github.com/DevOpsDaysLA) organization. Note: If you are not part of the DevOpsDaysLA workshop, you can fork the repo to your personal GitHub account instead
+- 3: Upon the successful fork, you will notice a GitHub action workflow has started for your documentation page
+- 4: Go to your repo settings and ensure your GitHub pages site is accessible to view your documentation
+
+![GitHub Pages](assets/pages.png)
+
+---
+
+# GitHub Pages 📄
+
+[GitHub Pages](https://pages.github.com/) is a free service for hosting static website content on GitHub.com
+
+Commits / Pushes to the `main` branch automatically update our documentation site
+
+```yaml
+name: pages
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
+      - uses: actions/setup-python@f38219332975fe8f9c04cca981d674bf22aea1d3 # pin@v2
+        with:
+          python-version: 3.x
+      - run: pip install mkdocs-material
+      - run: mkdocs gh-deploy --force
+```
+
+---
+
+# Pages GitHub Actions Workflow ⏩
+
+![Pages Workflow](assets/pages-workflow.png)
+
+Hooray! We not have all the nitty gritty documentation for our bot publically hosted on GitHub Pages!
+
+---
+
+# Setup
+
+To begin implementing our `.devops` bot command, we need to first start our dev environment:
+
+**DevOpsDaysLA Workshop:**
+
+Simply create a new GitHub Codespace
+
+![GitHub Codespace](assets/launch-codespace.png)
+
+**Non-DevOpsDaysLA Workshop:**
+
+[Public setup documentation](https://errbot.birki.io/)
+
+---
+
+# Codespaces 💻
+
+If you are apart of the DevOpsDaysLA workshop, you will be able to create a new GitHub Codespace for development
+
+**What is GitHub Codespaces?**
+
+- ☁️ Cloud hosted development environment
+- 👯 Consistent, repeatable, and shareable
+- 🚧 Removes the "it works on my machine" barrier
+- 🔥 Saves us from dependency hell
+- ⭐ Allows developers to deploy a dev environement in one-click and begin working on a project
+
+You can read more about GitHub Codespaces [here](https://github.com/features/codespaces)
+
+> Note: If you are not apart of the DevOpsDaysLA workshop, you will **not** have free access to GitHub codespaces and will need to setup errbot [locally for development](https://errbot.birki.io/setup/)
+
+<style>
+blockquote {
+  color: #A9A9A9;
 }
 </style>
 
