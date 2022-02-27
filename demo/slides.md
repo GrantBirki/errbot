@@ -450,6 +450,36 @@ Add your base64 encoded bot token to the `script/k8s/errbot/secret.yaml` file:
 
 ---
 
+# Start the Bot with Skaffold ☸️
+
+We will be using [Skaffold](https://skaffold.dev/) to run our bot for development (either in Codespaces or locally)
+
+Start our [minikube](https://minikube.sigs.k8s.io/docs/start/), cluster:
+
+> Note: You may need to run `sudo chown -R $USER $HOME/.minikube; chmod -R u+wrx $HOME/.minikube` to start your minikube cluster in Codespaces
+
+```text
+minikube start --profile custom
+
+skaffold config set --global local-cluster true
+
+eval $(minikube -p custom docker-env)
+```
+
+Run the bot with Skaffold (and tail the logs):
+
+```text
+skaffold dev --tail=true
+```
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
 # Learn More
 
 [Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
