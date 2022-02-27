@@ -187,6 +187,98 @@ blockquote {
 
 ---
 
+# Release 🏷️
+
+TODO
+
+---
+
+# Deploy 🚀
+
+TODO
+
+---
+
+# Operate 🧰
+
+TODO
+
+---
+
+# Monitor 🔎
+
+TODO
+
+---
+
+# What is Errbot? 🤖
+
+[Errbot](https://github.com/GrantBirki/errbot) is an implementation of the [errbotio/errbot](https://github.com/errbotio/errbot) framework.
+
+My version of errbot differs from the original in the following ways:
+
+- • Containerized
+- • Comes with pre-built features and chat commands
+- • Custom helper functions
+- • Altered base plugins and code
+- • Custom configuration
+
+> My version of errbot is specifically built around Discord, but many features natively support Slack as well. Check out the upstream source for [errbotio/errbot](https://github.com/errbotio/errbot) to learn more about supported backends, configuration, and bot development
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# What can Errbot do?
+
+Errbot can do **literally** anything you can write Python code to do!
+
+> [Errbot Video Demo](https://giant.gfycat.com/UnripeReasonableErmine.mp4)
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Errbot for Fun
+
+- • Get the [DownDetector](https://downdetector.com/) status of a service
+- • Complement or Insult your friends
+- • Remember a string of text for later
+- • Get a random fact
+- • Get the weather
+- • Find the value of an item in a game
+- • Join a Discord channel and play some music
+- • Get the price of a stonk or crypto currency
+- • Read a message over text to speech
+
+---
+
+# Errbot for Work
+
+- • Get the status of a deployed service
+- • DNS lookups
+- • Update a firewall rule
+- • Start a Kubernetes deployment
+- • Trigger a deployment
+- • Merge a pull request
+- • Create a GitHub issue
+- • Add a comment to a servicenow ticket
+- • Create a Jira issue
+- • Page an on-call engineer
+- • Post your daily standup status
+- • Get a post service metrics to a channel
+
+---
+
+
 # Learn More
 
 [Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
