@@ -167,6 +167,7 @@ The test phase of DevOps is where the application is... tested!
 
 - 👯 Repeatable test environment (CI/CD + Docker)
 - 👨‍🔬 Unit tests
+- 🏝️ Staging Environment
 - 🌐 Integration tests
 - 🔬 Container scanning
 - 🔎 SAST & DAST - Code scanning
@@ -642,6 +643,28 @@ blockquote {
 
 ---
 
+# Lint 🧹
+
+> 💻 Code Stage of DevOps
+
+A best pratice for all projects is to use a linter or some form of code standard.
+
+For this project, we are using [Black](https://black.readthedocs.io/en/stable/).
+
+**Run the linter:**
+
+```text
+script/lint
+```
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
 # Run our Test Suite 🔬
 
 > 🧪 Test Stage of DevOps
@@ -753,6 +776,68 @@ kubesec scan script/k8s/errbot/deployment.yaml | jq
 4. 4: Fix it back by uncommenting the `runAsUser` field in the k8s manifest
 
 > Note: KUBESEC likes to live in CI/CD pipelines
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Pull Request 🏷️
+
+> 🏷️ Release Stage of DevOps
+
+For the **Release** and **Deploy** steps, we will have to do a bit of *pretending* since we do not have a production environement.
+
+Our new `!devops` command is all ready to be released to production and used by the world!
+
+So far we have checked off the following items to clear the runway for deployment:
+
+- ✅ Created our new chat command
+- ✅ Ran our test suite
+- ✅ Built the image and tested locally with Skaffold
+- ✅ Ran security checks with TFSEC, Kubesec, and Trivy
+- 💡 Opened a pull request and got proper approvals / peer reviews (pretend)
+- 🏷️ Tagged our release with a new version number and updated the change log with our new feature (pretend)
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Deploy 🚀
+
+> 🚀 Deploy Stage of DevOps
+
+We now press the **Merge** button on our pull request and this will automatically trigger our GitHub Actions pipeline to deploy our changes to production!
+
+Again, you will not have a production environement with a cloud provider as this will incur costs. In the next slides I will give an overview of our GitHub Actions pipeline and do a live demo of a deployment to Azure.
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# GitHub Actions ⏩
+
+> 🚀 Deploy Stage of DevOps
+
+[GitHub Actions](https://github.com/features/actions) runs two types of pipelines for this project:
+
+- 💡 - **Plan:** This is the pipeline that runs before the pull request is merged to plan changes
+- 🚀 - **Deploy:** This is the pipeline that runs after the pull request is merged to `main` to deploy changes
+
+All GitHub Actions workflow definitions can be found in the `.github/workflows/` directory.
+
+![Pipeline Example](assets/pipeline-example.png)
 
 <style>
 blockquote {
