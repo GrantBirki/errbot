@@ -54,7 +54,7 @@ class Boot(BotPlugin):
         self.log.info(
             f"'REMOTE_SYNC_INTERVAL' is set to {REMOTE_SYNC_INTERVAL} seconds"
         )
-        
+
         # If the remote sync is not disabled
         if not REMOTE_SYNC_DISABLED:
             # Start an initial remote_sync on startup
