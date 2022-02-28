@@ -580,9 +580,114 @@ Let's copy that code into our `src/errbot/plugins/` directory:
 mkdir src/errbot/plugins/devops
 
 cp demo/code/devops/* src/errbot/plugins/devops/
+```
 
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Build with Skaffold ☸️
+
+> 📦 Build Stage of DevOps
+
+Now that we have our new command, we need to build our bot with Skaffold:
+
+```text
 skaffold dev --tail=true
 ```
+
+Once the container starts up, run the new command: `!devops`
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Fix our Command 🚨
+
+> 💻 Code Stage of DevOps
+
+Oh no! Our command is borked! Back to our editor to fix the bad code:
+
+```python
+# Delete these lines
+if self.chaos():
+  return "CHAOS"
+...
+# Delete this function
+def chaos(self):
+  """
+  This does not bring joy
+  """
+  if random() > 0.5:
+    return True
+  else:
+    return False
+```
+
+Redeploy and test with `skaffold dev --tail=true` -> `!devops`
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Run our Test Suite 🔬
+
+> 🧪 Test Stage of DevOps
+
+The other engineer also wrote some tests for us, let's copy those over as well:
+
+```text
+cp demo/code/tests/devops_test_example.py tests/plugins/test_devops.py
+```
+
+Run the test suite using [pytest](https://docs.pytest.org/en/latest/):
+
+```text
+script/test
+```
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Fix our Test 🚨
+
+> 🧪 Test Stage of DevOps
+
+Checking our test output, we expect that a a url with a `.jpg` extension is returned. However, the actual image we are returning is a `.png`. Let's fix that:
+
+```python
+# tests/plugins/test_devops.py
+assert "demo/assets/devops.png" in testbot.pop_message()
+```
+
+🎉
+
+![Tests Passing](assets/tests-passing.png)
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
 
 # Learn More
 
