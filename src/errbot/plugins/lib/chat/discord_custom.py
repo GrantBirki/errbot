@@ -87,6 +87,23 @@ class DiscordCustom:
         # If no matches are found, the user is not in a voice channel - Return None
         return None
 
+    def get_all_text_channels(self, guild_id, names_only=False):
+        """
+        Get's all text channels in a guild
+        :param guild_id: the guild ID (int)
+        :param names_only: if True, return only the channel names as a pure list (bool)
+        :return: a discord.py object of all text channels (list) or a pure list of channel names (list)
+        """
+
+        guild = self.bot.client.get_guild(guild_id)
+        if not names_only:
+            return guild.text_channels
+        elif names_only:
+            channels = []
+            for channel in guild.text_channels:
+                channels.append(channel.name)
+            return channels
+
     def get_all_voice_channels(self, guild_id):
         """
         Get's all the voice channels in a guild

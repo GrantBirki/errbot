@@ -24,6 +24,7 @@ STATUS_INTERVAL = 15
 # Interval for the command usage publish cron
 REMOTE_SYNC_INTERVAL = int(os.environ.get("REMOTE_SYNC_INTERVAL", 120))  # seconds
 STATUS_PUSH_ENDPOINT = os.environ.get("STATUS_PUSH_ENDPOINT", False)
+REMOTE_SYNC_DISABLED = os.environ.get("REMOTE_SYNC_DISABLED", False)
 STATUS_PUSH_ENDPOINT_FAILURE_RETRY = 15  # seconds
 BOT_NAME = os.environ["BOT_NAME"].strip()
 
@@ -53,10 +54,14 @@ class Boot(BotPlugin):
         self.log.info(
             f"'REMOTE_SYNC_INTERVAL' is set to {REMOTE_SYNC_INTERVAL} seconds"
         )
-        self.remote_sync(retries=10, usage_publish=False)
 
-        # Start the remote_sync cron
-        self.start_poller(REMOTE_SYNC_INTERVAL, self.remote_sync)
+        # If the remote sync is not disabled
+        if not REMOTE_SYNC_DISABLED:
+            # Start an initial remote_sync on startup
+            self.remote_sync(retries=10, usage_publish=False)
+
+            # Start the remote_sync cron
+            self.start_poller(REMOTE_SYNC_INTERVAL, self.remote_sync)
 
     def remote_sync(self, retries=3, usage_publish=True):
         self.sync_ban_list(retries=retries, ban_type="user")

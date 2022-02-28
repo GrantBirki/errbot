@@ -51,7 +51,9 @@
 		"donjayamanne.githistory",
 		"ms-azuretools.vscode-docker",
 		"formulahendry.code-runner",
-		"bierner.emojisense"
+		"bierner.emojisense",
+		"mikestead.dotenv",
+		"PKief.material-icon-theme"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

@@ -60,6 +60,8 @@ spec:
               value: "test"
             - name: DISABLE_LEAGUE_CRON
               value: "True"
+            - name: DISABLE_EFT_CRON
+              value: "False"
             - name: SERVER_LOCK_ALLOW_LIST
               value: "disabled"
             - name: LOCALSTACK

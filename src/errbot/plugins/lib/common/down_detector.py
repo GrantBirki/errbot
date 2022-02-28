@@ -22,12 +22,17 @@ class DownDetector:
     A helper class for interacting with and scraping the downdetector.com website
     """
 
-    def __init__(self, output_dir="plugins/lib/common/tmp"):
+    def __init__(self, output_dir="plugins/lib/common/tmp", chart_wait=2, ads_wait=2):
         """
         Initializes the DownDetector class
+        :param output_dir: the directory to save the downloaded charts to
+        :param chart_wait: the amount of time to wait for the chart to load
+        :param ads_wait: the amount of time to wait for the ads to load
         """
         self.output_dir = output_dir
         self.bad_characters = '\\/;*?"<>$#@!|[}]{=^%'
+        self.chart_wait = chart_wait
+        self.ads_wait = ads_wait
 
     def chart(self, service, search=False):
         """
@@ -58,7 +63,7 @@ class DownDetector:
                 "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"
             )
 
-            # initializing webdriver for Chrome with our options
+            # Initializing webdriver for Chrome with our options
             driver = webdriver.Chrome(options=options)
 
             # If the search flag was provided, we search for the service in DownDetector
@@ -71,10 +76,7 @@ class DownDetector:
             else:
                 driver.get(f"https://downdetector.com/status/{service}/")
 
-            # Wait for the chart to load
-            WAIT = 2
             try:
-
                 # If we used the search flag, check the page to ensure a result was found
                 if search:
                     # check the search input
@@ -90,11 +92,28 @@ class DownDetector:
                     if "/search/?q=" in driver.current_url:
                         return None, None
 
-                WebDriverWait(driver, WAIT).until(
+                # Wait for the chart to load
+                WebDriverWait(driver, self.chart_wait).until(
                     EC.presence_of_element_located((By.ID, "chart-row"))
                 )
             except TimeoutException:
+                # If the chart did not load, we have to exit
                 return False, False
+
+            # Wait for the ads banner to load and delete it if it does
+            # NOTE: This is a hacky way to do this, but it works for now
+            #   If the element ID of the ads banner at the top of the DownDetector page changes, this will break
+            #   If the ads banner is not present, this should timeout and continue as usual
+            try:
+                # Wait for ads banner to load by looking for the element ID
+                WebDriverWait(driver, self.ads_wait).until(
+                    EC.presence_of_element_located((By.ID, "ad-leaderboard"))
+                )
+                # If the ads banner is present, delete it so that we can capture a proper chart screenshot
+                js_string = 'var element = document.getElementById("ad-leaderboard");element.remove();'
+                driver.execute_script(js_string)
+            except TimeoutException:
+                pass
 
             # Get the chart element
             chart_elem = driver.find_element(

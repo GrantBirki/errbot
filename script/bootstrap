@@ -38,3 +38,7 @@ echo -e "✅ skaffold installed"
 echo -e "🗺️ configuring minikube permissions"
 sudo chown -R $USER $HOME/.minikube; chmod -R u+wrx $HOME/.minikube
 echo -e "✅ minikube permissions set"
+
+echo -e "📦 Installing Python dependencies"
+pip install -r $REPO_DIR/requirements.txt
+echo -e "✅ Python dependencies installed"
