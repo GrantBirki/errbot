@@ -88,6 +88,7 @@ jobs:
         with:
           python-version: 3.9
 
+      # Cache the requirements.txt file to speed up CI jobs
       - uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
         id: cache
         with:
