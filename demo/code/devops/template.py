@@ -4,11 +4,11 @@ from errbot import BotPlugin, botcmd
 from lib.common.errhelper import ErrHelper
 
 
-class Devops(BotPlugin):  
+class Devops(BotPlugin):
     """Devops plugin for Errbot"""
 
     @botcmd
-    def devops(self, msg, args):  
+    def devops(self, msg, args):
         """
         devops chat command for returning a visual of the DevOps life-cycle
         """
