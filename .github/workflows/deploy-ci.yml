@@ -89,16 +89,17 @@ jobs:
           python-version: 3.9
 
       # Cache the requirements.txt file to speed up CI jobs
-      - uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
-        id: cache
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      # Cache is disabled for now as it needs to be fixed
+      # - uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
+      #   id: cache
+      #   with:
+      #     path: ~/.cache/pip
+      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pip-
 
       - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        # if: steps.cache.outputs.cache-hit != 'true'
         run: |
           echo "cache miss - installing dependencies"
           python -m pip install --upgrade pip
