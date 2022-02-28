@@ -991,6 +991,105 @@ Example: `terraform/k8s/modules/containers/errbot/deployment.yaml`
 
 ---
 
+# Live Deploy Demo 🎥
+
+> 🚀 Deploy Stage of DevOps
+
+TODO: Notes for this slide will be added after the first live demo. Public Pull Requests will be used
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Operate the Bot 🤖
+
+> 🧰 Operate Stage of DevOps
+
+Usually, this is customers, clients, or the public would interact with your service. For this demo, we will be those users.
+
+Go ahead and interact with your running bot and have some fun!
+
+**Commands to try:**
+
+- • `!remember <key> is <value>` - Stores a value in DynamoDB
+- • `!insult @user` - Use at your own risk, its crowd sourced
+- • `!lmf <summoner_name>` - Get the last League of Legends match for a summoner
+- • `!play <song name or youtube url>` - Join a voice channel and run this command to get some tunes
+- • `!crypto <ticker>` - Get the current price of a crypto currency
+- • `!sparkle @user for <reason>` - Show your appreciation to someone
+
+> `!help` for a full list of available commands
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Operations and Scaling
+
+> 🧰 Operate Stage of DevOps
+
+Another part of the DevOps journey is to scale your service to meet your needs.
+
+For this demo we won't be scaling but it is important to know how to do so and what your options are:
+
+- • **Autoscaling** - Scale your service based on the number of requests (e.g. `kubectl autoscale deployment errbot --cpu-percent=50`)
+- • **Horizontal Scaling** - Scale your service based on the number of replicas (e.g. `kubectl scale deployment errbot --replicas=3`)
+- • **Vertical Scaling** - Scale your service by making each container use more resources (e.g. `kubectl scale deployment errbot --cpu=2 --memory=2Gi`)
+
+> Note: Horizontal scaling doesn't work well for traditional chat bots since they will repond multiple times to the same message. 
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Monitoring and Logging with Grafana 📊
+
+> 🔎 Monitor Stage of DevOps
+
+For this demo, we are using Promtail + Loki + Grafana to collect logs and metrics for our chatbot
+
+1. **1:** Open a new terminal window while `skaffold dev` is still running
+
+2. **2:** Get your Grafana password (username will be `admin`):
+
+    ```text
+    kubectl get secret --namespace observability grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+    ```
+
+3. **3:** Port forward to your Grafana instance
+
+    ```text
+    kubectl port-forward --namespace observability service/grafana 3000:80
+    ```
+
+    > If your IDE does not automatically direct you, simply go to http://127.0.0.1:3000/login after port forwarding with kubectl
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Logs in Grafana
+
+![Logs in Grafana](assets/grafana-with-skaffold.png)
+
+---
+
 # Learn More
 
 [Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
