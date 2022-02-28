@@ -1090,6 +1090,28 @@ blockquote {
 
 ---
 
-# Learn More
+# You made it!
 
-[Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
+If you have made it this far, you should have accomplished the following:
+
+- ✅ Self-hosted your own documenation
+- ✅ Added a new feature to your very own chatbot
+- ✅ Built, tested, and deployed your container with Skaffold in k8s
+- ✅ Checked your application for security vulnerabilities
+- ✅ Learned a bit about Kubernetes, Terraform, and tying them together with GitHub Actions through CI/CD
+- ✅ Monitored your application with Promtail and Grafana
+- ✅ Learned about a new tool or two
+- ✅ Gained some insight into the DevOps life-cycle
+- ✅ Had fun!
+
+---
+
+# Learn More 📖
+
+Curious to learn more about DevOps?
+
+- • [awesome-devops](https://github.com/wmariuss/awesome-devops) - A curated list of DevOps resources
+- • [90 Days of DevOps](https://github.com/MichaelCade/90DaysOfDevOps) - A journey through DevOps in 90 days
+- • [DevOps Exercises](https://github.com/bregman-arie/devops-exercises) - Questions and interview challenges about DevOps
+- • [DevOps Resources](https://github.com/bregman-arie/devops-resources) - A curated repo packed full of DevOps resources
+- • [8 Phases of DevOps](https://medium.com/taptuit/the-eight-phases-of-a-devops-pipeline-fda53ec9bba) - The 8 phases of DevOps defined
