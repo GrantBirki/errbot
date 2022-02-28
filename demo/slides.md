@@ -458,6 +458,20 @@ Add your base64 encoded bot token to the `script/k8s/errbot/secret.yaml` file:
 
 ---
 
+# Bot Admin 👨‍🔬
+
+Before you start your bot, set yourself as the bot admin:
+
+Edit the `script/k8s/errbot/deployment.yaml` file like so:
+
+`value: "Birki#0001" # change to your own handle` -> `value: "yourname#0001"`
+
+> Note: You can find your `name#id` in the bottom left of your Discord client or on your profile page
+
+![Discord Name + ID](assets/discord-profile-id.png)
+
+---
+
 # Start the Bot with Skaffold ☸️
 
 We will be using [Skaffold](https://skaffold.dev/) to run our bot for development (either in Codespaces or locally)
@@ -513,6 +527,62 @@ The `script/k8s/` directory contains all the files we need to deploy our bot to 
 - ☸️ Minikube - The `make kube` command from the root of this repo is a wrapper command for building locally with minikube using `kubectl`
 
 ---
+
+# Back to the Terminal 💻
+
+Going back to our terminal, we should see live output from our bot running in k8s via skaffold.
+
+Additionally, the following has happened:
+
+- • 🟢 The configured bot owner got a ping that the bot is now online
+- • 💬 The bot can now been as online on our Discord server
+- • ⌨️ We can now type a command and our bot will respond -> `!uptime`
+
+Let's go ahead and press `ctrl+c` in our terminal running skaffold to stop the bot
+
+> Note: You can also test out other commands that are available. Try `!help`
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Creating our very own chat command!
+
+> 💡 Plan Stage of DevOps
+
+We want a new command that returns a link to the DevOps life-cycle
+
+Discord will conveniently render this link as an image for us.
+
+This will be a brand new chat command so we will need to implement it and add the associated tests for our new code
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Code for the Chat Command 📝
+
+> 💻 Code Stage of DevOps
+
+Another engineer has already written most of the code for our new command.
+
+Let's copy that code into our `src/errbot/plugins/` directory:
+
+```text
+mkdir src/errbot/plugins/devops
+
+cp demo/code/devops/* src/errbot/plugins/devops/
+
+skaffold dev --tail=true
+```
 
 # Learn More
 
