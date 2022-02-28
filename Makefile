@@ -20,7 +20,7 @@ local:
 	docker run -it --rm --env-file config.env --env-file creds.env -e LOCAL_TESTING=True errbot_chatbot:latest
 	@echo "\e[32m[#] Exiting and cleaning up :)\e[0m"
 
-make kube: # start a local minikube cluster for development
+kube: # start a local minikube cluster for development
 	script/local-minikube
 
 discord: # Gets the backend files for discord if they do not exist
@@ -33,3 +33,6 @@ push-azure: # Builds and pushes image to azure - testing only
 	@az acr login -n errbot
 	@cd app && docker build -t errbot.azurecr.io/errbot:ci-test .
 	@docker push errbot.azurecr.io/errbot:ci-test
+
+slides: # Start the slide demo presentation
+	cd demo && npm run dev
