@@ -20,6 +20,7 @@ If you got all the items below downloaded and are familiar with setting up a bot
 - [Docker-compose](https://docs.docker.com/compose/)
 - [Make](https://www.gnu.org/software/make/)
 - [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10) if you are using Windows
+- Python Dependencies for testing (`pip install -r requirements.txt`)
 
 Depending on which "backend" or "chat-service" you plan on using, you will need an authentication token to start your bot.
 
