@@ -313,6 +313,26 @@ Minikube won't ever be a perfect replication of what is running in production, b
 
 ---
 
+## Testing
+
+It is suggested to write unit tests for your bot in the `tests/plugins/` directory. I have personally not done a great job at writing tests for my code, but it is pretty straightforward to write your own tests should you wish to do so:
+
+1. Create a matching file in the `tests/plugins/` directory - Ex: `tests/plugins/test_meow.py`
+2. Add some test coverage:
+
+        pytest_plugins = ["errbot.backends.test"]
+
+        extra_plugin_dir = './src/errbot/plugins'
+
+        def test_meow(testbot):
+            testbot.push_message('!meow')
+            assert 'meeeeoowww' in testbot.pop_message()
+
+3. Run `script/test` from the root of the repo to run the test suite
+4. That's it! - Obviously a simple example but hopefully you can see how to write your own tests now
+
+---
+
 ## What's next?
 
 Continue on to the [helper-functions](helper-functions.md) section to about some helpful functions to use in your bot commands to make life easier.
