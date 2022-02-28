@@ -34,6 +34,8 @@ spec:
               drop:
                 - ALL
             privileged: false
+            runAsNonRoot: true
+            runAsUser: 10001
           env:
             # General ENV Vars
             - name: BOT_NAME
