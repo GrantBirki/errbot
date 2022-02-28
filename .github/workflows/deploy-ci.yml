@@ -105,7 +105,6 @@ jobs:
 
       - name: Test with pylint
         run: |
-          sudo apt install pylint -y
           script/test
           echo "Success! - pytest Passed"
 
