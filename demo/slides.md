@@ -658,6 +658,8 @@ Run the test suite using [pytest](https://docs.pytest.org/en/latest/):
 script/test
 ```
 
+> Note: Tests like to live in CI/CD pipelines
+
 <style>
 blockquote {
   color: #A9A9A9;
@@ -680,6 +682,77 @@ assert "demo/assets/devops.png" in testbot.pop_message()
 🎉
 
 ![Tests Passing](assets/tests-passing.png)
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# SAST 🔎
+
+> 🔒 Security Stage of DevOps - Shift Left!
+
+[SAST](https://en.wikipedia.org/wiki/Static_application_security_testing) is a testing methodology for detecting security vulnerabilities in software.
+
+It generally takes place by scanning files and looking for misconfigurations, bad practices, and other security issues.
+
+> Note: SAST likes to live in CI/CD pipelines
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# TFSEC 🔒
+
+> 🔒 Security Stage of DevOps - Shift Left!
+
+[TFSEC](https://github.com/aquasecurity/tfsec) is a SAST testing tool that scans Terraform files for security issues.
+
+Let's run it and check the output:
+
+```text
+tfsec terraform/
+```
+
+We won't make any changes here but it is good to get familiar with the tool
+
+> Note: TFSEC likes to live in CI/CD pipelines
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# KUBESEC 🔒
+
+> 🔒 Security Stage of DevOps - Shift Left!
+
+[KUBESEC](https://github.com/controlplaneio/kubesec) is another SAST tool for scanning kubernetes manifests.
+
+**Example Usage:**
+
+```text
+kubesec scan script/k8s/errbot/deployment.yaml | jq
+```
+
+**Make a check fail and then fix it again:**
+
+1. 1: Edit: `script\k8s\errbot\deployment.yaml` -> comment out: `runAsUser: 10001`
+2. 2: Run: `kubesec scan script/k8s/errbot/deployment.yaml | jq`
+3. 3: Observe the output warning that the `runAsUser` check is now failing
+4. 4: Fix it back by uncommenting the `runAsUser` field in the k8s manifest
+
+> Note: KUBESEC likes to live in CI/CD pipelines
 
 <style>
 blockquote {
