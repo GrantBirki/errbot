@@ -511,6 +511,29 @@ While the Skaffold command is running, let's look at our dev env ([source](https
 
 ---
 
+# What are Containers? 🐳
+
+![Containers](assets/containers.png)
+
+---
+
+# What is Kubernetes? ☸️
+
+Kubernetes, or k8s, is an open source platform that automates container orchestration and application deployment.
+
+- • Declarative language for defining containers and workloads (k8s manifests)
+- • Scalable, highly available, and resilient
+- • Open source
+- • Creating by Google
+
+---
+
+# Kubernetes Diagram 🗺️
+
+![k8s diagram](assets/k8s-diagram.png)
+
+---
+
 # Kubernetes Files 📂
 
 The `script/k8s/` directory contains all the files we need to deploy our bot to Kubernetes locally (using Skaffold)
@@ -793,9 +816,10 @@ For the **Release** and **Deploy** steps, we will have to do a bit of *pretendin
 
 Our new `!devops` command is all ready to be released to production and used by the world!
 
-So far we have checked off the following items to clear the runway for deployment:
+**So far we have done the following:**
 
 - ✅ Created our new chat command
+- ✅ Ran our linter
 - ✅ Ran our test suite
 - ✅ Built the image and tested locally with Skaffold
 - ✅ Ran security checks with TFSEC, Kubesec, and Trivy
@@ -844,6 +868,126 @@ blockquote {
   color: #A9A9A9;
 }
 </style>
+
+---
+
+# Terraform Exploration 🌎
+
+> 🚀 Deploy Stage of DevOps
+
+[Terraform](https://cloud.hashicorp.com/products/terraform) is a tool for building, deploying, and managing infrastructure as code.
+
+**This project uses Terraform to do the following:**
+
+- • Creates a Kubernetes Cluster (Azure AKS)
+- • Creates a container registry to store Docker images (Azure ACR)
+- • Creates DynamoDB tables for storing remote bot state (AWS)
+- • Creates, applies, and manages Kubernetes manifests for errbot and its related services (Azure AKS)
+
+---
+
+# Terraform Example #1
+
+Infrastructure as Code (IAC) is here to stay and deeply embedded in DevOps. Let's take a look at a few Terraform examples.
+
+**AWS DynamoDB Table:**
+
+```hcl
+module "dynamodb_table" {
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "1.1.0"
+
+  name                           = "remember"
+  hash_key                       = "discord_server_id"
+  range_key                      = "rem_key"
+  point_in_time_recovery_enabled = true
+
+  attributes = [
+    { name = "discord_server_id", type = "N" },
+    { name = "rem_key", type = "S" }
+  ]
+
+  tags = { managed_by = "terraform" }
+}
+```
+
+---
+
+# Terraform Example #2
+
+A little more complex example now..
+
+**Azure Container Registry:**
+
+```hcl
+resource "azurerm_role_assignment" "role_acrpull" {
+  scope                            = azurerm_container_registry.acr.id
+  role_definition_name             = "AcrPull"
+  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id
+  skip_service_principal_aad_check = true
+}
+
+resource "azurerm_container_registry" "acr" {
+  name                = "${var.PROJECT_NAME}acr"
+  resource_group_name = azurerm_resource_group.default.name
+  location            = var.CLOUD_LOCATION
+  sku                 = "Basic"
+  admin_enabled       = true
+
+  tags = { managed_by = "terraform" }
+}
+```
+
+---
+
+# Terraform Example #3.1
+
+A little bit harder than #2.. deploying our chatbot containers!
+
+**Kubernetes Manifests via Terraform:**
+
+```hcl
+# terraform/k8s/main.tf
+module "errbot" {
+  source                = "./modules/containers/errbot"
+  IMAGE_TAG             = var.IMAGE_TAG
+  CHAT_SERVICE_TOKEN    = var.CHAT_SERVICE_TOKEN
+  ACR_NAME              = data.azurerm_container_registry.acr.name
+  NAMESPACE             = "errbot"
+}
+```
+
+---
+
+# Terraform Example #3.2
+
+In the following module: `"./modules/containers/errbot"` we now tell Terraform where and what order to load our k8s manifests:
+
+```hcl
+data "kubectl_path_documents" "errbot_deployment_manifest" {
+  depends_on = [
+    data.kubectl_path_documents.errbot_namespace_manifest, # wait for this to be created
+    data.kubectl_path_documents.errbot_secret_manifest # wait for this to be created
+  ]
+  pattern = "modules/containers/errbot/deployment.yaml" # path to manifest
+}
+
+resource "kubectl_manifest" "errbot_deployment" {
+  depends_on = [
+    data.kubectl_path_documents.errbot_namespace_manifest
+  ]
+  count     = length(data.kubectl_path_documents.errbot_deployment_manifest.documents)
+  yaml_body = element(data.kubectl_path_documents.errbot_deployment_manifest.documents, count.index)
+}
+```
+
+---
+
+# Terraform Example #3.3
+
+Finally, Terraform parses the `deployment.yaml` manifest and adds in any environment variables.
+
+Example: `terraform/k8s/modules/containers/errbot/deployment.yaml`
 
 ---
 
