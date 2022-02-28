@@ -11,6 +11,8 @@ terraform/.terraform/providers
 .cache
 script/k8s/**/secret.yaml
 script/k8s/observability/promtail-config.yaml
+.pytest_cache
+__pycache__
 
 # Local .terraform directories
 **/.terraform/*
