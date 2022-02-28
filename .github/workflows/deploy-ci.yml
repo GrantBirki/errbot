@@ -88,29 +88,28 @@ jobs:
         with:
           python-version: 3.9
 
-      # - uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
-      #   id: cache
-      #   with:
-      #     path: ~/.cache/pip
-      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-pip-
+      - uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
+        id: cache
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('./requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-      # - name: Install dependencies
-      #   working-directory: src/errbot
-      #   if: steps.cache.outputs.cache-hit != 'true'
-      #   run: |
-      #     echo "cache miss - installing dependencies"
-      #     python -m pip install --upgrade pip
-      #     if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          echo "cache miss - installing dependencies"
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # - name: Test with pylint
-      #   working-directory: src/errbot
-      #   run: |
-      #     sudo apt install pylint -y
-      #     pylint -E app.py -d E0401 || { echo "Failure! - Python Error Checks Failed - $?" ; exit 1; }
-      #     echo "Success! - Python Error Checks Passed"
+      - name: Test with pylint
+        run: |
+          sudo apt install pylint -y
+          script/test
+          echo "Success! - pytest Passed"
 
+      # Use this step for validating json files commit to the repo
       - name: JSON Validation
         working-directory: src/errbot
         run: |
