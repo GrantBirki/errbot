@@ -8,4 +8,4 @@ def test_help(testbot):
 
 def test_version(testbot):
     testbot.push_message('!version')
-    assert 'test' in testbot.pop_message()
+    assert 'testa' in testbot.pop_message()
