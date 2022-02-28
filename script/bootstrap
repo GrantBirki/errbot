@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# bootstrap script that is mainly used for GitHub Codespaces
+
 set -e # prevent any kind of script failures
 
 OFF='\033[0m' # Text color Reset
@@ -42,3 +44,8 @@ echo -e "✅ minikube permissions set"
 echo -e "📦 Installing Python dependencies"
 pip install -r $REPO_DIR/requirements.txt
 echo -e "✅ Python dependencies installed"
+
+echo -e "📦 Installing npm dependencies - for workshop slide deck"
+cd $REPO_DIR/demo
+npm install
+echo -e "✅ npm dependencies installed"
