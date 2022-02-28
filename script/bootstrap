@@ -8,8 +8,6 @@ OFF='\033[0m' # Text color Reset
 BLUE='\033[0;34m' # Blue
 GREEN='\033[0;32m' # Green
 
-set -e # Prevent any kind of script failures
-
 # Global Directory Variables
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" # The directory of this script
 REPO_DIR="$(dirname "$SCRIPT_DIR")" # The root directory of this repository
@@ -37,9 +35,10 @@ sudo install skaffold /usr/local/bin/
 rm ./skaffold
 echo -e "✅ skaffold installed"
 
-echo -e "🗺️ configuring minikube permissions"
-sudo chown -R $USER $HOME/.minikube; chmod -R u+wrx $HOME/.minikube
-echo -e "✅ minikube permissions set"
+# skip this for now
+# echo -e "🗺️ configuring minikube permissions"
+# sudo chown -R $USER $HOME/.minikube; chmod -R u+wrx $HOME/.minikube
+# echo -e "✅ minikube permissions set"
 
 echo -e "📦 Installing Python dependencies"
 pip install -r $REPO_DIR/requirements.txt
