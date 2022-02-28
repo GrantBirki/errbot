@@ -1,3 +1,44 @@
 #!/bin/bash
 
-pytest -c tests/pytest.ini --quiet --cov-config=.coveragerc --cov src/errbot/ $@
+# --cov-config=.coveragerc --cov src/errbot/
+
+function usage()
+{
+    echo -e "\t ============================ 🧪 test usage 🧪 ============================"
+    echo -e "\t runs the test suite for errbot"
+    echo -e "\t-h --help               : displays help message"
+    echo -e "\t-c --coverage           : prints code coverage report"
+    echo -e "\t-l --loud               : if present, disables the --quiet option in pylint"
+    echo -e "\n\t Example: script/test -c -l"
+}
+
+while [ ! -z "$*" ]; do
+  arg="$1"; shift 1
+  case $arg in
+    -h|--help) 
+        usage
+        exit 0
+        ;;
+    -l|--loud) 
+        loud=1
+        ;;
+    -c|--coverage) 
+        coverage=1
+        ;;
+  esac
+done
+
+# extra flags for code coverage
+if [[ $coverage -eq 1 ]]; then
+  extra_flags="--cov-config=.coveragerc --cov src/errbot/ --cov-report html"
+fi
+
+# use --quiet or not
+if [[ $loud -eq 1 ]]; then
+  is_loud=""
+else
+    is_loud="--quiet"
+fi
+
+# run the test suite
+pytest -c tests/pytest.ini $is_loud $extra_flags $@
