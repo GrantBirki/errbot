@@ -184,7 +184,13 @@ blockquote {
 
 # Release 🏷️
 
-TODO
+The release stage of DevOps is where the application is release to users.
+
+Examples include:
+
+- 📦 Publishing a binary to an opensource repository
+- 🏷️ Publishing a release label and Git tag for an application
+- 🔢 Releasing a new version with an installer for a desktop application
 
 ---
 
