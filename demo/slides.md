@@ -808,6 +808,36 @@ blockquote {
 
 ---
 
+# Trivy 🔒
+
+> 🔒 Security Stage of DevOps - Shift Left!
+
+[Trivy](https://github.com/aquasecurity/trivy) is a container / misconfiguration / IaC vulnerability scanner.
+
+**Let's hunt for some vulnerabilities in our container image with Trivy:**
+
+```text
+docker build -t scan-errbot:latest src/errbot/
+
+trivy image scan-errbot:latest
+```
+
+**If no vulnerabilities are found, let's create one 🐛:**
+
+Edit: `src/errbot/requirements.txt` -> add: `markdown2==2.2.2` anywhere to that file
+
+Run the build + scan again (as seen above)
+
+> Note: Trivy likes to live in CI/CD pipelines
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
 # Pull Request 🏷️
 
 > 🏷️ Release Stage of DevOps
