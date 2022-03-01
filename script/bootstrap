@@ -18,16 +18,16 @@ TERRAFORM_VERSION="1.1.0"
 echo -e "🥾 Bootstrapping repo!\n"
 echo -e "⚙️ Installing dependencies...\n"
 
-# echo -e "📦 Installing tfenv"
-# if [ -d "$HOME/.tfenv" ] 
-# then
-#     echo "$HOME/.tfenv already exists, skipping..." 
-# else
-#     git clone https://github.com/tfutils/tfenv.git ~/.tfenv
-# fi
-# tfenv install $TERRAFORM_VERSION
-# tfenv use $TERRAFORM_VERSION
-# echo -e "✅ tfenv installed"
+echo -e "📦 Installing tfenv"
+if [ -d "$HOME/.tfenv" ] 
+then
+    echo "$HOME/.tfenv already exists, skipping..." 
+else
+    git clone https://github.com/tfutils/tfenv.git ~/.tfenv
+fi
+tfenv install $TERRAFORM_VERSION
+tfenv use $TERRAFORM_VERSION
+echo -e "✅ tfenv installed"
 
 # echo -e "📦 Installing skaffold"
 # curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \

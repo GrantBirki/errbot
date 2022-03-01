@@ -26,11 +26,6 @@ RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/sk
     sudo install skaffold /usr/local/bin/ && \
     rm ./skaffold
 
-# Install tfenv
-RUN git clone https://github.com/tfutils/tfenv.git ~/.tfenv && \
-    tfenv install ${TERRAFORM_VERSION} && \
-    tfenv use ${TERRAFORM_VERSION}
-
 # Install tfsec
 RUN wget https://github.com/aquasecurity/tfsec/releases/download/v1.4.2/tfsec-linux-amd64 && \
     chmod +x ./tfsec-linux-amd64 && \
