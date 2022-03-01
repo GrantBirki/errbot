@@ -31,5 +31,13 @@ RUN wget https://github.com/aquasecurity/tfsec/releases/download/v1.4.2/tfsec-li
     chmod +x ./tfsec-linux-amd64 && \
     sudo mv ./tfsec-linux-amd64 /usr/local/bin/tfsec
 
+# Install kubesec
+RUN wget https://github.com/controlplaneio/kubesec/releases/download/v2.11.4/kubesec_linux_amd64.tar.gz && \
+    mkdir /tmp/kubesec && \
+    mv kubesec_linux_arm64.tar.gz /tmp/kubesec/ && \
+    tar -xzf /tmp/kubesec/kubesec_linux_arm64.tar.gz -C /tmp/kubesec && \
+    sudo install /tmp/kubesec/kubesec /usr/local/bin/ && \
+    rm -rf /tmp/kubesec
+
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
