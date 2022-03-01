@@ -18,31 +18,31 @@ TERRAFORM_VERSION="1.1.0"
 echo -e "🥾 Bootstrapping repo!\n"
 echo -e "⚙️ Installing dependencies...\n"
 
-echo -e "📦 Installing tfenv"
-if [ -d "$HOME/.tfenv" ] 
-then
-    echo "$HOME/.tfenv already exists, skipping..." 
-else
-    git clone https://github.com/tfutils/tfenv.git ~/.tfenv
-fi
-tfenv install $TERRAFORM_VERSION
-tfenv use $TERRAFORM_VERSION
-echo -e "✅ tfenv installed"
+# echo -e "📦 Installing tfenv"
+# if [ -d "$HOME/.tfenv" ] 
+# then
+#     echo "$HOME/.tfenv already exists, skipping..." 
+# else
+#     git clone https://github.com/tfutils/tfenv.git ~/.tfenv
+# fi
+# tfenv install $TERRAFORM_VERSION
+# tfenv use $TERRAFORM_VERSION
+# echo -e "✅ tfenv installed"
 
-echo -e "📦 Installing skaffold"
-curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
-sudo install skaffold /usr/local/bin/
-rm ./skaffold
-echo -e "✅ skaffold installed"
+# echo -e "📦 Installing skaffold"
+# curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
+# sudo install skaffold /usr/local/bin/
+# rm ./skaffold
+# echo -e "✅ skaffold installed"
 
 # skip this for now
 # echo -e "🗺️ configuring minikube permissions"
 # sudo chown -R $USER $HOME/.minikube; chmod -R u+wrx $HOME/.minikube
 # echo -e "✅ minikube permissions set"
 
-echo -e "📦 Installing Python dependencies"
-pip install -r $REPO_DIR/requirements.txt
-echo -e "✅ Python dependencies installed"
+# echo -e "📦 Installing Python dependencies"
+# pip install -r $REPO_DIR/requirements.txt
+# echo -e "✅ Python dependencies installed"
 
 echo -e "📦 Installing npm dependencies - for workshop slide deck"
 cd $REPO_DIR/demo

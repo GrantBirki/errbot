@@ -167,6 +167,7 @@ The test phase of DevOps is where the application is... tested!
 
 - 👯 Repeatable test environment (CI/CD + Docker)
 - 👨‍🔬 Unit tests
+- 🏝️ Staging Environment
 - 🌐 Integration tests
 - 🔬 Container scanning
 - 🔎 SAST & DAST - Code scanning
@@ -510,6 +511,29 @@ While the Skaffold command is running, let's look at our dev env ([source](https
 
 ---
 
+# What are Containers? 🐳
+
+![Containers](assets/containers.png)
+
+---
+
+# What is Kubernetes? ☸️
+
+Kubernetes, or k8s, is an open source platform that automates container orchestration and application deployment.
+
+- • Declarative language for defining containers and workloads (k8s manifests)
+- • Scalable, highly available, and resilient
+- • Open source
+- • Creating by Google
+
+---
+
+# Kubernetes Diagram 🗺️
+
+![k8s diagram](assets/k8s-diagram.png)
+
+---
+
 # Kubernetes Files 📂
 
 The `script/k8s/` directory contains all the files we need to deploy our bot to Kubernetes locally (using Skaffold)
@@ -580,10 +604,544 @@ Let's copy that code into our `src/errbot/plugins/` directory:
 mkdir src/errbot/plugins/devops
 
 cp demo/code/devops/* src/errbot/plugins/devops/
+```
 
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Build with Skaffold ☸️
+
+> 📦 Build Stage of DevOps
+
+Now that we have our new command, we need to build our bot with Skaffold:
+
+```text
 skaffold dev --tail=true
 ```
 
-# Learn More
+Once the container starts up, run the new command: `!devops`
 
-[Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Fix our Command 🚨
+
+> 💻 Code Stage of DevOps
+
+Oh no! Our command is borked! Back to our editor to fix the bad code:
+
+```python
+# Delete these lines
+if self.chaos():
+  return "CHAOS"
+...
+# Delete this function
+def chaos(self):
+  """
+  This does not bring joy
+  """
+  if random() > 0.5:
+    return True
+  else:
+    return False
+```
+
+Redeploy and test with `skaffold dev --tail=true` -> `!devops`
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Lint 🧹
+
+> 💻 Code Stage of DevOps
+
+A best pratice for all projects is to use a linter or some form of code standard.
+
+For this project, we are using [Black](https://black.readthedocs.io/en/stable/).
+
+**Run the linter:**
+
+```text
+script/lint
+```
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Run our Test Suite 🔬
+
+> 🧪 Test Stage of DevOps
+
+The other engineer also wrote some tests for us, let's copy those over as well:
+
+```text
+cp demo/code/tests/devops_test_example.py tests/plugins/test_devops.py
+```
+
+Run the test suite using [pytest](https://docs.pytest.org/en/latest/):
+
+```text
+script/test
+```
+
+> Note: Tests like to live in CI/CD pipelines
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Fix our Test 🚨
+
+> 🧪 Test Stage of DevOps
+
+Checking our test output, we expect that a a url with a `.jpg` extension is returned. However, the actual image we are returning is a `.png`. Let's fix that:
+
+```python
+# tests/plugins/test_devops.py
+assert "demo/assets/devops.png" in testbot.pop_message()
+```
+
+🎉
+
+![Tests Passing](assets/tests-passing.png)
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# SAST 🔎
+
+> 🔒 Security Stage of DevOps - Shift Left!
+
+[SAST](https://en.wikipedia.org/wiki/Static_application_security_testing) is a testing methodology for detecting security vulnerabilities in software.
+
+It generally takes place by scanning files and looking for misconfigurations, bad practices, and other security issues.
+
+> Note: SAST likes to live in CI/CD pipelines
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# TFSEC 🔒
+
+> 🔒 Security Stage of DevOps - Shift Left!
+
+[TFSEC](https://github.com/aquasecurity/tfsec) is a SAST testing tool that scans Terraform files for security issues.
+
+Let's run it and check the output:
+
+```text
+tfsec terraform/
+```
+
+We won't make any changes here but it is good to get familiar with the tool
+
+> Note: TFSEC likes to live in CI/CD pipelines
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# KUBESEC 🔒
+
+> 🔒 Security Stage of DevOps - Shift Left!
+
+[KUBESEC](https://github.com/controlplaneio/kubesec) is another SAST tool for scanning kubernetes manifests.
+
+**Example Usage:**
+
+```text
+kubesec scan script/k8s/errbot/deployment.yaml | jq
+```
+
+**Make a check fail and then fix it again:**
+
+1. 1: Edit: `script\k8s\errbot\deployment.yaml` -> comment out: `runAsUser: 10001`
+2. 2: Run: `kubesec scan script/k8s/errbot/deployment.yaml | jq`
+3. 3: Observe the output warning that the `runAsUser` check is now failing
+4. 4: Fix it back by uncommenting the `runAsUser` field in the k8s manifest
+
+> Note: KUBESEC likes to live in CI/CD pipelines
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Trivy 🔒
+
+> 🔒 Security Stage of DevOps - Shift Left!
+
+[Trivy](https://github.com/aquasecurity/trivy) is a container / misconfiguration / IaC vulnerability scanner.
+
+**Let's hunt for some vulnerabilities in our container image with Trivy:**
+
+```text
+docker build -t scan-errbot:latest src/errbot/
+
+trivy image scan-errbot:latest
+```
+
+**If no vulnerabilities are found, let's create one 🐛:**
+
+Edit: `src/errbot/requirements.txt` -> add: `markdown2==2.2.2` anywhere to that file
+
+Run the build + scan again (as seen above)
+
+> Note: Trivy likes to live in CI/CD pipelines
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Pull Request 🏷️
+
+> 🏷️ Release Stage of DevOps
+
+For the **Release** and **Deploy** steps, we will have to do a bit of *pretending* since we do not have a production environement.
+
+Our new `!devops` command is all ready to be released to production and used by the world!
+
+**So far we have done the following:**
+
+- ✅ Created our new chat command
+- ✅ Ran our linter
+- ✅ Ran our test suite
+- ✅ Built the image and tested locally with Skaffold
+- ✅ Ran security checks with TFSEC, Kubesec, and Trivy
+- 💡 Opened a pull request and got proper approvals / peer reviews (pretend)
+- 🏷️ Tagged our release with a new version number and updated the change log with our new feature (pretend)
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Deploy 🚀
+
+> 🚀 Deploy Stage of DevOps
+
+We now press the **Merge** button on our pull request and this will automatically trigger our GitHub Actions pipeline to deploy our changes to production!
+
+Again, you will not have a production environement with a cloud provider as this will incur costs. In the next slides I will give an overview of our GitHub Actions pipeline and do a live demo of a deployment to Azure.
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# GitHub Actions ⏩
+
+> 🚀 Deploy Stage of DevOps
+
+[GitHub Actions](https://github.com/features/actions) runs two types of pipelines for this project:
+
+- 💡 - **Plan:** This is the pipeline that runs before the pull request is merged to plan changes
+- 🚀 - **Deploy:** This is the pipeline that runs after the pull request is merged to `main` to deploy changes
+
+All GitHub Actions workflow definitions can be found in the `.github/workflows/` directory.
+
+![Pipeline Example](assets/pipeline-example.png)
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Terraform Exploration 🌎
+
+> 🚀 Deploy Stage of DevOps
+
+[Terraform](https://cloud.hashicorp.com/products/terraform) is a tool for building, deploying, and managing infrastructure as code.
+
+**This project uses Terraform to do the following:**
+
+- • Creates a Kubernetes Cluster (Azure AKS)
+- • Creates a container registry to store Docker images (Azure ACR)
+- • Creates DynamoDB tables for storing remote bot state (AWS)
+- • Creates, applies, and manages Kubernetes manifests for errbot and its related services (Azure AKS)
+
+---
+
+# Terraform Example #1
+
+Infrastructure as Code (IAC) is here to stay and deeply embedded in DevOps. Let's take a look at a few Terraform examples.
+
+**AWS DynamoDB Table:**
+
+```hcl
+module "dynamodb_table" {
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "1.1.0"
+
+  name                           = "remember"
+  hash_key                       = "discord_server_id"
+  range_key                      = "rem_key"
+  point_in_time_recovery_enabled = true
+
+  attributes = [
+    { name = "discord_server_id", type = "N" },
+    { name = "rem_key", type = "S" }
+  ]
+
+  tags = { managed_by = "terraform" }
+}
+```
+
+---
+
+# Terraform Example #2
+
+A little more complex example now..
+
+**Azure Container Registry:**
+
+```hcl
+resource "azurerm_role_assignment" "role_acrpull" {
+  scope                            = azurerm_container_registry.acr.id
+  role_definition_name             = "AcrPull"
+  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id
+  skip_service_principal_aad_check = true
+}
+
+resource "azurerm_container_registry" "acr" {
+  name                = "${var.PROJECT_NAME}acr"
+  resource_group_name = azurerm_resource_group.default.name
+  location            = var.CLOUD_LOCATION
+  sku                 = "Basic"
+  admin_enabled       = true
+
+  tags = { managed_by = "terraform" }
+}
+```
+
+---
+
+# Terraform Example #3.1
+
+A little bit harder than #2.. deploying our chatbot containers!
+
+**Kubernetes Manifests via Terraform:**
+
+```hcl
+# terraform/k8s/main.tf
+module "errbot" {
+  source                = "./modules/containers/errbot"
+  IMAGE_TAG             = var.IMAGE_TAG
+  CHAT_SERVICE_TOKEN    = var.CHAT_SERVICE_TOKEN
+  ACR_NAME              = data.azurerm_container_registry.acr.name
+  NAMESPACE             = "errbot"
+}
+```
+
+---
+
+# Terraform Example #3.2
+
+In the following module: `"./modules/containers/errbot"` we now tell Terraform where and what order to load our k8s manifests:
+
+```hcl
+data "kubectl_path_documents" "errbot_deployment_manifest" {
+  depends_on = [
+    data.kubectl_path_documents.errbot_namespace_manifest, # wait for this to be created
+    data.kubectl_path_documents.errbot_secret_manifest # wait for this to be created
+  ]
+  pattern = "modules/containers/errbot/deployment.yaml" # path to manifest
+}
+
+resource "kubectl_manifest" "errbot_deployment" {
+  depends_on = [
+    data.kubectl_path_documents.errbot_namespace_manifest
+  ]
+  count     = length(data.kubectl_path_documents.errbot_deployment_manifest.documents)
+  yaml_body = element(data.kubectl_path_documents.errbot_deployment_manifest.documents, count.index)
+}
+```
+
+---
+
+# Terraform Example #3.3
+
+Finally, Terraform parses the `deployment.yaml` manifest and adds in any environment variables.
+
+Example: `terraform/k8s/modules/containers/errbot/deployment.yaml`
+
+---
+
+# Live Deploy Demo 🎥
+
+> 🚀 Deploy Stage of DevOps
+
+TODO: Notes for this slide will be added after the first live demo. Public Pull Requests will be used
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Operate the Bot 🤖
+
+> 🧰 Operate Stage of DevOps
+
+Usually, this is customers, clients, or the public would interact with your service. For this demo, we will be those users.
+
+Go ahead and interact with your running bot and have some fun!
+
+**Commands to try:**
+
+- • `!remember <key> is <value>` - Stores a value in DynamoDB
+- • `!insult @user` - Use at your own risk, its crowd sourced
+- • `!lmf <summoner_name>` - Get the last League of Legends match for a summoner
+- • `!play <song name or youtube url>` - Join a voice channel and run this command to get some tunes
+- • `!crypto <ticker>` - Get the current price of a crypto currency
+- • `!sparkle @user for <reason>` - Show your appreciation to someone
+
+> `!help` for a full list of available commands
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Operations and Scaling
+
+> 🧰 Operate Stage of DevOps
+
+Another part of the DevOps journey is to scale your service to meet your needs.
+
+For this demo we won't be scaling but it is important to know how to do so and what your options are:
+
+- • **Autoscaling** - Scale your service based on the number of requests (e.g. `kubectl autoscale deployment errbot --cpu-percent=50`)
+- • **Horizontal Scaling** - Scale your service based on the number of replicas (e.g. `kubectl scale deployment errbot --replicas=3`)
+- • **Vertical Scaling** - Scale your service by making each container use more resources (e.g. `kubectl scale deployment errbot --cpu=2 --memory=2Gi`)
+
+> Note: Horizontal scaling doesn't work well for traditional chat bots since they will repond multiple times to the same message. 
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Monitoring and Logging with Grafana 📊
+
+> 🔎 Monitor Stage of DevOps
+
+For this demo, we are using Promtail + Loki + Grafana to collect logs and metrics for our chatbot
+
+1. **1:** Open a new terminal window while `skaffold dev` is still running
+
+2. **2:** Get your Grafana password (username will be `admin`):
+
+    ```text
+    kubectl get secret --namespace observability grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+    ```
+
+3. **3:** Port forward to your Grafana instance
+
+    ```text
+    kubectl port-forward --namespace observability service/grafana 3000:80
+    ```
+
+    > If your IDE does not automatically direct you, simply go to http://127.0.0.1:3000/login after port forwarding with kubectl
+
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
+---
+
+# Logs in Grafana
+
+![Logs in Grafana](assets/grafana-with-skaffold.png)
+
+---
+
+# You made it!
+
+If you have made it this far, you should have accomplished the following:
+
+- ✅ Self-hosted your own documenation
+- ✅ Added a new feature to your very own chatbot
+- ✅ Built, tested, and deployed your container with Skaffold in k8s
+- ✅ Checked your application for security vulnerabilities
+- ✅ Learned a bit about Kubernetes, Terraform, and tying them together with GitHub Actions through CI/CD
+- ✅ Monitored your application with Promtail and Grafana
+- ✅ Learned about a new tool or two
+- ✅ Gained some insight into the DevOps life-cycle
+- ✅ Had fun!
+
+---
+
+# Learn More 📖
+
+Curious to learn more about DevOps?
+
+- • [awesome-devops](https://github.com/wmariuss/awesome-devops) - A curated list of DevOps resources
+- • [90 Days of DevOps](https://github.com/MichaelCade/90DaysOfDevOps) - A journey through DevOps in 90 days
+- • [DevOps Exercises](https://github.com/bregman-arie/devops-exercises) - Questions and interview challenges about DevOps
+- • [DevOps Resources](https://github.com/bregman-arie/devops-resources) - A curated repo packed full of DevOps resources
+- • [8 Phases of DevOps](https://medium.com/taptuit/the-eight-phases-of-a-devops-pipeline-fda53ec9bba) - The 8 phases of DevOps defined

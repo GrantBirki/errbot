@@ -17,7 +17,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # create nonroot errbot user and switch to it
-RUN adduser -D errbot
+RUN adduser -D errbot -u 10001
 RUN chown -R errbot:errbot /app
 RUN chown -R errbot:errbot /usr/local/lib/python3.9/site-packages/errbot
 USER errbot
