@@ -12,6 +12,21 @@ class Util:
     A collection of common utilities used throughout the repo
     """
 
+    def hrs_to_milliseconds(self, num):
+        """
+        Convert hours to milliseconds
+        :param num: number of hours
+        :return: milliseconds (Int)
+        """
+        return 1000 * 60 * 60 * num
+
+    def utc_milli_timestamp(self):
+        """
+        Get current UTC time in milliseconds
+        :return: UTC time in milliseconds (Int)
+        """
+        return int(datetime.utcnow().timestamp()) * 1000
+
     def close_matches(self, word, patterns, cutoff=0.6):
         """
         Given a word and a list of possible patterns, return a list of close matches
