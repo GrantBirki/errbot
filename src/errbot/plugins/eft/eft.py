@@ -2,6 +2,7 @@ import os
 import re
 import time
 from string import Template
+from datetime import datetime
 
 import requests
 from errbot import BotPlugin, botcmd, arg_botcmd
@@ -18,6 +19,9 @@ downdetector = DownDetector()
 chatutils = ChatUtils()
 util = Util()
 dynamo = Dynamo()
+
+# 7 seconds for every one second in real time
+TARKOV_RATIO = 7
 
 BACKEND = os.environ["BACKEND"]
 AMMO_TYPES = [
@@ -573,12 +577,17 @@ class Eft(BotPlugin):
         message += f"\n• Players: `{map_data['players']}`"
         message += f"\n• Duration: `{map_data['duration']}`"
 
-        # Get the tarkov time for the map
-        left, right = self.tarkov_time(map)
-        if not left or not right:
-            message += f"\n• Time: `failed`"
+        # If the map is factory, set the time to static values
+        if map == "factory":
+            left = "15:00"
+            right = "03:00"
+        # Else, get the current time in Tarkov
         else:
-            message += f"\n• Time: `{left}` - `{right}`"
+            time = util.utc_milli_timestamp()
+            left = self.real_time_to_tarkov_time(time, left=True)
+            right = self.real_time_to_tarkov_time(time, left=False)
+
+        message += f"\n• Time: `{left}` - `{right}`"
 
         return message
 
@@ -679,30 +688,38 @@ class Eft(BotPlugin):
         ErrHelper().user(msg)
 
         # Get the current time in Tarkov
-        left, right = self.tarkov_time()
-        if not left or not right:
-            return "❌ Failed to get Tarkov time"
+        time = util.utc_milli_timestamp()
+        left = self.real_time_to_tarkov_time(time, left=True)
+        right = self.real_time_to_tarkov_time(time, left=False)
 
         return f"🕒 `{left}` - `{right}`"
 
-    def tarkov_time(self, map=None):
+    def real_time_to_tarkov_time(self, time, left=True):
         """
-        Gets the current time in Tarkov
+        Convert real time to Tarkov time
+        :param time: Current UTC epoch in milliseconds -> int(datetime.datetime.utcnow().timestamp()) * 1000
+        :param left: True if left side, False if right side (Think eft in-game clock)
+        :return: String of the time in the following format: %H:%M:%S
+        """
 
-        :param map: The map name to check with times
-        :return left, right: Returns the 'left' and 'right' Tarkov times - False if failed
-        """
-        try:
-            # TODO - Generate the time locally rather than querying an external API
-            # See https://github.com/adamburgess/tarkov-time
-            tarkov_time_data = requests.get("https://tarkov-time.adam.id.au/api").json()
-            if map == "factory":
-                return "15:00", "03:00"
-            else:
-                return tarkov_time_data["left"], tarkov_time_data["right"]
-        except Exception as error:
-            ErrHelper().capture(error)
-            False, False
+        # tarkov time moves at 7 seconds per second.
+        # surprisingly, 00:00:00 does not equal unix 0... but it equals unix 10,800,000.
+        # Which is 3 hours. What's also +3? Yep, Russia. UTC+3.
+        # therefore, to convert real time to tarkov time,
+        # tarkov time = (real time * 7 % 24 hr) + 3 hour
+
+        one_day = util.hrs_to_milliseconds(24)
+        russia = util.hrs_to_milliseconds(3)
+
+        if left:
+            offset = russia
+        else:
+            offset = russia + util.hrs_to_milliseconds(12)
+
+        tarkov_time = datetime.fromtimestamp(
+            (((offset + (time * TARKOV_RATIO)) % one_day) / 1000)
+        )
+        return tarkov_time.strftime("%H:%M:%S")
 
     def get_ammo_data(self):
         """
