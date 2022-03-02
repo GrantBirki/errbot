@@ -694,7 +694,7 @@ class Eft(BotPlugin):
 
         return f"🕒 `{left}` - `{right}`"
 
-    def real_time_to_tarkov_time(self, time, left = True):
+    def real_time_to_tarkov_time(self, time, left=True):
         """
         Convert real time to Tarkov time
         :param time: Current UTC epoch in milliseconds -> int(datetime.datetime.utcnow().timestamp()) * 1000
@@ -716,7 +716,9 @@ class Eft(BotPlugin):
         else:
             offset = russia + util.hrs_to_milliseconds(12)
 
-        tarkov_time = datetime.fromtimestamp((((offset + (time * TARKOV_RATIO)) % one_day) / 1000))
+        tarkov_time = datetime.fromtimestamp(
+            (((offset + (time * TARKOV_RATIO)) % one_day) / 1000)
+        )
         return tarkov_time.strftime("%H:%M:%S")
 
     def get_ammo_data(self):
