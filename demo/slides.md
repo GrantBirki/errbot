@@ -492,6 +492,12 @@ Edit the `script/k8s/errbot/deployment.yaml` file like so:
 
 ![Discord Name + ID](assets/discord-profile-id.png)
 
+<style>
+blockquote {
+  color: #A9A9A9;
+}
+</style>
+
 ---
 
 # Start the Bot with Skaffold ☸️
