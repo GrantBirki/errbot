@@ -196,19 +196,34 @@ Examples include:
 
 # Deploy 🚀
 
-TODO
+The deploy stage of DevOps is my personal favorite. This is where code is deployed into systems in production
+
+- 🧱 Infrastructure as Code
+- ⏩ CI/CD Pipelines
+- 🚀 Deployment
 
 ---
 
 # Operate 🧰
 
-TODO
+The operate stage of DevOps is where the application is used by real users and we react to that usage
+
+- 🏗️ Scaling
+- 🐛 Bug Reports
+- 💬 Continuous feedback
+- 🔒 Rolling updates for security
 
 ---
 
 # Monitor 🔎
 
-TODO
+The monitor stage of DevOps is where the application is "monitored" via its metrics, events, and logs
+
+- 📊 Gather Metrics
+- 📈 Visualize and Dashboard all the things
+- 📝 Collect logs and events
+- 🔍 Search and audit for anomalies
+- 🔔 Trigger alerts and notifications
 
 ---
 
