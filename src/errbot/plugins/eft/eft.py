@@ -348,8 +348,34 @@ class Eft(BotPlugin):
             )
             return
 
+
+        # If we don't have the cached item_names or its not fresh, fetch it
+        if (
+            not self.item_names
+            or self.eft_cache_time is None
+            or util.is_timestamp_older_than_n_seconds(
+                self.eft_cache_time, EFT_CACHE_TIME
+            )
+            == True
+        ):
+            self.refresh_eft_data()
+
+        item_matches = util.close_matches(args, self.item_names, cutoff=0.5)
+
+        alt_matches = None
+        # If we have a single match from our cache, use that
+        if len(item_matches) == 1:
+            item = item_matches[0]
+        # If we have multiple matches, use the first one and make note of the others
+        elif len(item_matches) > 1:
+            item = item_matches[0]
+            alt_matches = "\n• " + "\n• ".join(item_matches[1:4])
+        # If we don't have a match, attempt to use what ever the user supplied
+        elif len(item_matches) == 0:
+            item = args
+
         # Execute the graphql query to try and get eft item data
-        result = self.graph_ql(self.item_query(args))
+        result = self.graph_ql(self.item_query(item))
 
         # If the result is false, then the request failed
         if not result:
@@ -364,8 +390,11 @@ class Eft(BotPlugin):
         try:
             result_data = result["data"]["itemsByName"][0]
         except IndexError:
+            message = f"The item you requested `{args}` was not found."
+            if alt_matches:
+                message += f"I found some similar items: {alt_matches}"
             self.general_error(
-                msg, "Not found", "The item you requested was not found."
+                msg, "Not found", message
             )
             return
 
@@ -384,6 +413,9 @@ class Eft(BotPlugin):
         body += f"• Wiki: {result_data['link']}\n"
         body += f"• Item Tier: {item_tier['msg']}\n"
         body += f"• Sell to: `{trader}` for `{self.fmt_number(highest_price)}`\n"
+        
+        if alt_matches:
+            body += f"\n**Other items with similar names:**{alt_matches}\n"
 
         # Get Average Flea Price
         if result_data["avg24hPrice"] == 0:
