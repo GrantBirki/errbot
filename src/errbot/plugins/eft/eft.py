@@ -57,7 +57,7 @@ MAPS = [
     {"name": "interchange", "players": "10-14", "duration": "45"},
 ]
 MAP_DIR = "plugins/eft/maps"
-AMMO_CACHE_TIME = 3600  # 1 hour
+EFT_CACHE_TIME = 3600  # 1 hour
 INTERVAL = 300  # 5 minutes
 
 
@@ -67,10 +67,14 @@ class Eft(BotPlugin):
     def __init__(self, bot, name=None):
         """
         Initialize the plugin with its class variables
+        Note: self.eft_cache_time is used to check the cache time of eft ammo types and items...
+        ...This does not need to be constantly refreshed as updates releasing new items and ammo types is not frequent
         """
         super().__init__(bot, name)
-        self.ammo_cache_time = None
-        self.ammo_data = self.get_ammo_data()
+        self.eft_cache_time = None
+        self.ammo_data = {}
+        self.item_data = {}
+        self.item_names = []
 
     def activate(self):
         """
@@ -336,17 +340,45 @@ class Eft(BotPlugin):
         ErrHelper().user(msg)
 
         # Set the type of args to a string
-        args = str(args).strip()
+        item = str(args).strip().lower()
 
         # Validate the input
-        if not self.input_validation(args):
+        if not self.input_validation(item):
             self.general_error(
                 msg, "Invalid input.", "Please check your command and try again."
             )
             return
 
+        # If we don't have the cached item_names or its not fresh, fetch it
+        if (
+            not self.item_names
+            or self.eft_cache_time is None
+            or util.is_timestamp_older_than_n_seconds(
+                self.eft_cache_time, EFT_CACHE_TIME
+            )
+            == True
+        ):
+            self.refresh_eft_data()
+
+        # Hardcoded name overrides for popular items
+        item, hard_coded = self.item_hard_code_replacer(item)
+
+        # Fetch close matches to the item name to help users who might have requested a slightly different item
+        item_matches = util.close_matches(item, self.item_names, cutoff=0.5)
+
+        alt_matches = None
+        # If we have a single match from our cache, use that
+        if len(item_matches) == 1:
+            if not hard_coded:
+                item = item_matches[0]
+        # If we have multiple matches, use the first one and make note of the others
+        elif len(item_matches) > 1:
+            if not hard_coded:
+                item = item_matches[0]
+            alt_matches = "\n• " + "\n• ".join(item_matches[1:4])
+
         # Execute the graphql query to try and get eft item data
-        result = self.graph_ql(self.item_query(args))
+        result = self.graph_ql(self.item_query(item))
 
         # If the result is false, then the request failed
         if not result:
@@ -361,9 +393,10 @@ class Eft(BotPlugin):
         try:
             result_data = result["data"]["itemsByName"][0]
         except IndexError:
-            self.general_error(
-                msg, "Not found", "The item you requested was not found."
-            )
+            message = f"The item you requested `{args}` was not found."
+            if alt_matches:
+                message += f"I found some similar items: {alt_matches}"
+            self.general_error(msg, "Not found", message)
             return
 
         # Format the types to be wrapped in backticks to look pretty
@@ -381,6 +414,9 @@ class Eft(BotPlugin):
         body += f"• Wiki: {result_data['link']}\n"
         body += f"• Item Tier: {item_tier['msg']}\n"
         body += f"• Sell to: `{trader}` for `{self.fmt_number(highest_price)}`\n"
+
+        if alt_matches:
+            body += f"\n**Other items with similar names:**{alt_matches}\n"
 
         # Get Average Flea Price
         if result_data["avg24hPrice"] == 0:
@@ -630,16 +666,16 @@ class Eft(BotPlugin):
         elif len(ammo_matches) >= 1:
             ammo_type = ammo_matches[0]
 
-        # If we don't have the cached ammo_data and its not fresh, fetch it
+        # If we don't have the cached ammo_data or its not fresh, fetch it
         if (
             not self.ammo_data
-            or self.ammo_cache_time is None
+            or self.eft_cache_time is None
             or util.is_timestamp_older_than_n_seconds(
-                self.ammo_cache_time, AMMO_CACHE_TIME
+                self.eft_cache_time, EFT_CACHE_TIME
             )
             == True
         ):
-            self.ammo_data = self.get_ammo_data()
+            self.refresh_eft_data()
 
         # Loop through and collect data on the selected ammo type
         ammo_list = []
@@ -721,22 +757,65 @@ class Eft(BotPlugin):
         )
         return tarkov_time.strftime("%H:%M:%S")
 
-    def get_ammo_data(self):
+    def item_hard_code_replacer(self, item):
         """
-        Helper function to get the ammo data from GitHub
-        :return ammo_data: Returns the ammo data from GitHub (json) - False if failed
+        Hard coded helper function (ew) to replace and find matches on common eft items
+        :param item: a string of the item name to check for hard coded replacements
+        :return: a string of the item name, could be altered, or the same
+        :return bool: True if the item was replaced, False if not
+        Example: "lab red keycard" -> "TerraGroup Labs keycard (Red)"
+        """
+        # Hard coded replacements
+        if "lab" in item or "keycard" in item or "key card" in item:
+            if "red" in item:
+                return "TerraGroup Labs keycard (Red)", True
+            elif "blue" in item:
+                return "TerraGroup Labs keycard (Blue)", True
+            elif "green" in item:
+                return "TerraGroup Labs keycard (Green)", True
+            elif "yellow" in item:
+                return "TerraGroup Labs keycard (Yellow)", True
+            elif "violet" in item:
+                return "TerraGroup Labs keycard (Violet)", True
+            elif "black" in item:
+                return "TerraGroup Labs keycard (Black)", True
+        if item == "gpu":
+            return "Graphics card", True
+
+        # If no matches are found, return the original item name
+        return item, False
+
+    def refresh_eft_data(self):
+        """
+        Helper function to refresh static eft data from GitHub - That can be cached in memory
+        :return bool: True is successful, False if not
         """
         try:
-            ammo_data = requests.get(
+            # Update static ammo data
+            self.ammo_data = requests.get(
                 "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/ammunition.json"
             ).json()
+            # Update static item data
+            self.item_data = requests.get(
+                "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/items.en.json"
+            ).json()
 
-            # Update the ammo data cache
-            self.ammo_cache_time = util.parse_iso_timestamp(util.iso_timestamp())
+            item_names = []
+            for _, value in self.item_data.items():
+                item_names.append(
+                    value["name"].encode("ascii", "ignore").decode("ascii")
+                )
+            self.item_names = item_names
 
-            return ammo_data
+            # Update cache
+            self.eft_cache_time = util.parse_iso_timestamp(util.iso_timestamp())
+
+            self.log.info("eft cache data successfully refreshed")
+
+            return True
         except Exception as error:
             ErrHelper().capture(error)
+            self.log.error("failed to refresh the eft cache")
             return False
 
     def map_help(self, msg):
@@ -868,7 +947,7 @@ class Eft(BotPlugin):
         :return: True if the input is valid, False if not
         """
         # Character Allow List
-        regex = r"^[a-zA-Z\d\s-]+$"
+        regex = r"^[a-zA-Z\d\()\s-]+$"
 
         # If there is a match the input is valid and we can return true
         if re.match(regex, args):
