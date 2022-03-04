@@ -57,7 +57,7 @@ MAPS = [
     {"name": "interchange", "players": "10-14", "duration": "45"},
 ]
 MAP_DIR = "plugins/eft/maps"
-AMMO_CACHE_TIME = 3600  # 1 hour
+EFT_CACHE_TIME = 3600  # 1 hour
 INTERVAL = 300  # 5 minutes
 
 
@@ -67,9 +67,11 @@ class Eft(BotPlugin):
     def __init__(self, bot, name=None):
         """
         Initialize the plugin with its class variables
+        Note: self.eft_cache_time is used to check the cache time of eft ammo types and items...
+        ...This does not need to be constantly refreshed as updates releasing new items and ammo types is not frequent
         """
         super().__init__(bot, name)
-        self.ammo_cache_time = None
+        self.eft_cache_time = None
         self.ammo_data = self.get_ammo_data()
 
     def activate(self):
@@ -633,9 +635,9 @@ class Eft(BotPlugin):
         # If we don't have the cached ammo_data and its not fresh, fetch it
         if (
             not self.ammo_data
-            or self.ammo_cache_time is None
+            or self.eft_cache_time is None
             or util.is_timestamp_older_than_n_seconds(
-                self.ammo_cache_time, AMMO_CACHE_TIME
+                self.eft_cache_time, EFT_CACHE_TIME
             )
             == True
         ):
@@ -732,7 +734,7 @@ class Eft(BotPlugin):
             ).json()
 
             # Update the ammo data cache
-            self.ammo_cache_time = util.parse_iso_timestamp(util.iso_timestamp())
+            self.eft_cache_time = util.parse_iso_timestamp(util.iso_timestamp())
 
             return ammo_data
         except Exception as error:
