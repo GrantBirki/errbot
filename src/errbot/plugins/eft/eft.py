@@ -72,7 +72,8 @@ class Eft(BotPlugin):
         """
         super().__init__(bot, name)
         self.eft_cache_time = None
-        self.ammo_data = self.get_ammo_data()
+        self.ammo_data = {}
+        self.item_data = {}
 
     def activate(self):
         """
@@ -641,7 +642,7 @@ class Eft(BotPlugin):
             )
             == True
         ):
-            self.ammo_data = self.get_ammo_data()
+            self.refresh_eft_data()
 
         # Loop through and collect data on the selected ammo type
         ammo_list = []
@@ -723,20 +724,25 @@ class Eft(BotPlugin):
         )
         return tarkov_time.strftime("%H:%M:%S")
 
-    def get_ammo_data(self):
+    def refresh_eft_data(self):
         """
-        Helper function to get the ammo data from GitHub
-        :return ammo_data: Returns the ammo data from GitHub (json) - False if failed
+        Helper function to refresh static eft data from GitHub - That can be cached in memory
+        :return bool: True is successful, False if not
         """
         try:
-            ammo_data = requests.get(
+            # Update static ammo data
+            self.ammo_data = requests.get(
                 "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/ammunition.json"
             ).json()
+            # Update static item data
+            self.item_data = requests.get(
+                "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/items.en.json"
+            ).json()
 
-            # Update the ammo data cache
+            # Update cache
             self.eft_cache_time = util.parse_iso_timestamp(util.iso_timestamp())
 
-            return ammo_data
+            return True
         except Exception as error:
             ErrHelper().capture(error)
             return False
