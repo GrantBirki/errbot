@@ -340,15 +340,14 @@ class Eft(BotPlugin):
         ErrHelper().user(msg)
 
         # Set the type of args to a string
-        args = str(args).strip()
+        item = str(args).strip().lower()
 
         # Validate the input
-        if not self.input_validation(args):
+        if not self.input_validation(item):
             self.general_error(
                 msg, "Invalid input.", "Please check your command and try again."
             )
             return
-
 
         # If we don't have the cached item_names or its not fresh, fetch it
         if (
@@ -361,19 +360,21 @@ class Eft(BotPlugin):
         ):
             self.refresh_eft_data()
 
-        item_matches = util.close_matches(args, self.item_names, cutoff=0.5)
+        # Hardcoded name overrides for popular items
+        item, hard_coded = self.item_hard_code_replacer(item)
+
+        item_matches = util.close_matches(item, self.item_names, cutoff=0.5)
 
         alt_matches = None
         # If we have a single match from our cache, use that
         if len(item_matches) == 1:
-            item = item_matches[0]
+            if not hard_coded:
+                item = item_matches[0]
         # If we have multiple matches, use the first one and make note of the others
         elif len(item_matches) > 1:
-            item = item_matches[0]
+            if not hard_coded:
+                item = item_matches[0]
             alt_matches = "\n• " + "\n• ".join(item_matches[1:4])
-        # If we don't have a match, attempt to use what ever the user supplied
-        elif len(item_matches) == 0:
-            item = args
 
         # Execute the graphql query to try and get eft item data
         result = self.graph_ql(self.item_query(item))
@@ -756,6 +757,34 @@ class Eft(BotPlugin):
             (((offset + (time * TARKOV_RATIO)) % one_day) / 1000)
         )
         return tarkov_time.strftime("%H:%M:%S")
+
+    def item_hard_code_replacer(self, item):
+        """
+        Hard coded helper function (ew) to replace and find matches on common eft items
+        :param item: a string of the item name to check for hard coded replacements
+        :return: a string of the item name, could be altered, or the same
+        :return bool: True if the item was replaced, False if not
+        Example: "lab red keycard" -> "TerraGroup Labs keycard (Red)"
+        """
+        # Hard coded replacements
+        if "lab" in item or "keycard" in item or "key card" in item:
+            if "red" in item:
+                return "TerraGroup Labs keycard (Red)", True
+            elif "blue" in item:
+                return "TerraGroup Labs keycard (Blue)", True
+            elif "green" in item:
+                return "TerraGroup Labs keycard (Green)", True
+            elif "yellow" in item:
+                return "TerraGroup Labs keycard (Yellow)", True
+            elif "violet" in item:
+                return "TerraGroup Labs keycard (Violet)", True
+            elif "black" in item:
+                return "TerraGroup Labs keycard (Black)", True
+        if item == "gpu":
+            return "Graphics card", True
+        
+        # If no matches are found, return the original item name
+        return item, False
 
     def refresh_eft_data(self):
         """
