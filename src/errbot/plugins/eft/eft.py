@@ -74,6 +74,7 @@ class Eft(BotPlugin):
         self.eft_cache_time = None
         self.ammo_data = {}
         self.item_data = {}
+        self.item_names = []
 
     def activate(self):
         """
@@ -665,7 +666,7 @@ class Eft(BotPlugin):
         elif len(ammo_matches) >= 1:
             ammo_type = ammo_matches[0]
 
-        # If we don't have the cached ammo_data and its not fresh, fetch it
+        # If we don't have the cached ammo_data or its not fresh, fetch it
         if (
             not self.ammo_data
             or self.eft_cache_time is None
@@ -771,12 +772,20 @@ class Eft(BotPlugin):
                 "https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/items.en.json"
             ).json()
 
+            item_names = []
+            for _, value in self.item_data.items():
+                item_names.append(value['name'].encode('ascii', 'ignore').decode('ascii'))
+            self.item_names = item_names
+
             # Update cache
             self.eft_cache_time = util.parse_iso_timestamp(util.iso_timestamp())
+
+            self.log.info("eft cache data successfully refreshed")
 
             return True
         except Exception as error:
             ErrHelper().capture(error)
+            self.log.error("failed to refresh the eft cache")
             return False
 
     def map_help(self, msg):
@@ -908,7 +917,7 @@ class Eft(BotPlugin):
         :return: True if the input is valid, False if not
         """
         # Character Allow List
-        regex = r"^[a-zA-Z\d\s-]+$"
+        regex = r"^[a-zA-Z\d\()\s-]+$"
 
         # If there is a match the input is valid and we can return true
         if re.match(regex, args):
