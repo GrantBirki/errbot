@@ -363,6 +363,7 @@ class Eft(BotPlugin):
         # Hardcoded name overrides for popular items
         item, hard_coded = self.item_hard_code_replacer(item)
 
+        # Fetch close matches to the item name to help users who might have requested a slightly different item
         item_matches = util.close_matches(item, self.item_names, cutoff=0.5)
 
         alt_matches = None
@@ -395,9 +396,7 @@ class Eft(BotPlugin):
             message = f"The item you requested `{args}` was not found."
             if alt_matches:
                 message += f"I found some similar items: {alt_matches}"
-            self.general_error(
-                msg, "Not found", message
-            )
+            self.general_error(msg, "Not found", message)
             return
 
         # Format the types to be wrapped in backticks to look pretty
@@ -415,7 +414,7 @@ class Eft(BotPlugin):
         body += f"• Wiki: {result_data['link']}\n"
         body += f"• Item Tier: {item_tier['msg']}\n"
         body += f"• Sell to: `{trader}` for `{self.fmt_number(highest_price)}`\n"
-        
+
         if alt_matches:
             body += f"\n**Other items with similar names:**{alt_matches}\n"
 
@@ -782,7 +781,7 @@ class Eft(BotPlugin):
                 return "TerraGroup Labs keycard (Black)", True
         if item == "gpu":
             return "Graphics card", True
-        
+
         # If no matches are found, return the original item name
         return item, False
 
@@ -803,7 +802,9 @@ class Eft(BotPlugin):
 
             item_names = []
             for _, value in self.item_data.items():
-                item_names.append(value['name'].encode('ascii', 'ignore').decode('ascii'))
+                item_names.append(
+                    value["name"].encode("ascii", "ignore").decode("ascii")
+                )
             self.item_names = item_names
 
             # Update cache
