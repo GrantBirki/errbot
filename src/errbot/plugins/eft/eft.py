@@ -807,11 +807,9 @@ class Eft(BotPlugin):
             for _, value in self.item_data.items():
                 name = value["name"].encode("ascii", "ignore").decode("ascii")
                 # Get ride of any wonky characters if they exist
-                name = name.replace('"', "\\\"")
+                name = name.replace('"', '\\"')
                 # Add the name to the list of item_names
-                item_names.append(
-                    name
-                )
+                item_names.append(name)
             self.item_names = item_names
 
             # Update cache
