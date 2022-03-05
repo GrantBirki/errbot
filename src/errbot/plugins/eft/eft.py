@@ -340,7 +340,7 @@ class Eft(BotPlugin):
         ErrHelper().user(msg)
 
         # Set the type of args to a string
-        item = str(args).strip().lower()
+        item = str(args).strip()
 
         # Validate the input
         if not self.input_validation(item):
@@ -364,7 +364,7 @@ class Eft(BotPlugin):
         item, hard_coded = self.item_hard_code_replacer(item)
 
         # Fetch close matches to the item name to help users who might have requested a slightly different item
-        item_matches = util.close_matches(item, self.item_names, cutoff=0.5)
+        item_matches = util.close_matches(item, self.item_names, cutoff=0.6)
 
         alt_matches = None
         # If we have a single match from our cache, use that
@@ -765,21 +765,24 @@ class Eft(BotPlugin):
         :return bool: True if the item was replaced, False if not
         Example: "lab red keycard" -> "TerraGroup Labs keycard (Red)"
         """
+        # Ensure the item is lowercase for checks
+        check = item.lower()
+
         # Hard coded replacements
-        if "lab" in item or "keycard" in item or "key card" in item:
-            if "red" in item:
+        if "lab" in check or "keycard" in check or "key card" in check:
+            if "red" in check:
                 return "TerraGroup Labs keycard (Red)", True
-            elif "blue" in item:
+            elif "blue" in check:
                 return "TerraGroup Labs keycard (Blue)", True
-            elif "green" in item:
+            elif "green" in check:
                 return "TerraGroup Labs keycard (Green)", True
-            elif "yellow" in item:
+            elif "yellow" in check:
                 return "TerraGroup Labs keycard (Yellow)", True
-            elif "violet" in item:
+            elif "violet" in check:
                 return "TerraGroup Labs keycard (Violet)", True
-            elif "black" in item:
+            elif "black" in check:
                 return "TerraGroup Labs keycard (Black)", True
-        if item == "gpu":
+        if check == "gpu":
             return "Graphics card", True
 
         # If no matches are found, return the original item name
@@ -802,8 +805,12 @@ class Eft(BotPlugin):
 
             item_names = []
             for _, value in self.item_data.items():
+                name = value["name"].encode("ascii", "ignore").decode("ascii")
+                # Get ride of any wonky characters if they exist
+                name = name.replace('"', "\\\"")
+                # Add the name to the list of item_names
                 item_names.append(
-                    value["name"].encode("ascii", "ignore").decode("ascii")
+                    name
                 )
             self.item_names = item_names
 
