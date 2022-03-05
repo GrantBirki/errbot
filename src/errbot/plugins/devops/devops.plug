@@ -1,0 +1,9 @@
+[Core]
+Name = Devops 
+Module = devops 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Devops plugin 
