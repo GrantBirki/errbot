@@ -480,6 +480,8 @@ class ErrBot(Backend, StoreMixin):
             handle = msg.frm.person.split("@")[0]
         elif self.backend == "slack":
             handle = str(msg.frm).split("/")[1]
+        elif os.environ["LOCAL_TESTING"] == "True":
+            handle = "LOCAL_TESTING"
 
         # If the user is banned, don't let them do anything and return a message
         if handle in self.banned_users:
@@ -502,6 +504,8 @@ class ErrBot(Backend, StoreMixin):
             hashed.hexdigest()
             # Convert the hash to an int and get the first 16 digits
             server_id = str(int(hashed.hexdigest(), base=16))[:16]
+        elif os.environ["LOCAL_TESTING"] == "True":
+            server_id = "LOCAL_TESTING"
 
         # If the server is banned, don't let them do anything and return a message
         if server_id in self.banned_servers:
