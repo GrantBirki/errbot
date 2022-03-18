@@ -13,12 +13,12 @@ local:
 	@echo "\033[0;34m[#] Killing old docker processes\033[0m"
 	docker-compose down -v -t 1
 
-	@echo "\033[0;34m[#] Building docker containers\033[0m"
-	docker-compose build
-	@echo "\e[32m[#] TEST Container is now running!\e[0m"
+	@echo "\033[0;34m[#] Building and docker containers\033[0m"
+	LOCAL_TESTING=True docker-compose build
 	@echo "\e[32m[#] Interact with me over the CLI prompt below\e[0m"
-	docker run -it --rm --env-file config.env --env-file creds.env -e LOCAL_TESTING=True errbot_chatbot:latest
+	LOCAL_TESTING=True docker-compose run chatbot
 	@echo "\e[32m[#] Exiting and cleaning up :)\e[0m"
+	docker-compose down -v -t 1
 
 kube: # start a local minikube cluster for development
 	script/local-minikube

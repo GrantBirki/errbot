@@ -14,6 +14,8 @@ services:
       - ./creds.env
     depends_on:
       - localstack
+    environment:
+      - LOCAL_TESTING=${LOCAL_TESTING}
     # uncomment the volume lines below to enable the 'observability' stack
     # volumes:
     #   - log-volume:/app
