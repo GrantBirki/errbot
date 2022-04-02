@@ -307,7 +307,7 @@ class Eft(BotPlugin):
             "• `.eft status` - Get the current status of Escape from Tarkov servers\n\n"
         )
         body += "• `.eft track --item <item> --threshold <threshold> --channel <channel>` - Track an item and alert you when it rises to a price or by a certain percentage\n"
-        body += "• `.eft untrack <item> - Untrack an item being tracked for price alerts (use the same name you entered it with)\n"
+        body += "• `.eft untrack <item>` - Untrack an item being tracked for price alerts (use the same name you entered it with)\n"
         body += "**📓 Examples:**\n\n"
         body += "• `.eft ammo help` - View the help command for `.eft ammo`\n"
         body += (
@@ -969,7 +969,9 @@ class Eft(BotPlugin):
         :return: The result of the query (dict)
         :return: False if the request failed
         """
-        response = requests.post("https://tarkov.dev/graphql", json={"query": query})
+        response = requests.post(
+            "https://api.tarkov.dev/graphql", json={"query": query}
+        )
         if response.status_code == 200:
             return response.json()
         else:
