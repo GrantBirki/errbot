@@ -969,9 +969,7 @@ class Eft(BotPlugin):
         :return: The result of the query (dict)
         :return: False if the request failed
         """
-        response = requests.post(
-            "https://tarkov.dev/graphql", json={"query": query}
-        )
+        response = requests.post("https://tarkov.dev/graphql", json={"query": query})
         if response.status_code == 200:
             return response.json()
         else:
