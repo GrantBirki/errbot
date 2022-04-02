@@ -970,7 +970,7 @@ class Eft(BotPlugin):
         :return: False if the request failed
         """
         response = requests.post(
-            "https://tarkov-tools.com/graphql", json={"query": query}
+            "https://tarkov.dev/graphql", json={"query": query}
         )
         if response.status_code == 200:
             return response.json()
@@ -1085,7 +1085,7 @@ class Eft(BotPlugin):
 
     def status_query(self):
         """
-        Get the query structure for asking the tarkov-tools GraphQL for the eft status
+        Get the query structure for asking the tarkov.dev GraphQL for the eft status
         :return: String of the query structure for the status command
         """
         return """
