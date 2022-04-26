@@ -1,0 +1,9 @@
+[Core]
+Name = Covid 
+Module = covid 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Covid plugin 

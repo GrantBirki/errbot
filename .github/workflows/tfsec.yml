@@ -21,5 +21,5 @@ jobs:
           working_directory: terraform
           reporter: github-pr-review # Change reviewdog reporter
           filter_mode: nofilter
-          fail_on_error: true # Fail action if errors are found
+          fail_on_error: false # Don't fail for now
           tfsec_flags: "-e aws-dynamodb-table-customer-key,AZU009,AZU008"
