@@ -29,6 +29,7 @@ The following commands are all available via the chatbot:
 | `.status plugins` | - | View the status of the bot plugins | 🌎 |
 | `.stats` | - | Get the total stats for all the bot commands that have been used | 🌎 |
 | `.uptime` | - | View the bots "uptime" | 🌎 |
+| `.covid` | `.covid --region global` | Get covid statistics for a two letter country code `--region us|it|etc` | 🌎 |
 | `.insult` | `.insult @errbot` | Insult a given user. Great with friends! | 🌎 |
 | `.add me to league watcher` | `.add me to league watcher <summoner_name>` | Add a summoner to the League watcher to "watch" for their games and post messages in the #league channel | 🔒 |
 | `.remove me from league watcher` | - | Remove your summoner from the League watcher | 🔒 |
