@@ -69,9 +69,9 @@ class Weather(BotPlugin):
             return "☀️"
         if "clear" in desc:
             return "🌅"
-        elif "partly cloudly" in desc:
+        elif "partly cloudy" in desc:
             return "⛅"
-        elif "cloudly" in desc:
+        elif "cloudy" in desc:
             return "☁️"
         elif "rain" in desc:
             return "🌧"
