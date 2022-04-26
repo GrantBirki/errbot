@@ -18,41 +18,50 @@ class Weather(BotPlugin):
         Usage: .weather <city>
         Example: .weather denver
         """
-        ErrHelper().user(msg)
-        region = args.strip().replace(" ", "%20")
+        try:
+            ErrHelper().user(msg)
+            region = args.strip().replace(" ", "%20")
 
-        response = requests.get(WEATHER_URL + region)
+            response = requests.get(WEATHER_URL + region)
 
-        if response.status_code != 200:
-            return f"Error: {response.status_code}"
+            if response.status_code != 200:
+                return f"Error: {response.status_code}"
 
-        weather = response.json()
+            weather = response.json()
 
-        message = "**Current:\n**"
-        message += f"• Desc: {weather['description']}\n"
-        message += f"• Temp: {self.c_to_f(weather['temperature'])} °F\n"
-        message += f"• Wind: {self.km_to_mi(weather['wind'])} mph\n"
+            message = "**Current:\n**"
+            message += f"• Desc: {weather['description']}\n"
+            message += f"• Temp: {self.c_to_f(weather['temperature'])} °F\n"
+            message += f"• Wind: {self.km_to_mi(weather['wind'])} mph\n"
 
-        message += "\n***Forecast:***\n"
+            message += "\n***Forecast:***\n"
 
-        message += "**Tomorrow:**\n"
-        message += f"• Temp: {self.c_to_f(weather['forecast'][0]['temperature'])} °F\n"
-        message += f"• Wind: {self.km_to_mi(weather['forecast'][0]['wind'])} mph\n"
+            message += "**Tomorrow:**\n"
+            message += (
+                f"• Temp: {self.c_to_f(weather['forecast'][0]['temperature'])} °F\n"
+            )
+            message += f"• Wind: {self.km_to_mi(weather['forecast'][0]['wind'])} mph\n"
 
-        message += "**Next Day:**\n"
-        message += f"• Temp: {self.c_to_f(weather['forecast'][1]['temperature'])} °F\n"
-        message += f"• Wind: {self.km_to_mi(weather['forecast'][1]['wind'])} mph\n"
+            message += "**Next Day:**\n"
+            message += (
+                f"• Temp: {self.c_to_f(weather['forecast'][1]['temperature'])} °F\n"
+            )
+            message += f"• Wind: {self.km_to_mi(weather['forecast'][1]['wind'])} mph\n"
 
-        message += "**Next Next Day:**\n"
-        message += f"• Temp: {self.c_to_f(weather['forecast'][2]['temperature'])} °F\n"
-        message += f"• Wind: {self.km_to_mi(weather['forecast'][2]['wind'])} mph\n"
+            message += "**Next Next Day:**\n"
+            message += (
+                f"• Temp: {self.c_to_f(weather['forecast'][2]['temperature'])} °F\n"
+            )
+            message += f"• Wind: {self.km_to_mi(weather['forecast'][2]['wind'])} mph\n"
 
-        self.send_card(
-            title=f"Weather for {args} {self.weather_icon(weather['description'])}",
-            body=message,
-            color=chatutils.color("white"),
-            in_reply_to=msg,
-        )
+            self.send_card(
+                title=f"Weather for {args} {self.weather_icon(weather['description'])}",
+                body=message,
+                color=chatutils.color("white"),
+                in_reply_to=msg,
+            )
+        except:
+            return "❌ I could not process that location. This command is super buggy... sorry"
 
     def c_to_f(self, c):
         c = int(c.split(" ")[0])
