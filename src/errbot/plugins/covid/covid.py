@@ -6,7 +6,8 @@ chatutils = ChatUtils()
 
 DATA_URL = "https://corona.dnsforfamily.com/graph.png?c="
 
-class Covid(BotPlugin):  
+
+class Covid(BotPlugin):
     """Covid plugin for Errbot"""
 
     @arg_botcmd("--region", dest="region", default="us", type=str)
@@ -25,7 +26,7 @@ class Covid(BotPlugin):
         self.send_card(
             title="COVID-19 Statistics",
             body=f"Chart for: {region}",
-            image=f'{DATA_URL}{region}',
-            color = chatutils.color("white"),
+            image=f"{DATA_URL}{region}",
+            color=chatutils.color("white"),
             in_reply_to=msg,
         )
