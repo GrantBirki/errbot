@@ -36,6 +36,8 @@ In this guide you will find details about how the bot works, and how you can cre
 
 [**Click here**](https://discord.com/api/oauth2/authorize?client_id=943402285680189511&permissions=36734976&scope=bot) to invite errbot to your Discord server!
 
+> Note: The public version of errbot is no longer available. If you wish to use errbot, you must self host it on your own
+
 ## Community Discord 💬
 
 If you need help with development, have a question, new feature, or just want to test out the bot, you can join the [errbot community Discord](https://discord.gg/qvnxqyuVpM)
