@@ -14,7 +14,7 @@ pynamodb==5.1.0
 boto3==1.18.29
 
 # yt-dlp / youtube-dl
-yt-dlp==2021.11.10.1
+yt-dlp==2022.4.8
 
 # youtube string searching
 youtube-search-python==1.5.1
