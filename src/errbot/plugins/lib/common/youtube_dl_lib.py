@@ -6,7 +6,7 @@ from yt_dlp.utils import DownloadError
 
 
 class YtdlLib:
-    def __init__(self, max_length=600):
+    def __init__(self, max_length=1200):
         """
         Initialize the youtube_dl library
         :param max_length: the maximum length of a video in seconds (default 600 aka 10 minutes)
