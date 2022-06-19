@@ -137,7 +137,7 @@ class Remember(BotPlugin):
             ]
 
             # Get all the close matches to the search term
-            matches = util.close_matches(search_term, db_items_list, n=100)
+            matches = util.close_matches(search_term, db_items_list, n=100, cutoff=0.3)
 
             if not matches:
                 return f"🤔 I couldn't find anything for `{search_term}` - Please try refining your search"
