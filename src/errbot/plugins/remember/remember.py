@@ -98,6 +98,46 @@ class Remember(BotPlugin):
         else:
             return f"❌ Failed to forget about `{args}`!"
 
+    @botcmd
+    def rem_search(self, msg, args):
+        """
+        Search for something that is being remembered
+        """
+
+        guild_id = chatutils.guild_id(msg)
+
+        # If the message is a private message
+        if not guild_id:
+            return "Please run this command in a Discord channel, not a DM"
+
+        # Get all items in the database
+        db_items = dynamo.scan("remember")
+
+        # If there are no items, return
+        if not db_items:
+            return "🤔 I couldn't find anything in the `remember` database"
+
+        MAX_ITEMS_TO_DISPLAY = 20
+        counter = 0
+        message = ""
+        for record in db_items:
+            if guild_id != record["discord_server_id"]:
+                continue
+
+            if counter >= MAX_ITEMS_TO_DISPLAY:
+                message += f"\nAnd {len(db_items) - counter} more..."
+                break
+            message += f"• {record['rem_key']}\n"
+            counter += 1
+
+        return chatutils.send_card_helper(
+            bot_self=self,
+            title="🔍 Remember Search",
+            body=message,
+            color=chatutils.color("blue"),
+            in_reply_to=msg,
+        )
+
     def rem_regex(self, msg):
         """
         Create the key and value of the remember command from the message
