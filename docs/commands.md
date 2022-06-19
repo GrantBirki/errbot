@@ -53,6 +53,7 @@ The following commands are all available via the chatbot:
 | `.stop` | - | Stop the current song and nuke the whole `.play` queue | 🔒 |
 | `.rem` | `.rem <key> is <value>` | Have the bot remember something - Inspired by [hubot](https://github.com/github/hubot-scripts/blob/master/src/scripts/remember.coffee) under the MIT license | 🌎 |
 | `.forget` | `.forget <key>` | Make the bot forget something that is being remembered | 🌎 |
+| `.rem search` | `.rem search <key>` | Search all things being remembered | 🌎 |
 | `.remember` | `.rememeber <key> is <value>` | The "longform" version of the `.rem` command | 🌎 |
 | `.tts` | `.tts hello world! I will be read over text to speech` | Read a text message over text to speech in a voice channel (that you are connected to) | 🔒 |
 | `.echo` | `.echo hello` | A simple command to echo back a message (Like the Linux "echo" binary) | 🌎 |

@@ -27,15 +27,16 @@ class Util:
         """
         return int(datetime.utcnow().timestamp()) * 1000
 
-    def close_matches(self, word, patterns, cutoff=0.6):
+    def close_matches(self, word, patterns, cutoff=0.6, n=3):
         """
         Given a word and a list of possible patterns, return a list of close matches
         :param word: The word to search for (String)
         :param patterns: A list of possible patterns (List of Strings)
         :param cutoff: The cutoff to determine if a pattern is a match (Float)
+        :param n: The number of matches to return (Integer)
         :return: A list of close matches (List of Strings)
         """
-        return get_close_matches(word, patterns, cutoff=cutoff)
+        return get_close_matches(word, patterns, cutoff=cutoff, n=n)
 
     def iso_timestamp(self):
         """

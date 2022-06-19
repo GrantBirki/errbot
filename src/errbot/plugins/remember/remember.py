@@ -3,9 +3,13 @@ import re
 from lib.database.dynamo import Dynamo
 from lib.database.dynamo_tables import RememberTable
 from lib.chat.chatutils import ChatUtils
+from lib.common.utilities import Util
 
 dynamo = Dynamo()
 chatutils = ChatUtils()
+util = Util()
+
+MAX_SEARCH_ITEMS_TO_DISPLAY = 20
 
 
 class Remember(BotPlugin):
@@ -97,6 +101,92 @@ class Remember(BotPlugin):
             return f"✅ Ok {chatutils.mention_user(msg)}, I'll forget about `{args}` for you"
         else:
             return f"❌ Failed to forget about `{args}`!"
+
+    @botcmd
+    def rem_search(self, msg, args):
+        """
+        Search for something that is being remembered
+        .rem search or .rem search <text>
+        """
+
+        guild_id = chatutils.guild_id(msg)
+
+        # If the message is a private message
+        if not guild_id:
+            return "Please run this command in a Discord channel, not a DM"
+
+        # Get all items in the database
+        db_items = dynamo.scan("remember")
+
+        # If there are no items, return
+        if not db_items:
+            return "🤔 I couldn't find anything in the `remember` database"
+
+        # Check to see if there is a search term
+        pattern = r"(\.|!)(rem search)\s(.*)"
+        match = re.search(pattern, msg.body)
+        if match:
+            # Grab the search term from the regex query
+            search_term = match.group(3).strip()
+
+            # Get all items from the db in a list if the guild_id matches the discord_server_id
+            db_items_list = [
+                item["rem_key"]
+                for item in db_items
+                if item["discord_server_id"] == guild_id
+            ]
+
+            # Get all the close matches to the search term
+            matches = util.close_matches(search_term, db_items_list, n=100)
+
+            if not matches:
+                return f"🤔 I couldn't find anything for `{search_term}` - Please try refining your search"
+
+            # Loop through all the matches and display them
+            counter = 0
+            message = ""
+            for match in matches:
+                if counter >= MAX_SEARCH_ITEMS_TO_DISPLAY:
+                    message += f"\nAnd {len(matches) - counter} more..."
+                    break
+
+                message += f"• {match}\n"
+                counter += 1
+
+            # Return the message
+            return chatutils.send_card_helper(
+                bot_self=self,
+                title=f"🔍 Remember Search - `{search_term}`",
+                body=message,
+                color=chatutils.color("blue"),
+                in_reply_to=msg,
+            )
+        # If no search term was used, return all the items from the db for the search
+        else:
+            items = db_items
+
+        # Loop through all the saved rem items and return them
+        counter = 0
+        message = ""
+        for record in items:
+            if guild_id != record["discord_server_id"]:
+                continue
+
+            if counter >= MAX_SEARCH_ITEMS_TO_DISPLAY:
+                message += f"\nAnd {len(items) - counter} more..."
+                break
+
+            message += f"• {record['rem_key']}\n"
+            counter += 1
+
+        # Return the message
+        return chatutils.send_card_helper(
+            bot_self=self,
+            title="🔍 Remember Search",
+            body=message,
+            color=chatutils.color("blue"),
+            in_reply_to=msg,
+        )
 
     def rem_regex(self, msg):
         """
