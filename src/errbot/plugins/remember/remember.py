@@ -11,6 +11,7 @@ util = Util()
 
 MAX_SEARCH_ITEMS_TO_DISPLAY = 20
 
+
 class Remember(BotPlugin):
     """Remember plugin for Errbot"""
 
@@ -105,7 +106,7 @@ class Remember(BotPlugin):
     def rem_search(self, msg, args):
         """
         Search for something that is being remembered
-        .rem search or .rem search <text> 
+        .rem search or .rem search <text>
         """
 
         guild_id = chatutils.guild_id(msg)
