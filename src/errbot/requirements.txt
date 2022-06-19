@@ -1,5 +1,5 @@
 # errbot
-errbot==6.1.8
+errbot==6.1.9
 
 # league
 riotwatcher==3.1.3
