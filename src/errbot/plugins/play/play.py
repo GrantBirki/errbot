@@ -472,8 +472,8 @@ class Play(BotPlugin):
         if not validators.url(url):
             yield f"❌ Invalid URL\n{url}"
             return
-        if not url.startswith("https://www.youtube.com/"):
-            yield "❌ I only accept URLs that start with `https://www.youtube.com/`"
+        if not url.startswith("https://www.youtube.com/") or not url.startswith("https://soundcloud.com/"):
+            yield "❌ I only accept URLs that start with `https://www.youtube.com/` or `https://soundcloud.com/`"
             return
 
         # Get all the metadata for a given video from a URL
@@ -833,13 +833,13 @@ class Play(BotPlugin):
 
         # Check if the user is attempting a text search with --channel
         # This could lead to a random song playing so we actively prevent it
-        if "--channel" in args and not "https://www.youtube.com" in args:
+        if "--channel" in args and (not "https://www.youtube.com" in args or not "https://soundcloud.com" in args):
             return False
 
         # If the --channel flag was used, check for the URL with different regex patterns
         if "--channel" in args:
             # First, check if the --channel flag is present at the end of the string
-            pattern = r"^(https:\/\/www\.youtube\.com\/.*)\s--channel\s(\d+)$"
+            pattern = r"^(https:\/\/www\.youtube\.com\/.*|https:\/\/soundcloud.com\/.*)\s--channel\s(\d+)$"
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
@@ -849,7 +849,7 @@ class Play(BotPlugin):
                 return regex_result
 
             # Second, check if the --channel flag is present at the beginning of the string
-            pattern = r"^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*)$"
+            pattern = r"^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*|https:\/\/soundcloud\.com\/.*)$"
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
@@ -860,7 +860,7 @@ class Play(BotPlugin):
 
         # If the --channel flag was not used, we first look for the URL
         else:
-            pattern = r"^(https:\/\/www\.youtube\.com\/.*)$"
+            pattern = r"^(https:\/\/www\.youtube\.com\/.*|https:\/\/soundcloud\.com\/.*)$"
             match = re.search(pattern, args)
             # If a match was found, return the URL
             if match:
