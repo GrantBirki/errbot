@@ -479,7 +479,10 @@ class Play(BotPlugin):
         if not validators.url(url):
             yield f"❌ Invalid URL\n{url}"
             return
-        if not (url.startswith("https://www.youtube.com/") or url.startswith("https://soundcloud.com/")):
+        if not (
+            url.startswith("https://www.youtube.com/")
+            or url.startswith("https://soundcloud.com/")
+        ):
             yield "❌ I only accept URLs that start with `https://www.youtube.com/` or `https://soundcloud.com/`"
             return
 
@@ -498,7 +501,7 @@ class Play(BotPlugin):
             if length > ytdl.max_length:
                 yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
                 return
-        
+
         # Logic for SoundCloud URLs which constructs a custom song_metadata object
         if url.startswith("https://soundcloud.com/"):
             song_metadata = {
@@ -524,7 +527,7 @@ class Play(BotPlugin):
 
         # If the link for soundcloud, do some extra processing for the song_metadata
         if url.startswith("https://soundcloud.com/"):
-            song_metadata["duration"] = dc.get_audio_file_duration(result['path'])
+            song_metadata["duration"] = dc.get_audio_file_duration(result["path"])
             song_metadata["webpage_url"] = url
 
         # Check if there are any files in the queue
@@ -558,8 +561,8 @@ class Play(BotPlugin):
             msg,
             channel,
             song_metadata,
-            result['path'],
-            result['song_uuid'],
+            result["path"],
+            result["song_uuid"],
             regex_result,
             queue_position=queue_position,
         )
@@ -852,7 +855,10 @@ class Play(BotPlugin):
 
         # Check if the user is attempting a text search with --channel
         # This could lead to a random song playing so we actively prevent it
-        if "--channel" in args and (not "https://www.youtube.com" in args or not "https://soundcloud.com" in args):
+        if "--channel" in args and (
+            not "https://www.youtube.com" in args
+            or not "https://soundcloud.com" in args
+        ):
             return False
 
         # If the --channel flag was used, check for the URL with different regex patterns
@@ -879,7 +885,9 @@ class Play(BotPlugin):
 
         # If the --channel flag was not used, we first look for the URL
         else:
-            pattern = r"^(https:\/\/www\.youtube\.com\/.*|https:\/\/soundcloud\.com\/.*)$"
+            pattern = (
+                r"^(https:\/\/www\.youtube\.com\/.*|https:\/\/soundcloud\.com\/.*)$"
+            )
             match = re.search(pattern, args)
             # If a match was found, return the URL
             if match:
@@ -987,15 +995,15 @@ class Play(BotPlugin):
         song_uuid = str(uuid.uuid4())
 
         # Logic for soundcloud
-        if url.startswith('https://soundcloud.com/'):
+        if url.startswith("https://soundcloud.com/"):
             result = scdl.download(url, song_uuid)
             if result["result"] == False:
                 raise Exception(result["message"])
             else:
                 file_path = result["path"]
 
-        # Logic for youtube    
-        elif url.startswith('https://www.youtube.com/'):
+        # Logic for youtube
+        elif url.startswith("https://www.youtube.com/"):
             file_path = ytdl.download_audio(url, file_name=song_uuid)
 
         return {"path": file_path, "song_uuid": song_uuid}

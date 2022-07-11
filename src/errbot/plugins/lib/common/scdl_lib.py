@@ -1,11 +1,13 @@
 import subprocess
 import uuid
 
+
 class Scdl:
     """
     Class which calls the scdl command line tool to download songs from soundcloud
     """
-    def __init__(self, path="plugins/play/audio", max_size='15mb'):
+
+    def __init__(self, path="plugins/play/audio", max_size="15mb"):
         """
         Initialize the scdl library
         :param max_length: the maximum length of a song in mb (default 15mb)
@@ -42,7 +44,7 @@ class Scdl:
                 "-l",
                 url,
             ],
-            encoding='utf-8',
+            encoding="utf-8",
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
@@ -51,13 +53,13 @@ class Scdl:
         message = stdout.strip()
 
         # If the message is not blank, it means there was an error
-        if message != '':
+        if message != "":
             # If the URL was not valid, return a message
-            if 'URL is not valid' in message:
+            if "URL is not valid" in message:
                 return {
-                    'file_path': None,
-                    'message': 'URL is not valid',
-                    'result': False,
+                    "file_path": None,
+                    "message": "URL is not valid",
+                    "result": False,
                 }
             # In any other case, return the error message
             return {
