@@ -39,7 +39,7 @@ class Scdl(BotPlugin):
 
         # Check to ensure the user provided some form of arguments
         if len(args) == 0:
-            yield "⚠ No arguments provided! - Use the `.scdl help` command for examples"
+            yield "⚠ No arguments provided!"
             return
 
         # Attempt to parse the URL from the args
