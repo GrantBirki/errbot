@@ -320,9 +320,9 @@ class DiscordCustom:
 
     def get_audio_file_duration(self, file):
         """
-        Get's the audio file duration in seconds as a float
+        Get's the audio file duration in seconds as a int
         :param file: The path to the file to get the duration of
-        :return: the duration of the file in seconds (float)
+        :return: the duration of the file in seconds (int)
         """
         # Use native FFMPEG to get the duration of the file
         process = subprocess.Popen(
@@ -340,7 +340,7 @@ class DiscordCustom:
             stderr=subprocess.STDOUT,
         )
         stdout, _ = process.communicate()
-        return float(stdout)
+        return int(round(float(stdout)))
 
     async def __play_audio_file_runner(self, channel_id, file, file_duration):
         """
