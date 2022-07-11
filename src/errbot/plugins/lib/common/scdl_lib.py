@@ -2,6 +2,9 @@ import subprocess
 import uuid
 
 class Scdl:
+    """
+    Class which calls the scdl command line tool to download songs from soundcloud
+    """
     def __init__(self, path="plugins/play/audio", max_size='15mb'):
         """
         Initialize the scdl library
