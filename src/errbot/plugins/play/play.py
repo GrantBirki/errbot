@@ -153,7 +153,8 @@ class Play(BotPlugin):
             "• Option: `--queue <number>` - The position in the queue to add the song\n"
         )
         message += "• Example: `.play never gonna give you up`\n"
-        message += "• Example: `.play https://www.youtube.com/watch?v=dQw4w9WgXcQ`\n\n"
+        message += "• Example: `.play https://www.youtube.com/watch?v=dQw4w9WgXcQ`\n"
+        message += f"• Example: `.play {SOUNDCLOUD_BASE_URL}user-name/song-name`\n\n"
 
         # .play next
         message += "**`.play next`** - Add a song to the queue and play it 'next'\n"
