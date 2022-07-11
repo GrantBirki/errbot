@@ -12,6 +12,7 @@ from lib.chat.discord_custom import DiscordCustom
 from lib.common.errhelper import ErrHelper
 from lib.common.utilities import Util
 from lib.common.youtube_dl_lib import YtdlLib
+from lib.common.scdl_lib import Scdl
 from lib.database.dynamo_tables import PlayTable
 from lib.database.dynamo import Dynamo
 from requests import ReadTimeout
@@ -21,12 +22,15 @@ from youtubesearchpython import VideosSearch
 util = Util()
 chatutils = ChatUtils()
 ytdl = YtdlLib()
+scdl = Scdl()
 dynamo = Dynamo()
 
 CRON_INTERVAL = 2  # seconds
 QUEUE_PATH = "plugins/play/queue"
 KILL_SWITCH_PATH = "plugins/lib/chat/dc_kill_switches"
 QUEUE_ERROR_MSG_READ = f"❌ An error occurring reading the .play queue!"
+SOUNDCLOUD_BASE_URL = "https://soundcloud.com/"
+YOUTUBE_BASE_URL = "https://www.youtube.com/"
 
 SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID", None)
 SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET", None)
@@ -149,7 +153,8 @@ class Play(BotPlugin):
             "• Option: `--queue <number>` - The position in the queue to add the song\n"
         )
         message += "• Example: `.play never gonna give you up`\n"
-        message += "• Example: `.play https://www.youtube.com/watch?v=dQw4w9WgXcQ`\n\n"
+        message += "• Example: `.play https://www.youtube.com/watch?v=dQw4w9WgXcQ`\n"
+        message += f"• Example: `.play {SOUNDCLOUD_BASE_URL}user-name/song-name`\n\n"
 
         # .play next
         message += "**`.play next`** - Add a song to the queue and play it 'next'\n"
@@ -197,9 +202,14 @@ class Play(BotPlugin):
     @botcmd
     def play(self, msg, args):
         """
-        Play the audio from a YouTube video in chat!
+        Play the audio from a YouTube video or soundcloud song in chat!
 
-        Usage: .play <youtube url>
+        Usage: .play <youtube url | soundcloud url>
+
+        Examples:
+          - .play https://www.youtube.com/watch?v=dQw4w9WgXcQ
+          - .play never gonna give you up
+          - .play https://soundcloud.com/user-name/song-name
 
         --channel <channel ID> - Optional: The full channel id to play the video/audio in
         Note: Use the --channel flag if you are not in a voice channel or want to play in a specific channel
@@ -472,23 +482,37 @@ class Play(BotPlugin):
         if not validators.url(url):
             yield f"❌ Invalid URL\n{url}"
             return
-        if not url.startswith("https://www.youtube.com/"):
-            yield "❌ I only accept URLs that start with `https://www.youtube.com/`"
+        if not (
+            url.startswith(YOUTUBE_BASE_URL) or url.startswith(SOUNDCLOUD_BASE_URL)
+        ):
+            yield f"❌ I only accept URLs that start with `{YOUTUBE_BASE_URL}` or `{SOUNDCLOUD_BASE_URL}`"
             return
+        if url.startswith(SOUNDCLOUD_BASE_URL):
+            if "/sets/" in url:
+                yield "❌ I do not support Soundcloud sets/playlists"
+                return
 
-        # Get all the metadata for a given video from a URL
-        video_metadata = ytdl.video_metadata(url)
+        # Logic for YouTube URLs to check length
+        if url.startswith(YOUTUBE_BASE_URL):
+            # Get all the metadata for a given video from a URL
+            song_metadata = ytdl.video_metadata(url)
 
-        length = video_metadata["duration"]
-        # If the length is 0 it is probably a live stream
-        if length == 0:
-            yield f"❌ Cannot play a live stream from YouTube"
-            return
+            length = song_metadata["duration"]
+            # If the length is 0 it is probably a live stream
+            if length == 0:
+                yield f"❌ Cannot play a live stream from YouTube"
+                return
 
-        # If the video is greater than the configured max length, don't play it
-        if length > ytdl.max_length:
-            yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
-            return
+            # If the video is greater than the configured max length, don't play it
+            if length > ytdl.max_length:
+                yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
+                return
+
+        # Logic for SoundCloud URLs which constructs a custom song_metadata object
+        if url.startswith(SOUNDCLOUD_BASE_URL):
+            song_metadata = {
+                "title": url.replace(SOUNDCLOUD_BASE_URL, ""),
+            }
 
         # If the --channel flag was not provided, use the channel the user is in as the .play target channel
         if channel is None:
@@ -504,9 +528,13 @@ class Play(BotPlugin):
             channel = channel_dict["channel_id"]
 
         # Pre-Download the file for the queue
-        yield f"📂 Downloading: `{video_metadata['title']}`"
-        song_uuid = str(uuid.uuid4())
-        file_path = ytdl.download_audio(url, file_name=song_uuid)
+        yield f"📂 Downloading: `{song_metadata['title']}`"
+        result = self.download(url)
+
+        # If the link for soundcloud, do some extra processing for the song_metadata
+        if url.startswith(SOUNDCLOUD_BASE_URL):
+            song_metadata["duration"] = dc.get_audio_file_duration(result["path"])
+            song_metadata["webpage_url"] = url
 
         # Check if there are any files in the queue
         queue_items = self.read_queue(chatutils.guild_id(msg))
@@ -517,30 +545,30 @@ class Play(BotPlugin):
 
         # If the queue is empty, change the response message
         if len(queue_items) == 0:
-            response_message = f"🎵 Now playing: `{video_metadata['title']}`"
+            response_message = f"🎵 Now playing: `{song_metadata['title']}`"
         # If the queue is 1 item, let the user know their song is up next
         elif len(queue_items) == 1:
             response_message = (
-                f"💃🕺💃 Added to queue: `{video_metadata['title']}` - Up next!"
+                f"💃🕺💃 Added to queue: `{song_metadata['title']}` - Up next!"
             )
         # If the queue is not empty, change the response message to 'added'
         else:
             # If there is no queue position provided, add the song to the end of the queue
             if queue_position is None:
-                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
+                response_message = f"💃🕺💃 Added to queue: `{song_metadata['title']}`"
             # If the user provided a queue position, give details about its position
             else:
                 # Lists start at 0, so we add one to make it more human readable
                 queue_number = queue_position + 1
-                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}` - Queue #: `{queue_number}`"
+                response_message = f"💃🕺💃 Added to queue: `{song_metadata['title']}` - Queue #: `{queue_number}`"
 
         # If the queue file is ready, we can add the song to the queue
         add_result = self.add_to_queue(
             msg,
             channel,
-            video_metadata,
-            file_path,
-            song_uuid,
+            song_metadata,
+            result["path"],
+            result["song_uuid"],
             regex_result,
             queue_position=queue_position,
         )
@@ -663,7 +691,7 @@ class Play(BotPlugin):
         self,
         msg,
         channel,
-        video_metadata,
+        song_metadata,
         file_name,
         song_uuid,
         regex_result,
@@ -673,7 +701,7 @@ class Play(BotPlugin):
         Helper function - Add a song to the .play queue
         :param msg: The message object (discord.Message)
         :param channel: The channel (int)
-        :param video_metadata: The video metadata (dict)
+        :param song_metadata: The video metadata (dict)
         :param file_name: The file name of the song (string)
         :param song_uuid: The song UUID (string)
         :param regex_result: The regex result (dict)
@@ -684,10 +712,10 @@ class Play(BotPlugin):
 
         # Truncate long song titles
         title_length = 40
-        if len(video_metadata["title"]) > title_length:
-            song = video_metadata["title"][:title_length] + "..."
+        if len(song_metadata["title"]) > title_length:
+            song = song_metadata["title"][:title_length] + "..."
         else:
-            song = video_metadata["title"]
+            song = song_metadata["title"]
 
         queue_item = {
             "guild_id": chatutils.guild_id(msg),
@@ -695,8 +723,8 @@ class Play(BotPlugin):
             "discord_channel_id": channel,
             "song_uuid": song_uuid,
             "song": song,
-            "song_duration": video_metadata["duration"],
-            "url": video_metadata["webpage_url"],
+            "song_duration": song_metadata["duration"],
+            "url": song_metadata["webpage_url"],
             "file_path": file_name,
             "text_search": regex_result["text_search"],
         }
@@ -833,13 +861,15 @@ class Play(BotPlugin):
 
         # Check if the user is attempting a text search with --channel
         # This could lead to a random song playing so we actively prevent it
-        if "--channel" in args and not "https://www.youtube.com" in args:
+        if "--channel" in args and (
+            not YOUTUBE_BASE_URL in args or not SOUNDCLOUD_BASE_URL in args
+        ):
             return False
 
         # If the --channel flag was used, check for the URL with different regex patterns
         if "--channel" in args:
             # First, check if the --channel flag is present at the end of the string
-            pattern = r"^(https:\/\/www\.youtube\.com\/.*)\s--channel\s(\d+)$"
+            pattern = r"^(https:\/\/www\.youtube\.com\/.*|https:\/\/soundcloud.com\/.*)\s--channel\s(\d+)$"
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
@@ -849,7 +879,7 @@ class Play(BotPlugin):
                 return regex_result
 
             # Second, check if the --channel flag is present at the beginning of the string
-            pattern = r"^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*)$"
+            pattern = r"^--channel\s(\d+)\s(https:\/\/www\.youtube\.com\/.*|https:\/\/soundcloud\.com\/.*)$"
             match = re.search(pattern, args)
             # If there is a match, we have the data we need and can return
             if match:
@@ -860,7 +890,9 @@ class Play(BotPlugin):
 
         # If the --channel flag was not used, we first look for the URL
         else:
-            pattern = r"^(https:\/\/www\.youtube\.com\/.*)$"
+            pattern = (
+                r"^(https:\/\/www\.youtube\.com\/.*|https:\/\/soundcloud\.com\/.*)$"
+            )
             match = re.search(pattern, args)
             # If a match was found, return the URL
             if match:
@@ -956,6 +988,30 @@ class Play(BotPlugin):
         except Exception as e:
             ErrHelper().capture(e)
             return False
+
+    def download(self, url):
+        """
+        Helper function for downloading a song from either youtube or soundcloud
+        :param url: The URL to download the song from
+        :return: An object containing the 'path' and 'song_uuid'
+        """
+
+        # Generate a random file name
+        song_uuid = str(uuid.uuid4())
+
+        # Logic for soundcloud
+        if url.startswith(SOUNDCLOUD_BASE_URL):
+            result = scdl.download(url, song_uuid)
+            if result["result"] == False:
+                raise Exception(result["message"])
+            else:
+                file_path = result["path"]
+
+        # Logic for youtube
+        elif url.startswith(YOUTUBE_BASE_URL):
+            file_path = ytdl.download_audio(url, file_name=song_uuid)
+
+        return {"path": file_path, "song_uuid": song_uuid}
 
     def fmt_play_time(self, play_time):
         """

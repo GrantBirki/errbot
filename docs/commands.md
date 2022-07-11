@@ -45,7 +45,7 @@ The following commands are all available via the chatbot:
 | `.loud` | `.loud rickroll.mp3` | Play a very loud sound from the sounds folder on the bot | 🔒 |
 | `.loud list` | - | List all the mp3 sound files which can be used by the `.loud` command | 🌎 |
 | `.loud random` | - | Play a random sound from the sounds folder on the bot | 🌎 |
-| `.play` | `.play <youtube_url>` | Play a song, or sound from YouTube - Optionally use `--queue <number>` to select the queue position to play the song | 🔒 |
+| `.play` | `.play <youtube_url | soundcloud_url>` | Play a song, or sound from YouTube or Soundcloud - Optionally use `--queue <number>` to select the queue position to play the song | 🔒 |
 | `.play help` | - | View a detailed and pretty help command for `.play` | 🔒 |
 | `.play queue` | - | See what is in the `.play` queue | 🔒 |
 | `.play stats` | - | See the all time stats for the `.play` command in your server | 🔒 |

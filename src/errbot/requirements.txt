@@ -16,6 +16,9 @@ boto3==1.18.29
 # yt-dlp / youtube-dl
 yt-dlp==2022.4.8
 
+# soundcloud downloader
+scdl==2.7.1
+
 # youtube string searching
 youtube-search-python==1.5.1
 
