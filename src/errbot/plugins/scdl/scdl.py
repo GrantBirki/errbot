@@ -1,4 +1,5 @@
 import uuid
+import os
 
 from errbot import BotPlugin, botcmd
 from lib.chat.chatutils import ChatUtils
@@ -18,11 +19,13 @@ class Scdl(BotPlugin):
     @botcmd
     def scdl(self, msg, args):  
         """
-        The most basic example of a chatbot command/function
-        Tip: The name of the function above is literally how you invoke the chatop: .scdl
-        Pro Tip: "_" in function names render as spaces so you can do 'def send_scdl(...)' -> .send scdl
+        Soundcloud music downloader
+        
+        Usage: .scdl <soundcloud_song_url>
         """
         ErrHelper().user(msg)
+        if chatutils.locked(msg, self):
+            return
 
         guild_id = chatutils.guild_id(msg)
 
@@ -57,6 +60,7 @@ class Scdl(BotPlugin):
         song_uuid = str(uuid.uuid4())
 
         # Attempt to download the song from soundcloud with scdl
+        yield f"📂 Downloading with scdl: `{url.replace(SOUNDCLOUD_BASE_URL, '')}`\nFilename: `{song_uuid}.mp3`"
         result = scdl.download(url, song_uuid)
         if result["result"] == False:
             raise Exception(result["message"])
@@ -66,5 +70,8 @@ class Scdl(BotPlugin):
         # Send the file
         dc.send_file(channel_id, file_path)
 
-        yield "Done"
+        # Delete the file after it has been uploaded
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
         return
