@@ -197,9 +197,14 @@ class Play(BotPlugin):
     @botcmd
     def play(self, msg, args):
         """
-        Play the audio from a YouTube video in chat!
+        Play the audio from a YouTube video or soundcloud song in chat!
 
-        Usage: .play <youtube url>
+        Usage: .play <youtube url | soundcloud url>
+
+        Examples:
+          - .play https://www.youtube.com/watch?v=dQw4w9WgXcQ
+          - .play never gonna give you up
+          - .play https://soundcloud.com/user-name/song-name
 
         --channel <channel ID> - Optional: The full channel id to play the video/audio in
         Note: Use the --channel flag if you are not in a voice channel or want to play in a specific channel
