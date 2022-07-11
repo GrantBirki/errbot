@@ -10,10 +10,10 @@ class Scdl:
     def __init__(self, path="plugins/play/audio", max_size="15mb"):
         """
         Initialize the scdl library
-        :param max_length: the maximum length of a song in mb (default 15mb)
+        :param max_size: the maximum size of a song in mb (default 15mb)
         """
         self.path = path
-        self.max_length = max_size
+        self.max_size = max_size
 
     def download(self, url, file_name=None):
         """
@@ -36,7 +36,7 @@ class Scdl:
                 "--overwrite",
                 "--onlymp3",
                 "--max-size",
-                self.max_length,
+                self.max_size,
                 "--path",
                 self.path,
                 "--name-format",
@@ -60,6 +60,12 @@ class Scdl:
                     "file_path": None,
                     "message": "URL is not valid",
                     "result": False,
+                }
+            if "File not within --min-size and --max-size bounds" in message:
+                return {
+                    "file_path": None,
+                    "message": f"File exceeds max size of {self.max_size}",
+                    "result": False
                 }
             # In any other case, return the error message
             return {
