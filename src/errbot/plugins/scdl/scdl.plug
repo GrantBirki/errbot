@@ -1,0 +1,9 @@
+[Core]
+Name = Scdl 
+Module = scdl 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Scdl plugin 

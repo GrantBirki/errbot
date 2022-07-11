@@ -121,16 +121,16 @@ class DiscordCustom:
         member_ids = channel.voice_states.keys()
         return list(member_ids)
 
-    def send_file(self, channel_id, file, content=None):
+    def send_file(self, channel_id, file, content=None, max_file_size=5242880):
         """
         Send a file to a Discord channel
         :param channel_id: the channel to send the file to (int)
         :param file: the file to send (path)
         :param content: the content/message to send with the file (str) - (optional)
+        :param max_file_size: the max file size to upload in bytes (default: 5242880 -> 5MB)
         :return: False if the file size is too large
         """
         # Check the file size
-        max_file_size = 5242880  # 5MB
         file_size = os.path.getsize(file)
         if file_size > max_file_size:
             return False

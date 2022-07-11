@@ -51,6 +51,7 @@ The following commands are all available via the chatbot:
 | `.play stats` | - | See the all time stats for the `.play` command in your server | 🔒 |
 | `.skip` | - | Skip the current song playing / at the top of the queue | 🔒 |
 | `.stop` | - | Stop the current song and nuke the whole `.play` queue | 🔒 |
+| `.scdl` | `.scdl <soundcloud_song_url>` | Uses scdl to download any song from soundcloud | 🔒 |
 | `.rem` | `.rem <key> is <value>` | Have the bot remember something - Inspired by [hubot](https://github.com/github/hubot-scripts/blob/master/src/scripts/remember.coffee) under the MIT license | 🌎 |
 | `.forget` | `.forget <key>` | Make the bot forget something that is being remembered | 🌎 |
 | `.rem search` | `.rem search <key>` | Search all things being remembered | 🌎 |
