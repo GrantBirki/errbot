@@ -1,5 +1,6 @@
-import uuid
 import os
+import time
+import uuid
 
 from errbot import BotPlugin, botcmd
 from lib.chat.chatutils import ChatUtils
@@ -12,6 +13,7 @@ scdl = Scdl(path="plugins/scdl/downloads")
 
 MAX_FILE_SIZE = 15728640 # 15MB
 SOUNDCLOUD_BASE_URL = "https://soundcloud.com/"
+DOWNLOAD_WAIT = 60 # seconds
 
 class Scdl(BotPlugin):  
     """Scdl plugin for Errbot"""
@@ -70,7 +72,8 @@ class Scdl(BotPlugin):
         # Send the file
         dc.send_file(channel_id, file_path)
 
-        # Delete the file after it has been uploaded
+        # Delete the file after it has been uploaded - But first, sleep for 30 seconds so it can download
+        time.sleep(DOWNLOAD_WAIT)
         if os.path.exists(file_path):
             os.remove(file_path)
 
