@@ -11,18 +11,19 @@ from lib.common.scdl_lib import Scdl
 chatutils = ChatUtils()
 scdl = Scdl(path="plugins/scdl/downloads")
 
-MAX_FILE_SIZE = 15728640 # 15MB
+MAX_FILE_SIZE = 15728640  # 15MB
 SOUNDCLOUD_BASE_URL = "https://soundcloud.com/"
-DOWNLOAD_WAIT = 60 # seconds
+DOWNLOAD_WAIT = 60  # seconds
 
-class Scdl(BotPlugin):  
+
+class Scdl(BotPlugin):
     """Scdl plugin for Errbot"""
 
     @botcmd
-    def scdl(self, msg, args):  
+    def scdl(self, msg, args):
         """
         Soundcloud music downloader
-        
+
         Usage: .scdl <soundcloud_song_url>
         """
         ErrHelper().user(msg)

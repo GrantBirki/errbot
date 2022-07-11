@@ -65,7 +65,7 @@ class Scdl:
                 return {
                     "file_path": None,
                     "message": f"File exceeds max size of {self.max_size}",
-                    "result": False
+                    "result": False,
                 }
             # In any other case, return the error message
             return {
