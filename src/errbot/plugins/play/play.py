@@ -509,7 +509,7 @@ class Play(BotPlugin):
             channel = channel_dict["channel_id"]
 
         # Pre-Download the file for the queue
-        yield f"📂 Downloading: `{video_metadata['title']}`"
+        yield f"📂 Downloading: `{song_metadata['title']}`"
         song_uuid = str(uuid.uuid4())
         file_path = ytdl.download_audio(url, file_name=song_uuid)
 
@@ -522,28 +522,28 @@ class Play(BotPlugin):
 
         # If the queue is empty, change the response message
         if len(queue_items) == 0:
-            response_message = f"🎵 Now playing: `{video_metadata['title']}`"
+            response_message = f"🎵 Now playing: `{song_metadata['title']}`"
         # If the queue is 1 item, let the user know their song is up next
         elif len(queue_items) == 1:
             response_message = (
-                f"💃🕺💃 Added to queue: `{video_metadata['title']}` - Up next!"
+                f"💃🕺💃 Added to queue: `{song_metadata['title']}` - Up next!"
             )
         # If the queue is not empty, change the response message to 'added'
         else:
             # If there is no queue position provided, add the song to the end of the queue
             if queue_position is None:
-                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}`"
+                response_message = f"💃🕺💃 Added to queue: `{song_metadata['title']}`"
             # If the user provided a queue position, give details about its position
             else:
                 # Lists start at 0, so we add one to make it more human readable
                 queue_number = queue_position + 1
-                response_message = f"💃🕺💃 Added to queue: `{video_metadata['title']}` - Queue #: `{queue_number}`"
+                response_message = f"💃🕺💃 Added to queue: `{song_metadata['title']}` - Queue #: `{queue_number}`"
 
         # If the queue file is ready, we can add the song to the queue
         add_result = self.add_to_queue(
             msg,
             channel,
-            video_metadata,
+            song_metadata,
             file_path,
             song_uuid,
             regex_result,
@@ -668,7 +668,7 @@ class Play(BotPlugin):
         self,
         msg,
         channel,
-        video_metadata,
+        song_metadata,
         file_name,
         song_uuid,
         regex_result,
@@ -678,7 +678,7 @@ class Play(BotPlugin):
         Helper function - Add a song to the .play queue
         :param msg: The message object (discord.Message)
         :param channel: The channel (int)
-        :param video_metadata: The video metadata (dict)
+        :param song_metadata: The video metadata (dict)
         :param file_name: The file name of the song (string)
         :param song_uuid: The song UUID (string)
         :param regex_result: The regex result (dict)
@@ -689,10 +689,10 @@ class Play(BotPlugin):
 
         # Truncate long song titles
         title_length = 40
-        if len(video_metadata["title"]) > title_length:
-            song = video_metadata["title"][:title_length] + "..."
+        if len(song_metadata["title"]) > title_length:
+            song = song_metadata["title"][:title_length] + "..."
         else:
-            song = video_metadata["title"]
+            song = song_metadata["title"]
 
         queue_item = {
             "guild_id": chatutils.guild_id(msg),
@@ -700,8 +700,8 @@ class Play(BotPlugin):
             "discord_channel_id": channel,
             "song_uuid": song_uuid,
             "song": song,
-            "song_duration": video_metadata["duration"],
-            "url": video_metadata["webpage_url"],
+            "song_duration": song_metadata["duration"],
+            "url": song_metadata["webpage_url"],
             "file_path": file_name,
             "text_search": regex_result["text_search"],
         }
