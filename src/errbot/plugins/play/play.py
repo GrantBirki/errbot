@@ -29,6 +29,8 @@ CRON_INTERVAL = 2  # seconds
 QUEUE_PATH = "plugins/play/queue"
 KILL_SWITCH_PATH = "plugins/lib/chat/dc_kill_switches"
 QUEUE_ERROR_MSG_READ = f"❌ An error occurring reading the .play queue!"
+SOUNDCLOUD_BASE_URL = "https://soundcloud.com/"
+YOUTUBE_BASE_URL = "https://www.youtube.com/"
 
 SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID", None)
 SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET", None)
@@ -480,14 +482,17 @@ class Play(BotPlugin):
             yield f"❌ Invalid URL\n{url}"
             return
         if not (
-            url.startswith("https://www.youtube.com/")
-            or url.startswith("https://soundcloud.com/")
+            url.startswith(YOUTUBE_BASE_URL) or url.startswith(SOUNDCLOUD_BASE_URL)
         ):
-            yield "❌ I only accept URLs that start with `https://www.youtube.com/` or `https://soundcloud.com/`"
+            yield f"❌ I only accept URLs that start with `{YOUTUBE_BASE_URL}` or `{SOUNDCLOUD_BASE_URL}`"
             return
+        if url.startswith(SOUNDCLOUD_BASE_URL):
+            if "/sets/" in url:
+                yield "❌ I do not support Soundcloud sets/playlists"
+                return
 
         # Logic for YouTube URLs to check length
-        if url.startswith("https://www.youtube.com/"):
+        if url.startswith(YOUTUBE_BASE_URL):
             # Get all the metadata for a given video from a URL
             song_metadata = ytdl.video_metadata(url)
 
@@ -503,9 +508,9 @@ class Play(BotPlugin):
                 return
 
         # Logic for SoundCloud URLs which constructs a custom song_metadata object
-        if url.startswith("https://soundcloud.com/"):
+        if url.startswith(SOUNDCLOUD_BASE_URL):
             song_metadata = {
-                "title": url.replace("https://soundcloud.com/", ""),
+                "title": url.replace(SOUNDCLOUD_BASE_URL, ""),
             }
 
         # If the --channel flag was not provided, use the channel the user is in as the .play target channel
@@ -526,7 +531,7 @@ class Play(BotPlugin):
         result = self.download(url)
 
         # If the link for soundcloud, do some extra processing for the song_metadata
-        if url.startswith("https://soundcloud.com/"):
+        if url.startswith(SOUNDCLOUD_BASE_URL):
             song_metadata["duration"] = dc.get_audio_file_duration(result["path"])
             song_metadata["webpage_url"] = url
 
@@ -856,8 +861,7 @@ class Play(BotPlugin):
         # Check if the user is attempting a text search with --channel
         # This could lead to a random song playing so we actively prevent it
         if "--channel" in args and (
-            not "https://www.youtube.com" in args
-            or not "https://soundcloud.com" in args
+            not YOUTUBE_BASE_URL in args or not SOUNDCLOUD_BASE_URL in args
         ):
             return False
 
@@ -995,7 +999,7 @@ class Play(BotPlugin):
         song_uuid = str(uuid.uuid4())
 
         # Logic for soundcloud
-        if url.startswith("https://soundcloud.com/"):
+        if url.startswith(SOUNDCLOUD_BASE_URL):
             result = scdl.download(url, song_uuid)
             if result["result"] == False:
                 raise Exception(result["message"])
@@ -1003,7 +1007,7 @@ class Play(BotPlugin):
                 file_path = result["path"]
 
         # Logic for youtube
-        elif url.startswith("https://www.youtube.com/"):
+        elif url.startswith(YOUTUBE_BASE_URL):
             file_path = ytdl.download_audio(url, file_name=song_uuid)
 
         return {"path": file_path, "song_uuid": song_uuid}
