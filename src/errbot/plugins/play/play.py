@@ -12,6 +12,7 @@ from lib.chat.discord_custom import DiscordCustom
 from lib.common.errhelper import ErrHelper
 from lib.common.utilities import Util
 from lib.common.youtube_dl_lib import YtdlLib
+from lib.common.scdl_lib import Scdl
 from lib.database.dynamo_tables import PlayTable
 from lib.database.dynamo import Dynamo
 from requests import ReadTimeout
@@ -21,6 +22,7 @@ from youtubesearchpython import VideosSearch
 util = Util()
 chatutils = ChatUtils()
 ytdl = YtdlLib()
+scdl = Scdl()
 dynamo = Dynamo()
 
 CRON_INTERVAL = 2  # seconds
@@ -477,23 +479,31 @@ class Play(BotPlugin):
         if not validators.url(url):
             yield f"❌ Invalid URL\n{url}"
             return
-        if not url.startswith("https://www.youtube.com/") or not url.startswith("https://soundcloud.com/"):
+        if not (url.startswith("https://www.youtube.com/") or url.startswith("https://soundcloud.com/")):
             yield "❌ I only accept URLs that start with `https://www.youtube.com/` or `https://soundcloud.com/`"
             return
 
-        # Get all the metadata for a given video from a URL
-        video_metadata = ytdl.video_metadata(url)
+        # Logic for YouTube URLs to check length
+        if url.startswith("https://www.youtube.com/"):
+            # Get all the metadata for a given video from a URL
+            song_metadata = ytdl.video_metadata(url)
 
-        length = video_metadata["duration"]
-        # If the length is 0 it is probably a live stream
-        if length == 0:
-            yield f"❌ Cannot play a live stream from YouTube"
-            return
+            length = song_metadata["duration"]
+            # If the length is 0 it is probably a live stream
+            if length == 0:
+                yield f"❌ Cannot play a live stream from YouTube"
+                return
 
-        # If the video is greater than the configured max length, don't play it
-        if length > ytdl.max_length:
-            yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
-            return
+            # If the video is greater than the configured max length, don't play it
+            if length > ytdl.max_length:
+                yield f"❌ Video is longer than the max accepted length: `{ytdl.max_length}` seconds"
+                return
+        
+        # Logic for SoundCloud URLs which constructs a custom song_metadata object
+        if url.startswith("https://soundcloud.com/"):
+            song_metadata = {
+                "title": url.replace("https://soundcloud.com/", ""),
+            }
 
         # If the --channel flag was not provided, use the channel the user is in as the .play target channel
         if channel is None:
@@ -510,8 +520,12 @@ class Play(BotPlugin):
 
         # Pre-Download the file for the queue
         yield f"📂 Downloading: `{song_metadata['title']}`"
-        song_uuid = str(uuid.uuid4())
-        file_path = ytdl.download_audio(url, file_name=song_uuid)
+        result = self.download(url)
+
+        # If the link for soundcloud, do some extra processing for the song_metadata
+        if url.startswith("https://soundcloud.com/"):
+            song_metadata["duration"] = dc.get_audio_file_duration(result['path'])
+            song_metadata["webpage_url"] = url
 
         # Check if there are any files in the queue
         queue_items = self.read_queue(chatutils.guild_id(msg))
@@ -544,8 +558,8 @@ class Play(BotPlugin):
             msg,
             channel,
             song_metadata,
-            file_path,
-            song_uuid,
+            result['path'],
+            result['song_uuid'],
             regex_result,
             queue_position=queue_position,
         )
@@ -961,6 +975,30 @@ class Play(BotPlugin):
         except Exception as e:
             ErrHelper().capture(e)
             return False
+
+    def download(self, url):
+        """
+        Helper function for downloading a song from either youtube or soundcloud
+        :param url: The URL to download the song from
+        :return: An object containing the 'path' and 'song_uuid'
+        """
+
+        # Generate a random file name
+        song_uuid = str(uuid.uuid4())
+
+        # Logic for soundcloud
+        if url.startswith('https://soundcloud.com/'):
+            result = scdl.download(url, song_uuid)
+            if result["result"] == False:
+                raise Exception(result["message"])
+            else:
+                file_path = result["path"]
+
+        # Logic for youtube    
+        elif url.startswith('https://www.youtube.com/'):
+            file_path = ytdl.download_audio(url, file_name=song_uuid)
+
+        return {"path": file_path, "song_uuid": song_uuid}
 
     def fmt_play_time(self, play_time):
         """
