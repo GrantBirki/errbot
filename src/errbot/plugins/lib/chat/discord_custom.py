@@ -147,7 +147,7 @@ class DiscordCustom:
         """
         Play an audio file from disk in a Discord voice channel
         :param channel: the voice channel to play the file in (id)
-        :param file_duration: the duration of the file in seconds (int) - Default None will get the duration from youtube-dl
+        :param file_duration: the duration of the file in seconds (int) - Default None will get the duration directly from the file with ffmpeg
         :param file: the file to play (path)
         :return: None
         """
