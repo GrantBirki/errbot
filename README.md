@@ -1,5 +1,7 @@
 <h2 align="center"><img src="docs/assets/errbot.png" alt="errbot" align="center" width="200px" /></h1>
 
+test
+
 <!--
 <div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
 -->
