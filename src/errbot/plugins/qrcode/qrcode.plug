@@ -1,0 +1,9 @@
+[Core]
+Name = Qrcode 
+Module = qrcode 
+
+[Python]
+Version = 2+
+
+[Documentation]
+Description = Qrcode plugin 
