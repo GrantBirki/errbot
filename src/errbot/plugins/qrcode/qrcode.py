@@ -13,6 +13,12 @@ chatutils = ChatUtils()
 
 IMAGE_DIR = "plugins/qrcode/images"
 
+qr = qrcode.QRCode(
+    version=None,
+    box_size=30,
+    border=1
+)
+
 class Qrcode(BotPlugin):  
     """Qrcode plugin for Errbot"""
 
@@ -33,7 +39,9 @@ class Qrcode(BotPlugin):
         filename = f"{IMAGE_DIR}/{uuid.uuid4()}.png"
 
         # Generate the qrcode and save it
-        img = qrcode.make(args)
+        qr.add_data(args)
+        img = qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
         img.save(filename)
         
         # Init the DiscordCustom object
