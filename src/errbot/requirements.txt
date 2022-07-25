@@ -14,13 +14,13 @@ pynamodb==5.1.0
 boto3==1.18.29
 
 # yt-dlp / youtube-dl
-yt-dlp==2022.4.8
+yt-dlp==2022.7.18
 
 # soundcloud downloader
 scdl==2.7.1
 
 # youtube string searching
-youtube-search-python==1.5.1
+youtube-search-python==1.6.6
 
 # spotipy
 spotipy==2.19.0
