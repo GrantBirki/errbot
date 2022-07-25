@@ -13,17 +13,12 @@ chatutils = ChatUtils()
 
 IMAGE_DIR = "plugins/qrcode/images"
 
-qr = qrcode.QRCode(
-    version=None,
-    box_size=30,
-    border=1
-)
 
-class Qrcode(BotPlugin):  
+class Qrcode(BotPlugin):
     """Qrcode plugin for Errbot"""
 
     @botcmd
-    def qrcode(self, msg, args):  
+    def qrcode(self, msg, args):
         """
         The most basic example of a chatbot command/function
         Tip: The name of the function above is literally how you invoke the chatop: .qrcode
@@ -38,12 +33,15 @@ class Qrcode(BotPlugin):
         # Construct the filename
         filename = f"{IMAGE_DIR}/{uuid.uuid4()}.png"
 
+        # Init the qrcode object
+        qr = qrcode.QRCode(version=None, box_size=30, border=1)
+
         # Generate the qrcode and save it
         qr.add_data(args)
         img = qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
         img.save(filename)
-        
+
         # Init the DiscordCustom object
         dc = DiscordCustom(self._bot)
 
