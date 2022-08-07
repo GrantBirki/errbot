@@ -11,7 +11,7 @@ from lib.common.scdl_lib import Scdl
 chatutils = ChatUtils()
 scdl = Scdl(path="plugins/scdl/downloads")
 
-MAX_FILE_SIZE = 94,371,840  # 90MB
+MAX_FILE_SIZE = 94371840  # 90MB
 SOUNDCLOUD_BASE_URL = "https://soundcloud.com/"
 DOWNLOAD_WAIT = 15  # seconds
 
