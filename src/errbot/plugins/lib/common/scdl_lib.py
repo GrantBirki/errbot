@@ -7,7 +7,7 @@ class Scdl:
     Class which calls the scdl command line tool to download songs from soundcloud
     """
 
-    def __init__(self, path="plugins/play/audio", max_size="15mb"):
+    def __init__(self, path="plugins/play/audio", max_size="90mb"):
         """
         Initialize the scdl library
         :param max_size: the maximum size of a song in mb (default 15mb)

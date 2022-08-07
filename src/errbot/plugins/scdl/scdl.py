@@ -11,9 +11,9 @@ from lib.common.scdl_lib import Scdl
 chatutils = ChatUtils()
 scdl = Scdl(path="plugins/scdl/downloads")
 
-MAX_FILE_SIZE = 15728640  # 15MB
+MAX_FILE_SIZE = 94371840  # 90MB
 SOUNDCLOUD_BASE_URL = "https://soundcloud.com/"
-DOWNLOAD_WAIT = 60  # seconds
+DOWNLOAD_WAIT = 15  # seconds
 
 
 class Scdl(BotPlugin):
@@ -71,7 +71,7 @@ class Scdl(BotPlugin):
             file_path = result["path"]
 
         # Send the file
-        dc.send_file(channel_id, file_path)
+        dc.send_file(channel_id, file_path, max_file_size=MAX_FILE_SIZE)
 
         # Delete the file after it has been uploaded - But first, sleep for 30 seconds so it can download
         time.sleep(DOWNLOAD_WAIT)
