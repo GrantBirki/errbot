@@ -93,7 +93,7 @@ variable "SENTRY" {
 }
 
 # Geolocation IP Lookup key
-variable "GEOLOCATION_KEY }}" {
+variable "GEOLOCATION_KEY" {
   type      = string
   sensitive = true
 }
