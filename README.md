@@ -188,15 +188,15 @@ I kept the same name for this project and provided many links to the original fr
 
 ---
 
-### Opensource 🌎
+### Open Source 🌎
 
-This project is **100% opensource**, here is what that means...
+This project is **100% open source**, here is what that means...
 
-This project is _slightly_ different from other opensource projects in the sense that it is not just opensource code but also infrastructure and configuration.
+This project is _slightly_ different from other open source projects in the sense that it is not just open source code but also infrastructure and configuration.
 
 Errbot is a public bot made for and by the community. It is not a commercial product and is not a paid service and as such, all of the code and project files are open source.
 
-Here are all the components of this project that are opensource and can be edited by the public (hint: its basically everything):
+Here are all the components of this project that are open source and can be edited by the public (hint: its basically everything):
 
 - Source code
 - CI/CD pipeline
