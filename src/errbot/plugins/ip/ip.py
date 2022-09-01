@@ -39,5 +39,26 @@ class Ip(BotPlugin):
 
         response = requests.get(f"{BASE_URL}&ip_address={args}")
 
-        # Return a message / output below
-        return response.json()
+        if response.status_code == 400:
+            return "❌ 400 Bad Request. Please check your input. Is that a valid public IP address?"
+        elif response.status_code != 200:
+            return f"❌ Error from Geolocation API - HTTP: {response.status_code}"
+
+        data = response.json()
+
+        message = f"🏙️ City: {data['city']}\n"
+        message += f"🌎 Country: {data['country']}\n"
+        message += (
+            f"📍 Longitude: {data['longitude']} | Latitude: {data['latitude']}\n\n"
+        )
+        message += f"🔒 Is VPN: {data['security']['is_vpn']}\n\n"
+        message += f"📡 ISP Name: {data['connection']['isp_name']}\n"
+        message += f"🛰️ ASN: {data['connection']['autonomous_system_number']} | Name: {data['connection']['autonomous_system_organization']}\n"
+
+        chatutils.send_card_helper(
+            bot_self=self,
+            title=f"🌐 IP Lookup: {args} - {data['flag']['emoji']}",
+            body=message,
+            color=chatutils.color("white"),
+            in_reply_to=msg,
+        )
