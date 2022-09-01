@@ -102,5 +102,10 @@ spec:
                 secretKeyRef:
                   name: errbot-secret
                   key: SENTRY
+            - name: GEOLOCATION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: errbot-secret
+                  key: GEOLOCATION_KEY
       automountServiceAccountToken: false
   strategy: {}
