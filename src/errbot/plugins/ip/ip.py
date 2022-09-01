@@ -55,29 +55,27 @@ class Ip(BotPlugin):
 
         message = ""
 
-        if 'city' and 'country' in data:
+        if "city" and "country" in data:
             message += f"🏙️ City: {data.get('city', None)}\n"
             message += f"🌎 Country: {data.get('country', None)}\n"
 
-        if 'longitude' in data and 'latitude' in data:
-            message += (
-                f"📍 Longitude: {data.get('longitude', None)} | Latitude: {data.get('latitude', None)}\n\n"
-            )
-        
-        if 'security' in data:
-            if 'is_vpn' in data['security']:
+        if "longitude" in data and "latitude" in data:
+            message += f"📍 Longitude: {data.get('longitude', None)} | Latitude: {data.get('latitude', None)}\n\n"
+
+        if "security" in data:
+            if "is_vpn" in data["security"]:
                 message += f"🔒 Is VPN: {data['security']['is_vpn']}\n\n"
 
-        if 'connection' in data:
-            connection = data['connection']
+        if "connection" in data:
+            connection = data["connection"]
             message += f"📡 ISP Name: {connection.get('isp_name', None)}\n"
             message += f"🛰️ ASN: {connection.get('autonomous_system_number', None)} | Name: {connection.get('autonomous_system_organization', None)}\n"
 
         # Format the title of the message and try to use the emoji
         title = f"🌐 IP Lookup: {args}"
-        if 'flag' in data:
-            flag = data['flag']
-            emoji = flag.get('emoji', None)
+        if "flag" in data:
+            flag = data["flag"]
+            emoji = flag.get("emoji", None)
 
             if emoji is None:
                 title = f"🌐 IP Lookup: {args}"
