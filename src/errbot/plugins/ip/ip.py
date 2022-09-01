@@ -37,27 +37,57 @@ class Ip(BotPlugin):
         if chatutils.locked(msg, self):
             return
 
+        # Make an API call to get data about the IP address
         response = requests.get(f"{BASE_URL}&ip_address={args}")
 
+        # Handle non 200 responses
         if response.status_code == 400:
             return "❌ 400 Bad Request. Please check your input. Is that a valid public IP address?"
+        elif response.status_code == 429:
+            return f"⚠️ 429 Too Many Requests. Whoa slow down there! Please try again in a moment"
         elif response.status_code != 200:
             return f"❌ Error from Geolocation API - HTTP: {response.status_code}"
 
+        # Get the data in JSON form
         data = response.json()
 
-        message = f"🏙️ City: {data['city']}\n"
-        message += f"🌎 Country: {data['country']}\n"
-        message += (
-            f"📍 Longitude: {data['longitude']} | Latitude: {data['latitude']}\n\n"
-        )
-        message += f"🔒 Is VPN: {data['security']['is_vpn']}\n\n"
-        message += f"📡 ISP Name: {data['connection']['isp_name']}\n"
-        message += f"🛰️ ASN: {data['connection']['autonomous_system_number']} | Name: {data['connection']['autonomous_system_organization']}\n"
+        # Format the message
 
+        message = ""
+
+        if 'city' and 'country' in data:
+            message += f"🏙️ City: {data.get('city', None)}\n"
+            message += f"🌎 Country: {data.get('country', None)}\n"
+
+        if 'longitude' in data and 'latitude' in data:
+            message += (
+                f"📍 Longitude: {data.get('longitude', None)} | Latitude: {data.get('latitude', None)}\n\n"
+            )
+        
+        if 'security' in data:
+            if 'is_vpn' in data['security']:
+                message += f"🔒 Is VPN: {data['security']['is_vpn']}\n\n"
+
+        if 'connection' in data:
+            connection = data['connection']
+            message += f"📡 ISP Name: {connection.get('isp_name', None)}\n"
+            message += f"🛰️ ASN: {connection.get('autonomous_system_number', None)} | Name: {connection.get('autonomous_system_organization', None)}\n"
+
+        # Format the title of the message and try to use the emoji
+        title = f"🌐 IP Lookup: {args}"
+        if 'flag' in data:
+            flag = data['flag']
+            emoji = flag.get('emoji', None)
+
+            if emoji is None:
+                title = f"🌐 IP Lookup: {args}"
+            else:
+                title = f"🌐 IP Lookup: {args} - {data['flag']['emoji']}"
+
+        # Send the message
         chatutils.send_card_helper(
             bot_self=self,
-            title=f"🌐 IP Lookup: {args} - {data['flag']['emoji']}",
+            title=title,
             body=message,
             color=chatutils.color("white"),
             in_reply_to=msg,
