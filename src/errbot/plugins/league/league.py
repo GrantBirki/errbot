@@ -19,7 +19,7 @@ RIOT_TOKEN = os.environ.get("RIOT_TOKEN", None)
 if RIOT_TOKEN:
     if isinstance(RIOT_TOKEN, bytes):
         RIOT_TOKEN = RIOT_TOKEN.decode("utf-8").replace("\n", "").strip()
-    LOL_WATCHER = LolWatcher(RIOT_TOKEN, timeout=10)
+    LOL_WATCHER = LolWatcher(RIOT_TOKEN, timeout=15)
     REGION = os.environ["RIOT_REGION"]
     RIOT_REGION_V5 = os.environ["RIOT_REGION_V5"]
     chatutils = ChatUtils()
@@ -567,14 +567,22 @@ class League(BotPlugin):
         Gets a summoners list of previous matches
         [i] API CALL
         """
-        return LOL_WATCHER.match_v5.matchlist_by_puuid(RIOT_REGION_V5, summoner_puuid)
+        try:
+            return LOL_WATCHER.match_v5.matchlist_by_puuid(RIOT_REGION_V5, summoner_puuid)
+        except Exception as err:
+            ErrHelper().capture(err)
+            raise
 
     def get_match_data(self, match_id):
         """
         Gets the exact match data for a summoner given a match ID
         [i] API CALL
         """
-        return LOL_WATCHER.match_v5.by_id(RIOT_REGION_V5, match_id)
+        try:
+            return LOL_WATCHER.match_v5.by_id(RIOT_REGION_V5, match_id)
+        except Exception as err:
+            ErrHelper().capture(err)
+            raise
 
     def find_summoner_specific_match_data(self, full_match_data, puuid):
         """
