@@ -92,10 +92,16 @@ variable "SENTRY" {
   sensitive = true
 }
 
-### End Bot Creds
+# Geolocation IP Lookup key
+variable "GEOLOCATION_KEY" {
+  type      = string
+  sensitive = true
+}
 
 # Loki URL
 variable "LOKI_PUSH_URL" {
   type      = string
   sensitive = true
 }
+
+### End Bot Creds

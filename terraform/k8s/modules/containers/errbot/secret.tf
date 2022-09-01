@@ -15,6 +15,7 @@ data "kubectl_path_documents" "errbot_secret_manifest" {
     SPOTIFY_CLIENT_ID     = "${var.SPOTIFY_CLIENT_ID}"
     SPOTIFY_CLIENT_SECRET = "${var.SPOTIFY_CLIENT_SECRET}"
     SENTRY                = "${var.SENTRY}"
+    GEOLOCATION_KEY       = "${var.GEOLOCATION_KEY}"
     IMAGE_TAG             = "${var.IMAGE_TAG}"
     ACR_NAME              = "${var.ACR_NAME}"
   }
