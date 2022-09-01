@@ -19,7 +19,7 @@ class Ip(BotPlugin):
         """
         Activate the plugin conditionally if the GEOLOCATION_KEY is set
         """
-        # If the RIOT_TOKEN is not set, deactivate the plugin
+        # If the GEOLOCATION_KEY is not set, deactivate the plugin
         if GEOLOCATION_KEY is None:
             self.log.warn(
                 "GEOLOCATION_KEY not found in environment variables. Disabling the ip plugin."
