@@ -14,7 +14,7 @@ spotipy==2.19.0
 gTTS==2.2.3
 validators==0.18.2
 psutil==5.8.0
-sentry-sdk==1.5.0
+sentry-sdk==1.9.6
 selenium==4.1.0
 PyVirtualDisplay==2.2
 Pillow==9.0.1
