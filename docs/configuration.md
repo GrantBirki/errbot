@@ -76,6 +76,7 @@ Now that you have a general understanding about how environment variables are us
 | `AWS_ACCESS_KEY_ID` | String | Optional | If you are using AWS DynamoDB for persistence, then you can provide this for authentication |
 | `AWS_SECRET_ACCESS_KEY` | String | Optional | If you are using AWS DynamoDB for persistence, then you can provide this for authentication |
 | `RIOT_TOKEN` | String | Optional | Add your RIOT API token to enable the `.league` chat commands and features |
+| `GEOLOCATION_KEY` | String | Optional | Add your abstractapi.com (for Geolocation) token to enable the `.ip` chat commands and features |
 | `SPOTIFY_CLIENT_ID` | String | Optional | Add your Spotify API credentials to enable Spotify song detail lookups and URLs for the `.play` command |
 | `SPOTIFY_CLIENT_SECRET` | String | Optional | Add your Spotify API credentials to enable Spotify song detail lookups and URLs for the `.play` command |
 | `SENTRY` | Sentry DSN in the following format: `https://<id>@<id>.ingest.sentry.io/<id>` | Optional | Add your Sentry.io DSN in the URL format to enable logging exceptions to Sentry.io |

@@ -86,5 +86,6 @@ The following commands are all available via the chatbot:
 | `.eft track` | `.eft track --item <item> --threshold <threshold> --channel <channel>` | Track an item for price changes in Escape from Tarkov - Note: Make sure to wrap `--item "search with spaces"` in quotes if it contains spaces | 🌎 |
 | `.eft untrack` | `.eft untrack <item>` | Stop tracking a tracked item for price changes in Escape from Tarkov | 🌎 |
 | `.eft track help` | - | Get the detailed help command for the Escape from Tarkov item tracker | 🌎 |
+| `.ip` | `ip 123.123.123.123` | Get the geolocation of a public IP address | 🔒 |
 
 > Note: `.` is the bot prefix to invoke the bot in production and `!` is often used for development
