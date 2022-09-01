@@ -10,6 +10,7 @@ module "errbot" {
   SPOTIFY_CLIENT_ID     = var.SPOTIFY_CLIENT_ID
   SPOTIFY_CLIENT_SECRET = var.SPOTIFY_CLIENT_SECRET
   SENTRY                = var.SENTRY
+  GEOLOCATION_KEY       = var.GEOLOCATION_KEY
 
   # Config
   ACR_NAME            = data.azurerm_container_registry.acr.name

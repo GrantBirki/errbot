@@ -93,3 +93,8 @@ variable "SENTRY" {
   type      = string
   sensitive = true
 }
+
+variable "GEOLOCATION_KEY" {
+  type      = string
+  sensitive = true
+}
