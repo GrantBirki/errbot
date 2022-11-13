@@ -43,7 +43,9 @@ class DiscordRoom(Room, DiscordSender):
 
         return cls(channel.name, channel.guild.id)
 
-    def __init__(self, channel_name: str = None, guild_id: str = None, channel_id: str = None):
+    def __init__(
+        self, channel_name: str = None, guild_id: str = None, channel_id: str = None
+    ):
         """
         Allows to specify an existing room (via name + guild or via id) or allows the
         creation of a future room by specifying a name and guild to create the channel in.
@@ -63,7 +65,9 @@ class DiscordRoom(Room, DiscordSender):
 
             self._guild_id = guild_id
             self._channel_name = channel_name
-            self._channel_id = self.channel_name_to_id()  # Can be None if channel doesn't exist
+            self._channel_id = (
+                self.channel_name_to_id()
+            )  # Can be None if channel doesn't exist
 
         self.discord_channel = DiscordRoom.client.get_channel(self._channel_id)
 
@@ -109,7 +113,9 @@ class DiscordRoom(Room, DiscordSender):
                 raise RuntimeError("Can't invite non Discord Users")
 
             asyncio.run_coroutine_threadsafe(
-                self.discord_channel.set_permissions(identifier.discord_user(), read_messages=True),
+                self.discord_channel.set_permissions(
+                    identifier.discord_user(), read_messages=True
+                ),
                 loop=DiscordRoom.client.loop,
             )
 
@@ -140,9 +146,9 @@ class DiscordRoom(Room, DiscordSender):
             log.warning(f"Tried to create {self._channel_name} which already exists.")
             raise RoomError("Room exists")
 
-        asyncio.run_coroutine_threadsafe(self.create_room(), loop=DiscordRoom.client.loop).result(
-            timeout=5
-        )
+        asyncio.run_coroutine_threadsafe(
+            self.create_room(), loop=DiscordRoom.client.loop
+        ).result(timeout=5)
 
     def destroy(self) -> None:
         if not self.exists:
@@ -190,7 +196,10 @@ class DiscordRoom(Room, DiscordSender):
 
     @property
     def exists(self) -> bool:
-        return None not in [self._channel_id, DiscordRoom.client.get_channel(self._channel_id)]
+        return None not in [
+            self._channel_id,
+            DiscordRoom.client.get_channel(self._channel_id),
+        ]
 
     @property
     def guild(self):

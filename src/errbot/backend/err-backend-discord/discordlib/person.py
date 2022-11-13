@@ -39,13 +39,17 @@ class DiscordSender(ABC, discord.abc.Snowflake):
 
 class DiscordPerson(Person, DiscordSender):
     @classmethod
-    def username_and_discriminator_to_userid(cls, username: str, discriminator: str) -> str:
+    def username_and_discriminator_to_userid(
+        cls, username: str, discriminator: str
+    ) -> str:
         return discord.utils.find(
             lambda m: m.name == username and m.discriminator == discriminator,
             DiscordPerson.client.get_all_members(),
         )
 
-    def __init__(self, user_id: str = None, username: str = None, discriminator: str = None):
+    def __init__(
+        self, user_id: str = None, username: str = None, discriminator: str = None
+    ):
         """
         @user_id: _must_ be a string representation of a Discord Snowflake (an integer).
         @username: Discord username.
@@ -58,7 +62,9 @@ class DiscordPerson(Person, DiscordSender):
             self._user_id = user_id
         else:
             if username and discriminator:
-                member = DiscordPerson.username_and_discriminator_to_userid(username, discriminator)
+                member = DiscordPerson.username_and_discriminator_to_userid(
+                    username, discriminator
+                )
                 self.user_id = member.id
             else:
                 raise ValueError("Username/discrimator pair or user id not provided.")
