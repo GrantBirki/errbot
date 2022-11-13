@@ -1,7 +1,6 @@
 [Core]
 Name = Discord
-Module = discordb
+Module = err-backend-discord
 
 [Documentation]
-Description = This is a backend implementation for discord.
-
+Description = Discord backend for Errbot.
