@@ -194,7 +194,9 @@ BOT_ASYNC_POOLSIZE = 10
 
 # Slack Token - Uses: Bot User OAuth Token
 BOT_IDENTITY = {
-    "token": os.environ.get("CHAT_SERVICE_TOKEN", None)
+    "token": os.environ.get("CHAT_SERVICE_TOKEN", None),
+    "initial_intents": "all", # use all intents
+    "intents": [1, 2, 8, 128, 256, 512, 4096, 16384, 32768]
     #'token': json.loads(os.environ['CHAT_SERVICE_TOKEN'])['CHAT_SERVICE_TOKEN'] # Parsing JSON token as it is from AWS Secrets Manager in JSON format
     ## Telegram mode (comment the others above if using this mode)
     # 'token': '103419016:AAbcd1234...',
