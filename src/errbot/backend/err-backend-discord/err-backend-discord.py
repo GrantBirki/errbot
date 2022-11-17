@@ -1,28 +1,12 @@
 import asyncio
 import logging
 import sys
-import os
 
+from errbot.backends.base import AWAY, DND, OFFLINE, ONLINE, Message, Person, Presence
 from errbot.core import ErrBot
-from errbot.backends.base import (
-    Person,
-    Message,
-    Presence,
-    ONLINE,
-    OFFLINE,
-    AWAY,
-    DND,
-)
 
-from discordlib.person import (
-    DiscordSender,
-    DiscordPerson,
-)
-from discordlib.room import (
-    DiscordRoom,
-    DiscordRoomOccupant,
-    DiscordCategory,
-)
+from discordlib.person import DiscordPerson, DiscordSender
+from discordlib.room import DiscordCategory, DiscordRoom, DiscordRoomOccupant
 
 log = logging.getLogger("errbot-backend-discord")
 
@@ -89,12 +73,6 @@ class DiscordBackend(ErrBot):
         )
         if self.bot_identifier is None:
             self.bot_identifier = DiscordPerson(DiscordBackend.client.user.id)
-
-        bot_status_message = os.environ.get("BOT_STATUS_MESSAGE", None)
-        if bot_status_message:
-            await DiscordBackend.client.change_presence(
-                activity=discord.Game(bot_status_message)
-            )
 
         for channel in DiscordBackend.client.get_all_channels():
             log.debug(f"Found channel: {channel}")
@@ -401,13 +379,14 @@ class DiscordBackend(ErrBot):
         Valid forms of strreps:
         @user#discriminator            -> Person
         #channel                       -> Room (a uniquely identified channel on any guild)
-        #channel$guild_vanity_url_code -> Room (a channel on a specific guild)
+        #channel$guild_vanity_url_code -> Room (potential format for a channel on a specific guild)
 
         :param text:  The text the represents an Identifier
         :return: Identifier
 
-        Room Example: #general@12345678901234567 -> Sends a message to the
-                   #general channel of the guild with id 12345678901234567
+        Room Example:
+            #general@12345678901234567 -> Sends a message to the
+            #general channel of the guild with id 12345678901234567
         """
         if not text:
             raise ValueError("A string must be provided to build an identifier.")
@@ -427,13 +406,15 @@ class DiscordBackend(ErrBot):
         # Raw text channel name start with #
         elif text.startswith("#"):
             if "@" in text:
-                channel_name, guild_id = text.split("@")
+                channel_name, guild_id = text.split("@", 1)
                 return DiscordRoom(channel_name[1:], guild_id)
             else:
                 return DiscordRoom(text[1:])
-        elif "#" in text:
-            user, discriminator = text.split("#")
-            return DiscordPerson(user_id=member.id)
+        # Raw text username starts with @
+        elif text.startswith("@"):
+            if "#" in text:
+                user, tag = text.split("#", 1)
+                return DiscordPerson(username=user, discriminator=tag)
 
         raise ValueError(f"Invalid representation {text}")
 

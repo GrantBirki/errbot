@@ -1,20 +1,10 @@
-import sys
 import logging
-
+import sys
 from typing import List, Optional, Union
 
+from errbot.backends.base import Room, RoomError, RoomOccupant
 
-from errbot.backends.base import (
-    Room,
-    RoomOccupant,
-    RoomError,
-)
-
-from discordlib.person import (
-    DiscordSender,
-    DiscordPerson,
-)
-
+from discordlib.person import DiscordPerson, DiscordSender
 
 log = logging.getLogger(__name__)
 
@@ -60,6 +50,11 @@ class DiscordRoom(Room, DiscordSender):
             self._channel_name = None
             self._guild_id = None
         else:
+            if None in [channel_name, guild_id]:
+                raise ValueError(
+                    "A name or channel id + guild id is required to create a Room."
+                )
+
             if DiscordRoom.client.get_guild(int(guild_id)) is None:
                 raise ValueError(f"Can't find guild id {guild_id} to init DiscordRoom")
 
