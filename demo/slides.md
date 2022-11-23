@@ -486,7 +486,7 @@ Before you start your bot, set yourself as the bot admin:
 
 Edit the `script/k8s/errbot/deployment.yaml` file like so:
 
-`value: "Birki#0001" # change to your own handle` -> `value: "yourname#0001"`
+`value: "@Birki#0001" # change to your own handle` -> `value: "@yourname#0001"`
 
 > Note: You can find your `name#id` in the bottom left of your Discord client or on your profile page
 
