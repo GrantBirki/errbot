@@ -359,7 +359,7 @@ class ErrBot(Backend, StoreMixin):
                         args = " ".join(text_split[i:])
                     else:
                         i -= 1
-                if i == 0:
+                if i <= 0:
                     break
 
             if (
