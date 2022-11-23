@@ -17,5 +17,5 @@ psutil==5.8.0
 sentry-sdk==1.9.6
 selenium==4.1.0
 PyVirtualDisplay==2.2
-Pillow==9.0.1
+Pillow==9.3.0
 qrcode==7.3.1
