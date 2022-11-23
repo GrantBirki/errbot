@@ -142,11 +142,13 @@ class ACLS(BotPlugin):
             if not glob(get_acl_usr(msg), self.bot_config.BOT_ADMINS):
                 ### CUSTOM ###
                 # remove '@' from all admins and try again
-                bot_admins_custom = [admin.replace('@', '') for admin in self.bot_config.BOT_ADMINS]
+                bot_admins_custom = [
+                    admin.replace("@", "") for admin in self.bot_config.BOT_ADMINS
+                ]
                 if not glob(get_acl_usr(msg), bot_admins_custom):
                     return self.access_denied(
-                    msg, "This command requires bot-admin privileges", dry_run
-                )
+                        msg, "This command requires bot-admin privileges", dry_run
+                    )
                 ##############
             # For security reasons, admin-only commands are direct-message only UNLESS
             # specifically overridden by setting allowmuc to True for such commands.
