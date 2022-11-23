@@ -51,7 +51,7 @@ spec:
             - name: DOCS_URL
               value: "https://errbot.birki.io"
             - name: BOT_ADMINS
-              value: "Birki#0001" # change to your own handle for Slack, Discord, etc
+              value: "@Birki#0001" # change to your own handle for Slack, Discord, etc
             - name: BOT_EXTRA_BACKEND_DIR
               value: "/app/backend/err-backend-discord"
             - name: RIOT_REGION
