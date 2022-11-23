@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: first-interaction
-        uses: actions/first-interaction@v1.1.0
+        uses: actions/first-interaction@v1.1.1
         if: github.event_name == 'pull_request'
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
