@@ -336,7 +336,8 @@ REVERSE_CHATROOM_RELAY = {}
 # Define the maximum length a single message may be. If a plugin tries to
 # send a message longer than this length, it will be broken up into multiple
 # shorter messages that do fit.
-MESSAGE_SIZE_LIMIT = 10000
+# MESSAGE_SIZE_LIMIT = 10000
+MESSAGE_SIZE_LIMIT = 2000  # Discord
 
 # XMPP TLS certificate verification. In order to validate offered certificates,
 # you must supply a path to a file containing certificate authorities. By
