@@ -58,6 +58,9 @@ class DiscordRoom(Room, DiscordSender):
             if DiscordRoom.client.get_guild(int(guild_id)) is None:
                 raise ValueError(f"Can't find guild id {guild_id} to init DiscordRoom")
 
+            if guild_id:
+                guild_id = int(guild_id)
+
             self._guild_id = guild_id
             self._channel_name = channel_name
             self._channel_id = (
