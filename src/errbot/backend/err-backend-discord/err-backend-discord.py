@@ -77,7 +77,9 @@ class DiscordBackend(ErrBot):
 
         bot_status_message = os.environ.get("BOT_STATUS_MESSAGE", None)
         if bot_status_message:
-            await DiscordBackend.client.change_presence(activity=discord.Game(bot_status_message))
+            await DiscordBackend.client.change_presence(
+                activity=discord.Game(bot_status_message)
+            )
 
         for channel in DiscordBackend.client.get_all_channels():
             log.debug(f"Found channel: {channel}")
