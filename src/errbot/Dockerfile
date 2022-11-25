@@ -1,4 +1,4 @@
-FROM python:3.9-alpine
+FROM python:3.11-alpine
 
 WORKDIR /app
 
@@ -19,13 +19,13 @@ RUN pip install -r requirements.txt
 # create nonroot errbot user and switch to it
 RUN adduser -D errbot -u 10001
 RUN chown -R errbot:errbot /app
-RUN chown -R errbot:errbot /usr/local/lib/python3.9/site-packages/errbot
+RUN chown -R errbot:errbot /usr/local/lib/python3.11/site-packages/errbot
 USER errbot
 
 # replace default errbot files with our custom ones
-COPY --chown=errbot:errbot package/core.py /usr/local/lib/python3.9/site-packages/errbot/core.py
-COPY --chown=errbot:errbot package/core_plugins/help.py /usr/local/lib/python3.9/site-packages/errbot/core_plugins/help.py
-COPY --chown=errbot:errbot package/core_plugins/acls.py /usr/local/lib/python3.9/site-packages/errbot/core_plugins/acls.py
+COPY --chown=errbot:errbot package/core.py /usr/local/lib/python3.11/site-packages/errbot/core.py
+COPY --chown=errbot:errbot package/core_plugins/help.py /usr/local/lib/python3.11/site-packages/errbot/core_plugins/help.py
+COPY --chown=errbot:errbot package/core_plugins/acls.py /usr/local/lib/python3.11/site-packages/errbot/core_plugins/acls.py
 
 # init errbot
 RUN errbot --init
@@ -33,12 +33,12 @@ RUN errbot --init
 # cleanup unused default errbot plugins
 RUN \
 rm -rf plugins/err-example \
-rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/chatRoom.* \
-rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/flows.* \
-rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/webserver.* \
-rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/backup.* \
-rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/plugins.* \
-rm /usr/local/lib/python3.9/site-packages/errbot/core_plugins/textcmds.*
+rm /usr/local/lib/python3.11/site-packages/errbot/core_plugins/chatRoom.* \
+rm /usr/local/lib/python3.11/site-packages/errbot/core_plugins/flows.* \
+rm /usr/local/lib/python3.11/site-packages/errbot/core_plugins/webserver.* \
+rm /usr/local/lib/python3.11/site-packages/errbot/core_plugins/backup.* \
+rm /usr/local/lib/python3.11/site-packages/errbot/core_plugins/plugins.* \
+rm /usr/local/lib/python3.11/site-packages/errbot/core_plugins/textcmds.*
 
 # for discord / other backends
 COPY --chown=errbot:errbot backend /app/backend

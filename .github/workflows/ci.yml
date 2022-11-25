@@ -83,25 +83,14 @@ jobs:
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
 
-      - name: Set up Python 3.9
-        uses: actions/setup-python@dc73133d4da04e56a135ae2246682783cc7c7cb6 # pin@v2
+      - name: Set up Python 3.11
+        uses: actions/setup-python@75f3110429a8c05be0e1bf360334e4cced2b63fa # pin@v2.3.3
         with:
-          python-version: 3.9
-
-      # Cache the requirements.txt file to speed up CI jobs
-      # Cache is disabled for now as it needs to be fixed
-      # - uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
-      #   id: cache
-      #   with:
-      #     path: ~/.cache/pip
-      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-pip-
+          python-version: 3.11
+          cache: 'pip' # caching pip dependencies
 
       - name: Install dependencies
-        # if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          echo "cache miss - installing dependencies"
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
@@ -113,8 +102,7 @@ jobs:
       # Use this step for validating json files commit to the repo
       - name: JSON Validation
         working-directory: src/errbot
-        run: |
-          python -mjson.tool plugins/league/responses.json > /dev/null
+        run: python -mjson.tool plugins/league/responses.json > /dev/null
 
   build:
     needs: [changes, test]

@@ -13,7 +13,9 @@ COLORS = {
 }
 
 BACKEND = os.environ["BACKEND"]
-BOT_ADMINS = os.environ.get("BOT_ADMINS", "").split(",")
+
+# Get the bot admins and strip out any '@' symbols
+BOT_ADMINS = [x.strip("@") for x in os.environ.get("BOT_ADMINS", "").split(",")]
 
 # Get the allow listed servers for the Discord server lock
 server_lock_env = os.environ.get("SERVER_LOCK_ALLOW_LIST", None)
