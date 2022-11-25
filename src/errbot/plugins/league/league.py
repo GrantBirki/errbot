@@ -568,9 +568,7 @@ class League(BotPlugin):
         [i] API CALL
         """
         try:
-            return LOL_WATCHER.match.matchlist_by_puuid(
-                RIOT_REGION_V5, summoner_puuid
-            )
+            return LOL_WATCHER.match.matchlist_by_puuid(RIOT_REGION_V5, summoner_puuid)
         except Exception as err:
             ErrHelper().capture(err)
             raise
