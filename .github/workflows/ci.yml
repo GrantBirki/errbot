@@ -83,10 +83,10 @@ jobs:
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.11
         uses: actions/setup-python@dc73133d4da04e56a135ae2246682783cc7c7cb6 # pin@v2
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       # Cache the requirements.txt file to speed up CI jobs
       # Cache is disabled for now as it needs to be fixed
