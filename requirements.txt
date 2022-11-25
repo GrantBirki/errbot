@@ -1,5 +1,5 @@
 errbot==6.1.9
-discord.py==1.6.0
+discord.py==2.1.0
 requests-mock==1.9.3
 pytest==7.0.1
 pytest-cov==3.0.0
