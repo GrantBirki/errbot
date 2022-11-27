@@ -60,7 +60,7 @@ The following commands are all available via the chatbot:
 | `.echo` | `.echo hello` | A simple command to echo back a message (Like the Linux "echo" binary) | 🌎 |
 | `.history` | - | View the past few commands (history) that have been used by the bot | 🌎 |
 | `.log tail` | - | Tail / View the bots latest log messages that have been written | 🔒👨‍💻 |
-| `.restart` | - | Restarts the bot | 🔒👨‍💻 |
+| `.reboot` | - | Reboots the bot | 🔒👨‍💻 |
 | `.users` | - | See a total count of all the users that 'could' interact with the bot in all servers | 🔒👨‍💻 |
 | `.servers` | - | See a list of all active servers the bot is in | 🔒👨‍💻 |
 | `.ban` | `.ban user#1234` | Ban a user from interacting with the bot | 🔒👨‍💻 |

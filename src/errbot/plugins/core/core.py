@@ -281,9 +281,9 @@ class Core(BotPlugin):
         )
 
     @botcmd
-    def restart(self, msg, args):
+    def reboot(self, msg, args):
         """
-        Admin command for restart the bot
+        Admin command for reboot the bot
         This works be removing the /app/healthy file which is probed by k8s
         """
         if not chatutils.is_admin(msg):
@@ -293,8 +293,8 @@ class Core(BotPlugin):
 
         chatutils.send_card_helper(
             bot_self=self,
-            title="🔄 Restarting...",
-            body="I will be back in a few seconds when I restart...",
+            title="🔄 Rebooting...",
+            body="I will be back in a few seconds when I reboot...",
             color=chatutils.color("yellow"),
             in_reply_to=msg,
         )
