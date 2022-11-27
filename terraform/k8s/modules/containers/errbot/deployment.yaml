@@ -26,6 +26,8 @@ spec:
               command:
                 - cat
                 - /app/healthy
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             limits:
               cpu: "${LIMITS_CPU}"
