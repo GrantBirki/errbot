@@ -279,3 +279,22 @@ class Core(BotPlugin):
             color=chatutils.color("white"),
             in_reply_to=msg,
         )
+
+    @botcmd
+    def restart(self, msg, args):
+        """
+        Admin command for restart the bot
+        This works be removing the /app/healthy file which is probed by k8s
+        """
+        if not chatutils.is_admin(msg):
+            return "This command is only available to bot admins."
+
+        os.remove("/app/healthy")
+
+        chatutils.send_card_helper(
+            bot_self=self,
+            title="🔄 Restarting...",
+            body="I will be back in a few seconds when I restart...",
+            color=chatutils.color("yellow"),
+            in_reply_to=msg,
+        )

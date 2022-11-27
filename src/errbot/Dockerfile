@@ -2,6 +2,9 @@ FROM python:3.11-alpine
 
 WORKDIR /app
 
+# create a healthcheck file
+RUN touch healthy
+
 # install alpine dependencies
 RUN apk update && apk upgrade
 RUN apk add gcc musl-dev libffi-dev make libffi-dev libsodium-dev opus-dev ffmpeg zlib-dev jpeg-dev

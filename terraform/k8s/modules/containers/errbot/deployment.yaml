@@ -21,6 +21,11 @@ spec:
         - name: errbot
           image: ${ACR_NAME}.azurecr.io/errbot:${IMAGE_TAG}
           imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - cat
+                - /app/healthy
           resources:
             limits:
               cpu: "${LIMITS_CPU}"
