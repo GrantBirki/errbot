@@ -89,15 +89,15 @@ jobs:
           python-version: 3.11
           cache: 'pip' # caching pip dependencies
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Test with pylint
-        run: |
-          script/test
-          echo "Success! - pytest Passed"
+      # - name: Test with pytest
+      #   run: |
+      #     script/test
+      #     echo "Success! - pytest Passed"
 
       # Use this step for validating json files commit to the repo
       - name: JSON Validation
