@@ -23,7 +23,7 @@ scdl==2.7.3
 youtube-search-python==1.6.6
 
 # spotipy
-spotipy==2.22.1
+spotipy==2.21.0
 
 # text to speech
 gTTS==2.2.3
