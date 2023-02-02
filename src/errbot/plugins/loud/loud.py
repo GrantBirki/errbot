@@ -35,7 +35,6 @@ class Load(BotPlugin):
         allowed = cooldown.check(msg)
 
         if allowed:
-
             # Initialize the Discord client
             dc = DiscordCustom(self._bot)
 
@@ -97,7 +96,6 @@ class Load(BotPlugin):
         allowed = cooldown.check(msg)
 
         if allowed:
-
             # Initialize the Discord client
             dc = DiscordCustom(self._bot)
 

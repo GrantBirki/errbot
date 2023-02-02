@@ -29,7 +29,6 @@ class Tts(BotPlugin):
         allowed = cooldown.check(msg)
 
         if allowed:
-
             # Initialize the Discord client
             dc = DiscordCustom(self._bot)
 

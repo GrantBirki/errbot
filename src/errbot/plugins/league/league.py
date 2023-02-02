@@ -148,7 +148,6 @@ class League(BotPlugin):
         get_result = dynamo.get(LeagueTable, guild_id, item["discord_handle"])
 
         if get_result:
-
             # Check and update the win/loss streak
             if get_result.win_streak is not None:
                 last_win_streak = get_result.win_streak
@@ -449,7 +448,6 @@ class League(BotPlugin):
         response = dynamo.get(LeagueTable, guild_id, discord_handle)
 
         if response:
-
             if not response.last_match_sha256:
                 last_match_sha256 = "Waiting for auto update..."
             else:
@@ -769,7 +767,6 @@ class League(BotPlugin):
         """
         for item in QUEUE_ID_CACHE:
             if item["queueId"] == queue_id:
-
                 # If the game is a custom game, return the custom game name
                 if item["description"] == None:
                     try:

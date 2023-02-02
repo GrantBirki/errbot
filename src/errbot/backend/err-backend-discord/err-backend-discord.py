@@ -427,7 +427,6 @@ class DiscordBackend(ErrBot):
 
     def upload_file(self, msg, filename):
         with open(filename, "r") as f:
-
             dest = None
             if msg.is_direct:
                 dest = DiscordPerson(msg.frm.id).get_discord_object()

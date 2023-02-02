@@ -146,10 +146,8 @@ class Sparkle(BotPlugin):
 
             # If the record exists, we can run logic to update the record with the new sparkle
             if record:
-
                 # Logic if a sparkle reason is supplied
                 if result["sparkle_reason"] is not None:
-
                     # Update the record with a sparkle reason
                     update_result = dynamo.update(
                         table=SparkleTable,
