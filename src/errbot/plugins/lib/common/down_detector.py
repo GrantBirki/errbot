@@ -48,7 +48,6 @@ class DownDetector:
         """
 
         try:
-
             display = Display(visible=0, size=(1920, 1080))
             display.start()
 

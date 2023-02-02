@@ -61,7 +61,6 @@ class DiscordPerson(Person, DiscordSender):
             self._user_id = user_id
         else:
             if username and discriminator:
-
                 if username.startswith("@"):
                     username = username[1:]
 

@@ -51,7 +51,6 @@ class Dynamo:
         :return: False if there is an error
         """
         try:
-
             # Update the timestamp
 
             fields_to_update.append(table.updated_at.set(util.iso_timestamp()))
