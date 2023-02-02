@@ -82,9 +82,6 @@ jobs:
 
     steps:
 
-      - name: noop
-        run: echo "noop"
-
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
 
       - name: Set up Python 3.11
