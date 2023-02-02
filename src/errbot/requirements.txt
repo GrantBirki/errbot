@@ -1,3 +1,6 @@
+# bug fix: https://stackoverflow.com/questions/74981558/error-updating-python3-pip-attributeerror-module-lib-has-no-attribute-openss
+cryptography==38.0.4
+
 # errbot
 errbot==6.1.9
 
