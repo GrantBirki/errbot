@@ -283,7 +283,7 @@ jobs:
 
       # Post comment on PR with development plan info
       # This comment includes the plan for the k8s-cluster and the k8s resources
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@5d03ada4b0a753e9460b312e61cc4f8fdeacf163 # pin@0.9.0
         if: github.event_name == 'pull_request'
         env:
           PLAN_K8S_CLUSTER: "terraform ${{ steps.plan_k8s_cluster.outputs.stdout }}"
