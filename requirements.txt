@@ -1,5 +1,5 @@
 # bug fix: https://stackoverflow.com/questions/74981558/error-updating-python3-pip-attributeerror-module-lib-has-no-attribute-openss
-cryptography==38.0.4
+cryptography==40.0.0
 
 errbot==6.1.9
 discord.py==2.1.0
