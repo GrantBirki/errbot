@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Clone repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Run tfsec with reviewdog output on the PR
-        uses: reviewdog/action-tfsec@master
+        uses: reviewdog/action-tfsec@v1.15.2
         with:
           github_token: ${{ secrets.github_token }}
           working_directory: terraform

@@ -16,8 +16,8 @@ jobs:
       src: ${{ steps.filter.outputs.src }} # Used to calculate general changes to source code
       terraform: ${{ steps.filter.outputs.terraform }} # Used to calculate general changes to terraform
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
-      - uses: dorny/paths-filter@b2feaf19c27470162a626bd6fa8438ae5b263721 # pin@v2
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2.11.1
         id: filter
         with:
           filters: |
@@ -32,7 +32,7 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
+      - uses: actions/checkout@v3
       - name: Check files using the black formatter
         uses: rickstaa/action-black@f7d43bb2466fca468649d6c3d548ccef7412b93f # pin@v1
         id: action_black
@@ -40,7 +40,7 @@ jobs:
           black_args: "."
       - name: Comment Black Message
         if: steps.action_black.outputs.is_formatted == 'true'
-        uses: peter-evans/create-or-update-comment@a35cf36e5301d70b76f316e867e7788a55a31dae # pin@v1.4.5
+        uses: peter-evans/create-or-update-comment@v3.0.0
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
@@ -82,10 +82,10 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@75f3110429a8c05be0e1bf360334e4cced2b63fa # pin@v2.3.3
+        uses: actions/setup-python@v4
         with:
           python-version: 3.11
           cache: 'pip' # caching pip dependencies
@@ -114,7 +114,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
+      - uses: actions/checkout@v3
       - uses: azure/login@77f1b2e3fb80c0e8645114159d17008b8a2e475a # pin@v1
         if: github.event_name == 'push'
         with:
@@ -153,7 +153,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
+      - uses: actions/checkout@v3
 
       - uses: azure/login@77f1b2e3fb80c0e8645114159d17008b8a2e475a # pin@v1
         with:
@@ -283,7 +283,7 @@ jobs:
 
       # Post comment on PR with development plan info
       # This comment includes the plan for the k8s-cluster and the k8s resources
-      - uses: actions/github-script@5d03ada4b0a753e9460b312e61cc4f8fdeacf163 # pin@0.9.0
+      - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
           PLAN_K8S_CLUSTER: "terraform ${{ steps.plan_k8s_cluster.outputs.stdout }}"
