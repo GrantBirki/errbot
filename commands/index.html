@@ -1,0 +1,1043 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../configuration/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.7">
+    
+    
+      
+        <title>Commands - errbot</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ded33207.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#commands" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="errbot" class="md-header__button md-logo" aria-label="errbot" data-md-component="logo">
+      
+  <img src="../assets/errbot.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            errbot
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Commands
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+            </label>
+          
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/GrantBirki/errbot" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="errbot" class="md-nav__button md-logo" aria-label="errbot" data-md-component="logo">
+      
+  <img src="../assets/errbot.png" alt="logo">
+
+    </a>
+    errbot
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/GrantBirki/errbot" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Errbot 🤖
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Commands
+      </a>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        Deployment
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/" class="md-nav__link">
+        Development
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../discord-turbo-quickstart/" class="md-nav__link">
+        Discord Turbo Quickstart
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../helper-functions/" class="md-nav__link">
+        Helper Functions
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../observability/" class="md-nav__link">
+        Observability
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../persistence/" class="md-nav__link">
+        Persistence
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        Setup
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../skaffold/" class="md-nav__link">
+        Skaffold
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../slack/" class="md-nav__link">
+        Slack
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+          Policies
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_13">
+          <span class="md-nav__icon md-icon"></span>
+          Policies
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policies/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policies/privacy-policy/" class="md-nav__link">
+        Privacy policy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policies/terms-of-service/" class="md-nav__link">
+        Terms of service
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="commands">Commands</h1>
+<p>The following commands are all available via the chatbot:</p>
+<p><strong>Table Key:</strong></p>
+<ul>
+<li><strong>Command</strong>: Self explanatory, the command to be executed by the chatbot</li>
+<li><strong>Example</strong>: An example of the command and how to use it</li>
+<li><strong>Admin Only</strong>: True/False - If the command is only available to bot admins</li>
+<li><strong>Description</strong>: A brief description of the command</li>
+<li><strong>Availability</strong>: Where the command is available. Possible options include:<ul>
+<li>🌎 - Globally available everywhere the bot is present</li>
+<li>🔒 - Locked to certain servers / chatrooms (not publically available)</li>
+<li>🔒👨‍💻 - Locked to the bot admins</li>
+<li>❌ - Disabled</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">Command</th>
+<th align="center">Example</th>
+<th align="center">Description</th>
+<th align="center">Availability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>.help</code></td>
+<td align="center">-</td>
+<td align="center">The help command to view all available commands</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.docs</code></td>
+<td align="center">-</td>
+<td align="center">View the public documenation link for the bot</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.about</code></td>
+<td align="center">-</td>
+<td align="center">View information data about the chatbot</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.crypto</code></td>
+<td align="center"><code>.crypto btc</code></td>
+<td align="center">Get the current price of a crypto currency</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.load</code></td>
+<td align="center">-</td>
+<td align="center">Get the system load</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.ping</code></td>
+<td align="center">-</td>
+<td align="center">Check if the bot is online</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.version</code></td>
+<td align="center">-</td>
+<td align="center">See what version of the bot is running</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.random fact</code></td>
+<td align="center">-</td>
+<td align="center">Get a random fun fact</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.status</code></td>
+<td align="center">-</td>
+<td align="center">View the status of the bot</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.status gc</code></td>
+<td align="center">-</td>
+<td align="center">View the garbage collection status of the bot</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.status plugins</code></td>
+<td align="center">-</td>
+<td align="center">View the status of the bot plugins</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.stats</code></td>
+<td align="center">-</td>
+<td align="center">Get the total stats for all the bot commands that have been used</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.uptime</code></td>
+<td align="center">-</td>
+<td align="center">View the bots "uptime"</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.weather</code></td>
+<td align="center"><code>.weather Denver</code></td>
+<td align="center">Get the current weather for a city</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.covid</code></td>
+<td align="center"><code>.covid --region global</code></td>
+<td align="center">Get covid statistics for a two letter country code <code>--region us|it|etc</code></td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.insult</code></td>
+<td align="center"><code>.insult @errbot</code></td>
+<td align="center">Insult a given user. Great with friends!</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.add me to league watcher</code></td>
+<td align="center"><code>.add me to league watcher &lt;summoner_name&gt;</code></td>
+<td align="center">Add a summoner to the League watcher to "watch" for their games and post messages in the #league channel</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.remove me from league watcher</code></td>
+<td align="center">-</td>
+<td align="center">Remove your summoner from the League watcher</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.last match for</code></td>
+<td align="center"><code>.last match for &lt;summoner_name&gt;</code></td>
+<td align="center">Get the last League match data for a given summoner</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.lmf</code></td>
+<td align="center"><code>.lmf &lt;summoner_name&gt;</code></td>
+<td align="center">Get the last League match data for a given summoner (An alias for <code>.last match for</code>)</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.league disable</code></td>
+<td align="center">-</td>
+<td align="center">Disable the League watcher</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.league enable</code></td>
+<td align="center">-</td>
+<td align="center">Enable the League watcher</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.league streak</code></td>
+<td align="center">-</td>
+<td align="center">View your current league win/loss streak</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.add to league watcher</code></td>
+<td align="center"><code>.add to league watcher --summoner birki --discord birki#0001 --guild 12345</code></td>
+<td align="center">Admin command to add a summoner + Discord handle combo to a given guild for the League watcher</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.remove from league watcher</code></td>
+<td align="center"><code>.remove from league watcher --discord &lt;discord_guild_id&gt; --summoner &lt;summoner_name&gt;</code></td>
+<td align="center">Admin command to remove a summoner in a specific discord guild from the league watcher</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.view my league watcher data</code></td>
+<td align="center"><code>.view my league watcher data</code></td>
+<td align="center">View your league watcher data</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.loud</code></td>
+<td align="center"><code>.loud rickroll.mp3</code></td>
+<td align="center">Play a very loud sound from the sounds folder on the bot</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.loud list</code></td>
+<td align="center">-</td>
+<td align="center">List all the mp3 sound files which can be used by the <code>.loud</code> command</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.loud random</code></td>
+<td align="center">-</td>
+<td align="center">Play a random sound from the sounds folder on the bot</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.play</code></td>
+<td align="center"><code>.play &lt;youtube_url | soundcloud_url&gt;</code></td>
+<td align="center">Play a song, or sound from YouTube or Soundcloud - Optionally use <code>--queue &lt;number&gt;</code> to select the queue position to play the song</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.play help</code></td>
+<td align="center">-</td>
+<td align="center">View a detailed and pretty help command for <code>.play</code></td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.play queue</code></td>
+<td align="center">-</td>
+<td align="center">See what is in the <code>.play</code> queue</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.play stats</code></td>
+<td align="center">-</td>
+<td align="center">See the all time stats for the <code>.play</code> command in your server</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.skip</code></td>
+<td align="center">-</td>
+<td align="center">Skip the current song playing / at the top of the queue</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.stop</code></td>
+<td align="center">-</td>
+<td align="center">Stop the current song and nuke the whole <code>.play</code> queue</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.scdl</code></td>
+<td align="center"><code>.scdl &lt;soundcloud_song_url&gt;</code></td>
+<td align="center">Uses scdl to download any song from soundcloud</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.rem</code></td>
+<td align="center"><code>.rem &lt;key&gt; is &lt;value&gt;</code></td>
+<td align="center">Have the bot remember something - Inspired by <a href="https://github.com/github/hubot-scripts/blob/master/src/scripts/remember.coffee">hubot</a> under the MIT license</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.forget</code></td>
+<td align="center"><code>.forget &lt;key&gt;</code></td>
+<td align="center">Make the bot forget something that is being remembered</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.rem search</code></td>
+<td align="center"><code>.rem search &lt;key&gt;</code></td>
+<td align="center">Search all things being remembered</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.remember</code></td>
+<td align="center"><code>.rememeber &lt;key&gt; is &lt;value&gt;</code></td>
+<td align="center">The "longform" version of the <code>.rem</code> command</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.tts</code></td>
+<td align="center"><code>.tts hello world! I will be read over text to speech</code></td>
+<td align="center">Read a text message over text to speech in a voice channel (that you are connected to)</td>
+<td align="center">🔒</td>
+</tr>
+<tr>
+<td align="center"><code>.echo</code></td>
+<td align="center"><code>.echo hello</code></td>
+<td align="center">A simple command to echo back a message (Like the Linux "echo" binary)</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.history</code></td>
+<td align="center">-</td>
+<td align="center">View the past few commands (history) that have been used by the bot</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.log tail</code></td>
+<td align="center">-</td>
+<td align="center">Tail / View the bots latest log messages that have been written</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.reboot</code></td>
+<td align="center">-</td>
+<td align="center">Reboots the bot</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.users</code></td>
+<td align="center">-</td>
+<td align="center">See a total count of all the users that 'could' interact with the bot in all servers</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.servers</code></td>
+<td align="center">-</td>
+<td align="center">See a list of all active servers the bot is in</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.ban</code></td>
+<td align="center"><code>.ban user#1234</code></td>
+<td align="center">Ban a user from interacting with the bot</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.banned users</code></td>
+<td align="center">-</td>
+<td align="center">View all the users that have been banned</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.unban</code></td>
+<td align="center"><code>.unban user#1234</code></td>
+<td align="center">Remove a ban for a given user</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.ban</code></td>
+<td align="center"><code>.ban server 1234567890</code></td>
+<td align="center">Ban an entire server from interacting with the bot</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.banned servers</code></td>
+<td align="center">-</td>
+<td align="center">View all the servers that have been banned</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.unban server</code></td>
+<td align="center"><code>.unban server 1234567890</code></td>
+<td align="center">Remove a ban for a given server</td>
+<td align="center">🔒👨‍💻</td>
+</tr>
+<tr>
+<td align="center"><code>.render test</code></td>
+<td align="center">-</td>
+<td align="center">Render a sample message with errbot to see how the chat service handles it</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.whoami</code></td>
+<td align="center">-</td>
+<td align="center">Return a block of data about who the bot thinks you are</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.wallstreetbets</code></td>
+<td align="center">-</td>
+<td align="center">View the top trending stonks from /r/wallstreetbets</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.sparkle</code></td>
+<td align="center"><code>.sparkle @username for being awesome</code></td>
+<td align="center">Sparkle a user to show your appreciation! (optionally provide a reason for the sparkling) - Inspired by <a href="https://github.com/pmn/sparkles/blob/master/LICENSE.md">pwn</a></td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.show sparkles</code></td>
+<td align="center"><code>.show sparkes</code> - <code>.show sparkles for @username</code></td>
+<td align="center">View the sparkles (and their reasons) for yourself or another user - Inspired by <a href="https://github.com/pmn/sparkles/blob/master/LICENSE.md">pwn</a></td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.down</code></td>
+<td align="center"><code>.down twitter</code></td>
+<td align="center">Get a DownDetector graph and the status for a given service</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.qrcode</code></td>
+<td align="center"><code>.qrcode github.com</code></td>
+<td align="center">Create a QR code for any url, text, etc</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft help</code></td>
+<td align="center">-</td>
+<td align="center">Help message for all <code>.eft</code> commands</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft</code></td>
+<td align="center"><code>.eft clock</code></td>
+<td align="center">Get an Escape from Tarkov item and its value</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft ammo</code></td>
+<td align="center"><code>.eft ammo 7.62x39mm</code></td>
+<td align="center">Get information about an ammo type</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft ammo help</code></td>
+<td align="center">-</td>
+<td align="center">Get information about the ammo types that can be used with the <code>.eft ammo</code> command</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft status</code></td>
+<td align="center"><code>.eft status</code> - <code>.eft status --messages</code></td>
+<td align="center">Get the current status of the Escape from Tarkov servers</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft map</code></td>
+<td align="center"><code>.eft map shoreline</code></td>
+<td align="center">Get an image of a map for a given Tarkov location</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft map help</code></td>
+<td align="center">-</td>
+<td align="center">Get information about the maps that can be used with the <code>.eft map</code> command</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft time</code></td>
+<td align="center">-</td>
+<td align="center">Get the current time in Tarkov</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft track</code></td>
+<td align="center"><code>.eft track --item &lt;item&gt; --threshold &lt;threshold&gt; --channel &lt;channel&gt;</code></td>
+<td align="center">Track an item for price changes in Escape from Tarkov - Note: Make sure to wrap <code>--item "search with spaces"</code> in quotes if it contains spaces</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft untrack</code></td>
+<td align="center"><code>.eft untrack &lt;item&gt;</code></td>
+<td align="center">Stop tracking a tracked item for price changes in Escape from Tarkov</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.eft track help</code></td>
+<td align="center">-</td>
+<td align="center">Get the detailed help command for the Escape from Tarkov item tracker</td>
+<td align="center">🌎</td>
+</tr>
+<tr>
+<td align="center"><code>.ip</code></td>
+<td align="center"><code>ip 123.123.123.123</code></td>
+<td align="center">Get the geolocation of a public IP address</td>
+<td align="center">🔒</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Note: <code>.</code> is the bot prefix to invoke the bot in production and <code>!</code> is often used for development</p>
+</blockquote>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.51198bba.min.js"></script>
+      
+    
+  </body>
+</html>
