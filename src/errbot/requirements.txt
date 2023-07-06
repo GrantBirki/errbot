@@ -17,7 +17,7 @@ pynamodb==5.3.2
 boto3==1.26.16
 
 # yt-dlp / youtube-dl
-yt-dlp==2023.3.4
+yt-dlp==2023.7.6
 
 # soundcloud downloader
 scdl==2.7.3
